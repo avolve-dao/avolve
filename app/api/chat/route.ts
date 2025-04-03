@@ -1,4 +1,4 @@
-import { StreamingTextResponse } from "ai"
+import { StreamingTextResponse } from "ai/server"
 import { streamGrokResponse } from "@/app/actions/grok"
 import type { GrokModel } from "@/lib/xai"
 
@@ -22,4 +22,3 @@ export async function POST(req: Request) {
     return new Response("Error processing your request", { status: 500 })
   }
 }
-

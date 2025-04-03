@@ -98,6 +98,85 @@ module.exports = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Avolve Conceptual Framework Colors
+        supercivilization: {
+          // Zinc gradient
+          DEFAULT: "#71717a", // zinc-500
+          light: "#a1a1aa", // zinc-400
+          dark: "#3f3f46", // zinc-700
+          token: "#27272a", // GEN token color (zinc-800)
+        },
+        superachiever: {
+          // Stone gradient
+          DEFAULT: "#78716c", // stone-500
+          light: "#a8a29e", // stone-400
+          dark: "#57534e", // stone-600
+          token: "#44403c", // SAP token color (stone-700)
+        },
+        personalSuccess: {
+          // Amber-Yellow gradient
+          DEFAULT: "#f59e0b", // amber-500
+          light: "#fbbf24", // amber-400
+          dark: "#d97706", // amber-600
+          token: "#eab308", // PSP token color (yellow-500)
+        },
+        businessSuccess: {
+          // Teal-Cyan gradient
+          DEFAULT: "#14b8a6", // teal-500
+          light: "#2dd4bf", // teal-400
+          dark: "#0d9488", // teal-600
+          token: "#06b6d4", // BSP token color (cyan-500)
+        },
+        supermind: {
+          // Violet-Purple-Fuchsia-Pink gradient
+          DEFAULT: "#8b5cf6", // violet-500
+          light: "#a78bfa", // violet-400
+          dark: "#7c3aed", // violet-600
+          secondary: "#d946ef", // fuchsia-500
+          accent: "#ec4899", // pink-500
+          token: "#a855f7", // SMS token color (purple-500)
+        },
+        superachievers: {
+          // Slate gradient
+          DEFAULT: "#64748b", // slate-500
+          light: "#94a3b8", // slate-400
+          dark: "#475569", // slate-600
+          token: "#334155", // SCQ token color (slate-700)
+        },
+        superpuzzle: {
+          // Red-Green-Blue gradient
+          red: "#ef4444", // red-500
+          green: "#22c55e", // green-500
+          blue: "#3b82f6", // blue-500
+          token: "#6366f1", // SPD token color (indigo-500)
+        },
+        superhuman: {
+          // Rose-Red-Orange gradient
+          DEFAULT: "#f43f5e", // rose-500
+          light: "#fb7185", // rose-400
+          dark: "#e11d48", // rose-600
+          secondary: "#ef4444", // red-500
+          accent: "#f97316", // orange-500
+          token: "#f43f5e", // SHE token color (rose-500)
+        },
+        supersociety: {
+          // Lime-Green-Emerald gradient
+          DEFAULT: "#84cc16", // lime-500
+          light: "#a3e635", // lime-400
+          dark: "#65a30d", // lime-600
+          secondary: "#22c55e", // green-500
+          accent: "#10b981", // emerald-500
+          token: "#22c55e", // SSA token color (green-500)
+        },
+        supergenius: {
+          // Sky-Blue-Indigo gradient
+          DEFAULT: "#0ea5e9", // sky-500
+          light: "#38bdf8", // sky-400
+          dark: "#0284c7", // sky-600
+          secondary: "#3b82f6", // blue-500
+          accent: "#6366f1", // indigo-500
+          token: "#3b82f6", // SBG token color (blue-500)
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -133,8 +212,20 @@ module.exports = {
         emphasis: '"wght" 600',
         relaxed: '"wght" 300',
       },
+      backgroundImage: {
+        // Avolve gradient backgrounds
+        'supercivilization-gradient': 'linear-gradient(to right, #a1a1aa, #71717a, #3f3f46)', // Zinc gradient
+        'superachiever-gradient': 'linear-gradient(to right, #a8a29e, #78716c, #57534e)', // Stone gradient
+        'personal-success-gradient': 'linear-gradient(to right, #fbbf24, #f59e0b, #d97706)', // Amber-Yellow gradient
+        'business-success-gradient': 'linear-gradient(to right, #2dd4bf, #14b8a6, #0d9488)', // Teal-Cyan gradient
+        'supermind-gradient': 'linear-gradient(to right, #a78bfa, #8b5cf6, #7c3aed, #d946ef, #ec4899)', // Violet-Purple-Fuchsia-Pink gradient
+        'superachievers-gradient': 'linear-gradient(to right, #94a3b8, #64748b, #475569)', // Slate gradient
+        'superpuzzle-gradient': 'linear-gradient(to right, #ef4444, #22c55e, #3b82f6)', // Red-Green-Blue gradient
+        'superhuman-gradient': 'linear-gradient(to right, #fb7185, #f43f5e, #e11d48, #ef4444, #f97316)', // Rose-Red-Orange gradient
+        'supersociety-gradient': 'linear-gradient(to right, #a3e635, #84cc16, #65a30d, #22c55e, #10b981)', // Lime-Green-Emerald gradient
+        'supergenius-gradient': 'linear-gradient(to right, #38bdf8, #0ea5e9, #0284c7, #3b82f6, #6366f1)', // Sky-Blue-Indigo gradient
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
 }
-

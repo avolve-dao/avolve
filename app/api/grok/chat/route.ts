@@ -1,6 +1,5 @@
-import { StreamingTextResponse } from "ai"
+import { StreamingTextResponse, streamText } from "ai"
 import { getContextualGrokModel } from "@/lib/grok-context"
-import { streamText } from "ai"
 
 export async function POST(req: Request) {
   try {
@@ -29,4 +28,3 @@ export async function POST(req: Request) {
     return new Response("Error processing your request", { status: 500 })
   }
 }
-

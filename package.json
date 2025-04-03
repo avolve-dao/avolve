@@ -67,7 +67,7 @@
     "react-intersection-observer": "latest",
     "react-markdown": "latest",
     "nanoid": "latest",
-    "ai": "^3.2.30",
+    "ai": "^2.2.35",
     "@ai-sdk/xai": "latest",
     "framer-motion": "latest",
     "crypto": "latest",

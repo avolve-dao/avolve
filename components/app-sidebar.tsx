@@ -208,10 +208,10 @@ export function AppSidebar({
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-4">
+      <SidebarContent className="px-3 py-2">
         {/* Contextual navigation based on current route */}
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center text-sm font-medium">
+          <SidebarGroupLabel className="flex items-center text-xs font-medium py-1.5">
             <span className={cn("h-1.5 w-1.5 rounded-full mr-2", {
               "bg-blue-500": pathname.startsWith('/personal'),
               "bg-emerald-500": pathname.startsWith('/business'),
@@ -255,7 +255,7 @@ export function AppSidebar({
           <SidebarGroupLabel>
             <button 
               onClick={() => toggleGroup("critical")}
-              className="flex items-center w-full text-left"
+              className="flex items-center w-full text-left text-xs py-1.5"
             >
               <ChevronRight className={`h-3 w-3 mr-1 transition-transform ${expandedGroups.critical ? "rotate-90" : ""}`} />
               Critical Priority
@@ -291,7 +291,7 @@ export function AppSidebar({
           <SidebarGroupLabel>
             <button 
               onClick={() => toggleGroup("high")}
-              className="flex items-center w-full text-left"
+              className="flex items-center w-full text-left text-xs py-1.5"
             >
               <ChevronRight className={`h-3 w-3 mr-1 transition-transform ${expandedGroups.high ? "rotate-90" : ""}`} />
               High Priority
@@ -327,7 +327,7 @@ export function AppSidebar({
           <SidebarGroupLabel>
             <button 
               onClick={() => toggleGroup("medium")}
-              className="flex items-center w-full text-left"
+              className="flex items-center w-full text-left text-xs py-1.5"
             >
               <ChevronRight className={`h-3 w-3 mr-1 transition-transform ${expandedGroups.medium ? "rotate-90" : ""}`} />
               Medium Priority
@@ -363,7 +363,7 @@ export function AppSidebar({
           <SidebarGroupLabel>
             <button 
               onClick={() => toggleGroup("low")}
-              className="flex items-center w-full text-left"
+              className="flex items-center w-full text-left text-xs py-1.5"
             >
               <ChevronRight className={`h-3 w-3 mr-1 transition-transform ${expandedGroups.low ? "rotate-90" : ""}`} />
               Low Priority
@@ -396,9 +396,9 @@ export function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="py-2">
         <SidebarGroup>
-          <SidebarMenu>
+          <SidebarMenu className="space-y-1">
             <SidebarMenuItem className="hover-lift">
               <SidebarMenuButton asChild className="press-effect">
                 <Link href="/dashboard/settings" className="flex items-center">
@@ -418,7 +418,7 @@ export function AppSidebar({
           </SidebarMenu>
         </SidebarGroup>
         
-        <div className="px-4 py-4 mt-auto">
+        <div className="px-3 py-2 mt-auto">
           <NavUser user={data.user} />
         </div>
       </SidebarFooter>

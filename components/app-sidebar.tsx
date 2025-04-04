@@ -202,8 +202,8 @@ export function AppSidebar({
 
   return (
     <Sidebar {...props} collapsible="icon">
-      <SidebarHeader>
-        <div className="flex items-center justify-between px-4 pt-4">
+      <SidebarHeader className="p-2">
+        <div className="flex items-center justify-between">
           <TeamSwitcher 
             activeTeamId={currentActiveTeam} 
             onTeamChange={(teamId) => setCurrentActiveTeam(teamId)}
@@ -237,7 +237,7 @@ export function AppSidebar({
                "Navigation"}
             </span>
           </SidebarGroupLabel>
-          <SidebarMenu className="animate-fade-in">
+          <SidebarMenu>
             {getContextualNavItems().map((item, index) => {
               const isActive = pathname === item.href
               const Icon = item.icon
@@ -245,25 +245,21 @@ export function AppSidebar({
               return (
                 <SidebarMenuItem 
                   key={item.href} 
-                  className={cn(
-                    "hover-lift transition-all duration-150 animate-fade-in-up",
-                    `delay-${index * 50}`
-                  )}
+                  className="animate-fade-in-up delay-100"
                 >
                   <SidebarMenuButton 
                     asChild 
                     isActive={isActive} 
                     tooltipContent={item.title}
                     className={cn(
-                      "press-effect transition-all duration-200",
+                      "transition-all duration-200",
                       isActive && getContextAccentColor()
                     )}
                   >
                     <Link href={item.href} className="flex items-center">
                       <Icon className={cn(
-                        "h-4 w-4 mr-2 transition-transform duration-300",
-                        isActive ? "text-current" : "text-muted-foreground",
-                        "group-data-[collapsible=icon]:mr-0 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5"
+                        "h-4 w-4 mr-2",
+                        isActive ? "text-current" : "text-muted-foreground"
                       )} />
                       <span>{item.title}</span>
                       {item.badge && (

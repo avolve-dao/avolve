@@ -22,6 +22,7 @@ A modern web application built with Next.js 15, React 19, Tailwind CSS v4, and s
 - [API Documentation](docs/api.md) - Documentation for all API endpoints
 - [Authentication](docs/authentication.md) - Details on authentication flows and email templates
 - [Database Schema](docs/database.md) - Information about the database schema and relationships
+- [Best Practices](docs/best-practices.md) - Coding standards and best practices implemented in the codebase
 
 ## Quick Start
 

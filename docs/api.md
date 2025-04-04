@@ -259,11 +259,79 @@ Error responses follow this format:
 
 ## Rate Limiting
 
-API endpoints are rate-limited to prevent abuse:
+All API endpoints are protected by rate limiting to prevent abuse:
 
-- Authentication endpoints: 10 requests per minute
-- Chat endpoints: 60 requests per minute
-- Other endpoints: 100 requests per minute
+- **Limit**: 10 requests per minute per IP address and endpoint
+- **Headers**: All responses include rate limit headers:
+  - `X-RateLimit-Limit`: Maximum requests allowed in the window
+  - `X-RateLimit-Remaining`: Remaining requests in the current window
+  - `X-RateLimit-Reset`: Time when the rate limit window resets (ISO format)
+- **Status Code**: When rate limit is exceeded, endpoints return `429 Too Many Requests`
+
+Example of exceeding rate limit:
+```json
+{
+  "error": "Too many requests, please try again later."
+}
+```
+
+## Caching
+
+The API implements intelligent caching to improve performance:
+
+- **Chat Responses**: Short conversations (less than 5 messages) are cached for 5 minutes
+- **Cache Key**: Generated based on request method, path, and body content
+- **Cache Invalidation**: Automatic after TTL expiration (5 minutes by default)
+- **Cache Bypass**: Longer conversations (5+ messages) bypass the cache to ensure freshness
+
+## Security Headers
+
+All API responses include the following security headers:
+
+- `Content-Security-Policy`: Restricts sources of executable scripts
+- `Strict-Transport-Security`: Enforces HTTPS connections
+- `X-Frame-Options`: Prevents clickjacking attacks
+- `X-Content-Type-Options`: Prevents MIME type sniffing
+- `Referrer-Policy`: Controls referrer information
+- `Permissions-Policy`: Restricts browser features
+- `Cache-Control`: Controls caching behavior
+
+## Input Validation
+
+All API endpoints implement strict input validation:
+
+- **Validation Library**: Zod schema validation
+- **Error Format**: Detailed validation errors are returned with 400 status code
+- **Validation Rules**:
+  - Chat messages must have valid roles (`user`, `assistant`, `system`)
+  - Message content must be between 1 and 4000 characters
+  - Arrays have minimum and maximum length limits
+  - Required fields are strictly enforced
+
+Example validation error:
+```json
+{
+  "error": "Invalid request",
+  "details": [
+    {
+      "code": "invalid_type",
+      "expected": "string",
+      "received": "undefined",
+      "path": ["messages", 0, "content"],
+      "message": "Required"
+    }
+  ]
+}
+```
+
+## Structured Logging
+
+All API requests are logged with structured data:
+
+- **Log Levels**: DEBUG, INFO, WARN, ERROR
+- **Context**: Each log entry includes relevant context (route, user info, etc.)
+- **Error Tracking**: Errors are logged with full stack traces and context
+- **Environment Awareness**: Different logging behavior in development vs. production
 
 ## API Versioning
 

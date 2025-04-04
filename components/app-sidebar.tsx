@@ -253,15 +253,18 @@ export function AppSidebar({
                   <SidebarMenuButton 
                     asChild 
                     isActive={isActive} 
+                    tooltipContent={item.title}
                     className={cn(
                       "press-effect transition-all duration-200",
-                      isActive && getContextAccentColor()
+                      isActive && getContextAccentColor(),
+                      "group-data-[collapsible=icon]:hover:scale-110 group-data-[collapsible=icon]:data-[active=true]:scale-110"
                     )}
                   >
                     <Link href={item.href} className="flex items-center">
                       <Icon className={cn(
                         "h-4 w-4 mr-2 transition-transform duration-300",
-                        isActive ? "scale-110" : "scale-100"
+                        isActive ? "scale-110" : "scale-100",
+                        "group-data-[collapsible=icon]:mr-0 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5"
                       )} />
                       <span>{item.title}</span>
                       {item.badge && (
@@ -299,7 +302,12 @@ export function AppSidebar({
 
                 return (
                   <SidebarMenuItem key={item.href} className="hover-lift">
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={isActive} 
+                      tooltipContent={item.title}
+                      className="press-effect"
+                    >
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -335,7 +343,12 @@ export function AppSidebar({
 
                 return (
                   <SidebarMenuItem key={item.href} className="hover-lift">
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={isActive} 
+                      tooltipContent={item.title}
+                      className="press-effect"
+                    >
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -371,7 +384,12 @@ export function AppSidebar({
 
                 return (
                   <SidebarMenuItem key={item.href} className="hover-lift">
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={isActive} 
+                      tooltipContent={item.title}
+                      className="press-effect"
+                    >
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -407,7 +425,12 @@ export function AppSidebar({
 
                 return (
                   <SidebarMenuItem key={item.href} className="hover-lift">
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
+                    <SidebarMenuButton 
+                      asChild 
+                      isActive={isActive} 
+                      tooltipContent={item.title}
+                      className="press-effect"
+                    >
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -430,7 +453,11 @@ export function AppSidebar({
         <SidebarGroup>
           <SidebarMenu className="space-y-1">
             <SidebarMenuItem className="hover-lift">
-              <SidebarMenuButton asChild className="press-effect">
+              <SidebarMenuButton 
+                asChild 
+                tooltipContent="Settings"
+                className="press-effect"
+              >
                 <Link href="/dashboard/settings" className="flex items-center">
                   <Settings className="h-4 w-4 mr-2" />
                   <span>Settings</span>
@@ -438,7 +465,11 @@ export function AppSidebar({
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem className="hover-lift">
-              <SidebarMenuButton asChild className="press-effect">
+              <SidebarMenuButton 
+                asChild 
+                tooltipContent="Help"
+                className="press-effect"
+              >
                 <Link href="/help" className="flex items-center">
                   <HelpCircle className="h-4 w-4 mr-2" />
                   <span>Help</span>

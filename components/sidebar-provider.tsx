@@ -11,9 +11,8 @@ interface SidebarProviderProps {
 export function SidebarProviderWrapper({ children, defaultCollapsed = false }: SidebarProviderProps) {
   return (
     <OriginalSidebarProvider
-      defaultCollapsed={defaultCollapsed}
+      defaultOpen={!defaultCollapsed}
       // Add any additional configuration here
-      collapsedSize="icon"
       style={
         {
           "--sidebar-background": "var(--sidebar-background)",
@@ -31,4 +30,3 @@ export function SidebarProviderWrapper({ children, defaultCollapsed = false }: S
     </OriginalSidebarProvider>
   )
 }
-

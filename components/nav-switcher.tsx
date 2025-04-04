@@ -92,8 +92,10 @@ const allRoutes = [
 
 export function TeamSwitcher({
   activeTeamId = "superachiever",
+  onTeamChange,
 }: {
   activeTeamId?: string
+  onTeamChange?: (teamId: string) => void
 }) {
   const router = useRouter()
   const [activeTeam, setActiveTeam] = React.useState<(typeof allRoutes)[0] | undefined>(
@@ -124,6 +126,9 @@ export function TeamSwitcher({
   const handleTeamChange = (team: (typeof allRoutes)[0]) => {
     setActiveTeam(team)
     router.push(team.href)
+    if (onTeamChange) {
+      onTeamChange(team.id)
+    }
   }
 
   // Get the category display name

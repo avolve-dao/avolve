@@ -125,6 +125,7 @@ export function AppSidebar({
 }) {
   const pathname = usePathname()
   const { toggleSidebar, state } = useSidebar()
+  const [currentActiveTeam, setCurrentActiveTeam] = React.useState(activeTeam)
   const [expandedGroups, setExpandedGroups] = React.useState<Record<string, boolean>>({
     "critical": true,
     "high": false,
@@ -133,7 +134,7 @@ export function AppSidebar({
   })
 
   // Find the active team data
-  const activeTeamData = allRoutes.find((route) => route.id === activeTeam) || allRoutes[0]
+  const activeTeamData = allRoutes.find((route) => route.id === currentActiveTeam) || allRoutes[0]
 
   // Get sub-routes for the active team
   const subRoutes = allRoutes.filter((route) => route.category === activeTeamData.id)
@@ -196,10 +197,13 @@ export function AppSidebar({
   }
 
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center justify-between px-4 pt-4">
-          <TeamSwitcher />
+          <TeamSwitcher 
+            activeTeamId={currentActiveTeam} 
+            onTeamChange={(teamId) => setCurrentActiveTeam(teamId)}
+          />
           <SidebarTrigger />
         </div>
       </SidebarHeader>

@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import * as React from "react"
 
 import { useState, useRef, useEffect } from "react"
 import { Bot, X, Maximize2, Minimize2, Send } from "lucide-react"

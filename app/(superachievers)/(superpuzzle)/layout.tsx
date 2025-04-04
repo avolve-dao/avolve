@@ -1,4 +1,4 @@
-import type React from "react"
+import * as React from "react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { MobileNav } from "@/components/mobile-nav"

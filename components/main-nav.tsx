@@ -110,10 +110,16 @@ export function MainNav() {
   // Handle keyboard shortcut for search
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // "/" key to focus search
-      if (e.key === "/" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      // Command+K to focus search
+      if ((e.key === 'k' || e.key === 'K') && (e.metaKey || e.ctrlKey) && !e.altKey) {
         e.preventDefault();
-        toggleSearch();
+        setShowSearch(true);
+        setTimeout(() => {
+          const searchInput = document.getElementById("global-search");
+          if (searchInput) {
+            searchInput.focus();
+          }
+        }, 100);
       }
       
       // Escape key to close search
@@ -128,43 +134,58 @@ export function MainNav() {
 
   return (
     <div className="flex items-center w-full">
-      <div className={`mr-4 text-sm font-semibold ${currentContext.color} hidden md:block`}>
-        {currentContext.name}
+      {/* Search bar directly in the navbar */}
+      <div className="relative flex-1 max-w-md">
+        <form onSubmit={handleSearchSubmit} className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            id="global-search"
+            type="search"
+            placeholder="Search..."
+            className="w-full pl-9 h-9 bg-background"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </form>
+        <kbd className="pointer-events-none absolute right-2 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
+          <span className="text-xs">⌘</span>K
+        </kbd>
       </div>
       
-      <nav className="flex items-center space-x-4 lg:space-x-6">
-        {navItems.map((item) => {
-          const isActive = isRouteActive(pathname, item.href)
-          const Icon = item.icon
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center text-sm font-medium transition-colors hover:text-primary",
-                isActive ? "text-primary" : "text-muted-foreground",
-              )}
-              aria-current={isActive ? "page" : undefined}
-            >
-              <Icon className="h-5 w-5 mr-2" />
-              <span className="hidden md:inline">{item.title}</span>
-              {item.badge && (
-                <Badge className="ml-1 h-5 min-w-5 px-1.5 text-xs">
-                  {item.badge}
-                </Badge>
-              )}
-            </Link>
-          )
-        })}
-      </nav>
-      
+      {/* Important navigation icons */}
       <div className="ml-auto flex items-center space-x-2">
+        <nav className="flex items-center space-x-2">
+          {navItems.map((item) => {
+            const isActive = isRouteActive(pathname, item.href)
+            const Icon = item.icon
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center justify-center h-9 w-9 rounded-md transition-colors hover:bg-accent",
+                  isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground",
+                )}
+                aria-current={isActive ? "page" : undefined}
+                title={item.title}
+              >
+                <Icon className="h-5 w-5" />
+                {item.badge && (
+                  <Badge className="absolute top-0 right-0 -mt-1 -mr-1 h-4 min-w-4 px-1 text-[10px]">
+                    {item.badge}
+                  </Badge>
+                )}
+              </Link>
+            )
+          })}
+        </nav>
+        
         {/* Context-specific actions dropdown */}
         {hasContextActions && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="h-9 w-9 rounded-md">
                 <PlusCircle className="h-5 w-5" />
                 <span className="sr-only">Quick Actions</span>
               </Button>
@@ -183,42 +204,6 @@ export function MainNav() {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-        
-        {/* Global search */}
-        <div className="relative">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleSearch}
-            className="relative"
-            title="Search (Press / to focus)"
-          >
-            <Search className="h-5 w-5" />
-            <span className="sr-only">Search</span>
-          </Button>
-          
-          {showSearch && (
-            <div className="absolute right-0 top-full mt-2 w-72 rounded-md border bg-popover p-2 shadow-md">
-              <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2">
-                <Input
-                  id="global-search"
-                  type="search"
-                  placeholder={`Search in ${currentContext.name}...`}
-                  className="h-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <Button type="submit" size="sm" variant="secondary">
-                  <Search className="h-4 w-4" />
-                  <span className="sr-only">Search</span>
-                </Button>
-              </form>
-              <div className="mt-2 text-xs text-muted-foreground">
-                Press <kbd className="rounded border px-1 py-0.5 bg-muted">ESC</kbd> to close
-              </div>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )

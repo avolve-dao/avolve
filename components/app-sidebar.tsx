@@ -19,6 +19,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarTrigger,
+  useSidebar
 } from "@/components/ui/sidebar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,7 +31,6 @@ import {
   getLowPriorityNavItems,
   isRouteActive,
 } from "@/lib/navigation"
-import { useSidebar } from "@/components/ui/sidebar/use-sidebar"
 import { ChevronRight, Target, Calendar, BookOpen, BarChart, Briefcase, Users, DollarSign, TrendingUp, Zap, Lightbulb, GraduationCap, Wind, Settings, HelpCircle } from "lucide-react"
 import cn from "classnames"
 
@@ -151,155 +151,105 @@ export function AppSidebar({
 
   // Get context-specific navigation items based on the current path
   const getContextualNavItems = () => {
-    // For personal success context
     if (pathname.startsWith('/personal')) {
       return [
-        { title: "Goals", href: "/personal/goals", icon: Target },
+        { title: "Goals", href: "/personal/goals", icon: Target, badge: "3" },
         { title: "Habits", href: "/personal/habits", icon: Calendar },
         { title: "Journal", href: "/personal/journal", icon: BookOpen },
-        { title: "Metrics", href: "/personal/metrics", icon: BarChart }
+        { title: "Progress", href: "/personal/progress", icon: BarChart },
       ]
-    }
-    
-    // For business success context
-    if (pathname.startsWith('/business')) {
+    } else if (pathname.startsWith('/business')) {
       return [
-        { title: "Projects", href: "/business/projects", icon: Briefcase },
+        { title: "Projects", href: "/business/projects", icon: Briefcase, badge: "5" },
         { title: "Team", href: "/business/team", icon: Users },
         { title: "Finance", href: "/business/finance", icon: DollarSign },
-        { title: "Growth", href: "/business/growth", icon: TrendingUp }
+        { title: "Growth", href: "/business/growth", icon: TrendingUp },
       ]
-    }
-    
-    // For supermind context
-    if (pathname.startsWith('/supermind')) {
+    } else if (pathname.startsWith('/supermind')) {
       return [
-        { title: "Focus", href: "/supermind/focus", icon: Zap },
+        { title: "Focus", href: "/supermind/focus", icon: Zap, badge: "New" },
         { title: "Creativity", href: "/supermind/creativity", icon: Lightbulb },
         { title: "Learning", href: "/supermind/learning", icon: GraduationCap },
-        { title: "Flow", href: "/supermind/flow", icon: Wind }
+        { title: "Flow", href: "/supermind/flow", icon: Wind },
       ]
     }
     
-    // Default empty array if no specific context
-    return []
+    // Default items
+    return [
+      { title: "Dashboard", href: "/dashboard", icon: BarChart },
+      { title: "Settings", href: "/settings", icon: Settings },
+      { title: "Help", href: "/help", icon: HelpCircle },
+    ]
   }
-  
-  const contextualNavItems = getContextualNavItems()
-  
-  // Determine if we're in a specific context that should show contextual navigation
-  const hasContextualNav = contextualNavItems.length > 0
   
   // Determine the accent color based on context
   const getContextAccentColor = () => {
-    if (pathname.startsWith('/personal')) return "border-l-blue-500";
-    if (pathname.startsWith('/business')) return "border-l-green-500";
-    if (pathname.startsWith('/supermind')) return "border-l-purple-500";
-    if (pathname.startsWith('/superachiever')) return "border-l-amber-500";
-    if (pathname.startsWith('/superachievers')) return "border-l-red-500";
-    if (pathname.startsWith('/supercivilization')) return "border-l-cyan-500";
-    return "border-l-primary";
+    if (pathname.startsWith('/personal')) {
+      return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+    } else if (pathname.startsWith('/business')) {
+      return "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
+    } else if (pathname.startsWith('/supermind')) {
+      return "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20"
+    }
+    
+    return "bg-primary/10 text-primary hover:bg-primary/20"
   }
-  
-  const contextAccentColor = getContextAccentColor()
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar {...props}>
       <SidebarHeader>
-        <TeamSwitcher activeTeamId={activeTeam} />
-        <div className="md:hidden px-2 py-1">
+        <div className="flex items-center justify-between px-4 pt-4">
+          <TeamSwitcher />
           <SidebarTrigger />
         </div>
-      </SidebarHeader>
-
-      <SidebarContent>
-        {/* Sidebar collapse toggle button */}
-        <div className="hidden md:flex px-3 mb-2 justify-end">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleSidebar}
-            className="h-8 w-8"
-            title={state === "expanded" ? "Collapse sidebar" : "Expand sidebar"}
-          >
-            <PanelLeft className={`h-4 w-4 transition-transform ${state === "collapsed" ? "rotate-180" : ""}`} />
-            <span className="sr-only">{state === "expanded" ? "Collapse sidebar" : "Expand sidebar"}</span>
-          </Button>
+        <div className="px-6 pt-2">
+          <NavUser user={data.user} />
         </div>
-
-        {/* Team-specific navigation */}
-        {subRoutes.length > 0 && (
-          <SidebarGroup>
-            <SidebarGroupLabel>{activeTeamData.name} Areas</SidebarGroupLabel>
-            <SidebarMenu>
-              {subRoutes.map((route) => {
-                // Check if this route is active by comparing with pathname
-                const isActive = pathname.includes(route.href)
-
-                return (
-                  <SidebarMenuItem key={route.id}>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={isActive} 
-                      tooltip={route.name}
-                      className={cn(
-                        isActive ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-4" : "",
-                        isActive ? contextAccentColor : ""
+      </SidebarHeader>
+      
+      <SidebarContent className="px-4">
+        {/* Contextual navigation based on current route */}
+        <SidebarGroup>
+          <SidebarGroupLabel className="flex items-center text-sm font-medium">
+            <span className={cn("h-1.5 w-1.5 rounded-full mr-2", {
+              "bg-blue-500": pathname.startsWith('/personal'),
+              "bg-emerald-500": pathname.startsWith('/business'),
+              "bg-purple-500": pathname.startsWith('/supermind'),
+              "bg-primary": !pathname.startsWith('/personal') && !pathname.startsWith('/business') && !pathname.startsWith('/supermind')
+            })}></span>
+            {pathname.startsWith('/personal') ? "Personal Success" : 
+             pathname.startsWith('/business') ? "Business Success" :
+             pathname.startsWith('/supermind') ? "Supermind Powers" : "Navigation"}
+          </SidebarGroupLabel>
+          <SidebarMenu className="animate-fade-in stagger-list">
+            {getContextualNavItems().map((item) => {
+              const isActive = pathname === item.href
+              const Icon = item.icon
+              
+              return (
+                <SidebarMenuItem key={item.href} className="hover-lift">
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive} 
+                    className={cn("press-effect", isActive && getContextAccentColor())}
+                  >
+                    <Link href={item.href} className="flex items-center">
+                      <Icon className="h-4 w-4 mr-2" />
+                      <span>{item.title}</span>
+                      {item.badge && (
+                        <Badge className={cn("ml-auto", isActive && "bg-white/20")}>
+                          {item.badge}
+                        </Badge>
                       )}
-                    >
-                      <Link href={route.href} className="flex items-center">
-                        <div className="h-4 w-4 mr-2 flex items-center justify-center">
-                          <Image
-                            src={route.icon || "/placeholder.svg"}
-                            alt={route.name}
-                            width={16}
-                            height={16}
-                            className="object-contain"
-                          />
-                        </div>
-                        <span>{route.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )
+            })}
+          </SidebarMenu>
+        </SidebarGroup>
 
-        {/* Contextual navigation for specific areas */}
-        {hasContextualNav && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Quick Navigation</SidebarGroupLabel>
-            <SidebarMenu>
-              {contextualNavItems.map((item) => {
-                const isActive = pathname === item.href
-                const Icon = item.icon
-                
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton 
-                      asChild 
-                      isActive={isActive}
-                      tooltip={item.title}
-                      className={cn(
-                        isActive ? "bg-sidebar-accent text-sidebar-accent-foreground border-l-4" : "",
-                        isActive ? contextAccentColor : ""
-                      )}
-                    >
-                      <Link href={item.href} className="flex items-center">
-                        <Icon className="h-4 w-4 mr-2" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
-        {/* Collapsible navigation groups */}
+        {/* Collapsible groups */}
         <SidebarGroup>
           <SidebarGroupLabel>
             <button 
@@ -307,18 +257,18 @@ export function AppSidebar({
               className="flex items-center w-full text-left"
             >
               <ChevronRight className={`h-3 w-3 mr-1 transition-transform ${expandedGroups.critical ? "rotate-90" : ""}`} />
-              Critical
+              Critical Priority
             </button>
           </SidebarGroupLabel>
           {expandedGroups.critical && (
-            <SidebarMenu>
+            <SidebarMenu className="animate-fade-in">
               {getCriticalNavItems().map((item) => {
                 const isActive = isRouteActive(pathname, item.href)
                 const Icon = item.icon
 
                 return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                  <SidebarMenuItem key={item.href} className="hover-lift">
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -347,14 +297,14 @@ export function AppSidebar({
             </button>
           </SidebarGroupLabel>
           {expandedGroups.high && (
-            <SidebarMenu>
+            <SidebarMenu className="animate-fade-in">
               {getHighPriorityNavItems().map((item) => {
                 const isActive = isRouteActive(pathname, item.href)
                 const Icon = item.icon
 
                 return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                  <SidebarMenuItem key={item.href} className="hover-lift">
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -383,14 +333,14 @@ export function AppSidebar({
             </button>
           </SidebarGroupLabel>
           {expandedGroups.medium && (
-            <SidebarMenu>
+            <SidebarMenu className="animate-fade-in">
               {getMediumPriorityNavItems().map((item) => {
                 const isActive = isRouteActive(pathname, item.href)
                 const Icon = item.icon
 
                 return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                  <SidebarMenuItem key={item.href} className="hover-lift">
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -419,14 +369,14 @@ export function AppSidebar({
             </button>
           </SidebarGroupLabel>
           {expandedGroups.low && (
-            <SidebarMenu>
+            <SidebarMenu className="animate-fade-in">
               {getLowPriorityNavItems().map((item) => {
                 const isActive = isRouteActive(pathname, item.href)
                 const Icon = item.icon
 
                 return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                  <SidebarMenuItem key={item.href} className="hover-lift">
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title} className="press-effect">
                       <Link href={item.href} className="flex items-center">
                         <Icon className="h-4 w-4 mr-2" />
                         <span>{item.title}</span>
@@ -448,16 +398,16 @@ export function AppSidebar({
       <SidebarFooter>
         <SidebarGroup>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+            <SidebarMenuItem className="hover-lift">
+              <SidebarMenuButton asChild className="press-effect">
                 <Link href="/dashboard/settings" className="flex items-center">
                   <Settings className="h-4 w-4 mr-2" />
                   <span>Settings</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+            <SidebarMenuItem className="hover-lift">
+              <SidebarMenuButton asChild className="press-effect">
                 <Link href="/help" className="flex items-center">
                   <HelpCircle className="h-4 w-4 mr-2" />
                   <span>Help</span>

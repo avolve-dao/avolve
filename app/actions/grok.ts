@@ -1,6 +1,6 @@
 "use server"
 
-import { generateText, streamText } from "ai"
+import { generateText, streamText } from "@/lib/ai-sdk-setup"
 import { getGrokModel, type GrokModel } from "@/lib/xai"
 
 export async function generateGrokResponse(prompt: string, model: GrokModel, systemPrompt?: string) {
@@ -42,4 +42,3 @@ export async function streamGrokResponse(prompt: string, model: GrokModel, syste
     throw error
   }
 }
-

@@ -1,5 +1,5 @@
 import { getContextualGrokModel } from "@/lib/grok-context"
-import { generateText } from "ai"
+import { generateText } from "@/lib/ai-sdk-setup"
 
 export async function POST(req: Request) {
   try {
@@ -42,4 +42,3 @@ export async function POST(req: Request) {
     )
   }
 }
-

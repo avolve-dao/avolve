@@ -1,5 +1,5 @@
 import { getContextualGrokModel } from "@/lib/grok-context"
-import { generateText } from "ai"
+import { generateText } from "@/lib/ai-sdk-setup"
 import { createClient } from "@/lib/supabase/server"
 
 export async function GET(req: Request) {
@@ -121,4 +121,3 @@ export async function GET(req: Request) {
     )
   }
 }
-

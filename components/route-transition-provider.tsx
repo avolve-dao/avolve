@@ -8,7 +8,7 @@ interface RouteTransitionProviderProps {
   children: React.ReactNode
 }
 
-export function RouteTransitionProvider({
+function RouteTransitionContent({
   children,
 }: RouteTransitionProviderProps) {
   const pathname = usePathname()
@@ -52,5 +52,16 @@ export function RouteTransitionProvider({
         {children}
       </motion.div>
     </AnimatePresence>
+  )
+}
+
+// Export a wrapper component that uses Suspense
+export function RouteTransitionProvider({
+  children,
+}: RouteTransitionProviderProps) {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen">Loading...</div>}>
+      <RouteTransitionContent>{children}</RouteTransitionContent>
+    </React.Suspense>
   )
 }

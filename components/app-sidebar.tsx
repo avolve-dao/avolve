@@ -186,14 +186,18 @@ export function AppSidebar({
   // Determine the accent color based on context
   const getContextAccentColor = () => {
     if (pathname.startsWith('/personal')) {
-      return "bg-blue-500/10 text-blue-500 hover:bg-blue-500/20"
+      return "bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-500 hover:from-amber-500/30 hover:to-yellow-500/30"
     } else if (pathname.startsWith('/business')) {
-      return "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
+      return "bg-gradient-to-r from-teal-500/20 to-cyan-500/20 text-teal-500 hover:from-teal-500/30 hover:to-cyan-500/30"
     } else if (pathname.startsWith('/supermind')) {
-      return "bg-purple-500/10 text-purple-500 hover:bg-purple-500/20"
+      return "bg-gradient-to-r from-violet-500/20 to-fuchsia-500/20 text-violet-500 hover:from-violet-500/30 hover:to-fuchsia-500/30"
+    } else if (pathname.startsWith('/superachievers')) {
+      return "bg-gradient-to-r from-slate-500/20 to-slate-400/20 text-slate-500 hover:from-slate-500/30 hover:to-slate-400/30"
+    } else if (pathname.startsWith('/supercivilization')) {
+      return "bg-gradient-to-r from-zinc-500/20 to-zinc-400/20 text-zinc-500 hover:from-zinc-500/30 hover:to-zinc-400/30"
     }
     
-    return "bg-primary/10 text-primary hover:bg-primary/20"
+    return "bg-gradient-to-r from-primary/10 to-primary/20 text-primary hover:from-primary/20 hover:to-primary/30"
   }
 
   return (
@@ -212,33 +216,59 @@ export function AppSidebar({
         {/* Contextual navigation based on current route */}
         <SidebarGroup>
           <SidebarGroupLabel className="flex items-center text-xs font-medium py-1.5">
-            <span className={cn("h-1.5 w-1.5 rounded-full mr-2", {
-              "bg-blue-500": pathname.startsWith('/personal'),
-              "bg-emerald-500": pathname.startsWith('/business'),
-              "bg-purple-500": pathname.startsWith('/supermind'),
-              "bg-primary": !pathname.startsWith('/personal') && !pathname.startsWith('/business') && !pathname.startsWith('/supermind')
+            <span className={cn("h-2 w-2 rounded-full mr-2 transition-all duration-300", {
+              "bg-gradient-to-r from-amber-500 to-yellow-500": pathname.startsWith('/personal'),
+              "bg-gradient-to-r from-teal-500 to-cyan-500": pathname.startsWith('/business'),
+              "bg-gradient-to-r from-violet-500 to-fuchsia-500": pathname.startsWith('/supermind'),
+              "bg-gradient-to-r from-slate-500 to-slate-400": pathname.startsWith('/superachievers'),
+              "bg-gradient-to-r from-zinc-500 to-zinc-400": pathname.startsWith('/supercivilization'),
+              "bg-primary": !pathname.startsWith('/personal') && 
+                           !pathname.startsWith('/business') && 
+                           !pathname.startsWith('/supermind') &&
+                           !pathname.startsWith('/superachievers') &&
+                           !pathname.startsWith('/supercivilization')
             })}></span>
-            {pathname.startsWith('/personal') ? "Personal Success" : 
-             pathname.startsWith('/business') ? "Business Success" :
-             pathname.startsWith('/supermind') ? "Supermind Powers" : "Navigation"}
+            <span className="transition-all duration-300">
+              {pathname.startsWith('/personal') ? "Personal Success" : 
+               pathname.startsWith('/business') ? "Business Success" :
+               pathname.startsWith('/supermind') ? "Supermind Powers" :
+               pathname.startsWith('/superachievers') ? "Superachievers" :
+               pathname.startsWith('/supercivilization') ? "Supercivilization" : 
+               "Navigation"}
+            </span>
           </SidebarGroupLabel>
-          <SidebarMenu className="animate-fade-in stagger-list">
-            {getContextualNavItems().map((item) => {
+          <SidebarMenu className="animate-fade-in">
+            {getContextualNavItems().map((item, index) => {
               const isActive = pathname === item.href
               const Icon = item.icon
               
               return (
-                <SidebarMenuItem key={item.href} className="hover-lift">
+                <SidebarMenuItem 
+                  key={item.href} 
+                  className={cn(
+                    "hover-lift transition-all duration-150 animate-fade-in-up",
+                    `delay-${index * 50}`
+                  )}
+                >
                   <SidebarMenuButton 
                     asChild 
                     isActive={isActive} 
-                    className={cn("press-effect", isActive && getContextAccentColor())}
+                    className={cn(
+                      "press-effect transition-all duration-200",
+                      isActive && getContextAccentColor()
+                    )}
                   >
                     <Link href={item.href} className="flex items-center">
-                      <Icon className="h-4 w-4 mr-2" />
+                      <Icon className={cn(
+                        "h-4 w-4 mr-2 transition-transform duration-300",
+                        isActive ? "scale-110" : "scale-100"
+                      )} />
                       <span>{item.title}</span>
                       {item.badge && (
-                        <Badge className={cn("ml-auto", isActive && "bg-white/20")}>
+                        <Badge className={cn(
+                          "ml-auto transition-colors duration-200", 
+                          isActive ? "bg-white/20" : "bg-muted"
+                        )}>
                           {item.badge}
                         </Badge>
                       )}

@@ -36,6 +36,18 @@
   to { transform: scale(1); opacity: 1; }
 }
 
+/* Fade up animation */
+@keyframes fadeInUp {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Pulse animation */
 @keyframes pulse {
   0% { transform: scale(1); }
@@ -74,6 +86,10 @@
   animation: scaleUp 0.3s ease-out;
 }
 
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
 .animate-pulse-once {
   animation: pulse 0.5s ease-in-out;
 }
@@ -89,6 +105,19 @@
 .stagger-list > *:nth-child(8) { animation-delay: 350ms; }
 .stagger-list > *:nth-child(9) { animation-delay: 400ms; }
 .stagger-list > *:nth-child(10) { animation-delay: 450ms; }
+
+/* Animation delay utilities */
+.delay-0 { animation-delay: 0ms; }
+.delay-50 { animation-delay: 50ms; }
+.delay-100 { animation-delay: 100ms; }
+.delay-150 { animation-delay: 150ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-250 { animation-delay: 250ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-350 { animation-delay: 350ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-450 { animation-delay: 450ms; }
+.delay-500 { animation-delay: 500ms; }
 
 /* Hover effects */
 .hover-lift {

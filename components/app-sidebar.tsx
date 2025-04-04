@@ -212,10 +212,10 @@ export function AppSidebar({
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-3 py-2">
+      <SidebarContent className="px-2 py-2">
         {/* Contextual navigation based on current route */}
         <SidebarGroup>
-          <SidebarGroupLabel className="flex items-center text-xs font-medium py-1.5">
+          <SidebarGroupLabel className="flex items-center text-xs font-medium py-1.5 px-2">
             <span className={cn("h-2 w-2 rounded-full mr-2 transition-all duration-300", {
               "bg-gradient-to-r from-amber-500 to-yellow-500": pathname.startsWith('/personal'),
               "bg-gradient-to-r from-teal-500 to-cyan-500": pathname.startsWith('/business'),
@@ -256,14 +256,13 @@ export function AppSidebar({
                     tooltipContent={item.title}
                     className={cn(
                       "press-effect transition-all duration-200",
-                      isActive && getContextAccentColor(),
-                      "group-data-[collapsible=icon]:hover:scale-110 group-data-[collapsible=icon]:data-[active=true]:scale-110"
+                      isActive && getContextAccentColor()
                     )}
                   >
                     <Link href={item.href} className="flex items-center">
                       <Icon className={cn(
                         "h-4 w-4 mr-2 transition-transform duration-300",
-                        isActive ? "scale-110" : "scale-100",
+                        isActive ? "text-current" : "text-muted-foreground",
                         "group-data-[collapsible=icon]:mr-0 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5"
                       )} />
                       <span>{item.title}</span>

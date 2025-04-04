@@ -202,9 +202,6 @@ export function AppSidebar({
           <TeamSwitcher />
           <SidebarTrigger />
         </div>
-        <div className="px-6 pt-2">
-          <NavUser user={data.user} />
-        </div>
       </SidebarHeader>
       
       <SidebarContent className="px-4">
@@ -416,6 +413,10 @@ export function AppSidebar({
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
+        
+        <div className="px-4 py-4 mt-auto">
+          <NavUser user={data.user} />
+        </div>
       </SidebarFooter>
     </Sidebar>
   )

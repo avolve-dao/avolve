@@ -4,10 +4,16 @@ import { useState, useEffect } from "react"
 
 export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T) => void] {
   // State to store our value
+  // Initialize with initialValue to avoid hydration mismatch
   const [storedValue, setStoredValue] = useState<T>(initialValue)
+  
+  // Check if we're in a browser environment
+  const isBrowser = typeof window !== 'undefined'
 
-  // Initialize state on first render
+  // Initialize state on first render, but only in the browser
   useEffect(() => {
+    if (!isBrowser) return
+
     try {
       // Get from local storage by key
       const item = window.localStorage.getItem(key)
@@ -18,7 +24,7 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T)
       console.error(error)
       setStoredValue(initialValue)
     }
-  }, [key, initialValue])
+  }, [key, initialValue, isBrowser])
 
   // Return a wrapped version of useState's setter function that
   // persists the new value to localStorage
@@ -28,8 +34,11 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T)
       const valueToStore = value instanceof Function ? value(storedValue) : value
       // Save state
       setStoredValue(valueToStore)
-      // Save to local storage
-      window.localStorage.setItem(key, JSON.stringify(valueToStore))
+      
+      // Save to local storage only if in browser environment
+      if (isBrowser) {
+        window.localStorage.setItem(key, JSON.stringify(valueToStore))
+      }
     } catch (error) {
       // A more advanced implementation would handle the error case
       console.error(error)
@@ -38,4 +47,3 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T)
 
   return [storedValue, setValue]
 }
-

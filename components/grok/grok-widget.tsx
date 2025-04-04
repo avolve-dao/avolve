@@ -32,9 +32,12 @@ export function GrokWidget({ userId, initialPrompt, position = "bottom-right" }:
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [suggestion, setSuggestion] = useState<string | null>(null)
 
+  // Safely handle server-side rendering
+  const isBrowser = typeof window !== 'undefined'
+
   useEffect(() => {
     // Generate a contextual suggestion when the widget is first opened
-    if (isOpen && messages.length === 0) {
+    if (isBrowser && isOpen && messages.length === 0) {
       const suggestions = [
         "How can I improve my profile to get more followers?",
         "What are the trending topics I should know about?",
@@ -48,7 +51,7 @@ export function GrokWidget({ userId, initialPrompt, position = "bottom-right" }:
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    if (isOpen && messagesEndRef.current) {
+    if (isBrowser && isOpen && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages, isOpen])
@@ -232,4 +235,3 @@ export function GrokWidget({ userId, initialPrompt, position = "bottom-right" }:
     </div>
   )
 }
-

@@ -29,9 +29,7 @@ export default async function DashboardLayout({
         {/* Sidebar - Hidden on mobile, collapsible on tablet and desktop */}
         <div className="hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out">
           <SidebarProviderWrapper defaultCollapsed={false}>
-            {({ children: sidebarChildren }) => (
-              <AppSidebar className="h-full">{sidebarChildren}</AppSidebar>
-            )}
+            <AppSidebar className="h-full" />
           </SidebarProviderWrapper>
         </div>
 

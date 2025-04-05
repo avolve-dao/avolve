@@ -2,12 +2,11 @@ import * as React from "react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { MobileNav } from "@/components/mobile-nav"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { ThemeProvider } from "@/components/theme-provider"
 import { GrokWidget } from "@/components/grok/grok-widget"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AppNavbar } from "@/components/app-navbar"
-import { SidebarProviderWrapper } from "@/components/sidebar-provider"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { SwipeNavigation } from "@/components/swipe-navigation"
 
 export default async function DashboardLayout({
@@ -23,24 +22,16 @@ export default async function DashboardLayout({
   }
 
   return (
-    <ThemeProvider>
-      <SidebarProviderWrapper defaultCollapsed={false}>
-        <div className="flex min-h-screen flex-col md:flex-row">
-          {/* Sidebar - Hidden on mobile, collapsible on tablet and desktop */}
-          <div className="hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out">
-            <AppSidebar className="h-full" />
-          </div>
-
-          <div className="flex flex-col flex-1">
-            {/* Desktop Header - Only shown on desktop */}
-            <div className="sticky top-0 z-50 w-full">
-              <AppNavbar />
-            </div>
-
-            {/* Main Content with adaptive padding based on screen size */}
-            <main className="flex-1 pb-16 md:pb-0 px-4 sm:px-6 lg:px-8 transition-all duration-300">
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="bg-zinc-50 dark:bg-zinc-900">
+          <AppNavbar />
+          
+          {/* Main Content with adaptive padding based on screen size */}
+          <div className="flex flex-1 flex-col">
             {/* Responsive layout wrapper */}
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
               {/* Swipe gesture area for mobile */}
               <div className="md:hidden">
                 <SwipeNavigation
@@ -58,22 +49,21 @@ export default async function DashboardLayout({
               </div>
               
               {/* Regular content for desktop */}
-              <div className="hidden md:block">
+              <div className="hidden md:block py-6">
                 {children}
               </div>
             </div>
-          </main>
-
+          </div>
+          
           {/* Mobile Navigation - Only shown on mobile */}
           <div className="md:hidden">
             <MobileNav />
           </div>
-        </div>
-      </div>
-
-      {/* Grok Widget - Available on all dashboard pages */}
-      <GrokWidget userId={data.user.id} />
-    </SidebarProviderWrapper>
-  </ThemeProvider>
+          
+          {/* Grok Widget - Available on all dashboard pages */}
+          <GrokWidget userId={data.user.id} />
+        </SidebarInset>
+      </SidebarProvider>
+    </ThemeProvider>
   )
 }

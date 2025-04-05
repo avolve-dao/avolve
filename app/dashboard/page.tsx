@@ -1,37 +1,26 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-import { PostFeed } from "@/components/post-feed"
-import { SuggestedUsers } from "@/components/suggested-users"
-import { TrendingTopics } from "@/components/trending-topics"
-import { StoryBar } from "@/components/story-bar"
+import { AppNavbar } from "../../components/app-navbar"
+import { AppSidebar } from "../../components/app-sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { ThemeProvider } from "@/components/theme-provider"
 
-export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: userData, error } = await supabase.auth.getUser()
-
-  if (error || !userData?.user) {
-    redirect("/auth/login")
-  }
-
-  // We'll let the client components fetch their own data
-  // This avoids server-side errors that might prevent the page from rendering
-
+export default function Page() {
   return (
-    <div className="container py-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Main content - Post feed */}
-        <div className="md:col-span-2 space-y-6">
-          <StoryBar />
-          <PostFeed userId={userData.user.id} initialPosts={[]} />
-        </div>
-
-        {/* Sidebar */}
-        <div className="hidden md:block space-y-6">
-          <SuggestedUsers suggestedUsers={[]} currentUserId={userData.user.id} />
-          <TrendingTopics />
-        </div>
-      </div>
-    </div>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="bg-zinc-50 dark:bg-zinc-900">
+          <AppNavbar />
+          <div className="flex flex-1 flex-col gap-4 p-4">
+            <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+              <div className="aspect-video rounded-xl apple-card" />
+              <div className="aspect-video rounded-xl apple-card" />
+              <div className="aspect-video rounded-xl apple-card" />
+            </div>
+            <div className="min-h-[100vh] flex-1 rounded-xl apple-card md:min-h-min" />
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    </ThemeProvider>
   )
 }
 

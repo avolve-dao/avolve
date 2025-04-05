@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { ExternalLink } from "lucide-react"
 import Image from "next/image"
 import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/nav-switcher"
+import { NavSwitcher } from "@/components/nav-switcher"
 import {
   Sidebar,
   SidebarContent,
@@ -204,7 +204,7 @@ export function AppSidebar({
     <Sidebar {...props} collapsible="icon">
       <SidebarHeader className="p-2">
         <div className="flex items-center justify-between">
-          <TeamSwitcher 
+          <NavSwitcher 
             activeTeamId={currentActiveTeam} 
             onTeamChange={(teamId) => setCurrentActiveTeam(teamId)}
           />

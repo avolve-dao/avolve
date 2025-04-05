@@ -34,6 +34,12 @@
     --sidebar-accent-foreground: 240 5% 25%;
     --sidebar-border: 240 5% 90%;
     --sidebar-ring: 240 5% 65%;
+    
+    /* Layout variables */
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 3rem;
+    --sidebar-transition-duration: 200ms;
+    --sidebar-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .dark {
@@ -100,6 +106,17 @@
 
 .apple-card {
   @apply bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm;
+}
+
+/* Layout transitions */
+.sidebar-transition {
+  transition: margin-left var(--sidebar-transition-duration) var(--sidebar-transition-timing),
+              width var(--sidebar-transition-duration) var(--sidebar-transition-timing);
+}
+
+.content-transition {
+  transition: margin-left var(--sidebar-transition-duration) var(--sidebar-transition-timing),
+              width var(--sidebar-transition-duration) var(--sidebar-transition-timing);
 }
 
 /* Gradient text animations */

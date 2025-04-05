@@ -58,7 +58,7 @@ export function AppNavbar() {
   }, [pathname])
 
   return (
-    <div className="sticky top-0 z-30 flex h-14 items-center justify-between w-full apple-blur px-4 border-b border-zinc-200/50 dark:border-zinc-700/50">
+    <div className="sticky top-0 z-30 flex h-14 items-center justify-between w-full apple-blur px-4 border-b border-zinc-200/50 dark:border-zinc-700/50 ml-[var(--sidebar-width,0px)]">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8 rounded-full apple-button">
           <PanelLeft className="h-4 w-4 apple-icon" />

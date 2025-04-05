@@ -195,7 +195,7 @@ export function AppSidebar({
     <Sidebar 
       collapsible="icon" 
       variant="floating" 
-      className="border-none shadow-none bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-md" 
+      className="border-none shadow-none bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-md z-40" 
       {...props}
     >
       <SidebarHeader className="py-2 px-2">

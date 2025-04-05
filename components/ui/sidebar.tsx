@@ -135,16 +135,6 @@ const SidebarProvider = React.forwardRef<
       [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
     )
 
-    // Add this code to set the CSS variable for sidebar width
-    React.useEffect(() => {
-      const root = document.documentElement;
-      if (state === "collapsed") {
-        root.style.setProperty('--sidebar-width', SIDEBAR_WIDTH_ICON);
-      } else {
-        root.style.setProperty('--sidebar-width', SIDEBAR_WIDTH);
-      }
-    }, [state]);
-
     return (
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
@@ -336,17 +326,17 @@ SidebarRail.displayName = "SidebarRail"
 
 const SidebarInset = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div">
+  React.ComponentProps<"main">
 >(({ className, ...props }, ref) => {
   const { state } = useSidebar()
-
+  
   return (
-    <div
+    <main
       ref={ref}
       data-sidebar="inset"
       className={cn(
-        "flex min-h-screen w-full flex-col transition-[margin-left] duration-200 ease-in-out",
-        "ml-[var(--sidebar-width)]",
+        "relative flex w-full flex-1 flex-col bg-background",
+        "md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
       {...props}

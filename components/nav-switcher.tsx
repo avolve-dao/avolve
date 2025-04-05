@@ -20,70 +20,70 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/c
 const allRoutes = [
   {
     id: "superachiever",
-    name: "superachiever",
+    name: "Superachiever",
     icon: "/icons/icon-superachiever.svg",
     href: "/superachiever",
     category: "main",
   },
   {
     id: "personal",
-    name: "personal",
+    name: "Personal",
     icon: "/icons/icon-personal-success-puzzle.svg",
     href: "/personal",
     category: "superachiever",
   },
   {
     id: "business",
-    name: "business",
+    name: "Business",
     icon: "/icons/icon-business-success-puzzle.svg",
     href: "/business",
     category: "superachiever",
   },
   {
     id: "supermind",
-    name: "supermind",
+    name: "Supermind",
     icon: "/icons/icon-supermind-superpowers.svg",
     href: "/supermind",
     category: "superachiever",
   },
   {
     id: "superachievers",
-    name: "superachievers",
+    name: "Superachievers",
     icon: "/icons/icon-superachievers.svg",
     href: "/superachievers",
     category: "main",
   },
   {
     id: "superpuzzle",
-    name: "superpuzzle",
+    name: "Superpuzzle",
     icon: "/icons/icon-superpuzzle-developments.svg",
     href: "/superpuzzle",
     category: "superachievers",
   },
   {
     id: "superhuman",
-    name: "superhuman",
+    name: "Superhuman",
     icon: "/icons/icon-superhuman-enhancements.svg",
     href: "/superhuman",
     category: "superachievers",
   },
   {
     id: "supersociety",
-    name: "supersociety",
+    name: "Supersociety",
     icon: "/icons/icon-supersociety-advancements.svg",
     href: "/supersociety",
     category: "superachievers",
   },
   {
     id: "supergenius",
-    name: "supergenius",
+    name: "Supergenius",
     icon: "/icons/icon-supergenius-breakthroughs.svg",
     href: "/supergenius",
     category: "superachievers",
   },
   {
     id: "supercivilization",
-    name: "supercivilization",
+    name: "Supercivilization",
     icon: "/icons/icon-supercivilization.svg",
     href: "/supercivilization",
     category: "main",
@@ -210,12 +210,12 @@ export function NavSwitcher({
                     onClick={() => handleTeamChange(route)} 
                     className="gap-2 p-2 rounded-lg apple-menu-item"
                   >
-                    <div className="flex size-6 items-center justify-center rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 overflow-hidden">
+                    <div className="flex size-6 items-center justify-center">
                       <Image
                         src={route.icon || "/placeholder.svg"}
                         alt={route.name}
-                        width={16}
-                        height={16}
+                        width={18}
+                        height={18}
                         className="object-contain"
                       />
                     </div>
@@ -245,12 +245,12 @@ export function NavSwitcher({
                     onClick={() => handleTeamChange(route)} 
                     className="gap-2 p-2 rounded-lg apple-menu-item"
                   >
-                    <div className="flex size-6 items-center justify-center rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 overflow-hidden">
+                    <div className="flex size-6 items-center justify-center">
                       <Image
                         src={route.icon || "/placeholder.svg"}
                         alt={route.name}
-                        width={16}
-                        height={16}
+                        width={18}
+                        height={18}
                         className="object-contain"
                       />
                     </div>
@@ -276,12 +276,12 @@ export function NavSwitcher({
                     onClick={() => handleTeamChange(route)} 
                     className="gap-2 p-2 rounded-lg apple-menu-item"
                   >
-                    <div className="flex size-6 items-center justify-center rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 overflow-hidden">
+                    <div className="flex size-6 items-center justify-center">
                       <Image
                         src={route.icon || "/placeholder.svg"}
                         alt={route.name}
-                        width={16}
-                        height={16}
+                        width={18}
+                        height={18}
                         className="object-contain"
                       />
                     </div>

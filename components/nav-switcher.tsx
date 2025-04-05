@@ -102,14 +102,9 @@ export function NavSwitcher({
     allRoutes.find((route) => route.id === activeTeamId) || allRoutes[0],
   )
 
-  // Initialize isMobile with a default value
-  const sidebarContext = useSidebar()
-  const [isMobile, setIsMobile] = React.useState(sidebarContext.isMobile)
-
-  // Update isMobile state after the first render to avoid SSR issues
-  React.useEffect(() => {
-    setIsMobile(sidebarContext.isMobile)
-  }, [sidebarContext.isMobile])
+  // Get sidebar context to check if sidebar is collapsed
+  const { isMobile, state } = useSidebar()
+  const isCollapsed = state === "collapsed"
 
   React.useEffect(() => {
     // Update active team when activeTeamId changes
@@ -149,15 +144,21 @@ export function NavSwitcher({
       case "supermind":
         return "bg-gradient-to-r from-violet-500 to-fuchsia-500";
       case "superachiever":
-        return "bg-gradient-to-r from-stone-500 to-stone-400";
+        return "bg-gradient-to-r from-stone-500 to-stone-700";
       case "superachievers":
-        return "bg-gradient-to-r from-slate-500 to-slate-400";
+        return "bg-gradient-to-r from-slate-500 to-slate-700";
+      case "superhuman":
+        return "bg-gradient-to-r from-rose-500 via-red-500 to-orange-500";
+      case "supersociety":
+        return "bg-gradient-to-r from-lime-500 via-green-500 to-emerald-500";
+      case "supergenius":
+        return "bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500";
       case "supercivilization":
-        return "bg-gradient-to-r from-zinc-500 to-zinc-400";
+        return "bg-gradient-to-r from-zinc-500 to-zinc-700";
       default:
-        return "bg-zinc-900 dark:bg-zinc-100";
+        return "bg-gradient-to-r from-blue-500 to-blue-700";
     }
-  };
+  }
 
   return (
     <SidebarMenu>
@@ -168,7 +169,7 @@ export function NavSwitcher({
               size="lg"
               className="rounded-lg transition-all duration-200 ease-out data-[state=open]:bg-zinc-100 dark:data-[state=open]:bg-zinc-800"
             >
-              <div className={`flex aspect-square size-8 items-center justify-center rounded-lg ${getGradientClass()} text-zinc-100 dark:text-zinc-900 overflow-hidden`}>
+              <div className="flex size-8 items-center justify-center rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 overflow-hidden">
                 <Image
                   src={activeTeam.icon || "/placeholder.svg"}
                   alt={activeTeam.name}
@@ -177,11 +178,17 @@ export function NavSwitcher({
                   className="object-contain"
                 />
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
-                <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">{getCategoryDisplay()}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4 text-zinc-500 dark:text-zinc-400" />
+              {!isCollapsed && (
+                <>
+                  <div className="grid flex-1 text-left">
+                    <span className="truncate font-medium text-sm">{activeTeam.name}</span>
+                    <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+                      {getCategoryDisplay()}
+                    </span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+                </>
+              )}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

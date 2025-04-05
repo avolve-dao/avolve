@@ -65,14 +65,7 @@ export function AppNavbar() {
           <span className="sr-only">Toggle sidebar</span>
         </Button>
 
-        {/* Section title with gradient */}
-        <div className="hidden md:flex items-center">
-          <h2 className={`text-sm font-medium bg-gradient-to-r ${gradientClass} bg-clip-text text-transparent`}>
-            {sectionTitle}
-          </h2>
-        </div>
-
-        <div className="relative hidden md:block ml-4">
+        <div className="relative hidden md:block">
           <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-zinc-400 dark:text-zinc-500" />
           <Input
             type="search"

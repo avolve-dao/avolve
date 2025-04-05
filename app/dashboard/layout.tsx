@@ -24,22 +24,21 @@ export default async function DashboardLayout({
 
   return (
     <ThemeProvider>
-      <div className="flex min-h-screen flex-col md:flex-row">
-        {/* Sidebar - Hidden on mobile, collapsible on tablet and desktop */}
-        <div className="hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out">
-          <SidebarProviderWrapper defaultCollapsed={false}>
+      <SidebarProviderWrapper defaultCollapsed={false}>
+        <div className="flex min-h-screen flex-col md:flex-row">
+          {/* Sidebar - Hidden on mobile, collapsible on tablet and desktop */}
+          <div className="hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out">
             <AppSidebar className="h-full" />
-          </SidebarProviderWrapper>
-        </div>
-
-        <div className="flex flex-col flex-1">
-          {/* Desktop Header - Only shown on desktop */}
-          <div className="sticky top-0 z-50 w-full">
-            <AppNavbar />
           </div>
 
-          {/* Main Content with adaptive padding based on screen size */}
-          <main className="flex-1 pb-16 md:pb-0 px-4 sm:px-6 lg:px-8 transition-all duration-300">
+          <div className="flex flex-col flex-1">
+            {/* Desktop Header - Only shown on desktop */}
+            <div className="sticky top-0 z-50 w-full">
+              <AppNavbar />
+            </div>
+
+            {/* Main Content with adaptive padding based on screen size */}
+            <main className="flex-1 pb-16 md:pb-0 px-4 sm:px-6 lg:px-8 transition-all duration-300">
             {/* Responsive layout wrapper */}
             <div className="max-w-7xl mx-auto">
               {/* Swipe gesture area for mobile */}
@@ -70,10 +69,11 @@ export default async function DashboardLayout({
             <MobileNav />
           </div>
         </div>
-
-        {/* Grok Widget - Available on all dashboard pages */}
-        <GrokWidget userId={data.user.id} />
       </div>
-    </ThemeProvider>
+
+      {/* Grok Widget - Available on all dashboard pages */}
+      <GrokWidget userId={data.user.id} />
+    </SidebarProviderWrapper>
+  </ThemeProvider>
   )
 }

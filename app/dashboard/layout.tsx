@@ -1,13 +1,12 @@
 import * as React from "react"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { MainNav } from "@/components/main-nav"
 import { MobileNav } from "@/components/mobile-nav"
-import { UserNav } from "@/components/user-nav"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ThemeProvider } from "@/components/theme-provider"
 import { GrokWidget } from "@/components/grok/grok-widget"
 import { AppSidebar } from "@/components/app-sidebar"
+import { AppNavbar } from "@/components/app-navbar"
 import { SidebarProviderWrapper } from "@/components/sidebar-provider"
 import { SwipeNavigation } from "@/components/swipe-navigation"
 
@@ -35,15 +34,9 @@ export default async function DashboardLayout({
 
         <div className="flex flex-col flex-1">
           {/* Desktop Header - Only shown on desktop */}
-          <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-16 items-center justify-between">
-              <MainNav />
-              <div className="flex items-center space-x-4">
-                <ThemeToggle />
-                <UserNav user={data.user} />
-              </div>
-            </div>
-          </header>
+          <div className="sticky top-0 z-50 w-full">
+            <AppNavbar />
+          </div>
 
           {/* Main Content with adaptive padding based on screen size */}
           <main className="flex-1 pb-16 md:pb-0 px-4 sm:px-6 lg:px-8 transition-all duration-300">

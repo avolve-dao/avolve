@@ -169,12 +169,12 @@ export function NavSwitcher({
               size="lg"
               className="rounded-lg transition-all duration-200 ease-out data-[state=open]:bg-zinc-100 dark:data-[state=open]:bg-zinc-800"
             >
-              <div className="flex size-8 items-center justify-center rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 overflow-hidden">
+              <div className="flex size-8 items-center justify-center">
                 <Image
                   src={activeTeam.icon || "/placeholder.svg"}
                   alt={activeTeam.name}
-                  width={20}
-                  height={20}
+                  width={24}
+                  height={24}
                   className="object-contain"
                 />
               </div>

@@ -23,11 +23,12 @@ export function NavUser({
     avatar: string
   }
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile, state } = useSidebar()
+  const isCollapsed = state === "collapsed"
 
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
+      <SidebarMenuItem className={isCollapsed ? "w-10 mx-auto" : ""}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
@@ -38,11 +39,15 @@ export function NavUser({
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-full text-xs font-medium">CN</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">{user.email}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4 text-zinc-500 dark:text-zinc-400" />
+              {!isCollapsed && (
+                <>
+                  <div className="grid flex-1 text-left">
+                    <span className="truncate font-medium text-sm">{user.name}</span>
+                    <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">{user.email}</span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto h-4 w-4 text-zinc-500 dark:text-zinc-400" />
+                </>
+              )}
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -96,4 +101,3 @@ export function NavUser({
     </SidebarMenu>
   )
 }
-

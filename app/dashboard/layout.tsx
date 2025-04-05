@@ -24,11 +24,11 @@ export default async function DashboardLayout({
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset className="bg-zinc-50 dark:bg-zinc-900">
+        <AppSidebar activeTeam="dashboard" />
+        <SidebarInset className="bg-zinc-50/80 dark:bg-zinc-900/80">
           <AppNavbar />
           
-          {/* Main Content with adaptive padding based on screen size */}
+          {/* Main Content */}
           <div className="flex flex-1 flex-col">
             {/* Responsive layout wrapper */}
             <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">

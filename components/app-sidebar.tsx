@@ -24,7 +24,8 @@ import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
 import { NavSwitcher } from "./nav-switcher"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
 
 // Avolve platform structure data
 const avolveData = {
@@ -159,17 +160,45 @@ const avolveData = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [activeTeamId, setActiveTeamId] = useState("superachiever");
+// Helper function to determine active team based on pathname
+const getActiveTeamFromPath = (pathname: string) => {
+  if (pathname.includes('/personal')) return 'personal';
+  if (pathname.includes('/business')) return 'business';
+  if (pathname.includes('/supermind')) return 'supermind';
+  if (pathname.includes('/superhuman')) return 'superhuman';
+  if (pathname.includes('/supersociety')) return 'supersociety';
+  if (pathname.includes('/supergenius')) return 'supergenius';
+  if (pathname.includes('/superachiever')) return 'superachiever';
+  if (pathname.includes('/superachievers')) return 'superachievers';
+  if (pathname.includes('/supercivilization')) return 'supercivilization';
+  if (pathname.includes('/dashboard')) return 'dashboard';
+  return 'superachiever'; // Default
+};
+
+export function AppSidebar({ 
+  activeTeam: propActiveTeam,
+  ...props 
+}: React.ComponentProps<typeof Sidebar> & { 
+  activeTeam?: string 
+}) {
+  const pathname = usePathname();
+  const [activeTeamId, setActiveTeamId] = useState(propActiveTeam || getActiveTeamFromPath(pathname));
+
+  // Update active team when pathname changes
+  useEffect(() => {
+    if (!propActiveTeam) {
+      setActiveTeamId(getActiveTeamFromPath(pathname));
+    }
+  }, [pathname, propActiveTeam]);
 
   return (
     <Sidebar 
       collapsible="icon" 
       variant="floating" 
-      className="border-r border-zinc-200/50 dark:border-zinc-700/50 shadow-none" 
+      className="border-none shadow-none bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-md" 
       {...props}
     >
-      <SidebarHeader className="py-2">
+      <SidebarHeader className="py-2 px-2">
         <NavSwitcher 
           activeTeamId={activeTeamId} 
           onTeamChange={(teamId) => setActiveTeamId(teamId)}
@@ -178,10 +207,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="px-2">
         <NavMain items={avolveData.navMain} />
       </SidebarContent>
-      <SidebarFooter className="py-2">
+      <SidebarFooter className="py-2 px-2">
         <NavUser user={avolveData.user} />
       </SidebarFooter>
-      <SidebarRail />
+      <SidebarRail className="bg-transparent border-none" />
     </Sidebar>
   )
 }

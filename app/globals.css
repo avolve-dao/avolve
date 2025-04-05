@@ -87,7 +87,7 @@
 }
 
 .apple-button {
-  @apply transition-all duration-200 ease-out active:scale-95;
+  @apply transition-all duration-200 ease-out active:scale-95 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50;
 }
 
 .apple-icon {
@@ -102,3 +102,90 @@
   @apply bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm;
 }
 
+/* Gradient text animations */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r animate-gradient-x;
+  background-size: 200% 200%;
+}
+
+/* Avolve gradient classes */
+.gradient-superachiever {
+  @apply bg-gradient-to-r from-stone-500 to-stone-700;
+}
+
+.gradient-personal {
+  @apply bg-gradient-to-r from-amber-500 to-yellow-500;
+}
+
+.gradient-business {
+  @apply bg-gradient-to-r from-teal-500 to-cyan-500;
+}
+
+.gradient-supermind {
+  @apply bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500;
+}
+
+.gradient-superachievers {
+  @apply bg-gradient-to-r from-slate-500 to-slate-700;
+}
+
+.gradient-superhuman {
+  @apply bg-gradient-to-r from-rose-500 via-red-500 to-orange-500;
+}
+
+.gradient-supersociety {
+  @apply bg-gradient-to-r from-lime-500 via-green-500 to-emerald-500;
+}
+
+.gradient-supergenius {
+  @apply bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500;
+}
+
+.gradient-supercivilization {
+  @apply bg-gradient-to-r from-zinc-500 to-zinc-700;
+}
+
+/* Animations */
+@keyframes gradient-x {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 10s ease infinite;
+}
+
+/* Fade-in animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Staggered animations for list items */
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(6) { animation-delay: 0.3s; }
+.stagger-item:nth-child(7) { animation-delay: 0.35s; }
+.stagger-item:nth-child(8) { animation-delay: 0.4s; }
+.stagger-item:nth-child(9) { animation-delay: 0.45s; }
+.stagger-item:nth-child(10) { animation-delay: 0.5s; }

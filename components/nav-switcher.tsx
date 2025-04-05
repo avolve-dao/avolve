@@ -106,13 +106,14 @@ export function NavSwitcher({
   const { isMobile, state } = useSidebar()
   const isCollapsed = state === "collapsed"
 
+  // Use useEffect for team updates
   React.useEffect(() => {
     // Update active team when activeTeamId changes
     const team = allRoutes.find((route) => route.id === activeTeamId)
     if (team) {
       setActiveTeam(team)
     }
-  }, [activeTeamId])
+  }, [activeTeamId]) // Run when activeTeamId changes
 
   if (!activeTeam) {
     return null
@@ -124,14 +125,6 @@ export function NavSwitcher({
     if (onTeamChange) {
       onTeamChange(team.id)
     }
-  }
-
-  // Get the category display name
-  const getCategoryDisplay = () => {
-    if (activeTeam.category === "main") return "Main"
-    if (activeTeam.category === "superachiever") return "Superachiever"
-    if (activeTeam.category === "superachievers") return "Superachievers"
-    return activeTeam.category.charAt(0).toUpperCase() + activeTeam.category.slice(1)
   }
 
   // Get gradient color class based on team id
@@ -182,9 +175,6 @@ export function NavSwitcher({
                 <>
                   <div className="grid flex-1 text-left">
                     <span className="truncate font-medium text-sm">{activeTeam.name}</span>
-                    <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">
-                      {getCategoryDisplay()}
-                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto h-4 w-4 text-zinc-500 dark:text-zinc-400" />
                 </>

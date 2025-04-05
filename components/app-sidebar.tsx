@@ -38,16 +38,20 @@ const avolveData = {
   navMain: [
     // Superachiever - Individual journey (Stone gradient)
     {
+      id: "superachiever",
       title: "Superachiever",
       url: "/superachiever",
       icon: Target,
+      category: "main",
       gradientClass: "from-stone-500 to-stone-700",
       items: [
         // Personal Success Puzzle (Amber-Yellow gradient)
         {
+          id: "personal",
           title: "Personal Success",
           url: "/personal",
           icon: Home,
+          category: "superachiever",
           gradientClass: "from-amber-500 to-yellow-500",
           items: [
             { title: "Health & Energy", url: "/personal/health" },
@@ -57,9 +61,11 @@ const avolveData = {
         },
         // Business Success Puzzle (Teal-Cyan gradient)
         {
+          id: "business",
           title: "Business Success",
           url: "/business",
           icon: Briefcase,
+          category: "superachiever",
           gradientClass: "from-teal-500 to-cyan-500",
           items: [
             { title: "Front-Stage Users", url: "/business/users" },
@@ -69,9 +75,11 @@ const avolveData = {
         },
         // Supermind Superpowers (Violet-Purple-Fuchsia-Pink gradient)
         {
+          id: "supermind",
           title: "Supermind Powers",
           url: "/supermind",
           icon: Zap,
+          category: "superachiever",
           gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
           items: [
             { title: "Current → Desired", url: "/supermind/desired" },
@@ -83,16 +91,20 @@ const avolveData = {
     },
     // Superachievers - Collective journey (Slate gradient)
     {
+      id: "superachievers",
       title: "Superachievers",
       url: "/superachievers",
       icon: Users,
+      category: "main",
       gradientClass: "from-slate-500 to-slate-700",
       items: [
         // Superhuman Enhancements (Rose-Red-Orange gradient)
         {
+          id: "superhuman",
           title: "Superhuman",
           url: "/superhuman",
           icon: GraduationCap,
+          category: "superachievers",
           gradientClass: "from-rose-500 via-red-500 to-orange-500",
           items: [
             { title: "Superhuman Academy", url: "/superhuman/academy" },
@@ -102,9 +114,11 @@ const avolveData = {
         },
         // Supersociety Advancements (Lime-Green-Emerald gradient)
         {
+          id: "supersociety",
           title: "Supersociety",
           url: "/supersociety",
           icon: Users,
+          category: "superachievers",
           gradientClass: "from-lime-500 via-green-500 to-emerald-500",
           items: [
             { title: "Supersociety Company", url: "/supersociety/company" },
@@ -114,9 +128,11 @@ const avolveData = {
         },
         // Supergenius Breakthroughs (Sky-Blue-Indigo gradient)
         {
+          id: "supergenius",
           title: "Supergenius",
           url: "/supergenius",
           icon: Lightbulb,
+          category: "superachievers",
           gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
           items: [
             { title: "Supergenius Ventures", url: "/supergenius/ventures" },
@@ -128,9 +144,11 @@ const avolveData = {
     },
     // Supercivilization - Ecosystem journey (Zinc gradient)
     {
+      id: "supercivilization",
       title: "Supercivilization",
       url: "/supercivilization",
       icon: Wind,
+      category: "main",
       gradientClass: "from-zinc-500 to-zinc-700",
       items: [
         { title: "Genius ID", url: "/supercivilization/genius-id" },
@@ -140,21 +158,27 @@ const avolveData = {
     },
     // Dashboard and settings
     {
+      id: "dashboard",
       title: "Dashboard",
       url: "/dashboard",
       icon: BarChart,
+      category: "utility",
       gradientClass: "from-blue-500 to-blue-700",
     },
     {
+      id: "settings",
       title: "Settings",
       url: "/settings",
       icon: Settings,
+      category: "utility",
       gradientClass: "from-gray-500 to-gray-700",
     },
     {
+      id: "help",
       title: "Help",
       url: "/help",
       icon: HelpCircle,
+      category: "utility",
       gradientClass: "from-gray-500 to-gray-700",
     },
   ],
@@ -191,6 +215,50 @@ export function AppSidebar({
     }
   }, [pathname, propActiveTeam]);
 
+  // Filter menu items based on active team
+  const getFilteredMenuItems = () => {
+    // For main categories, show only their specific items
+    if (activeTeamId === 'superachiever') {
+      return avolveData.navMain.filter(item => 
+        item.id === 'superachiever' || 
+        item.category === 'superachiever' ||
+        item.category === 'utility'
+      );
+    } 
+    else if (activeTeamId === 'superachievers') {
+      return avolveData.navMain.filter(item => 
+        item.id === 'superachievers' || 
+        item.category === 'superachievers' ||
+        item.category === 'utility'
+      );
+    }
+    else if (activeTeamId === 'supercivilization') {
+      return avolveData.navMain.filter(item => 
+        item.id === 'supercivilization' || 
+        item.category === 'supercivilization' ||
+        item.category === 'utility'
+      );
+    }
+    // For sub-categories, show their parent and siblings
+    else if (['personal', 'business', 'supermind'].includes(activeTeamId)) {
+      return avolveData.navMain.filter(item => 
+        item.id === 'superachiever' || 
+        item.category === 'superachiever' ||
+        item.category === 'utility'
+      );
+    }
+    else if (['superhuman', 'supersociety', 'supergenius'].includes(activeTeamId)) {
+      return avolveData.navMain.filter(item => 
+        item.id === 'superachievers' || 
+        item.category === 'superachievers' ||
+        item.category === 'utility'
+      );
+    }
+    
+    // Default: show all items
+    return avolveData.navMain;
+  };
+
   return (
     <Sidebar 
       collapsible="icon" 
@@ -205,7 +273,7 @@ export function AppSidebar({
         />
       </SidebarHeader>
       <SidebarContent className="px-2">
-        <NavMain items={avolveData.navMain} />
+        <NavMain items={getFilteredMenuItems()} />
       </SidebarContent>
       <SidebarFooter className="py-2 px-2">
         <NavUser user={avolveData.user} />

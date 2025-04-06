@@ -483,24 +483,6 @@ const avolveData = {
       category: "supergenius",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
     },
-    
-    // Utility items (always shown)
-    {
-      id: "settings",
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-      category: "utility",
-      gradientClass: "from-gray-500 to-gray-700",
-    },
-    {
-      id: "help",
-      title: "Help",
-      url: "/help",
-      icon: HelpCircle,
-      category: "utility",
-      gradientClass: "from-gray-500 to-gray-700",
-    },
   ],
 }
 
@@ -540,68 +522,58 @@ export function AppSidebar({
     // For main categories
     if (activeTeamId === 'superachiever') {
       return avolveData.navMain.filter(item => 
-        item.category === 'superachiever' ||
-        item.category === 'utility'
+        item.category === 'superachiever'
       );
     } 
     else if (activeTeamId === 'superachievers') {
       return avolveData.navMain.filter(item => 
-        item.category === 'superachievers' ||
-        item.category === 'utility'
+        item.category === 'superachievers'
       );
     }
     else if (activeTeamId === 'supercivilization') {
       return avolveData.navMain.filter(item => 
-        item.category === 'supercivilization' ||
-        item.category === 'utility'
+        item.category === 'supercivilization'
       );
     }
     // For sub-categories
     else if (activeTeamId === 'personal') {
       return avolveData.navMain.filter(item => 
-        item.category === 'personal' ||
-        item.category === 'utility'
+        item.category === 'personal'
       );
     }
     else if (activeTeamId === 'business') {
       return avolveData.navMain.filter(item => 
-        item.category === 'business' ||
-        item.category === 'utility'
+        item.category === 'business'
       );
     }
     else if (activeTeamId === 'supermind') {
       return avolveData.navMain.filter(item => 
-        item.category === 'supermind' ||
-        item.category === 'utility'
+        item.category === 'supermind'
       );
     }
     else if (activeTeamId === 'superpuzzle') {
       return avolveData.navMain.filter(item => 
-        item.category === 'superpuzzle' ||
-        item.category === 'utility'
+        item.category === 'superpuzzle'
       );
     }
     else if (activeTeamId === 'superhuman') {
       return avolveData.navMain.filter(item => 
-        item.category === 'superhuman' ||
-        item.category === 'utility'
+        item.category === 'superhuman'
       );
     }
     else if (activeTeamId === 'supersociety') {
       return avolveData.navMain.filter(item => 
-        item.category === 'supersociety' ||
-        item.category === 'utility'
+        item.category === 'supersociety'
       );
     }
     else if (activeTeamId === 'supergenius') {
       return avolveData.navMain.filter(item => 
-        item.category === 'supergenius' ||
-        item.category === 'utility'
+        item.category === 'supergenius'
       );
     }
     
     // Default: show all items
-    return avolveData.navMain;
+    return avolveData.navMain.filter(item => item.category !== 'utility');
   };
 
   return (

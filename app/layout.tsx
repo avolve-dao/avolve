@@ -6,9 +6,9 @@ import { RouteTransitionProvider } from "@/components/route-transition-provider"
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Avolve Platform',
+  description: 'Your personal achievement platform',
+  generator: 'Avolve',
 }
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body className="min-h-screen bg-background font-sans antialiased">
+      <body className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans antialiased overflow-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

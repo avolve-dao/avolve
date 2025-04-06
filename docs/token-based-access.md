@@ -1,135 +1,10 @@
-# Token-Based Access Control System
+## 🧩 Database Functions
 
-This document outlines the token-based access control system implemented for the Avolve platform. This system integrates with the existing RBAC (Role-Based Access Control) system to provide a comprehensive access control solution that aligns with Avolve's business model and token structure.
+Our token system comes to life through a set of powerful database functions that handle permissions, balances, and transactions. These functions follow Supabase best practices with `SECURITY INVOKER` and empty search paths.
 
-## Overview
+### 🔍 has_permission_enhanced_with_tokens()
 
-The Avolve platform uses a hierarchical token structure that represents different aspects of the platform's value pillars:
-
-1. **Superachiever** - For the individual journey of transformation
-2. **Superachievers** - For collective journey of transformation
-3. **Supercivilization** - For the ecosystem journey of transformation
-
-Each of these pillars is represented by different token types, which grant access to specific features and functionalities within the platform.
-
-## Token Structure
-
-The platform has a hierarchical token structure:
-
-- **GEN token** (Supercivilization)
-- **SAP token** (Superachiever)
-  - PSP token (Personal Success)
-  - BSP token (Business Success)
-  - SMS token (Supermind Superpowers)
-- **SCQ token** (Superachievers)
-  - SPD token (Superpuzzle Developments)
-  - SHE token (Superhuman Enhancements)
-  - SSA token (Supersociety Advancements)
-  - SGB token (Supergenius Breakthroughs)
-
-## Database Schema
-
-The token-based access control system is implemented using the following database tables:
-
-### token_types
-
-Stores token type definitions (GEN, SAP, PSP, etc.)
-
-```sql
-create table if not exists public.token_types (
-  id uuid primary key default gen_random_uuid(),
-  code text not null unique,
-  name text not null,
-  description text,
-  parent_token_type_id uuid references public.token_types(id),
-  is_system boolean not null default false,
-  metadata jsonb,
-  created_at timestamp with time zone not null default now(),
-  updated_at timestamp with time zone not null default now()
-);
-```
-
-### tokens
-
-Stores token instances
-
-```sql
-create table if not exists public.tokens (
-  id uuid primary key default gen_random_uuid(),
-  token_type_id uuid not null references public.token_types(id) on delete cascade,
-  name text not null,
-  symbol text not null,
-  description text,
-  metadata jsonb,
-  total_supply bigint,
-  is_transferable boolean not null default true,
-  transfer_fee numeric default 0,
-  is_active boolean not null default true,
-  created_at timestamp with time zone not null default now(),
-  updated_at timestamp with time zone not null default now()
-);
-```
-
-### token_balances
-
-Maps users to tokens and tracks their balances
-
-```sql
-create table if not exists public.token_balances (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
-  token_id uuid not null references public.tokens(id) on delete cascade,
-  balance numeric not null default 0,
-  last_updated timestamp with time zone default now(),
-  created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now(),
-  
-  constraint token_balances_user_token_key unique (user_id, token_id)
-);
-```
-
-### token_permissions
-
-Maps tokens to permissions
-
-```sql
-create table if not exists public.token_permissions (
-  id uuid primary key default gen_random_uuid(),
-  token_type_id uuid not null references public.token_types(id) on delete cascade,
-  permission_id uuid not null references public.permissions(id) on delete cascade,
-  min_balance numeric not null default 1,
-  created_at timestamp with time zone not null default now(),
-  -- Ensure each permission is assigned to a token type only once
-  unique(token_type_id, permission_id)
-);
-```
-
-### token_transactions
-
-Stores token transaction history for audit purposes
-
-```sql
-create table if not exists public.token_transactions (
-  id uuid primary key default gen_random_uuid(),
-  token_id uuid not null references public.tokens(id) on delete cascade,
-  from_user_id uuid references auth.users(id) on delete set null,
-  to_user_id uuid references auth.users(id) on delete set null,
-  amount numeric not null,
-  fee numeric default 0,
-  transaction_type text not null,
-  status text not null,
-  metadata jsonb,
-  created_at timestamp with time zone not null default now()
-);
-```
-
-## Database Functions
-
-The token-based access control system is implemented using the following database functions:
-
-### has_permission_enhanced_with_tokens
-
-Checks if a user has a permission through either roles or tokens.
+This function extends our RBAC system by checking if a user has permission through either roles OR token ownership.
 
 ```sql
 create or replace function public.has_permission_enhanced_with_tokens(
@@ -162,26 +37,27 @@ begin
   end if;
   
   -- Check if user has permission through tokens
-  select exists(
+  return exists(
     select 1
     from public.token_permissions tp
     join public.permissions p on tp.permission_id = p.id
-    join public.tokens t on tp.token_type_id = t.token_type_id
-    join public.token_balances tb on t.id = tb.token_id
+    join public.token_balances tb on tp.token_type_id = (
+      select token_type_id from public.tokens where id = tb.token_id
+    )
     where tb.user_id = p_user_id
     and p.resource = p_resource
     and p.action = p_action
     and tb.balance >= tp.min_balance
-  ) into v_has_permission;
-  
-  return v_has_permission;
+  );
 end;
 $$;
 ```
 
-### get_user_permissions_with_tokens
+> 🔀 **Dual-Path Permissions**: This function first checks traditional role-based permissions, then falls back to token-based permissions if needed.
 
-Gets all permissions for a user (including from tokens).
+### 📋 get_user_permissions_with_tokens()
+
+Gets all permissions for a user, including those granted through token ownership.
 
 ```sql
 create or replace function public.get_user_permissions_with_tokens(
@@ -206,17 +82,20 @@ begin
   select distinct p.*
   from public.token_permissions tp
   join public.permissions p on tp.permission_id = p.id
-  join public.tokens t on tp.token_type_id = t.token_type_id
-  join public.token_balances tb on t.id = tb.token_id
+  join public.token_balances tb on tp.token_type_id = (
+    select token_type_id from public.tokens where id = tb.token_id
+  )
   where tb.user_id = p_user_id
   and tb.balance >= tp.min_balance;
 end;
 $$;
 ```
 
-### transfer_tokens
+> 🔄 **Union of Permissions**: This function returns the union of permissions from both roles and tokens, eliminating duplicates with `distinct`.
 
-Transfers tokens from one user to another with fee calculation.
+### 💸 transfer_tokens()
+
+Handles the secure transfer of tokens between users, including fee calculation and transaction recording.
 
 ```sql
 create or replace function public.transfer_tokens(
@@ -249,7 +128,7 @@ begin
   if p_amount <= 0 then
     return json_build_object(
       'success', false,
-      'message', 'Amount must be greater than 0'
+      'message', 'Amount must be greater than zero'
     );
   end if;
   
@@ -269,11 +148,11 @@ begin
   if not v_token.is_transferable then
     return json_build_object(
       'success', false,
-      'message', 'Token is not transferable'
+      'message', 'This token is not transferable'
     );
   end if;
   
-  -- Get sender's balance
+  -- Check if sender has enough balance
   select balance into v_from_balance
   from public.token_balances
   where user_id = p_from_user_id and token_id = p_token_id;
@@ -285,7 +164,7 @@ begin
     );
   end if;
   
-  -- Calculate fee
+  -- Calculate fee and transfer amount
   v_fee := p_amount * v_token.transfer_fee;
   v_transfer_amount := p_amount - v_fee;
   
@@ -311,14 +190,14 @@ begin
   )
   on conflict (user_id, token_id)
   do update set
-    balance = public.token_balances.balance + v_transfer_amount,
+    balance = token_balances.balance + v_transfer_amount,
     updated_at = now();
-  
-  -- Create transaction record
+    
+  -- Record the transaction
   insert into public.token_transactions (
+    token_id,
     from_user_id,
     to_user_id,
-    token_id,
     amount,
     fee,
     transaction_type,
@@ -326,33 +205,19 @@ begin
     metadata
   )
   values (
+    p_token_id,
     p_from_user_id,
     p_to_user_id,
-    p_token_id,
     p_amount,
     v_fee,
     'transfer',
     'completed',
     json_build_object(
-      'token_symbol', v_token.symbol,
-      'transfer_amount', v_transfer_amount
-    )
-  )
-  returning id into v_transaction_id;
-  
-  -- Create audit log
-  perform public.create_audit_log(
-    p_from_user_id,
-    'transfer_tokens',
-    'token_transaction',
-    v_transaction_id::text,
-    json_build_object(
-      'token_id', p_token_id,
-      'to_user_id', p_to_user_id,
       'amount', p_amount,
       'fee', v_fee
     )
-  );
+  )
+  returning id into v_transaction_id;
   
   return json_build_object(
     'success', true,
@@ -365,9 +230,17 @@ end;
 $$;
 ```
 
-## Client-Side Implementation
+> 🛡️ **Robust Validation**: This function performs multiple validation checks before processing a transfer:
+> - Prevents self-transfers
+> - Validates positive amounts
+> - Checks token existence and transferability
+> - Verifies sufficient balance
 
-### TokenService
+## 🖥️ Client-Side Implementation
+
+Our token system isn't just powerful in the database—it's also beautifully integrated into the frontend application with a set of intuitive services and hooks.
+
+### 🛠️ TokenService
 
 The `TokenService` class centralizes all token management functionality for the Avolve platform. It provides methods for managing tokens, token ownership, and token-based permissions.
 
@@ -384,8 +257,7 @@ export class TokenService {
     try {
       const { data, error } = await this.client
         .from('tokens')
-        .select('*')
-        .order('name');
+        .select('*, token_types(*)');
 
       if (error) throw error;
       return { data, error: null };
@@ -399,19 +271,19 @@ export class TokenService {
     try {
       const { data, error } = await this.client
         .from('tokens')
-        .select('*')
+        .select('*, token_types(*)')
         .eq('id', tokenId)
         .single();
 
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
-      console.error('Error getting token:', error);
+      console.error('Error getting token by ID:', error);
       return { data: null, error };
     }
   }
 
-  // Token balance management
+  // User token management
   async getUserTokens(userId: string) {
     try {
       const { data, error } = await this.client
@@ -438,29 +310,11 @@ export class TokenService {
       return { data, error: null };
     } catch (error) {
       console.error('Error getting user token balance:', error);
-      return { data: null, error };
+      return { data: 0, error };
     }
   }
 
-  // Token transfers
-  async transferTokensWithFee(fromUserId: string, toUserId: string, tokenId: string, amount: number) {
-    try {
-      const { data, error } = await this.client.rpc('transfer_tokens', {
-        p_from_user_id: fromUserId,
-        p_to_user_id: toUserId,
-        p_token_id: tokenId,
-        p_amount: amount
-      });
-
-      if (error) throw error;
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error transferring tokens:', error);
-      return { data: null, error };
-    }
-  }
-
-  // Permission management
+  // Token-based permissions
   async hasPermissionViaToken(userId: string, resource: string, action: string) {
     try {
       const { data, error } = await this.client.rpc('has_permission_enhanced_with_tokens', {
@@ -490,10 +344,63 @@ export class TokenService {
       return { data: null, error };
     }
   }
+
+  // Token transfer
+  async transferTokens(toUserId: string, tokenId: string, amount: number) {
+    try {
+      const { user } = await this.client.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // First check if token is transferable
+      const { data: token } = await this.getTokenById(tokenId);
+      if (!token) throw new Error('Token not found');
+      
+      if (!token.is_transferable) {
+        throw new Error('This token is not transferable');
+      }
+
+      // Calculate potential fee
+      const fee = amount * (token.transfer_fee || 0);
+      const transferAmount = amount - fee;
+
+      // Confirm with user if there's a fee
+      if (fee > 0) {
+        const confirmMessage = `This transfer will incur a fee of ${fee} tokens. You will transfer ${amount} tokens, but the recipient will receive ${transferAmount} tokens. Do you want to proceed?`;
+        if (!confirm(confirmMessage)) {
+          return { success: false, message: 'Transfer cancelled by user' };
+        }
+      }
+
+      const { data, error } = await this.client.rpc('transfer_tokens', {
+        p_from_user_id: user.id,
+        p_to_user_id: toUserId,
+        p_token_id: tokenId,
+        p_amount: amount
+      });
+
+      if (error) throw error;
+      
+      // Log the transfer in audit logs
+      await this.auditService.logAction(
+        'token_transfer',
+        'token',
+        tokenId,
+        toUserId,
+        { amount, fee, transferAmount }
+      );
+      
+      return data;
+    } catch (error) {
+      console.error('Error transferring tokens:', error);
+      return { success: false, message: error.message };
+    }
+  }
 }
 ```
 
-### useToken Hook
+> 💎 **Complete Token Management**: The TokenService provides a comprehensive API for all token-related operations, from querying balances to executing transfers.
+
+### 🪝 useToken Hook
 
 The `useToken` hook provides a React-friendly interface for the TokenService:
 
@@ -507,296 +414,343 @@ import { useAudit } from '../audit/use-audit';
 export function useToken() {
   const { supabase } = useSupabase();
   const { user } = useAuth();
-  const { logAction } = useAudit();
-  
-  const [tokenService] = useState(() => new TokenService(supabase));
-  const [isLoading, setIsLoading] = useState(false);
+  const { auditService } = useAudit();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-
-  const getAllTokens = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const { data, error } = await tokenService.getAllTokens();
-      
-      if (error) {
-        setError(error);
-        return null;
-      }
-      
-      return data;
-    } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      setError(error);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [tokenService]);
-
+  
+  const tokenService = new TokenService(supabase);
+  tokenService.auditService = auditService;
+  
   const getUserTokens = useCallback(async () => {
-    if (!user) return null;
+    if (!user) return [];
     
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
     
     try {
       const { data, error } = await tokenService.getUserTokens(user.id);
       
-      if (error) {
-        setError(error);
-        return null;
-      }
-      
-      return data;
+      if (error) throw error;
+      return data || [];
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      setError(error);
-      return null;
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return [];
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [tokenService, user]);
-
+  }, [user, tokenService]);
+  
   const transferTokens = useCallback(async (toUserId: string, tokenId: string, amount: number) => {
-    if (!user) {
-      setError(new Error('User not authenticated'));
-      return false;
-    }
+    if (!user) throw new Error('User not authenticated');
     
-    setIsLoading(true);
+    setLoading(true);
     setError(null);
     
     try {
-      const { data, error } = await tokenService.transferTokensWithFee(user.id, toUserId, tokenId, amount);
+      const result = await tokenService.transferTokens(toUserId, tokenId, amount);
       
-      if (error) {
-        setError(error);
-        return false;
+      if (!result.success) {
+        throw new Error(result.message);
       }
       
-      // Log the action
-      await logAction({
-        action: 'transfer_tokens',
-        entityType: 'token_transaction',
-        entityId: data.transaction_id,
-        metadata: {
-          toUserId,
-          tokenId,
-          amount,
-          fee: data.fee,
-          transferAmount: data.transfer_amount
-        }
-      });
-      
-      return true;
+      return result;
     } catch (err) {
-      const error = err instanceof Error ? err : new Error('Unknown error');
-      setError(error);
-      return false;
+      setError(err instanceof Error ? err : new Error(String(err)));
+      throw err;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  }, [tokenService, user, logAction]);
-
+  }, [user, tokenService]);
+  
   return {
-    getAllTokens,
     getUserTokens,
     transferTokens,
-    isLoading,
+    loading,
     error
   };
 }
 ```
 
-### useTokenRBAC Hook
+> 🧪 **React Integration**: The useToken hook makes it easy to integrate token functionality into React components with loading and error states.
 
-The `useTokenRBAC` hook integrates with the existing RBAC system to provide a comprehensive access control solution:
+### 🔐 useTokenRBAC Hook
+
+The `useTokenRBAC` hook integrates with the existing `useRBAC` hook to provide a comprehensive access control solution:
 
 ```typescript
 import { useState, useEffect, useCallback } from 'react';
 import { useSupabase } from '../supabase/use-supabase';
 import { TokenService } from './token-service';
 import { useAuth } from '../auth/use-auth';
-import { useRBAC } from '../auth/use-rbac';
+import { useRBAC } from '../rbac/use-rbac';
 
 export function useTokenRBAC() {
   const { supabase } = useSupabase();
   const { user } = useAuth();
   const rbac = useRBAC();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   
-  const [tokenService] = useState(() => new TokenService(supabase));
-  const [tokenPermissions, setTokenPermissions] = useState<any[]>([]);
-  const [isLoadingTokens, setIsLoadingTokens] = useState(false);
-  const [tokenError, setTokenError] = useState<Error | null>(null);
-
-  // Load token permissions
-  useEffect(() => {
-    if (!user) return;
+  const tokenService = new TokenService(supabase);
+  
+  const hasPermissionEnhanced = useCallback(async (resource: string, action: string) => {
+    if (!user) return false;
     
-    setIsLoadingTokens(true);
+    // First check traditional RBAC permissions
+    const hasRbacPermission = await rbac.hasPermission(resource, action);
+    if (hasRbacPermission) return true;
     
-    tokenService.getUserPermissionsWithTokens(user.id)
-      .then(({ data, error }) => {
-        if (error) {
-          setTokenError(error);
-        } else {
-          setTokenPermissions(data || []);
-        }
-      })
-      .catch(err => {
-        setTokenError(err instanceof Error ? err : new Error('Unknown error'));
-      })
-      .finally(() => {
-        setIsLoadingTokens(false);
-      });
+    // If no RBAC permission, check token-based permissions
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await tokenService.hasPermissionViaToken(
+        user.id,
+        resource,
+        action
+      );
+      
+      if (error) throw error;
+      return !!data;
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [user, rbac, tokenService]);
+  
+  const getAllPermissions = useCallback(async () => {
+    if (!user) return [];
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await tokenService.getUserPermissionsWithTokens(user.id);
+      
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
+      return [];
+    } finally {
+      setLoading(false);
+    }
   }, [user, tokenService]);
-
-  // Check if user has permission via token
-  const hasTokenPermission = useCallback((resource: string, action: string) => {
-    return tokenPermissions.some(p => p.resource === resource && p.action === action);
-  }, [tokenPermissions]);
-
-  // Combined permission check (roles + tokens)
-  const hasPermission = useCallback((resource: string, action: string) => {
-    return rbac.hasPermission(resource, action) || hasTokenPermission(resource, action);
-  }, [rbac.hasPermission, hasTokenPermission]);
-
+  
   return {
-    // Token-specific states
-    tokenPermissions,
-    hasTokenPermission,
-    isLoadingTokens,
-    tokenError,
-    
-    // Combined RBAC states (considering both roles and tokens)
-    hasPermission,
-    hasRole: rbac.hasRole,
-    isAuthorized: hasPermission, // Alias for hasPermission
-    isLoading: rbac.isLoading || isLoadingTokens,
-    error: rbac.error || tokenError
+    ...rbac,
+    hasPermissionEnhanced,
+    getAllPermissions,
+    loading,
+    error
   };
 }
 ```
 
-## UI Components
+> 🔄 **Seamless Integration**: This hook extends the traditional RBAC system with token-based permissions, providing a unified API for access control.
 
-### TokenManager
+### 📊 TokenBalanceDisplay Component
 
-The `TokenManager` component provides an interface for administrators to manage tokens and token ownership. It allows creating, assigning, and managing tokens within the Avolve platform.
+Here's an example of a component that displays a user's token balances:
 
-Features include:
-- Creating and managing token types
-- Creating and managing tokens
-- Minting tokens to users
-- Transferring tokens between users
-- Viewing token ownership
-- Setting transfer fees and transferability flags
+```tsx
+import React, { useEffect, useState } from 'react';
+import { useToken } from '@/hooks/use-token';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 
-## Integration with RBAC
-
-The token-based access control system integrates with the existing RBAC system in the following ways:
-
-1. **Permission Checking**: The `has_permission_enhanced_with_tokens` function checks if a user has a permission through either roles or tokens.
-2. **Permission Retrieval**: The `get_user_permissions_with_tokens` function retrieves all permissions for a user, including those from both roles and tokens.
-3. **React Hook Integration**: The `useTokenRBAC` hook integrates with the existing `useRBAC` hook to provide a comprehensive access control solution.
-
-## Usage Examples
-
-### Checking if a User Has a Token Type
-
-```typescript
-const { getUserTokens } = useToken();
-
-const checkTokenType = async (tokenTypeId) => {
-  const tokens = await getUserTokens();
-  return tokens?.some(token => token.tokens.token_type_id === tokenTypeId) || false;
+export const TokenBalanceDisplay: React.FC = () => {
+  const { getUserTokens, loading, error } = useToken();
+  const [tokens, setTokens] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchTokens = async () => {
+      const userTokens = await getUserTokens();
+      setTokens(userTokens);
+    };
+    
+    fetchTokens();
+  }, [getUserTokens]);
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Your Token Balances</CardTitle>
+        <CardDescription>
+          View and manage your token portfolio
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Token</TableHead>
+              <TableHead>Symbol</TableHead>
+              <TableHead>Balance</TableHead>
+              <TableHead>Last Updated</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : tokens.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center">
+                  No tokens found
+                </TableCell>
+              </TableRow>
+            ) : (
+              tokens.map((token) => (
+                <TableRow key={token.id}>
+                  <TableCell>{token.tokens.name}</TableCell>
+                  <TableCell>{token.tokens.symbol}</TableCell>
+                  <TableCell>{token.balance}</TableCell>
+                  <TableCell>
+                    {new Date(token.last_updated).toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
 };
 ```
 
-### Checking if a User Has a Permission via Token
+### 💱 TokenTransferForm Component
 
-```typescript
-const { hasTokenPermission } = useTokenRBAC();
-
-// In a component
-if (hasTokenPermission('superachiever', 'access')) {
-  // User has access to superachiever features via token
-}
-```
-
-### Using the useTokenRBAC Hook in a Component
+And here's a component for transferring tokens between users:
 
 ```tsx
-import { useTokenRBAC } from '@/lib/token/use-token-rbac';
+import React, { useState, useEffect } from 'react';
+import { useToken } from '@/hooks/use-token';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select } from '@/components/ui/select';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
-function ProtectedComponent() {
-  const { hasPermission, isLoading } = useTokenRBAC();
+export const TokenTransferForm: React.FC = () => {
+  const { getUserTokens, transferTokens, loading, error } = useToken();
+  const [tokens, setTokens] = useState<any[]>([]);
+  const [selectedToken, setSelectedToken] = useState<string>('');
+  const [recipient, setRecipient] = useState<string>('');
+  const [amount, setAmount] = useState<number>(0);
+  const [success, setSuccess] = useState<boolean>(false);
   
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  
-  if (!hasPermission('superachiever', 'access')) {
-    return <div>You don't have access to this feature</div>;
-  }
-  
-  return <div>Protected content</div>;
-}
-```
-
-### Transferring Tokens Between Users
-
-```tsx
-import { useToken } from '@/lib/token/use-token';
-
-function TokenTransferForm() {
-  const { transferTokens, isLoading, error } = useToken();
-  const [toUserId, setToUserId] = useState('');
-  const [tokenId, setTokenId] = useState('');
-  const [amount, setAmount] = useState(0);
-  
-  const handleTransfer = async () => {
-    const success = await transferTokens(toUserId, tokenId, amount);
+  useEffect(() => {
+    const fetchTokens = async () => {
+      const userTokens = await getUserTokens();
+      setTokens(userTokens);
+      
+      if (userTokens.length > 0) {
+        setSelectedToken(userTokens[0].tokens.id);
+      }
+    };
     
-    if (success) {
-      // Show success message
+    fetchTokens();
+  }, [getUserTokens]);
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccess(false);
+    
+    try {
+      const result = await transferTokens(recipient, selectedToken, amount);
+      setSuccess(true);
+      setRecipient('');
+      setAmount(0);
+    } catch (err) {
+      // Error is already handled by the hook
     }
   };
   
   return (
-    <form onSubmit={e => { e.preventDefault(); handleTransfer(); }}>
-      {/* Form fields */}
-      <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Transferring...' : 'Transfer Tokens'}
-      </button>
-      {error && <div className="error">{error.message}</div>}
-    </form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Transfer Tokens</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error.message}</AlertDescription>
+          </Alert>
+        )}
+        
+        {success && (
+          <Alert className="mb-4">
+            <AlertTitle>Success</AlertTitle>
+            <AlertDescription>Tokens transferred successfully!</AlertDescription>
+          </Alert>
+        )}
+        
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <label htmlFor="token">Token</label>
+              <Select
+                id="token"
+                value={selectedToken}
+                onValueChange={setSelectedToken}
+                disabled={loading || tokens.length === 0}
+              >
+                {tokens.map((token) => (
+                  <option key={token.tokens.id} value={token.tokens.id}>
+                    {token.tokens.name} ({token.tokens.symbol}) - Balance: {token.balance}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <label htmlFor="recipient">Recipient ID</label>
+              <Input
+                id="recipient"
+                type="text"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                disabled={loading}
+                required
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <label htmlFor="amount">Amount</label>
+              <Input
+                id="amount"
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(parseFloat(e.target.value))}
+                disabled={loading}
+                required
+              />
+            </div>
+          </div>
+          
+          <Button
+            type="submit"
+            className="mt-4 w-full"
+            disabled={loading || !selectedToken || !recipient || amount <= 0}
+          >
+            {loading ? 'Processing...' : 'Transfer Tokens'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
-}
+};
 ```
 
-## Best Practices
-
-1. **Use the TokenService for All Token Operations**: The `TokenService` centralizes all token management functionality and should be used for all token operations.
-
-2. **Use the useToken Hook for React Components**: The `useToken` hook provides a React-friendly interface for the TokenService and should be used in React components.
-
-3. **Use the useTokenRBAC Hook for Access Control**: The `useTokenRBAC` hook provides a comprehensive access control solution that considers both role-based and token-based permissions.
-
-4. **Consider Transfer Fees and Transferability**: When designing token transfers, consider the transfer fee and whether the token is transferable.
-
-5. **Audit All Token Transactions**: All token transactions are automatically logged in the `token_transactions` table and in the audit logs for security and compliance purposes.
-
-6. **Implement Proper Error Handling**: All token operations should include proper error handling to ensure a smooth user experience.
-
-7. **Use RLS Policies for Data Access Control**: All token-related tables have RLS policies to ensure secure access control.
-
-8. **Consider Token Hierarchies**: When designing token-based access control, consider the hierarchical nature of tokens and how permissions should be inherited.
-
-9. **Integrate with the Existing RBAC System**: The token-based access control system should be integrated with the existing RBAC system to provide a comprehensive access control solution.
-
-## Conclusion
-
-The token-based access control system provides a flexible and secure way to control access to resources based on token ownership, enhancing the overall security posture of the application while aligning with Avolve's business model and token structure.
+> 🎨 **Beautiful UI Components**: These components provide a polished, user-friendly interface for interacting with the token system.

@@ -101,6 +101,8 @@ export function NavSwitcher({
   const [activeTeam, setActiveTeam] = React.useState<(typeof allRoutes)[0] | undefined>(
     allRoutes.find((route) => route.id === activeTeamId) || allRoutes[0],
   )
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
+  const [isNavigating, setIsNavigating] = React.useState(false)
 
   // Get sidebar context to check if sidebar is collapsed
   const { isMobile, state } = useSidebar()
@@ -120,15 +122,26 @@ export function NavSwitcher({
   }
 
   const handleTeamChange = (team: (typeof allRoutes)[0]) => {
+    // Prevent multiple rapid navigations
+    if (isNavigating) return
+    
+    setIsNavigating(true)
+    setIsMenuOpen(false)
     setActiveTeam(team)
+    
     // First call onTeamChange to update the sidebar state
     if (onTeamChange) {
       onTeamChange(team.id)
     }
+    
     // Then navigate to the new route
     setTimeout(() => {
       router.push(team.href)
-    }, 10)
+      // Reset navigation lock after navigation completes
+      setTimeout(() => {
+        setIsNavigating(false)
+      }, 500)
+    }, 50)
   }
 
   // Get gradient color class based on team id
@@ -160,39 +173,32 @@ export function NavSwitcher({
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
+        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
-              size="lg"
-              className="rounded-lg transition-all duration-200 ease-out data-[state=open]:bg-zinc-100 dark:data-[state=open]:bg-zinc-800"
+              tooltip={activeTeam.name}
+              className="w-full justify-start gap-2"
             >
-              <div className="flex size-8 items-center justify-center">
+              <div className={`flex size-6 items-center justify-center rounded-md ${getGradientClass()}`}>
                 <Image
                   src={activeTeam.icon || "/placeholder.svg"}
                   alt={activeTeam.name}
-                  width={24}
-                  height={24}
+                  width={18}
+                  height={18}
                   className="object-contain"
                 />
               </div>
-              {!isCollapsed && (
-                <>
-                  <div className="grid flex-1 text-left">
-                    <span className="truncate font-medium text-sm">{activeTeam.name}</span>
-                  </div>
-                  <ChevronsUpDown className="ml-auto h-4 w-4 text-zinc-500 dark:text-zinc-400" />
-                </>
-              )}
+              <span className="text-sm font-medium">{activeTeam.name}</span>
+              <ChevronsUpDown className="ml-auto h-4 w-4 text-zinc-500 dark:text-zinc-400 shrink-0 opacity-50" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl p-1 apple-card"
             align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
+            className="w-60 rounded-xl p-1 apple-card"
+            sideOffset={8}
           >
             <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Avolve from Degen to Regen
+              Main Platforms
             </DropdownMenuLabel>
             {allRoutes
               .filter((route) => route.category === "main")
@@ -202,9 +208,10 @@ export function NavSwitcher({
                   <DropdownMenuItem 
                     key={route.id} 
                     onClick={() => handleTeamChange(route)} 
-                    className="gap-2 p-2 rounded-lg apple-menu-item"
+                    className="gap-2 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150 ease-in-out"
+                    disabled={isNavigating}
                   >
-                    <div className="flex size-6 items-center justify-center">
+                    <div className={`flex size-6 items-center justify-center rounded-md ${route.id === activeTeam.id ? getGradientClass() : 'bg-zinc-100 dark:bg-zinc-800'}`}>
                       <Image
                         src={route.icon || "/placeholder.svg"}
                         alt={route.name}
@@ -213,9 +220,9 @@ export function NavSwitcher({
                         className="object-contain"
                       />
                     </div>
-                    <span className="text-sm">{route.name}</span>
+                    <span className="text-sm font-medium">{route.name}</span>
                     {isActive ? (
-                      <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">Active</span>
+                      <span className="ml-auto text-xs font-medium text-zinc-500 dark:text-zinc-400">Active</span>
                     ) : (
                       <DropdownMenuShortcut className="text-xs text-zinc-500 dark:text-zinc-400">
                         ⌘{index + 1}
@@ -237,9 +244,10 @@ export function NavSwitcher({
                   <DropdownMenuItem 
                     key={route.id} 
                     onClick={() => handleTeamChange(route)} 
-                    className="gap-2 p-2 rounded-lg apple-menu-item"
+                    className="gap-2 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150 ease-in-out"
+                    disabled={isNavigating}
                   >
-                    <div className="flex size-6 items-center justify-center">
+                    <div className={`flex size-6 items-center justify-center rounded-md ${route.id === activeTeam.id ? getGradientClass() : 'bg-zinc-100 dark:bg-zinc-800'}`}>
                       <Image
                         src={route.icon || "/placeholder.svg"}
                         alt={route.name}
@@ -248,9 +256,9 @@ export function NavSwitcher({
                         className="object-contain"
                       />
                     </div>
-                    <span className="text-sm">{route.name}</span>
+                    <span className="text-sm font-medium">{route.name}</span>
                     {isActive && (
-                      <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">Active</span>
+                      <span className="ml-auto text-xs font-medium text-zinc-500 dark:text-zinc-400">Active</span>
                     )}
                   </DropdownMenuItem>
                 );
@@ -268,9 +276,10 @@ export function NavSwitcher({
                   <DropdownMenuItem 
                     key={route.id} 
                     onClick={() => handleTeamChange(route)} 
-                    className="gap-2 p-2 rounded-lg apple-menu-item"
+                    className="gap-2 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150 ease-in-out"
+                    disabled={isNavigating}
                   >
-                    <div className="flex size-6 items-center justify-center">
+                    <div className={`flex size-6 items-center justify-center rounded-md ${route.id === activeTeam.id ? getGradientClass() : 'bg-zinc-100 dark:bg-zinc-800'}`}>
                       <Image
                         src={route.icon || "/placeholder.svg"}
                         alt={route.name}
@@ -279,9 +288,9 @@ export function NavSwitcher({
                         className="object-contain"
                       />
                     </div>
-                    <span className="text-sm">{route.name}</span>
+                    <span className="text-sm font-medium">{route.name}</span>
                     {isActive && (
-                      <span className="ml-auto text-xs text-zinc-500 dark:text-zinc-400">Active</span>
+                      <span className="ml-auto text-xs font-medium text-zinc-500 dark:text-zinc-400">Active</span>
                     )}
                   </DropdownMenuItem>
                 );

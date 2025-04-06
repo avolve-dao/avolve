@@ -44,6 +44,7 @@ const avolveData = {
       icon: Target,
       category: "main",
       gradientClass: "from-stone-500 to-stone-700",
+      isDashboard: true
     },
     // Personal Success Puzzle (Amber-Yellow gradient)
     {
@@ -96,6 +97,7 @@ const avolveData = {
       icon: Users,
       category: "main",
       gradientClass: "from-slate-500 to-slate-700",
+      isDashboard: true
     },
     // Superpuzzle Developments
     {
@@ -162,6 +164,7 @@ const avolveData = {
       icon: Wind,
       category: "main",
       gradientClass: "from-zinc-500 to-zinc-700",
+      isDashboard: true
     },
     // Avolve from Degen to Regen
     {
@@ -218,6 +221,7 @@ const avolveData = {
       icon: Home,
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
+      isDashboard: true
     },
     {
       id: "personal-health",
@@ -270,6 +274,7 @@ const avolveData = {
       icon: Briefcase,
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
+      isDashboard: true
     },
     {
       id: "business-users",
@@ -322,6 +327,7 @@ const avolveData = {
       icon: Zap,
       category: "supermind",
       gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
+      isDashboard: true
     },
     {
       id: "supermind-desired",
@@ -356,6 +362,7 @@ const avolveData = {
       icon: BookOpen,
       category: "superpuzzle",
       gradientClass: "from-red-500 via-green-500 to-blue-500",
+      isDashboard: true
     },
     {
       id: "superpuzzle-individuals",
@@ -390,6 +397,7 @@ const avolveData = {
       icon: GraduationCap,
       category: "superhuman",
       gradientClass: "from-rose-500 via-red-500 to-orange-500",
+      isDashboard: true
     },
     {
       id: "superhuman-academy",
@@ -424,6 +432,7 @@ const avolveData = {
       icon: Users,
       category: "supersociety",
       gradientClass: "from-lime-500 via-green-500 to-emerald-500",
+      isDashboard: true
     },
     {
       id: "supersociety-company",
@@ -458,6 +467,7 @@ const avolveData = {
       icon: Lightbulb,
       category: "supergenius",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
+      isDashboard: true
     },
     {
       id: "supergenius-ventures",

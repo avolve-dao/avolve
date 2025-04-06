@@ -488,16 +488,31 @@ const avolveData = {
 
 // Helper function to determine active team based on pathname
 const getActiveTeamFromPath = (pathname: string) => {
-  if (pathname.includes('/personal')) return 'personal';
-  if (pathname.includes('/business')) return 'business';
-  if (pathname.includes('/supermind')) return 'supermind';
-  if (pathname.includes('/superhuman')) return 'superhuman';
-  if (pathname.includes('/supersociety')) return 'supersociety';
-  if (pathname.includes('/supergenius')) return 'supergenius';
-  if (pathname.includes('/superachiever')) return 'superachiever';
-  if (pathname.includes('/superachievers')) return 'superachievers';
-  if (pathname.includes('/supercivilization')) return 'supercivilization';
-  if (pathname.includes('/dashboard')) return 'dashboard';
+  // Check for exact path matches first
+  if (pathname === '/superachiever') return 'superachiever';
+  if (pathname === '/personal') return 'personal';
+  if (pathname === '/business') return 'business';
+  if (pathname === '/supermind') return 'supermind';
+  if (pathname === '/superachievers') return 'superachievers';
+  if (pathname === '/superpuzzle') return 'superpuzzle';
+  if (pathname === '/superhuman') return 'superhuman';
+  if (pathname === '/supersociety') return 'supersociety';
+  if (pathname === '/supergenius') return 'supergenius';
+  if (pathname === '/supercivilization') return 'supercivilization';
+  
+  // Then check for path segments for nested routes
+  if (pathname.startsWith('/personal/')) return 'personal';
+  if (pathname.startsWith('/business/')) return 'business';
+  if (pathname.startsWith('/supermind/')) return 'supermind';
+  if (pathname.startsWith('/superachiever/')) return 'superachiever';
+  if (pathname.startsWith('/superachievers/')) return 'superachievers';
+  if (pathname.startsWith('/superpuzzle/')) return 'superpuzzle';
+  if (pathname.startsWith('/superhuman/')) return 'superhuman';
+  if (pathname.startsWith('/supersociety/')) return 'supersociety';
+  if (pathname.startsWith('/supergenius/')) return 'supergenius';
+  if (pathname.startsWith('/supercivilization/')) return 'supercivilization';
+  if (pathname.startsWith('/dashboard')) return 'dashboard';
+  
   return 'superachiever'; // Default
 };
 
@@ -513,7 +528,8 @@ export function AppSidebar({
   // Update active team when pathname changes
   useEffect(() => {
     if (!propActiveTeam) {
-      setActiveTeamId(getActiveTeamFromPath(pathname));
+      const detectedTeam = getActiveTeamFromPath(pathname);
+      setActiveTeamId(detectedTeam);
     }
   }, [pathname, propActiveTeam]);
 
@@ -522,17 +538,20 @@ export function AppSidebar({
     // For main categories
     if (activeTeamId === 'superachiever') {
       return avolveData.navMain.filter(item => 
-        item.category === 'superachiever'
+        item.category === 'superachiever' || 
+        (item.category === 'main' && item.id === 'superachiever')
       );
     } 
     else if (activeTeamId === 'superachievers') {
       return avolveData.navMain.filter(item => 
-        item.category === 'superachievers'
+        item.category === 'superachievers' || 
+        (item.category === 'main' && item.id === 'superachievers')
       );
     }
     else if (activeTeamId === 'supercivilization') {
       return avolveData.navMain.filter(item => 
-        item.category === 'supercivilization'
+        item.category === 'supercivilization' || 
+        (item.category === 'main' && item.id === 'supercivilization')
       );
     }
     // For sub-categories

@@ -121,10 +121,14 @@ export function NavSwitcher({
 
   const handleTeamChange = (team: (typeof allRoutes)[0]) => {
     setActiveTeam(team)
-    router.push(team.href)
+    // First call onTeamChange to update the sidebar state
     if (onTeamChange) {
       onTeamChange(team.id)
     }
+    // Then navigate to the new route
+    setTimeout(() => {
+      router.push(team.href)
+    }, 10)
   }
 
   // Get gradient color class based on team id

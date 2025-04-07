@@ -6,7 +6,7 @@
  */
 
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
-import { createClient as createServerClient } from '@/lib/supabase/server';
+import { createUniversalClient } from '@/lib/supabase/universal';
 import { 
   AuthError, 
   AuthResponse, 
@@ -161,7 +161,7 @@ export class AuthService {
    */
   public static getServerInstance(): AuthService {
     // Server-side instance is always created fresh to ensure correct cookie handling
-    return new AuthService(createServerClient());
+    return new AuthService(createUniversalClient());
   }
 
   /**

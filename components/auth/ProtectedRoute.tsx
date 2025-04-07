@@ -1,7 +1,10 @@
+'use client';
+
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Loader2 } from 'lucide-react';
+import { Database } from '@/lib/database.types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,7 +24,7 @@ export default function ProtectedRoute({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const supabase = createClientComponentClient();
+  const supabase = createClientComponentClient<Database>();
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -50,12 +53,12 @@ export default function ProtectedRoute({
 
         // If tokens are required, check user's token balances
         if (requiredTokens.length > 0) {
+          // Use a different approach to avoid join issues
           const { data: tokenData, error: tokenError } = await supabase
-            .from('token_balances')
-            .select('token_balances.balance, tokens.symbol')
-            .eq('user_id', session.user.id)
-            .in('tokens.symbol', requiredTokens.map(t => t.symbol))
-            .join('tokens', { foreignKey: 'token_id' });
+            .rpc('get_user_token_balances', {
+              p_user_id: session.user.id,
+              p_symbols: requiredTokens.map(t => t.symbol)
+            });
 
           if (tokenError || !tokenData) {
             router.push('/tokens?returnUrl=' + encodeURIComponent(window.location.pathname));
@@ -64,7 +67,7 @@ export default function ProtectedRoute({
 
           // Check if user has sufficient token balances
           const hasRequiredTokens = requiredTokens.every(requiredToken => {
-            const userToken = tokenData.find(t => t.symbol === requiredToken.symbol);
+            const userToken = tokenData.find((t: { symbol: string; balance: number }) => t.symbol === requiredToken.symbol);
             return userToken && userToken.balance >= requiredToken.amount;
           });
 

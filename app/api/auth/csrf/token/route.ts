@@ -1,4 +1,4 @@
-import { generateCsrfToken } from "@/lib/csrf"
+import { generateCsrfToken } from "@/lib/csrf-server"
 import { NextResponse } from "next/server"
 
 export async function GET() {
@@ -11,4 +11,3 @@ export async function GET() {
     return NextResponse.json({ error: "Failed to generate security token" }, { status: 500 })
   }
 }
-

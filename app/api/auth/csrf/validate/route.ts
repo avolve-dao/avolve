@@ -1,4 +1,4 @@
-import { validateCsrfToken } from "@/lib/csrf"
+import { validateCsrfToken } from "@/lib/csrf-server"
 import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
@@ -21,4 +21,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to validate security token" }, { status: 500 })
   }
 }
-

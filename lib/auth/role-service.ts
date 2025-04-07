@@ -5,10 +5,10 @@
  * It provides methods for managing roles, permissions, and user role assignments.
  */
 
-import { AuthError } from '@supabase/supabase-js';
-import { TypedSupabaseClient } from '@/lib/supabase/client';
+import { AuthError, SupabaseClient } from '@supabase/supabase-js';
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
-import { createClient as createServerClient } from '@/lib/supabase/server';
+import { createUniversalClient } from '@/lib/supabase/universal';
+import { Database } from '@/lib/database.types';
 
 // Helper function to convert database error to AuthError
 function convertError(error: any): AuthError | null {
@@ -72,13 +72,13 @@ export interface RoleHierarchy {
  * Role Service Class
  */
 export class RoleService {
-  private client: TypedSupabaseClient;
+  private client: SupabaseClient<Database>;
   private static instance: RoleService;
 
   /**
    * Private constructor to enforce singleton pattern
    */
-  private constructor(client: TypedSupabaseClient) {
+  private constructor(client: SupabaseClient<Database>) {
     this.client = client;
   }
 
@@ -93,18 +93,18 @@ export class RoleService {
   }
 
   /**
-   * Get server-side instance of the role service
+   * Get universal instance of the role service
    */
-  public static getServerInstance(): RoleService {
-    // Server-side instance is always created fresh to ensure correct cookie handling
-    return new RoleService(createServerClient());
+  public static getUniversalInstance(): RoleService {
+    // Universal instance is always created fresh to ensure correct cookie handling
+    return new RoleService(createUniversalClient());
   }
 
   /**
    * Get the Supabase client
    * This is needed for direct access to the client in certain scenarios
    */
-  public getSupabaseClient(): TypedSupabaseClient {
+  public getSupabaseClient(): SupabaseClient<Database> {
     return this.client;
   }
 

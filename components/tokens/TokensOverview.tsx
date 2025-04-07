@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { TokenBalanceCard } from './TokenBalanceCard'
@@ -73,17 +75,22 @@ export function TokensOverview() {
         }
         
         // Format transaction data
-        const formattedTransactions = transactionData?.map(tx => ({
-          id: tx.id,
-          token_symbol: tx.tokens?.symbol || '',
-          token_name: tx.tokens?.name || '',
-          amount: tx.amount,
-          transaction_type: tx.transaction_type,
-          status: tx.status,
-          created_at: tx.created_at,
-          from_user_id: tx.from_user_id,
-          to_user_id: tx.to_user_id
-        })) || []
+        const formattedTransactions = transactionData?.map(tx => {
+          // Fix the type issue by accessing the nested object correctly
+          const tokenInfo = tx.tokens as unknown as { symbol: string; name: string };
+          
+          return {
+            id: tx.id,
+            token_symbol: tokenInfo?.symbol || '',
+            token_name: tokenInfo?.name || '',
+            amount: tx.amount,
+            transaction_type: tx.transaction_type,
+            status: tx.status,
+            created_at: tx.created_at,
+            from_user_id: tx.from_user_id,
+            to_user_id: tx.to_user_id
+          };
+        }) || []
         
         setTransactions(formattedTransactions)
       } catch (err) {

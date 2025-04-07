@@ -17,6 +17,7 @@ export function useRBAC() {
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Use browser instance for client-side components
   const roleService = RoleService.getBrowserInstance();
   
   // Load user roles and permissions

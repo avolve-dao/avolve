@@ -1,17 +1,17 @@
-"use client"
+'use client';
 
-import React, { useState } from "react"
-import { ProtectedPage } from "@/components/auth/protected-page"
-import { Authorized } from "@/components/auth/authorized"
-import { useRBAC } from "@/lib/hooks/use-rbac"
-import { withAuthorization } from "@/components/auth/with-authorization"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Spinner } from "@/components/ui/spinner"
-import { InfoIcon, ShieldCheck, ShieldAlert, UserCheck, Settings, FileText, Edit, Trash } from "lucide-react"
+import React, { useState } from "react";
+import { ProtectedPage } from "@/components/auth/protected-page";
+import { Authorized } from "@/components/auth/authorized";
+import { useRBAC } from "@/lib/hooks/use-rbac";
+import { withAuthorization } from "@/components/auth/with-authorization";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { InfoIcon, ShieldCheck, ShieldAlert, UserCheck, Settings, FileText, Edit, Trash } from "lucide-react";
 
 /**
  * RBAC Example Page
@@ -20,10 +20,42 @@ import { InfoIcon, ShieldCheck, ShieldAlert, UserCheck, Settings, FileText, Edit
  * in the Avolve platform. It showcases the various RBAC components and hooks
  * available for developers.
  */
-import RbacClientPage from './page.client';
-
-export default function RbacPage() {
-  return <RbacClientPage />;
+export default function RbacExamplePage() {
+  return (
+    <ProtectedPage
+      title="RBAC Examples"
+      description="This page demonstrates role-based access control features."
+    >
+      <div className="container py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Role-Based Access Control Examples</h1>
+          <p className="text-muted-foreground">
+            This page demonstrates different ways to implement access control in the Avolve platform.
+          </p>
+        </div>
+        
+        <Tabs defaultValue="components">
+          <TabsList className="mb-4">
+            <TabsTrigger value="components">Component Examples</TabsTrigger>
+            <TabsTrigger value="hook">Hook Example</TabsTrigger>
+            <TabsTrigger value="hoc">HOC Example</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="components">
+            <ComponentExamples />
+          </TabsContent>
+          
+          <TabsContent value="hook">
+            <HookExample />
+          </TabsContent>
+          
+          <TabsContent value="hoc">
+            <HocExample />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </ProtectedPage>
+  )
 }
 
 /**
@@ -78,7 +110,7 @@ function ComponentExamples() {
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
           <InfoIcon className="h-4 w-4 mr-2" />
-          Uses the Authorized component with requiredRoles="admin"
+          Uses the <code>{'<Authorized>'}</code> component with <code>requiredRoles</code> prop
         </CardFooter>
       </Card>
       
@@ -101,7 +133,7 @@ function ComponentExamples() {
                 <ShieldAlert className="h-4 w-4" />
                 <AlertTitle>Access Denied</AlertTitle>
                 <AlertDescription>
-                  You need content editing permissions to use this feature.
+                  You need content editing permissions to view this content.
                 </AlertDescription>
               </Alert>
             }
@@ -109,16 +141,16 @@ function ComponentExamples() {
             <div className="p-4 bg-muted rounded-md">
               <h3 className="font-medium mb-2">Content Editor</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                This editor is only visible to users with content editing permissions.
+                This content is only visible to users with content editing permissions.
               </p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline">
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Content
                 </Button>
-                <Button size="sm" variant="outline" variant="destructive">
+                <Button size="sm" variant="outline">
                   <Trash className="h-4 w-4 mr-2" />
-                  Delete
+                  Delete Content
                 </Button>
               </div>
             </div>
@@ -126,19 +158,19 @@ function ComponentExamples() {
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
           <InfoIcon className="h-4 w-4 mr-2" />
-          Uses the Authorized component with requiredPermissions="content:edit"
+          Uses the <code>{'<Authorized>'}</code> component with <code>requiredPermissions</code> prop
         </CardFooter>
       </Card>
       
-      {/* Moderator Tools Example */}
+      {/* Multiple Roles Example */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
-            <CardTitle>Moderator Tools</CardTitle>
+            <CardTitle>Multiple Roles</CardTitle>
           </div>
           <CardDescription>
-            Visible to users with "admin" OR "moderator" role
+            Visible to users with either "admin" or "moderator" roles
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -155,18 +187,18 @@ function ComponentExamples() {
             }
           >
             <div className="p-4 bg-muted rounded-md">
-              <h3 className="font-medium mb-2">Moderation Queue</h3>
+              <h3 className="font-medium mb-2">Moderation Controls</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                This content is visible to both admins and moderators.
+                This content is visible to both administrators and moderators.
               </p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline">
                   <UserCheck className="h-4 w-4 mr-2" />
-                  Approve
+                  Approve Users
                 </Button>
-                <Button size="sm" variant="outline" variant="destructive">
+                <Button size="sm" variant="outline">
                   <Trash className="h-4 w-4 mr-2" />
-                  Reject
+                  Remove Content
                 </Button>
               </div>
             </div>
@@ -174,44 +206,43 @@ function ComponentExamples() {
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
           <InfoIcon className="h-4 w-4 mr-2" />
-          Uses the Authorized component with requiredRoles={["admin", "moderator"]}
+          Uses <code>requiredRoles</code> with an array
         </CardFooter>
       </Card>
       
-      {/* Advanced Example */}
+      {/* Multiple Permissions Example */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-primary" />
-            <CardTitle>Advanced Settings</CardTitle>
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <CardTitle>Multiple Permissions</CardTitle>
           </div>
           <CardDescription>
-            Requires "admin" role AND "settings:manage" permission
+            Requires both "content:read" and "content:edit" permissions
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Authorized 
-            requiredRoles="admin"
-            requiredPermissions="settings:manage"
+            requiredPermissions={["content:read", "content:edit"]}
             fallback={
               <Alert>
                 <ShieldAlert className="h-4 w-4" />
                 <AlertTitle>Access Denied</AlertTitle>
                 <AlertDescription>
-                  You need admin role and settings management permissions.
+                  You need both read and edit permissions to view this content.
                 </AlertDescription>
               </Alert>
             }
           >
             <div className="p-4 bg-muted rounded-md">
-              <h3 className="font-medium mb-2">Advanced System Settings</h3>
+              <h3 className="font-medium mb-2">Advanced Editor</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                This content requires both admin role and settings management permission.
+                This content requires both read and edit permissions.
               </p>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Configure
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Advanced Content
                 </Button>
               </div>
             </div>
@@ -219,7 +250,7 @@ function ComponentExamples() {
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground">
           <InfoIcon className="h-4 w-4 mr-2" />
-          Uses the Authorized component with both requiredRoles and requiredPermissions
+          Uses <code>requiredPermissions</code> with an array
         </CardFooter>
       </Card>
     </div>
@@ -232,76 +263,74 @@ function ComponentExamples() {
  * Demonstrates using the useRBAC hook for programmatic access control.
  */
 function HookExample() {
-  const { hasRole, hasPermission, can, isLoading } = useRBAC()
+  const { hasRole, hasPermission, isLoading } = useRBAC();
   const [roleChecks, setRoleChecks] = useState<Record<string, boolean | null>>({
     admin: null,
-    user: null,
-    moderator: null
-  })
+    editor: null,
+    moderator: null,
+  });
   const [permissionChecks, setPermissionChecks] = useState<Record<string, boolean | null>>({
-    'users:view': null,
-    'content:edit': null,
-    'settings:manage': null
-  })
+    "content:read": null,
+    "content:edit": null,
+    "users:manage": null,
+  });
   
-  // Check roles and permissions
-  React.useEffect(() => {
-    const checkAccess = async () => {
-      // Check roles
-      const adminCheck = await hasRole('admin')
-      const userCheck = await hasRole('user')
-      const moderatorCheck = await hasRole('moderator')
-      
-      setRoleChecks({
-        admin: adminCheck,
-        user: userCheck,
-        moderator: moderatorCheck
-      })
-      
-      // Check permissions
-      const viewUsersCheck = await hasPermission('users', 'view')
-      const editContentCheck = await hasPermission('content', 'edit')
-      const manageSettingsCheck = await hasPermission('settings', 'manage')
-      
-      setPermissionChecks({
-        'users:view': viewUsersCheck,
-        'content:edit': editContentCheck,
-        'settings:manage': manageSettingsCheck
-      })
-    }
+  const checkAccess = async () => {
+    // Check roles
+    const adminCheck = await hasRole("admin");
+    const editorCheck = await hasRole("editor");
+    const moderatorCheck = await hasRole("moderator");
     
-    if (!isLoading) {
-      checkAccess()
-    }
-  }, [isLoading, hasRole, hasPermission])
-  
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center p-8">
-        <Spinner size="lg" />
-      </div>
-    )
-  }
+    setRoleChecks({
+      admin: adminCheck,
+      editor: editorCheck,
+      moderator: moderatorCheck,
+    });
+    
+    // Check permissions
+    const readCheck = await hasPermission("content", "read");
+    const editCheck = await hasPermission("content", "edit");
+    const usersCheck = await hasPermission("users", "manage");
+    
+    setPermissionChecks({
+      "content:read": readCheck,
+      "content:edit": editCheck,
+      "users:manage": usersCheck,
+    });
+  };
   
   return (
     <Card>
       <CardHeader>
         <CardTitle>useRBAC Hook Example</CardTitle>
         <CardDescription>
-          Demonstrates programmatic access control using the useRBAC hook
+          Demonstrates using the RBAC hook for programmatic access control
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <div className="mb-4">
+          <Button onClick={checkAccess} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Spinner className="mr-2" />
+                Checking...
+              </>
+            ) : (
+              "Check Access"
+            )}
+          </Button>
+        </div>
+        
         <div className="grid gap-6 md:grid-cols-2">
           {/* Role Checks */}
           <div>
-            <h3 className="font-medium mb-4">Your Roles</h3>
+            <h3 className="font-medium mb-2">Role Checks</h3>
             <ul className="space-y-2">
               {Object.entries(roleChecks).map(([role, hasRole]) => (
-                <li key={role} className="flex items-center justify-between p-2 border rounded-md">
+                <li key={role} className="flex justify-between items-center p-2 bg-muted rounded-md">
                   <span className="font-medium">{role}</span>
                   {hasRole === null ? (
-                    <Spinner size="sm" />
+                    <Badge variant="outline">Not checked</Badge>
                   ) : (
                     <Badge variant={hasRole ? "default" : "outline"}>
                       {hasRole ? "Granted" : "Not Granted"}
@@ -314,13 +343,13 @@ function HookExample() {
           
           {/* Permission Checks */}
           <div>
-            <h3 className="font-medium mb-4">Your Permissions</h3>
+            <h3 className="font-medium mb-2">Permission Checks</h3>
             <ul className="space-y-2">
               {Object.entries(permissionChecks).map(([permission, hasPermission]) => (
-                <li key={permission} className="flex items-center justify-between p-2 border rounded-md">
+                <li key={permission} className="flex justify-between items-center p-2 bg-muted rounded-md">
                   <span className="font-medium">{permission}</span>
                   {hasPermission === null ? (
-                    <Spinner size="sm" />
+                    <Badge variant="outline">Not checked</Badge>
                   ) : (
                     <Badge variant={hasPermission ? "default" : "outline"}>
                       {hasPermission ? "Granted" : "Not Granted"}

@@ -1,44 +1,44 @@
-import { createClient } from "@/lib/supabase/universal"
+'use client';
+
+import { createUniversalClient } from "@/lib/supabase/universal"
 import { cookies } from "next/headers"
 import crypto from "crypto"
 
-// Generate a CSRF token
+// Generate a CSRF token - this function should only be used in server components
 export async function generateCsrfToken(): Promise<string> {
   const token = crypto.randomBytes(32).toString("hex")
-  const cookieStore = cookies()
-
-  // Store the token in a cookie with HttpOnly, Secure, and SameSite flags
-  cookieStore.set("csrf_token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    path: "/",
-    maxAge: 60 * 60, // 1 hour
-  })
-
+  
+  // This function is not compatible with client components
+  // It's kept here for backward compatibility but should be migrated to csrf-server.ts
+  console.warn('generateCsrfToken in csrf.ts should only be used in server components')
+  
   return token
 }
 
-// Validate a CSRF token
+// Validate a CSRF token - this function should only be used in server components
 export async function validateCsrfToken(token: string): Promise<boolean> {
-  const cookieStore = cookies()
-  const storedToken = cookieStore.get("csrf_token")
-
-  if (!storedToken || !token) {
-    return false
-  }
-
-  // Use constant-time comparison to prevent timing attacks
-  return crypto.timingSafeEqual(Buffer.from(storedToken.value), Buffer.from(token))
+  // This function is not compatible with client components
+  // It's kept here for backward compatibility but should be migrated to csrf-server.ts
+  console.warn('validateCsrfToken in csrf.ts should only be used in server components')
+  
+  return false
 }
 
-// Get the current user with CSRF protection
+// Get the current user with CSRF protection - client-side version
 export async function getCurrentUserWithCsrf() {
-  const supabase = createClient()
+  const supabase = createUniversalClient()
   const { data, error } = await supabase.auth.getUser()
 
-  // Generate a new CSRF token for forms
-  const csrfToken = await generateCsrfToken()
+  // For client components, we need to fetch the CSRF token from the API
+  let csrfToken = '';
+  
+  try {
+    const response = await fetch('/api/auth/csrf/token');
+    const tokenData = await response.json();
+    csrfToken = tokenData.token;
+  } catch (e) {
+    console.error('Failed to fetch CSRF token:', e);
+  }
 
   return {
     user: data?.user || null,

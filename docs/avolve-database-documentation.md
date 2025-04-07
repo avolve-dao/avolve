@@ -2,19 +2,64 @@
 
 ![Avolve Platform](https://via.placeholder.com/1200x300/4F46E5/FFFFFF?text=Avolve+Platform)
 
-> **Version:** 1.0.0  
+> **Version:** 1.3.0  
 > **Last Updated:** April 6, 2025  
-> **Status:** Active Development
+> **Status:** MVP Implementation with Declarative Schema
+> **Related Documents:** [Documentation Index](./index.md) | [Master Plan](./master-plan.md) | [Architecture Overview](./architecture.md) | [Integration Assessment System](./integration-assessment-system.md)
 
 ## 📊 Overview
 
-The Avolve platform is built on a sophisticated token-based access control system that aligns with the platform's three main pillars:
+The Avolve platform is built on a token-based access control system that aligns with the platform's three main pillars, with a focus on gamification principles to enhance user engagement. The MVP implementation prioritizes the Discovery and Onboarding phases of the user journey.
 
 1. **Superachiever** - Individual journey of transformation
 2. **Superachievers** - Collective journey of transformation
 3. **Supercivilization** - Ecosystem journey for transformation
 
-This documentation provides a comprehensive overview of the database schema, token structure, and access control mechanisms that power the Avolve platform.
+This documentation provides an overview of the database schema, token structure, and access control mechanisms that power the Avolve platform MVP.
+
+## 🎮 Gamification Framework
+
+The Avolve platform implements the 4 Experience Phases of Gamification:
+
+1. **Discovery** - Users discover the platform and understand its value proposition
+2. **Onboarding** - Users learn the basic mechanics and earn their first tokens
+3. **Scaffolding** - Users engage in regular activities to progress through the platform
+4. **Endgame** - Veteran users contribute to the community and access exclusive content
+
+The MVP focuses primarily on the Discovery and Onboarding phases to provide immediate value while collecting data to inform future development.
+
+### Integration Assessment System
+
+A key component of the gamification framework is the **Integration Assessment System**, which helps users identify and strengthen connections between different domains of their transformation journey. This system:
+
+- Provides personalized integration profiles based on assessment responses
+- Visualizes integration strengths and opportunities through an interactive map
+- Recommends targeted exercises to improve integration
+- Rewards users with tokens for completing assessments and exercises
+
+The Integration Assessment System addresses the core need of emerging superachievers in 2025: integration across fragmented domains of life and work.
+
+## 👥 User & Admin Roles
+
+The Avolve platform implements a role-based access control system alongside the token-based system, providing flexible permission management.
+
+### User Roles
+
+| Role | Description | Permissions |
+|------|-------------|-------------|
+| **Subscriber** | Basic access to platform content | View content, earn tokens |
+| **Participant** | Can participate in community activities | View content, earn tokens, participate in discussions, submit feedback |
+| **Contributor** | Can contribute content to the platform | All participant permissions plus ability to contribute content |
+
+### Admin Roles
+
+| Role | Description | Permissions |
+|------|-------------|-------------|
+| **Associate** | Helping with platform operations | All contributor permissions plus content moderation and user management |
+| **Builder** | Building platform features | All associate permissions plus platform management |
+| **Partner** | Funding and strategic direction | All builder permissions plus financial management |
+
+These roles are implemented using Supabase's Row Level Security (RLS) policies and declarative schema approach, ensuring secure and consistent access control throughout the platform.
 
 ## 🧩 Token Structure
 
@@ -57,336 +102,120 @@ graph TD
     class SGB supergenius
 ```
 
-## 📝 Core Tables
+## 🔐 Access Control System
 
-### `tokens`
+The Avolve platform implements a hybrid access control system that combines:
 
-Stores information about all tokens in the system.
+1. **Token-Based Access Control**: Users need specific tokens to access certain content
+2. **Role-Based Access Control**: User roles provide baseline permissions and access levels
+3. **Gamification-Based Access**: Users in early phases (Discovery, Onboarding) get special access to introductory content
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| symbol | text | Token symbol (e.g., GEN, SAP) |
-| name | text | Token name |
-| description | text | Token description |
-| icon_url | text | URL to token icon |
-| gradient_class | text | CSS gradient class for UI |
-| total_supply | numeric | Total supply of tokens |
-| is_primary | boolean | Whether this is a primary token |
-| blockchain_contract | text | Contract address (for future blockchain integration) |
-| chain_id | text | Blockchain chain ID |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
-| is_active | boolean | Whether the token is active |
-| is_transferable | boolean | Whether the token can be transferred |
-| transfer_fee | numeric | Fee for token transfers |
-| parent_token_id | uuid | Reference to parent token |
+This hybrid approach ensures:
+- New users can experience enough of the platform to understand its value
+- Advanced content remains exclusive to users who have earned the required tokens
+- Administrative functions are restricted to appropriate admin roles
 
-### `user_tokens`
+## 📋 Database Schema
 
-Tracks token ownership for each user.
+The database is implemented using Supabase with a declarative schema approach, following best practices for security and performance.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| user_id | uuid | Reference to auth.users |
-| token_id | uuid | Reference to tokens |
-| balance | numeric | Available token balance |
-| staked_balance | numeric | Staked token balance |
-| pending_release | numeric | Tokens pending release |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
-| last_updated | timestamptz | Last balance update |
+### Declarative Schema Structure
 
-### `token_transactions`
+The database follows Supabase's declarative schema approach, with the following organization:
 
-Records all token transactions.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| token_id | uuid | Reference to tokens |
-| from_user_id | uuid | Sender (null for minting) |
-| to_user_id | uuid | Recipient (null for burning) |
-| amount | numeric | Transaction amount |
-| transaction_type | text | Type (transfer, reward, etc.) |
-| reason | text | Transaction reason |
-| tx_hash | text | Blockchain transaction hash |
-| created_at | timestamptz | Transaction timestamp |
-
-### `pillars`
-
-Represents the three main pillars of the platform.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| slug | text | URL-friendly identifier |
-| title | text | Pillar title |
-| subtitle | text | Pillar subtitle |
-| description | text | Pillar description |
-| icon | text | Icon identifier |
-| gradient_class | text | CSS gradient class |
-| display_order | integer | Display order |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
-| token_symbol | text | Associated token symbol |
-| chain_id | text | Blockchain chain ID |
-
-### `sections`
-
-Represents sections within pillars.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| pillar_id | uuid | Reference to pillars |
-| slug | text | URL-friendly identifier |
-| title | text | Section title |
-| subtitle | text | Section subtitle |
-| description | text | Section description |
-| icon | text | Icon identifier |
-| gradient_class | text | CSS gradient class |
-| display_order | integer | Display order |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
-| token_symbol | text | Associated token symbol |
-| chain_id | text | Blockchain chain ID |
-
-## 🔄 Entity-Relationship Diagram
-
-```mermaid
-erDiagram
-    TOKENS ||--o{ USER_TOKENS : "owned by"
-    TOKENS ||--o{ TOKEN_TRANSACTIONS : "involved in"
-    TOKENS ||--o{ TOKENS : "parent of"
-    PILLARS ||--o{ SECTIONS : "contains"
-    PILLARS }o--|| TOKENS : "associated with"
-    SECTIONS }o--|| TOKENS : "associated with"
-    USERS ||--o{ USER_TOKENS : "owns"
-    USERS ||--o{ TOKEN_TRANSACTIONS : "participates in"
-
-    TOKENS {
-        uuid id PK
-        text symbol
-        text name
-        text description
-        text gradient_class
-        numeric total_supply
-        boolean is_primary
-        boolean is_transferable
-        uuid parent_token_id FK
-    }
-
-    USER_TOKENS {
-        uuid id PK
-        uuid user_id FK
-        uuid token_id FK
-        numeric balance
-        numeric staked_balance
-        numeric pending_release
-    }
-
-    TOKEN_TRANSACTIONS {
-        uuid id PK
-        uuid token_id FK
-        uuid from_user_id FK
-        uuid to_user_id FK
-        numeric amount
-        text transaction_type
-        text reason
-    }
-
-    PILLARS {
-        uuid id PK
-        text slug
-        text title
-        text subtitle
-        text description
-        text gradient_class
-        integer display_order
-        text token_symbol
-    }
-
-    SECTIONS {
-        uuid id PK
-        uuid pillar_id FK
-        text slug
-        text title
-        text subtitle
-        text description
-        text gradient_class
-        integer display_order
-        text token_symbol
-    }
-
-    USERS {
-        uuid id PK
-        text email
-        boolean email_confirmed
-    }
+```
+supabase/
+├── migrations/                # Migration files for database changes
+│   ├── 20240406154125_add_user_and_admin_roles.sql
+│   ├── 20240406154500_implement_declarative_schema.sql
+│   ├── 20240906123045_add_user_activity_logs.sql
+│   └── ...
+├── schemas/                   # Declarative schema definitions
+│   ├── public/                # Public schema
+│   │   ├── tables.sql         # Table definitions
+│   │   ├── policies.sql       # RLS policies
+│   │   ├── functions.sql      # Main functions file (imports modules)
+│   │   └── functions/         # Function modules
+│   │       ├── role_functions.sql
+│   │       ├── token_functions.sql
+│   │       └── gamification_functions.sql
+│   └── schema.sql             # Main schema file
+└── seed/                      # Seed data for development
 ```
 
-## 🔐 Token-Based Access Control
+This structure provides several benefits:
+- Clear separation of concerns
+- Easier maintenance and collaboration
+- Better version control
+- Simplified deployment
+- Improved documentation
 
-The Avolve platform implements a token-based access control system that determines user access to different parts of the platform based on token ownership.
+### Core Tables
 
-### Key Functions
+- **roles**: Defines all user and admin roles with their permissions
+- **user_roles**: Assigns roles to users with optional expiration
+- **tokens**: Defines all token types in the platform
+- **user_tokens**: Tracks token ownership for each user
+- **token_transactions**: Records token transfers and rewards
+- **pillars**: The three main content pillars of the platform
+- **sections**: Subdivisions within each pillar
+- **components**: Individual content pieces within sections
+- **user_progress**: Tracks user progress through content
+- **user_achievements**: Tracks user achievements and rewards
+- **user_activity_logs**: Records user actions for analytics and gamification
+- **integration_assessment_questions**: Stores questions for evaluating domain integration
+- **integration_assessment_responses**: Records user responses to assessment questions
+- **integration_profiles**: Stores calculated integration scores and personalized paths
+- **integration_exercises**: Contains guided exercises for improving domain integration
+- **user_exercise_progress**: Tracks user progress through integration exercises
+- **integration_journey_milestones**: Records significant milestones in integration journey
 
-```sql
--- Check if a user has a specific token
-has_token(user_id, token_symbol)
+### Security Implementation
 
--- Check if a user has sufficient token balance
-has_sufficient_token_balance(user_id, token_symbol, required_amount)
+All tables implement Row Level Security (RLS) policies to ensure users can only access data they are authorized to see. The security model follows these principles:
 
--- Get token hierarchy
-get_token_hierarchy()
-```
+1. **Least Privilege**: Users only have access to what they need
+2. **Defense in Depth**: Multiple security layers (tokens, roles, RLS)
+3. **Declarative Policies**: Security rules defined as declarative policies
+4. **Automatic Role Assignment**: New users automatically get the Subscriber role
 
-## 🚀 Platform Structure
+## 🔧 Database Functions
 
-The platform structure mirrors the token hierarchy:
+The platform uses PostgreSQL functions to implement business logic and enforce security. All functions follow these best practices:
 
-```mermaid
-graph TD
-    subgraph Supercivilization[Supercivilization - GEN]
-        SC_GID[Genius ID]
-        SC_GEN[GEN Token]
-        SC_GAI[Genie AI]
-    end
-    
-    subgraph Superachiever[Superachiever - SAP]
-        subgraph PSP[Personal Success Puzzle - PSP]
-            PSP_HE[Health & Energy]
-            PSP_WC[Wealth & Career]
-            PSP_PP[Peace & People]
-        end
-        
-        subgraph BSP[Business Success Puzzle - BSP]
-            BSP_FSU[Front-Stage Users]
-            BSP_BSA[Back-Stage Admin]
-            BSP_BLP[Bottom-Line Profit]
-        end
-        
-        subgraph SMS[Supermind Superpowers - SMS]
-            SMS_CD[Current → Desired]
-            SMS_DA[Desired → Actions]
-            SMS_AR[Actions → Results]
-        end
-    end
-    
-    subgraph Superachievers[Superachievers - SCQ]
-        subgraph SPD[Superpuzzle Developments - SPD]
-            SPD_EI[Enhanced Individuals]
-            SPD_AC[Advanced Collectives]
-            SPD_BE[Balanced Ecosystems]
-        end
-        
-        subgraph SHE[Superhuman Enhancements - SHE]
-            SHE_SA[Superhuman Academy]
-            SHE_SU[Superhuman University]
-            SHE_SI[Superhuman Institute]
-        end
-        
-        subgraph SSA[Supersociety Advancements - SSA]
-            SSA_SC[Supersociety Company]
-            SSA_SCM[Supersociety Community]
-            SSA_SCY[Supersociety Country]
-        end
-        
-        subgraph SGB[Supergenius Breakthroughs - SGB]
-            SGB_SV[Supergenius Ventures]
-            SGB_SE[Supergenius Enterprises]
-            SGB_SI[Supergenius Industries]
-        end
-    end
-    
-    classDef primary fill:#6b7280,stroke:#4b5563,color:white
-    classDef superachiever fill:#78716c,stroke:#57534e,color:white
-    classDef superachievers fill:#64748b,stroke:#475569,color:white
-    classDef personal fill:#f59e0b,stroke:#d97706,color:white
-    classDef business fill:#14b8a6,stroke:#0d9488,color:white
-    classDef supermind fill:#8b5cf6,stroke:#7c3aed,color:white
-    classDef superpuzzle fill:#ef4444,stroke:#dc2626,color:white
-    classDef superhuman fill:#f43f5e,stroke:#e11d48,color:white
-    classDef supersociety fill:#84cc16,stroke:#65a30d,color:white
-    classDef supergenius fill:#0ea5e9,stroke:#0284c7,color:white
-    
-    class Supercivilization,SC_GID,SC_GEN,SC_GAI primary
-    class Superachiever,SAP superachiever
-    class Superachievers,SCQ superachievers
-    class PSP,PSP_HE,PSP_WC,PSP_PP personal
-    class BSP,BSP_FSU,BSP_BSA,BSP_BLP business
-    class SMS,SMS_CD,SMS_DA,SMS_AR supermind
-    class SPD,SPD_EI,SPD_AC,SPD_BE superpuzzle
-    class SHE,SHE_SA,SHE_SU,SHE_SI superhuman
-    class SSA,SSA_SC,SSA_SCM,SSA_SCY supersociety
-    class SGB,SGB_SV,SGB_SE,SGB_SI supergenius
-```
+1. **Security Invoker**: Functions run with the permissions of the calling user
+2. **Explicit Search Path**: All functions set `search_path = ''` to avoid security risks
+3. **Fully Qualified Names**: All database objects are referenced with schema prefixes
+4. **Error Handling**: Proper error handling and reporting
+5. **Modular Organization**: Functions are organized by domain in separate files
 
-## 📊 Current State Assessment
+### Key Function Categories
 
-### Strengths
+- **Role Functions**: Manage user roles and permissions
+- **Token Functions**: Handle token-related operations and access checks
+- **Gamification Functions**: Implement gamification features like achievements and progress tracking
 
-1. **Hierarchical Token Structure**: The database successfully implements a hierarchical token structure that aligns with the platform's three pillars.
-2. **Pillar-Section Relationship**: The database captures the relationship between pillars and sections, with each section associated with a specific token.
-3. **Token Ownership Tracking**: The database includes tables for tracking token ownership and transactions.
+## 📊 User Activity Tracking
 
-### Gaps and Recommendations
+The platform tracks user activity for analytics and gamification purposes. This data is used to:
 
-1. **Token Staking and Rewards**: 
-   - **Gap**: The database has tables for token staking and rewards, but they're not fully implemented.
-   - **Recommendation**: Implement the token staking and rewards functionality to enable users to stake tokens and earn rewards.
+1. **Personalize Recommendations**: Suggest relevant content based on user behavior
+2. **Award Achievements**: Recognize user accomplishments
+3. **Track Progress**: Monitor user journey through the platform
+4. **Identify Engagement Patterns**: Understand how users interact with the platform
 
-2. **User Progress Tracking**:
-   - **Gap**: While the database has tables for tracking user progress through pillars, sections, and components, they're not fully implemented.
-   - **Recommendation**: Implement the user progress tracking functionality to enable users to track their progress through the platform.
+## 🚀 Next Steps
 
-3. **Token-Based Access Control**:
-   - **Gap**: The database has functions for checking token ownership, but the access control mechanisms aren't fully implemented.
-   - **Recommendation**: Implement row-level security policies that use token ownership to control access to different parts of the platform.
+As the platform evolves, the database will be extended to support:
 
-4. **Blockchain Integration**:
-   - **Gap**: The database includes fields for blockchain integration, but they're not being used yet.
-   - **Recommendation**: Prepare for future integration with Psibase by implementing bridge components for data synchronization.
-
-## 🚀 Implementation Roadmap
-
-Based on our assessment, we recommend the following implementation roadmap:
-
-1. **Phase 1: Core Token System (Immediate)**
-   - Complete the implementation of token staking and rewards
-   - Implement token-based access control with row-level security
-   - Create UI components for token visualization
-
-2. **Phase 2: User Experience (Short-term)**
-   - Implement user progress tracking
-   - Develop gamification features
-   - Create engaging onboarding flows
-
-3. **Phase 3: Community Features (Medium-term)**
-   - Implement community building features
-   - Develop consensus mechanisms
-   - Create tools for community governance
-
-4. **Phase 4: Blockchain Preparation (Long-term)**
-   - Prepare for Psibase integration
-   - Implement bridge components
-   - Test data synchronization
-
-5. **Phase 5: Full Decentralization (When Psibase is Available)**
-   - Migrate to Psibase for blockchain operations
-   - Implement full decentralized features
-   - Maintain Supabase for user management
-
-## 📝 Conclusion
-
-The Avolve database is well-structured to support the platform's token-based access system and hierarchical organization. By implementing the recommendations in this document, the platform will be able to deliver a compelling user experience while preparing for future technological advancements.
+1. **Community Features**: Forums, discussions, and collaboration tools
+2. **Advanced Analytics**: More sophisticated tracking and reporting
+3. **Enhanced Personalization**: More tailored user experiences
+4. **Integration with Blockchain**: Preparation for future token economy
 
 ---
 
 <div style="text-align: center; margin-top: 50px;">
-<p>© 2025 Avolve Platform. All rights reserved.</p>
-<p>Created with ❤️ by the Avolve Team</p>
+<p>🚀 Avolve Platform</p>
+<p>👋 Created with ❤️ by the Avolve Team</p>
 </div>

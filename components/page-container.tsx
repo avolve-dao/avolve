@@ -6,17 +6,17 @@ import { motion } from "framer-motion"
 
 interface PageContainerProps {
   children: React.ReactNode
-  className?: string
-  title?: string
+  title: string | React.ReactNode
   subtitle?: string
+  className?: string
   showHeader?: boolean
 }
 
 export function PageContainer({
   children,
-  className,
   title,
   subtitle,
+  className,
   showHeader = true,
 }: PageContainerProps) {
   return (
@@ -28,11 +28,9 @@ export function PageContainer({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          {title && (
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-              {title}
-            </h1>
-          )}
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-2">
+            {title}
+          </h1>
           {subtitle && (
             <p className="mt-2 text-base text-zinc-600 dark:text-zinc-400">
               {subtitle}

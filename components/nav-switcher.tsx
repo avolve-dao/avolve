@@ -1,303 +1,193 @@
-"use client"
-
-import * as React from "react"
-import { useRouter } from "next/navigation"
-import { ChevronsUpDown, Plus } from "lucide-react"
-import Image from "next/image"
+import {
+  Building2,
+  ChevronDown,
+  LayoutDashboard,
+  Lightbulb,
+  Target,
+  Users,
+  Wind,
+  type LucideIcon,
+} from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar"
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 
-// Define all routes with their icons
-const allRoutes = [
-  {
-    id: "superachiever",
-    name: "Superachiever",
-    icon: "/icons/icon-superachiever.svg",
-    href: "/superachiever",
-    category: "main",
-  },
-  {
-    id: "personal",
-    name: "Personal",
-    icon: "/icons/icon-personal-success-puzzle.svg",
-    href: "/personal",
-    category: "superachiever",
-  },
-  {
-    id: "business",
-    name: "Business",
-    icon: "/icons/icon-business-success-puzzle.svg",
-    href: "/business",
-    category: "superachiever",
-  },
-  {
-    id: "supermind",
-    name: "Supermind",
-    icon: "/icons/icon-supermind-superpowers.svg",
-    href: "/supermind",
-    category: "superachiever",
-  },
-  {
-    id: "superachievers",
-    name: "Superachievers",
-    icon: "/icons/icon-superachievers.svg",
-    href: "/superachievers",
-    category: "main",
-  },
-  {
-    id: "superpuzzle",
-    name: "Superpuzzle",
-    icon: "/icons/icon-superpuzzle-developments.svg",
-    href: "/superpuzzle",
-    category: "superachievers",
-  },
-  {
-    id: "superhuman",
-    name: "Superhuman",
-    icon: "/icons/icon-superhuman-enhancements.svg",
-    href: "/superhuman",
-    category: "superachievers",
-  },
-  {
-    id: "supersociety",
-    name: "Supersociety",
-    icon: "/icons/icon-supersociety-advancements.svg",
-    href: "/supersociety",
-    category: "superachievers",
-  },
-  {
-    id: "supergenius",
-    name: "Supergenius",
-    icon: "/icons/icon-supergenius-breakthroughs.svg",
-    href: "/supergenius",
-    category: "superachievers",
-  },
-  {
-    id: "supercivilization",
-    name: "Supercivilization",
-    icon: "/icons/icon-supercivilization.svg",
-    href: "/supercivilization",
-    category: "main",
-  },
-]
+interface NavSwitcherProps {
+  activeTeam?: string;
+  onTeamChange?: (team: string) => void;
+}
 
-export function NavSwitcher({
-  activeTeamId = "superachiever",
-  onTeamChange,
-}: {
-  activeTeamId?: string
-  onTeamChange?: (teamId: string) => void
-}) {
-  const router = useRouter()
-  const [activeTeam, setActiveTeam] = React.useState<(typeof allRoutes)[0] | undefined>(
-    allRoutes.find((route) => route.id === activeTeamId) || allRoutes[0],
-  )
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false)
-  const [isNavigating, setIsNavigating] = React.useState(false)
+export function NavSwitcher({ activeTeam, onTeamChange }: NavSwitcherProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // Get sidebar context to check if sidebar is collapsed
-  const { isMobile, state } = useSidebar()
-  const isCollapsed = state === "collapsed"
+  // Define all routes with their icons and subtitles
+  const allRoutes = [
+    {
+      id: "superachiever",
+      title: "Superachiever",
+      subtitle: "Create Your Success Puzzle",
+      href: "/superachiever",
+      icon: Target,
+      gradientClass: "from-stone-500 to-stone-700",
+    },
+    {
+      id: "superachievers",
+      title: "Superachievers",
+      subtitle: "Co-Create Our Super Puzzle",
+      href: "/superachievers",
+      icon: Users,
+      gradientClass: "from-slate-500 to-slate-700",
+    },
+    {
+      id: "supercivilization",
+      title: "Supercivilization",
+      subtitle: "Avolve from Degen to Regen",
+      href: "/supercivilization",
+      icon: Wind,
+      gradientClass: "from-zinc-500 to-zinc-700",
+    },
+    {
+      id: "personal",
+      title: "Personal Success Puzzle",
+      subtitle: "Greater Personal Successes",
+      href: "/personal",
+      icon: LayoutDashboard,
+      gradientClass: "from-amber-500 to-yellow-500",
+    },
+    {
+      id: "business",
+      title: "Business Success Puzzle",
+      subtitle: "Greater Business Successes",
+      href: "/business",
+      icon: Building2,
+      gradientClass: "from-teal-500 to-cyan-500",
+    },
+    {
+      id: "superpuzzle",
+      title: "Superpuzzle Developments",
+      subtitle: "Conceive, Believe, & Achieve",
+      href: "/superpuzzle",
+      icon: Lightbulb,
+      gradientClass: "from-red-500 via-green-500 to-blue-500",
+    },
+  ];
 
-  // Use useEffect for team updates
-  React.useEffect(() => {
-    // Update active team when activeTeamId changes
-    const team = allRoutes.find((route) => route.id === activeTeamId)
-    if (team) {
-      setActiveTeam(team)
-    }
-  }, [activeTeamId]) // Run when activeTeamId changes
+  // Get the active route based on the pathname or activeTeam prop
+  const getActiveRoute = () => {
+    const teamId = activeTeam || getTeamIdFromPath(pathname);
+    return allRoutes.find((route) => route.id === teamId) || allRoutes[0];
+  };
 
-  if (!activeTeam) {
-    return null
-  }
+  // Extract team ID from pathname
+  const getTeamIdFromPath = (path: string) => {
+    const segment = path.split('/')[1];
+    const validSegments = allRoutes.map(route => route.id);
+    
+    return validSegments.includes(segment) ? segment : 'superachiever';
+  };
 
+  // Handle team change
   const handleTeamChange = (team: (typeof allRoutes)[0]) => {
     // Prevent multiple rapid navigations
-    if (isNavigating) return
+    if (isNavigating) return;
     
-    setIsNavigating(true)
-    setIsMenuOpen(false)
-    setActiveTeam(team)
+    setIsNavigating(true);
+    setIsOpen(false);
     
-    // First call onTeamChange to update the sidebar state
     if (onTeamChange) {
-      onTeamChange(team.id)
+      onTeamChange(team.id);
     }
     
-    // Then navigate to the new route
+    router.push(team.href);
+    
+    // Reset navigation state after a delay
     setTimeout(() => {
-      router.push(team.href)
-      // Reset navigation lock after navigation completes
-      setTimeout(() => {
-        setIsNavigating(false)
-      }, 500)
-    }, 50)
-  }
+      setIsNavigating(false);
+    }, 500);
+  };
 
-  // Get gradient color class based on team id
-  const getGradientClass = () => {
-    switch (activeTeam.id) {
-      case "personal":
-        return "bg-gradient-to-r from-amber-500 to-yellow-500";
-      case "business":
-        return "bg-gradient-to-r from-teal-500 to-cyan-500";
-      case "supermind":
-        return "bg-gradient-to-r from-violet-500 to-fuchsia-500";
-      case "superachiever":
-        return "bg-gradient-to-r from-stone-500 to-stone-700";
-      case "superachievers":
-        return "bg-gradient-to-r from-slate-500 to-slate-700";
-      case "superhuman":
-        return "bg-gradient-to-r from-rose-500 via-red-500 to-orange-500";
-      case "supersociety":
-        return "bg-gradient-to-r from-lime-500 via-green-500 to-emerald-500";
-      case "supergenius":
-        return "bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500";
-      case "supercivilization":
-        return "bg-gradient-to-r from-zinc-500 to-zinc-700";
-      default:
-        return "bg-gradient-to-r from-blue-500 to-blue-700";
-    }
-  }
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const activeRoute = getActiveRoute();
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              tooltip={activeTeam.name}
-              className="w-full justify-start gap-2"
+    <div ref={menuRef} className="relative">
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuTrigger
+              onClick={() => setIsOpen(!isOpen)}
+              className={cn(
+                "flex h-9 w-full items-center gap-2 rounded-md px-3 text-sm font-medium",
+                "bg-background hover:bg-accent hover:text-accent-foreground",
+                "data-[state=open]:bg-accent/50"
+              )}
             >
-              <div className={`flex size-6 items-center justify-center rounded-md ${getGradientClass()}`}>
-                <Image
-                  src={activeTeam.icon || "/placeholder.svg"}
-                  alt={activeTeam.name}
-                  width={18}
-                  height={18}
-                  className="object-contain"
-                />
+              <div className="flex items-center gap-2">
+                {activeRoute.icon && (
+                  <activeRoute.icon className="h-4 w-4" />
+                )}
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-medium">{activeRoute.title}</span>
+                  <span className="text-xs text-muted-foreground">{activeRoute.subtitle}</span>
+                </div>
               </div>
-              <span className="text-sm font-medium">{activeTeam.name}</span>
-              <ChevronsUpDown className="ml-auto h-4 w-4 text-zinc-500 dark:text-zinc-400 shrink-0 opacity-50" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="start"
-            className="w-60 rounded-xl p-1 apple-card"
-            sideOffset={8}
-          >
-            <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Main Platforms
-            </DropdownMenuLabel>
-            {allRoutes
-              .filter((route) => route.category === "main")
-              .map((route, index) => {
-                const isActive = route.id === activeTeam.id;
-                return (
-                  <DropdownMenuItem 
-                    key={route.id} 
-                    onClick={() => handleTeamChange(route)} 
-                    className="gap-2 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150 ease-in-out"
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            </NavigationMenuTrigger>
+            <NavigationMenuContent>
+              <div className="grid w-[280px] gap-1 p-2">
+                {allRoutes.map((route) => (
+                  <button
+                    key={route.id}
+                    onClick={() => handleTeamChange(route)}
                     disabled={isNavigating}
-                  >
-                    <div className={`flex size-6 items-center justify-center rounded-md ${route.id === activeTeam.id ? getGradientClass() : 'bg-zinc-100 dark:bg-zinc-800'}`}>
-                      <Image
-                        src={route.icon || "/placeholder.svg"}
-                        alt={route.name}
-                        width={18}
-                        height={18}
-                        className="object-contain"
-                      />
-                    </div>
-                    <span className="text-sm font-medium">{route.name}</span>
-                    {isActive ? (
-                      <span className="ml-auto text-xs font-medium text-zinc-500 dark:text-zinc-400">Active</span>
-                    ) : (
-                      <DropdownMenuShortcut className="text-xs text-zinc-500 dark:text-zinc-400">
-                        ⌘{index + 1}
-                      </DropdownMenuShortcut>
+                    className={cn(
+                      "flex items-center gap-2 rounded-md px-3 py-2 text-sm",
+                      "transition-colors duration-200 ease-in-out",
+                      "hover:bg-accent hover:text-accent-foreground",
+                      route.id === activeRoute.id
+                        ? "bg-gradient-to-r text-primary-foreground " + route.gradientClass
+                        : "text-foreground"
                     )}
-                  </DropdownMenuItem>
-                );
-              })}
-
-            <DropdownMenuSeparator className="my-1 bg-zinc-200/70 dark:bg-zinc-700/70" />
-            <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Create Your Success Puzzle
-            </DropdownMenuLabel>
-            {allRoutes
-              .filter((route) => route.category === "superachiever")
-              .map((route) => {
-                const isActive = route.id === activeTeam.id;
-                return (
-                  <DropdownMenuItem 
-                    key={route.id} 
-                    onClick={() => handleTeamChange(route)} 
-                    className="gap-2 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150 ease-in-out"
-                    disabled={isNavigating}
                   >
-                    <div className={`flex size-6 items-center justify-center rounded-md ${route.id === activeTeam.id ? getGradientClass() : 'bg-zinc-100 dark:bg-zinc-800'}`}>
-                      <Image
-                        src={route.icon || "/placeholder.svg"}
-                        alt={route.name}
-                        width={18}
-                        height={18}
-                        className="object-contain"
-                      />
+                    {route.icon && <route.icon className="h-4 w-4" />}
+                    <div className="flex flex-col items-start">
+                      <span className="text-sm font-medium">{route.title}</span>
+                      <span className="text-xs text-muted-foreground">{route.subtitle}</span>
                     </div>
-                    <span className="text-sm font-medium">{route.name}</span>
-                    {isActive && (
-                      <span className="ml-auto text-xs font-medium text-zinc-500 dark:text-zinc-400">Active</span>
-                    )}
-                  </DropdownMenuItem>
-                );
-              })}
-
-            <DropdownMenuSeparator className="my-1 bg-zinc-200/70 dark:bg-zinc-700/70" />
-            <DropdownMenuLabel className="px-2 py-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              Co-Create Our Superpuzzle
-            </DropdownMenuLabel>
-            {allRoutes
-              .filter((route) => route.category === "superachievers")
-              .map((route) => {
-                const isActive = route.id === activeTeam.id;
-                return (
-                  <DropdownMenuItem 
-                    key={route.id} 
-                    onClick={() => handleTeamChange(route)} 
-                    className="gap-2 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors duration-150 ease-in-out"
-                    disabled={isNavigating}
-                  >
-                    <div className={`flex size-6 items-center justify-center rounded-md ${route.id === activeTeam.id ? getGradientClass() : 'bg-zinc-100 dark:bg-zinc-800'}`}>
-                      <Image
-                        src={route.icon || "/placeholder.svg"}
-                        alt={route.name}
-                        width={18}
-                        height={18}
-                        className="object-contain"
-                      />
-                    </div>
-                    <span className="text-sm font-medium">{route.name}</span>
-                    {isActive && (
-                      <span className="ml-auto text-xs font-medium text-zinc-500 dark:text-zinc-400">Active</span>
-                    )}
-                  </DropdownMenuItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
-  )
+                  </button>
+                ))}
+              </div>
+            </NavigationMenuContent>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>
+    </div>
+  );
 }

@@ -195,6 +195,403 @@ Generates insights from provided content.
   }
   ```
 
+## Invitation API
+
+### Check Invitation
+
+Validates an invitation code and returns its status.
+
+- **URL**: `/api/invitations/check`
+- **Method**: `POST`
+- **Authentication Required**: No
+- **Rate Limit**: 5 requests per minute
+- **Request Body**:
+  ```json
+  {
+    "code": "2024-ABCD-1234-5678"
+  }
+  ```
+- **Response**:
+  - Success (200 OK):
+    ```json
+    {
+      "valid": true,
+      "status": "pending",
+      "expires_at": "2024-12-31T23:59:59Z"
+    }
+    ```
+  - Error (400 Bad Request):
+    ```json
+    {
+      "valid": false,
+      "error": "Invalid invitation code"
+    }
+    ```
+
+### Create Invitation
+
+Creates a new invitation code.
+
+- **URL**: `/api/invitations/create`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 10 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "email": "user@example.com",  // Optional
+    "expires_in_days": 14         // Optional, defaults to 14
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "code": "2024-ABCD-1234-5678",
+    "expires_at": "2024-12-31T23:59:59Z"
+  }
+  ```
+
+### Accept Invitation
+
+Accepts an invitation and creates a user account.
+
+- **URL**: `/api/invitations/accept`
+- **Method**: `POST`
+- **Authentication Required**: No
+- **Rate Limit**: 3 requests per hour per IP
+- **Request Body**:
+  ```json
+  {
+    "code": "2024-ABCD-1234-5678",
+    "email": "user@example.com",
+    "password": "secure-password",
+    "display_name": "User Name"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "user_id": "user-uuid",
+    "redirect_url": "/onboarding"
+  }
+  ```
+
+### Vouch for User
+
+Vouches for another user, increasing their trust score.
+
+- **URL**: `/api/invitations/vouch`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 5 requests per day
+- **Request Body**:
+  ```json
+  {
+    "user_id": "user-uuid-to-vouch-for",
+    "message": "I vouch for this user because..."  // Optional
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "trust_score_increase": 5
+  }
+  ```
+
+## Verification API
+
+### Start Verification
+
+Initiates the human verification process.
+
+- **URL**: `/api/verification/start`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 3 requests per hour
+- **Response**:
+  ```json
+  {
+    "session_id": "verification-session-uuid",
+    "challenges": [
+      {
+        "id": "challenge-uuid",
+        "type": "community_puzzle",
+        "data": {
+          "question": "Which pillar represents individual transformation?",
+          "options": ["Superachiever", "Superachievers", "Supercivilization"]
+        }
+      }
+    ]
+  }
+  ```
+
+### Submit Verification
+
+Submits answers to verification challenges.
+
+- **URL**: `/api/verification/submit`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 10 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "session_id": "verification-session-uuid",
+    "challenge_id": "challenge-uuid",
+    "answer": "Superachiever"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "correct": true,
+    "points": 10,
+    "total_points": 25,
+    "verified": false,
+    "next_challenge": {
+      "id": "next-challenge-uuid",
+      "type": "pattern_challenge",
+      "data": {
+        "pattern": [1, 3, 5, 7],
+        "options": [9, 10, 11]
+      }
+    }
+  }
+  ```
+
+### Check Verification Status
+
+Checks the current verification status of a user.
+
+- **URL**: `/api/verification/status`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 20 requests per hour
+- **Response**:
+  ```json
+  {
+    "verified": true,
+    "score": 75,
+    "completed_at": "2024-05-15T10:30:45Z",
+    "expires_at": "2024-08-15T10:30:45Z"
+  }
+  ```
+
+## Token API
+
+### Get Token Balance
+
+Retrieves the token balances for the authenticated user.
+
+- **URL**: `/api/tokens/balance`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Response**:
+  ```json
+  {
+    "balances": [
+      {
+        "token_id": "token-uuid",
+        "symbol": "GEN",
+        "name": "Genesis Token",
+        "balance": 150.5,
+        "staked_balance": 25.0
+      },
+      {
+        "token_id": "token-uuid-2",
+        "symbol": "SAP",
+        "name": "Superachiever Pillar",
+        "balance": 75.0,
+        "staked_balance": 0.0
+      }
+    ]
+  }
+  ```
+
+### Get Transaction History
+
+Retrieves the token transaction history for the authenticated user.
+
+- **URL**: `/api/tokens/transactions`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Query Parameters**:
+  - `limit`: Maximum number of transactions to return (default: 20)
+  - `offset`: Offset for pagination (default: 0)
+  - `token_id`: Filter by token ID (optional)
+  - `type`: Filter by transaction type (optional)
+- **Response**:
+  ```json
+  {
+    "transactions": [
+      {
+        "id": "transaction-uuid",
+        "token_id": "token-uuid",
+        "symbol": "GEN",
+        "amount": 10.0,
+        "transaction_type": "reward",
+        "from_user_id": null,
+        "to_user_id": "user-uuid",
+        "status": "completed",
+        "created_at": "2024-05-15T10:30:45Z",
+        "completed_at": "2024-05-15T10:30:45Z",
+        "metadata": {
+          "reward_id": "reward-uuid",
+          "reward_name": "Daily Login"
+        }
+      }
+    ],
+    "total": 45,
+    "limit": 20,
+    "offset": 0
+  }
+  ```
+
+### Transfer Tokens
+
+Transfers tokens from the authenticated user to another user.
+
+- **URL**: `/api/tokens/transfer`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 20 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "token_id": "token-uuid",
+    "to_user_id": "recipient-user-uuid",
+    "amount": 10.5,
+    "memo": "Payment for services"  // Optional
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "transaction_id": "transaction-uuid",
+    "new_balance": 140.0
+  }
+  ```
+
+### Get Available Rewards
+
+Retrieves the available token rewards for the authenticated user.
+
+- **URL**: `/api/tokens/rewards`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Response**:
+  ```json
+  {
+    "rewards": [
+      {
+        "id": "reward-uuid",
+        "token_id": "token-uuid",
+        "symbol": "GEN",
+        "name": "Daily Login",
+        "description": "Reward for logging in daily",
+        "amount": 5.0,
+        "reward_type": "daily",
+        "available": true,
+        "cooldown_remaining": null
+      },
+      {
+        "id": "reward-uuid-2",
+        "token_id": "token-uuid",
+        "symbol": "GEN",
+        "name": "Weekly Contribution",
+        "description": "Reward for weekly platform contribution",
+        "amount": 20.0,
+        "reward_type": "contribution",
+        "available": false,
+        "cooldown_remaining": "2d 5h"
+      }
+    ]
+  }
+  ```
+
+### Claim Reward
+
+Claims an available token reward.
+
+- **URL**: `/api/tokens/claim-reward`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 20 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "reward_id": "reward-uuid"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "transaction_id": "transaction-uuid",
+    "amount": 5.0,
+    "token_id": "token-uuid",
+    "symbol": "GEN",
+    "new_balance": 155.5
+  }
+  ```
+
+## Trust Score API
+
+### Get Trust Score
+
+Retrieves the trust score for the authenticated user.
+
+- **URL**: `/api/trust/score`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Response**:
+  ```json
+  {
+    "score": 75.5,
+    "level": 4,
+    "next_level_threshold": 100,
+    "progress_to_next_level": 0.755
+  }
+  ```
+
+### Get Trust History
+
+Retrieves the trust score history for the authenticated user.
+
+- **URL**: `/api/trust/history`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Query Parameters**:
+  - `limit`: Maximum number of events to return (default: 20)
+  - `offset`: Offset for pagination (default: 0)
+- **Response**:
+  ```json
+  {
+    "events": [
+      {
+        "id": "event-uuid",
+        "points": 5,
+        "reason": "Verified email",
+        "previous_score": 70.5,
+        "new_score": 75.5,
+        "created_at": "2024-05-15T10:30:45Z"
+      }
+    ],
+    "total": 15,
+    "limit": 20,
+    "offset": 0
+  }
+  ```
+
 ## Authentication Routes
 
 These are not API endpoints but server-rendered routes for authentication flows.

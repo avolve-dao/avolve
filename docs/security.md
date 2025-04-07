@@ -22,6 +22,10 @@ Welcome to the Avolve security fortress! This document outlines the robust secur
 - [✅ Security Best Practices](#security-best-practices)
 - [💉 SQL Injection Prevention](#sql-injection-prevention)
 - [📊 Security Monitoring and Incident Response](#security-monitoring-and-incident-response)
+- [🧠 Human Verification System](#human-verification-system)
+- [💯 Trust Score System](#trust-score-system)
+- [🪙 Enhanced Token System Security](#enhanced-token-system-security)
+- [📨 Enhanced Invitation System](#enhanced-invitation-system)
 
 ## 🔑 Authentication System
 
@@ -539,3 +543,234 @@ The security features are implemented across several components:
 5. **API Endpoints** 🌐 — Secure API endpoints for authentication operations
 
 For more details on specific implementations, refer to the codebase and associated documentation.
+
+## 🧠 Human Verification System
+
+To protect against bots, spammers, and automated attacks, Avolve implements a comprehensive human verification system:
+
+### 🧩 Multi-Challenge Verification
+
+The platform uses multiple verification challenge types to ensure users are human:
+
+1. **Community Puzzles** 🧩 — Questions about Avolve's values and structure that only humans familiar with the platform would know
+2. **Pattern Recognition** 🔄 — Memory and pattern recognition challenges that are difficult for bots to solve
+3. **Image Verification** 🖼️ — Visual challenges requiring human perception and understanding
+
+### 📊 Progressive Scoring System
+
+- **Point-Based Verification** 📈 — Each completed challenge awards points toward verification
+- **Threshold-Based Completion** 🏁 — Users must reach a minimum score to be verified
+- **Persistent Progress** 💾 — Verification progress is saved between sessions
+
+### 🛡️ Security Measures
+
+- **Rate Limiting** ⏱️ — Limits on verification attempts to prevent brute force attacks
+- **IP Tracking** 🌐 — Monitoring of IP addresses for suspicious patterns
+- **Challenge Rotation** 🔄 — Regular rotation of challenges to prevent automated solving
+- **Audit Logging** 📝 — Comprehensive logging of verification attempts
+
+```typescript
+// Example verification flow
+const { startVerification, completeChallenge, checkVerificationStatus } = useVerification();
+
+// Start verification process
+await startVerification();
+
+// Complete a challenge
+const result = await completeChallenge('puzzle', {
+  challengeId: 'community-values',
+  answer: selectedAnswer
+});
+
+// Check verification status
+const { verified, score } = await checkVerificationStatus();
+```
+
+## 💯 Trust Score System
+
+Avolve implements a trust score system to evaluate user trustworthiness and prevent abuse:
+
+### 📊 Trust Score Calculation
+
+- **Initial Score** 🏁 — New users start with a base trust score
+- **Positive Actions** ⬆️ — Score increases with positive contributions and verified actions
+- **Negative Actions** ⬇️ — Score decreases with suspicious or abusive behavior
+- **Level Progression** 📈 — Users progress through trust levels as their score increases
+
+### 🔒 Security Applications
+
+- **Access Control** 🚪 — Certain features require minimum trust levels
+- **Rate Limit Adjustments** ⏱️ — Higher trust scores may receive higher rate limits
+- **Content Visibility** 👁️ — Content from higher trust users may receive greater visibility
+
+### 📝 Implementation Details
+
+```sql
+-- Trust score table schema
+create table if not exists public.trust_scores (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade unique,
+  score numeric not null default 0 check (score >= 0),
+  level integer not null default 1,
+  last_updated timestamptz not null default now()
+);
+
+-- Function to update trust score
+create or replace function public.update_trust_score(
+  p_points integer,
+  p_reason text,
+  p_user_id uuid default null
+)
+returns json
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_user_id uuid;
+  v_current_score numeric;
+  v_new_score numeric;
+  v_current_level integer;
+  v_new_level integer;
+  v_level_changed boolean;
+begin
+  -- If no user_id provided, use the authenticated user
+  v_user_id := coalesce(p_user_id, auth.uid());
+  
+  -- Check if user is authenticated or has permission
+  if v_user_id is null then
+    return json_build_object('success', false, 'message', 'Authentication required');
+  end if;
+  
+  -- Get current trust score and level
+  select score, level into v_current_score, v_current_level
+  from public.trust_scores
+  where user_id = v_user_id;
+  
+  -- Calculate new score and level
+  v_new_score := v_current_score + p_points;
+  v_new_level := case
+    when v_new_score >= 100 then 5
+    when v_new_score >= 75 then 4
+    when v_new_score >= 50 then 3
+    when v_new_score >= 25 then 2
+    else 1
+  end;
+  
+  -- Update trust score
+  update public.trust_scores
+  set 
+    score = v_new_score,
+    level = v_new_level,
+    last_updated = now()
+  where user_id = v_user_id;
+  
+  -- Return result
+  return json_build_object(
+    'success', true,
+    'previous_score', v_current_score,
+    'new_score', v_new_score,
+    'previous_level', v_current_level,
+    'new_level', v_new_level
+  );
+end;
+$$;
+```
+
+## 🪙 Enhanced Token System Security
+
+The token system includes several security features to prevent abuse and ensure proper access control:
+
+### 🔒 Transaction Security
+
+- **Atomic Transactions** ⚛️ — Token transfers are atomic to prevent partial state
+- **Validation Checks** ✅ — Multiple validation checks before any token operation
+- **Audit Trail** 📝 — Complete history of all token transactions
+
+### 🛡️ Access Control
+
+- **Token-Based Permissions** 🔑 — Access to features based on token ownership
+- **RLS Policies** 🚧 — Row-level security policies for all token tables
+- **Ownership Verification** 👤 — Verification of token ownership before operations
+
+### 📊 Implementation Details
+
+```sql
+-- Token transactions table with security features
+create table if not exists public.token_transactions (
+  id uuid primary key default gen_random_uuid(),
+  token_id uuid not null references public.tokens(id) on delete cascade,
+  from_user_id uuid references auth.users(id) on delete set null,
+  to_user_id uuid references auth.users(id) on delete set null,
+  amount numeric not null check (amount > 0),
+  transaction_type text not null check (transaction_type in ('mint', 'transfer', 'burn', 'reward', 'stake', 'unstake')),
+  status text not null check (status in ('pending', 'completed', 'failed', 'cancelled')) default 'completed',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  completed_at timestamptz
+);
+
+-- RLS policy for token transactions
+create policy "Users can view their own token transactions"
+on public.token_transactions for select
+to authenticated
+using (
+  auth.uid() = from_user_id or 
+  auth.uid() = to_user_id
+);
+```
+
+## 📨 Enhanced Invitation System
+
+The invitation system includes several security features to prevent abuse and ensure proper access control:
+
+### 🔒 Invitation Security
+
+- **Secure Code Generation** 🔑 — Cryptographically secure invitation codes
+- **Expiration** ⏱️ — Time-limited invitations to prevent abuse
+- **Usage Tracking** 📊 — Monitoring of invitation usage and acceptance
+- **Type-Based Security** 🏷️ — Different security levels for different invitation types
+
+### 🛡️ Implementation Details
+
+```sql
+-- Function to generate secure invitation codes
+create or replace function public.generate_invitation_code(
+  p_length integer default 12,
+  p_prefix text default null
+)
+returns text
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_chars text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; -- Removed similar looking characters
+  v_code text := '';
+  v_i integer;
+  v_random_bytes bytea;
+  v_random_int integer;
+  v_prefix text;
+begin
+  -- Set default prefix based on current date if not provided
+  v_prefix := coalesce(p_prefix, to_char(now(), 'YYMM'));
+  
+  -- Start with the prefix
+  v_code := v_prefix || '-';
+  
+  -- Generate random characters
+  v_random_bytes := gen_random_bytes(p_length);
+  
+  for v_i in 0..(p_length-1) loop
+    v_random_int := get_byte(v_random_bytes, v_i) % length(v_chars) + 1;
+    v_code := v_code || substr(v_chars, v_random_int, 1);
+    
+    -- Add a hyphen every 4 characters for readability
+    if v_i % 4 = 3 and v_i < p_length-1 then
+      v_code := v_code || '-';
+    end if;
+  end loop;
+  
+  return v_code;
+end;
+$$;

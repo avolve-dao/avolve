@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import sacred geometry styles */
+@import '../styles/sacred-geometry.css';
+
 @layer base {
   :root {
     --background: 240 5% 96%;
@@ -195,6 +198,57 @@
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
+/* Tesla 3-6-9 Pattern Animations */
+@keyframes tesla-3 {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  33.33% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
+@keyframes tesla-6 {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  33.33% {
+    transform: rotate(60deg);
+  }
+  66.66% {
+    transform: rotate(120deg);
+  }
+}
+
+@keyframes tesla-9 {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  33.33% {
+    transform: scale(1.09) rotate(120deg);
+  }
+  66.66% {
+    transform: scale(1) rotate(240deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+.animate-tesla-3 {
+  animation: tesla-3 3s ease-in-out infinite;
+}
+
+.animate-tesla-6 {
+  animation: tesla-6 6s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+}
+
+.animate-tesla-9 {
+  animation: tesla-9 9s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
 /* Staggered animations for list items */
 .stagger-item:nth-child(1) { animation-delay: 0.05s; }
 .stagger-item:nth-child(2) { animation-delay: 0.1s; }
@@ -206,3 +260,25 @@
 .stagger-item:nth-child(8) { animation-delay: 0.4s; }
 .stagger-item:nth-child(9) { animation-delay: 0.45s; }
 .stagger-item:nth-child(10) { animation-delay: 0.5s; }
+
+/* Tesla 3-6-9 based staggered animations */
+.tesla-stagger-3:nth-child(3n+1) { animation-delay: 0.3s; }
+.tesla-stagger-3:nth-child(3n+2) { animation-delay: 0.6s; }
+.tesla-stagger-3:nth-child(3n+3) { animation-delay: 0.9s; }
+
+.tesla-stagger-6:nth-child(6n+1) { animation-delay: 0.3s; }
+.tesla-stagger-6:nth-child(6n+2) { animation-delay: 0.6s; }
+.tesla-stagger-6:nth-child(6n+3) { animation-delay: 0.9s; }
+.tesla-stagger-6:nth-child(6n+4) { animation-delay: 1.2s; }
+.tesla-stagger-6:nth-child(6n+5) { animation-delay: 1.5s; }
+.tesla-stagger-6:nth-child(6n+6) { animation-delay: 1.8s; }
+
+.tesla-stagger-9:nth-child(9n+1) { animation-delay: 0.3s; }
+.tesla-stagger-9:nth-child(9n+2) { animation-delay: 0.6s; }
+.tesla-stagger-9:nth-child(9n+3) { animation-delay: 0.9s; }
+.tesla-stagger-9:nth-child(9n+4) { animation-delay: 1.2s; }
+.tesla-stagger-9:nth-child(9n+5) { animation-delay: 1.5s; }
+.tesla-stagger-9:nth-child(9n+6) { animation-delay: 1.8s; }
+.tesla-stagger-9:nth-child(9n+7) { animation-delay: 2.1s; }
+.tesla-stagger-9:nth-child(9n+8) { animation-delay: 2.4s; }
+.tesla-stagger-9:nth-child(9n+9) { animation-delay: 2.7s; }

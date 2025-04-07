@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server"
+import { AuthService } from "@/lib/auth/auth-service"
 import { NextResponse, type NextRequest } from "next/server"
 
 export async function GET(request: NextRequest) {
@@ -30,7 +30,9 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const supabase = await createClient()
+  // Get server-side instance of auth service
+  const authService = AuthService.getServerInstance()
+  const supabase = authService.getSupabaseClient()
 
   // Case 1: Handle token_hash and type (email confirmation)
   if (token_hash && type) {
@@ -46,8 +48,20 @@ export async function GET(request: NextRequest) {
         return NextResponse.redirect(`${requestUrl.origin}/auth/error?error=${encodeURIComponent(otpError.message)}`)
       }
 
-      console.log("Email verified successfully, redirecting to:", next)
-      return NextResponse.redirect(`${requestUrl.origin}${next}`)
+      // Determine the appropriate confirmation page based on the type
+      let confirmationRedirect = `${requestUrl.origin}/auth/confirmation?type=success`
+      
+      // For specific types, show specific confirmation pages
+      if (type === 'signup') {
+        confirmationRedirect = `${requestUrl.origin}/auth/confirmation?type=success&action=signup`
+      } else if (type === 'recovery') {
+        confirmationRedirect = `${requestUrl.origin}/auth/confirmation?type=success&action=reset`
+      } else if (type === 'email_change') {
+        confirmationRedirect = `${requestUrl.origin}/auth/confirmation?type=success&action=email`
+      }
+      
+      console.log("Email verified successfully, redirecting to:", confirmationRedirect)
+      return NextResponse.redirect(confirmationRedirect)
     } catch (err) {
       console.error("Error verifying OTP:", err)
       const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred"
@@ -69,8 +83,11 @@ export async function GET(request: NextRequest) {
       }
 
       if (data.session) {
-        console.log("Session created successfully, redirecting to dashboard")
-        return NextResponse.redirect(`${requestUrl.origin}/dashboard`)
+        // Check if there's a specific redirect URL in the session metadata
+        const redirectTo = data.session.user?.user_metadata?.redirect_to || '/dashboard'
+        
+        console.log("Session created successfully, redirecting to:", redirectTo)
+        return NextResponse.redirect(`${requestUrl.origin}${redirectTo}`)
       }
     } catch (err) {
       console.error("Error in code exchange:", err)
@@ -83,4 +100,3 @@ export async function GET(request: NextRequest) {
   console.error("No valid authentication parameters found")
   return NextResponse.redirect(`${requestUrl.origin}/auth/error?error=Missing or invalid authentication parameters`)
 }
-

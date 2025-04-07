@@ -2,6 +2,9 @@
 
 This document provides an overview of the Avolve application architecture, design decisions, and technical implementation details.
 
+> **Last Updated:** April 6, 2025  
+> **Related Documents:** [Documentation Index](./index.md) | [Master Plan](./master-plan.md) | [Database Documentation](./avolve-database-documentation.md) | [Integration Assessment System](./integration-assessment-system.md)
+
 ## System Architecture
 
 Avolve follows a modern web application architecture with the following key components:
@@ -27,6 +30,30 @@ Avolve follows a modern web application architecture with the following key comp
             │
             ▼
 ┌─────────────────────────────────┐
+│      Service Layer              │
+│  ┌─────────┐     ┌─────────┐   │
+│  │  Auth   │     │  Token  │   │
+│  │ Service │     │ Service │   │
+│  └─────────┘     └─────────┘   │
+│                                 │
+│  ┌─────────┐     ┌─────────┐   │
+│  │Permission│     │ Audit   │   │
+│  │ Service  │     │ Service │   │
+│  └─────────┘     └─────────┘   │
+│                                 │
+│  ┌─────────┐     ┌─────────┐   │
+│  │Notification    │Integration│ │
+│  │ Service  │     │ Service │   │
+│  └─────────┘     └─────────┘   │
+│                                 │
+│  ┌─────────┐                   │
+│  │Notification                 │
+│  │ Service  │                   │
+│  └─────────┘                   │
+└─────────────────────────────────┘
+            │
+            ▼
+┌─────────────────────────────────┐
 │        Supabase Client          │
 └─────────────────────────────────┘
             │
@@ -48,13 +75,22 @@ Avolve follows a modern web application architecture with the following key comp
    - App Router for file-based routing
    - API Routes for server-side functionality
 
-2. **Supabase Integration**
-   - PostgreSQL database
+2. **Service Layer**
+   - AuthService: Handles user authentication and session management
+   - TokenService: Manages token operations, balances, and transfers
+   - PermissionService: Handles user permissions and access control
+   - NotificationService: Manages user notifications
+   - AuditService: Tracks important system activities for security and compliance
+   - IntegrationService: Manages integration assessment, profiles, and exercises
+
+3. **Supabase Integration**
+   - PostgreSQL database with optimized schema
    - Authentication service
    - Row-Level Security (RLS) policies
    - Real-time subscriptions
+   - Database functions for complex operations
 
-3. **Deployment Infrastructure**
+4. **Deployment Infrastructure**
    - Vercel for hosting the Next.js application
    - Supabase for database and authentication
    - GitHub Actions for CI/CD
@@ -99,7 +135,106 @@ export function DashboardClient({ user }) {
 }
 ```
 
-### 2. Authentication Flow
+### 2. Service-Repository Pattern
+
+The application implements a service-repository pattern for data access and business logic:
+
+- **Services**: Encapsulate business logic and provide a clean API for components
+- **Repositories**: Handle data access and communication with Supabase
+
+Example of the service pattern:
+
+```typescript
+// lib/token/token-service.ts
+import { SupabaseClient } from '@supabase/supabase-js';
+
+export class TokenService {
+  private client: SupabaseClient;
+
+  constructor(client: SupabaseClient) {
+    this.client = client;
+  }
+
+  async getAllTokens() {
+    try {
+      const { data, error } = await this.client
+        .from('tokens')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      console.error('Error getting tokens:', error);
+      return { data: null, error };
+    }
+  }
+
+  async transferTokensWithFee(fromUserId, toUserId, tokenId, amount) {
+    // Business logic for token transfers with fee calculation
+    // ...
+  }
+}
+```
+
+### 3. React Hooks for Service Access
+
+Custom React hooks provide components with access to services:
+
+```typescript
+// lib/token/use-token.ts
+import { useState, useCallback } from 'react';
+import { useSupabase } from '../supabase/use-supabase';
+import { TokenService } from './token-service';
+
+export function useToken() {
+  const { supabase } = useSupabase();
+  const [tokenService] = useState(() => new TokenService(supabase));
+  
+  const transferTokens = useCallback(async (toUserId, tokenId, amount) => {
+    // Implementation using tokenService
+    // ...
+  }, [tokenService]);
+
+  return {
+    // Exposed methods and state
+    transferTokens,
+    // ...
+  };
+}
+```
+
+### 4. Context Providers for Application State
+
+Context providers make services and state available throughout the application:
+
+```typescript
+// lib/app-context.tsx
+import { createContext, useContext, ReactNode } from 'react';
+import { useAuth } from './auth/use-auth';
+import { useToken } from './token/use-token';
+import { useNotifications } from './notifications/use-notifications';
+
+const AppContext = createContext(null);
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const auth = useAuth();
+  const token = useToken();
+  const notifications = useNotifications();
+
+  return (
+    <AppContext.Provider value={{ auth, token, notifications }}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+export function useApp() {
+  return useContext(AppContext);
+}
+```
+
+### 5. Authentication Flow
 
 The authentication flow uses Supabase Auth with the following pattern:
 
@@ -107,44 +242,6 @@ The authentication flow uses Supabase Auth with the following pattern:
 2. Supabase client processes authentication request
 3. On success, session is stored in cookies
 4. Server-side components can access the authenticated session
-
-### 3. Database Access Pattern
-
-Database access follows these patterns:
-
-- **Server-side data fetching**: Using server components with direct Supabase queries
-- **Client-side data mutations**: Using Supabase client for user-initiated actions
-- **Row-Level Security**: All database access is controlled by RLS policies
-
-## Code Organization
-
-### Directory Structure
-
-```
-avolve/
-├── app/                  # Next.js App Router pages
-│   ├── (route-groups)/   # Route groups for related pages
-│   ├── api/              # API routes
-│   └── auth/             # Authentication pages
-├── components/           # Reusable UI components
-│   ├── ui/               # Base UI components
-│   └── feature-specific/ # Feature-specific components
-├── contexts/             # React context providers
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility functions and configurations
-│   └── supabase/         # Supabase client configuration
-├── public/               # Static assets
-├── styles/               # Global styles
-└── supabase/             # Supabase configuration
-    └── migrations/       # Database migrations
-```
-
-### Key Files
-
-- `middleware.ts`: Handles authentication, security headers, and rate limiting
-- `lib/supabase/client.ts`: Client-side Supabase client
-- `lib/supabase/server.ts`: Server-side Supabase client with cookie management
-- `app/auth/callback/route.ts`: Handles authentication callbacks
 
 ## Data Flow
 
@@ -163,19 +260,61 @@ avolve/
                 └───────────┘    └──────────────┘
 ```
 
-### Data Mutation Flow
+### Token Transfer Flow
 
 ```
 ┌──────────┐    ┌───────────┐    ┌──────────────┐
-│  User    │    │ Supabase  │    │  Database    │
-│  Action  │───▶│  Client   │───▶│  Operation   │
+│  User    │    │  Token    │    │  Token       │
+│  Action  │───▶│  Service  │───▶│  Validation  │
 └──────────┘    └───────────┘    └──────────────┘
                                          │
                                          ▼
 ┌──────────┐    ┌───────────┐    ┌──────────────┐
-│  UI      │    │ React     │    │  Updated     │
-│  Update  │◀───│ State     │◀───│  Data        │
+│  Update  │    │ Calculate │    │  Database    │
+│  UI      │◀───│ Fee       │◀───│  Transaction │
 └──────────┘    └───────────┘    └──────────────┘
+                                         │
+                                         ▼
+                                  ┌──────────────┐
+                                  │  Audit       │
+                                  │  Logging     │
+                                  └──────────────┘
+```
+
+### Notification Flow
+
+```
+┌──────────┐    ┌───────────┐    ┌──────────────┐
+│  System  │    │Notification│    │  Database    │
+│  Event   │───▶│  Service  │───▶│  Insert      │
+└──────────┘    └───────────┘    └──────────────┘
+                                         │
+                                         ▼
+┌──────────┐    ┌───────────┐    ┌──────────────┐
+│  UI      │    │ Real-time │    │  Notification│
+│  Update  │◀───│ Update    │◀───│  Created     │
+└──────────┘    └───────────┘    └──────────────┘
+```
+
+### Integration Assessment Flow
+
+```
+┌──────────┐    ┌───────────┐    ┌──────────────┐
+│  User    │    │Assessment │    │  Response    │
+│  Response│───▶│  Service  │───▶│  Storage     │
+└──────────┘    └───────────┘    └──────────────┘
+                      │                  │
+                      ▼                  ▼
+                ┌───────────┐    ┌──────────────┐
+                │ Calculate │    │ Integration  │
+                │  Profile  │───▶│    Profile   │
+                └───────────┘    └──────────────┘
+                                         │
+                                         ▼
+                                  ┌──────────────┐
+                                  │  Token       │
+                                  │  Rewards     │
+                                  └──────────────┘
 ```
 
 ## Security Considerations
@@ -192,6 +331,8 @@ avolve/
 - Row-Level Security (RLS) policies for all tables
 - Parameterized queries to prevent SQL injection
 - Least privilege principle for database access
+- Secure database functions with `security invoker` and proper `search_path`
+- Audit logging for sensitive operations
 
 ### 3. API Security
 
@@ -205,6 +346,8 @@ avolve/
 - Static generation for non-dynamic pages
 - Image optimization via Next.js Image component
 - Edge middleware for fast security checks
+- Database indexes for frequently queried columns
+- Optimized token transfer operations with proper validation and error handling
 
 ## Future Architecture Considerations
 
@@ -212,3 +355,43 @@ avolve/
 - **Serverless Functions**: Moving complex operations to dedicated serverless functions
 - **WebSockets**: Enhancing real-time capabilities with WebSocket connections
 - **Microservices**: Breaking down the application into smaller, specialized services as it grows
+
+## Code Organization
+
+### Directory Structure
+
+```
+avolve/
+├── app/                  # Next.js App Router pages
+│   ├── (route-groups)/   # Route groups for related pages
+│   ├── api/              # API routes
+│   └── auth/             # Authentication pages
+├── components/           # Reusable UI components
+│   ├── ui/               # Base UI components
+│   └── feature-specific/ # Feature-specific components
+├── contexts/             # React context providers
+├── hooks/                # Custom React hooks
+├── lib/                  # Utility functions and configurations
+│   ├── auth/             # Authentication services and hooks
+│   ├── token/            # Token services and hooks
+│   ├── notifications/    # Notification services and hooks
+│   ├── audit/            # Audit services
+│   ├── utils/            # Utility functions
+│   └── supabase/         # Supabase client configuration
+├── public/               # Static assets
+├── styles/               # Global styles
+└── supabase/             # Supabase configuration
+    └── migrations/       # Database migrations
+```
+
+### Key Files
+
+- `middleware.ts`: Handles authentication, security headers, and rate limiting
+- `lib/supabase/client.ts`: Client-side Supabase client
+- `lib/supabase/server.ts`: Server-side Supabase client with cookie management
+- `lib/auth/auth-service.ts`: Authentication service
+- `lib/token/token-service.ts`: Token management service
+- `lib/notifications/notification-service.ts`: Notification service
+- `lib/audit/audit-service.ts`: Audit logging service
+- `lib/app-context.tsx`: Application-wide context provider
+- `lib/utils/database-initializer.ts`: Database initialization utilities

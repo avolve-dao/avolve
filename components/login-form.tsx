@@ -1,23 +1,25 @@
 "use client"
 
 import * as React from "react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+
 import { cn } from "@/lib/utils"
-import { createClient } from "@/lib/supabase/client"
+import { useAuth } from "@/lib/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
 
 interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
   message?: string | null
   csrfToken?: string
+  redirectTo?: string
 }
 
-export function LoginForm({ className, message, csrfToken, ...props }: LoginFormProps) {
+export function LoginForm({ className, message, csrfToken, redirectTo, ...props }: LoginFormProps) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -25,10 +27,12 @@ export function LoginForm({ className, message, csrfToken, ...props }: LoginForm
   const [resendingEmail, setResendingEmail] = useState(false)
   const [emailResent, setEmailResent] = useState(false)
   const router = useRouter()
+  
+  // Use the auth hook
+  const { signIn, resendConfirmationEmail } = useAuth()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
@@ -48,10 +52,8 @@ export function LoginForm({ className, message, csrfToken, ...props }: LoginForm
         }
       }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      // Use the auth service to sign in
+      const { data, error: signInError, message: signInMessage } = await signIn(email, password)
 
       if (signInError) {
         console.error("Login error:", signInError)
@@ -60,8 +62,9 @@ export function LoginForm({ className, message, csrfToken, ...props }: LoginForm
 
       // Refresh the page to ensure the session is properly loaded
       router.refresh()
-      // Then redirect to dashboard
-      router.push("/dashboard")
+      
+      // Then redirect to dashboard or the specified redirect URL
+      router.push(redirectTo || "/dashboard")
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "An error occurred during login"
       setError(errorMessage)
@@ -85,7 +88,6 @@ export function LoginForm({ className, message, csrfToken, ...props }: LoginForm
 
     setResendingEmail(true)
     setEmailResent(false)
-    const supabase = createClient()
 
     try {
       // Get the current origin with protocol, ensuring no double slashes
@@ -96,13 +98,8 @@ export function LoginForm({ className, message, csrfToken, ...props }: LoginForm
 
       console.log("Using resend confirmation redirect URL:", redirectUrl)
 
-      const { error } = await supabase.auth.resend({
-        type: "signup",
-        email,
-        options: {
-          emailRedirectTo: redirectUrl,
-        },
-      })
+      // Use the auth service to resend confirmation email
+      const { error, message } = await resendConfirmationEmail(email, redirectUrl)
 
       if (error) throw error
 
@@ -200,4 +197,3 @@ export function LoginForm({ className, message, csrfToken, ...props }: LoginForm
     </div>
   )
 }
-

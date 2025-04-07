@@ -1,41 +1,68 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
 
-export default function BusinessPage() {
+import { PageGrid } from "@/components/page-container"
+import { RouteLayout } from "@/components/layouts/route-layout"
+import { RouteCard } from "@/components/layouts/route-card"
+import { TokenStats } from "@/components/token/token-stats"
+import { Users, Settings, LineChart } from "lucide-react"
+
+export default function BusinessSuccessPuzzlePage() {
   return (
-    <div className="container py-10">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl">Business Growth</CardTitle>
-          <CardDescription>Manage and scale your business ventures</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6">
-            <p>
-              Welcome to your business dashboard. Here you can track your business metrics, projects, and growth
-              opportunities.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Metrics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Track key business performance indicators</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Projects</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Manage your business projects and initiatives</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <RouteLayout 
+      title="Business Success Puzzle"
+      subtitle="Greater Business Successes"
+      tokenCode="BSP"
+      tokenName="Business Success Puzzle"
+      tokenSymbol="BSP"
+      gradientClass="from-teal-500 to-cyan-500"
+      description="Track your business growth and opportunities with front-stage users, back-stage admin, and bottom-line profit. Complete activities in each area to earn BSP tokens and unlock new capabilities."
+    >
+      {/* Token Stats */}
+      <TokenStats 
+        tokenCode="BSP"
+        tokenName="Business Success Puzzle"
+        tokenSymbol="BSP"
+        gradientClass="from-teal-500 to-cyan-500"
+        className="mb-8"
+      />
+      
+      <PageGrid columns={3}>
+        <RouteCard
+          title="Front-Stage Users"
+          description="Manage your customer relationships, marketing strategies, and user experience."
+          href="/business/users"
+          gradientClass="from-teal-500 to-cyan-500"
+          tokenCode="BSP"
+          tokenName="Front-Stage Users"
+          tokenSymbol="BSP"
+          icon={<Users className="h-5 w-5" />}
+          delay={0}
+        />
+        
+        <RouteCard
+          title="Back-Stage Admin"
+          description="Optimize your operations, team management, and internal processes."
+          href="/business/admin"
+          gradientClass="from-teal-500 to-cyan-500"
+          tokenCode="BSP"
+          tokenName="Back-Stage Admin"
+          tokenSymbol="BSP"
+          icon={<Settings className="h-5 w-5" />}
+          delay={1}
+        />
+        
+        <RouteCard
+          title="Bottom-Line Profit"
+          description="Track your financial performance, revenue streams, and profitability metrics."
+          href="/business/profit"
+          gradientClass="from-teal-500 to-cyan-500"
+          tokenCode="BSP"
+          tokenName="Bottom-Line Profit"
+          tokenSymbol="BSP"
+          icon={<LineChart className="h-5 w-5" />}
+          delay={2}
+        />
+      </PageGrid>
+    </RouteLayout>
   )
 }
-

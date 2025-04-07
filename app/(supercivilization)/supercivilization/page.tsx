@@ -1,49 +1,68 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+"use client"
+
+import { PageGrid } from "@/components/page-container"
+import { RouteLayout } from "@/components/layouts/route-layout"
+import { RouteCard } from "@/components/layouts/route-card"
+import { TokenStats } from "@/components/token/token-stats"
+import { TrendingUp, Target, Users, Wind } from "lucide-react"
 
 export default function SupercivilizationPage() {
   return (
-    <div className="container py-10">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl">Supercivilization</CardTitle>
-          <CardDescription>Building the future of human civilization</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6">
-            <p>
-              Welcome to the Supercivilization platform. Here we collaborate on long-term projects to advance human
-              civilization.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Grand Challenges</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Work on solving humanity's greatest challenges</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Future Planning</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Contribute to long-term civilization planning</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Resource Coordination</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Help coordinate global resources for maximum impact</p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <RouteLayout 
+      title="Supercivilization"
+      subtitle="Avolve from Degen to Regen"
+      tokenCode="GEN"
+      tokenName="Supercivilization"
+      tokenSymbol="GEN"
+      gradientClass="from-zinc-500 to-zinc-700"
+      description="Welcome to the Supercivilization platform. This is your ecosystem hub for transformation. Evolve from a degen in an anticivilization into a regen in a supercivilization within your lifetime."
+    >
+      {/* Token Stats */}
+      <TokenStats 
+        tokenCode="GEN"
+        tokenName="Supercivilization"
+        tokenSymbol="GEN"
+        gradientClass="from-zinc-500 to-zinc-700"
+        className="mb-8"
+      />
+      
+      <PageGrid columns={3}>
+        <RouteCard
+          title="Avolve from Degen to Regen"
+          description="Transform from degenerative to regenerative practices through Genius ID, GEN coin, and Genie AI."
+          href="/avolve"
+          gradientClass="from-zinc-500 to-zinc-700"
+          tokenCode="GEN"
+          tokenName="Avolve from Degen to Regen"
+          tokenSymbol="GEN"
+          icon={<TrendingUp className="h-5 w-5" />}
+          delay={0}
+        />
+        
+        <RouteCard
+          title="Create Your Success Puzzle"
+          description="Create your personal and business success puzzles with joy and ease by becoming a greater superachiever."
+          href="/create-success"
+          gradientClass="from-stone-500 to-stone-700"
+          tokenCode="SAP"
+          tokenName="Create Your Success Puzzle"
+          tokenSymbol="SAP"
+          icon={<Target className="h-5 w-5" />}
+          delay={1}
+        />
+        
+        <RouteCard
+          title="Co-Create Our Superpuzzle"
+          description="Evolve from a degen in an anticivilization into a regen in a supercivilization within your lifetime."
+          href="/co-create"
+          gradientClass="from-slate-500 to-slate-700"
+          tokenCode="SCQ"
+          tokenName="Co-Create Our Superpuzzle"
+          tokenSymbol="SCQ"
+          icon={<Users className="h-5 w-5" />}
+          delay={2}
+        />
+      </PageGrid>
+    </RouteLayout>
   )
 }
-

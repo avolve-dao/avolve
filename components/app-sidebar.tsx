@@ -26,6 +26,19 @@ import { NavSwitcher } from "./nav-switcher"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
+import { TokenSidebarDisplay } from "@/components/token/token-sidebar-display"; // Import the TokenSidebarDisplay component
+
+// Define the NavItem interface to match the one in nav-main.tsx
+interface NavItem {
+  id: string;
+  title: string;
+  url: string;
+  icon?: React.ElementType;
+  items?: NavItem[];
+  category?: string;
+  gradientClass?: string;
+  isDashboard?: boolean;
+}
 
 // Avolve platform structure data
 const avolveData = {
@@ -48,44 +61,80 @@ const avolveData = {
     },
     // Personal Success Puzzle (Amber-Yellow gradient)
     {
-      id: "personal",
+      id: "personal-success-puzzle",
       title: "Personal Success Puzzle",
       url: "/personal",
       icon: Home,
       category: "superachiever",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
-        { title: "Health & Energy", url: "/personal/health" },
-        { title: "Wealth & Career", url: "/personal/wealth" },
-        { title: "Peace & People", url: "/personal/peace" },
+        {
+          id: "personal-health-link",
+          title: "Health & Energy",
+          url: "/personal/health"
+        },
+        {
+          id: "personal-wealth-link",
+          title: "Wealth & Career",
+          url: "/personal/wealth"
+        },
+        {
+          id: "personal-peace-link",
+          title: "Peace & People",
+          url: "/personal/peace"
+        }
       ]
     },
     // Business Success Puzzle (Teal-Cyan gradient)
     {
-      id: "business",
+      id: "business-success-puzzle",
       title: "Business Success Puzzle",
       url: "/business",
       icon: Briefcase,
       category: "superachiever",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
-        { title: "Front-Stage Users", url: "/business/users" },
-        { title: "Back-Stage Admin", url: "/business/admin" },
-        { title: "Bottom-Line Profit", url: "/business/profit" },
+        {
+          id: "business-users-link",
+          title: "Front-Stage Users",
+          url: "/business/users"
+        },
+        {
+          id: "business-admin-link",
+          title: "Back-Stage Admin",
+          url: "/business/admin"
+        },
+        {
+          id: "business-profit-link",
+          title: "Bottom-Line Profit",
+          url: "/business/profit"
+        }
       ]
     },
     // Supermind Superpowers (Violet-Purple-Fuchsia-Pink gradient)
     {
-      id: "supermind",
+      id: "supermind-superpowers",
       title: "Supermind Superpowers",
       url: "/supermind",
       icon: Zap,
       category: "superachiever",
       gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
       items: [
-        { title: "Current → Desired", url: "/supermind/desired" },
-        { title: "Desired → Actions", url: "/supermind/actions" },
-        { title: "Actions → Results", url: "/supermind/results" },
+        {
+          id: "supermind-current-link",
+          title: "Current → Desired",
+          url: "/supermind/desired"
+        },
+        {
+          id: "supermind-desired-link",
+          title: "Desired → Actions",
+          url: "/supermind/actions"
+        },
+        {
+          id: "supermind-actions-link",
+          title: "Actions → Results",
+          url: "/supermind/results"
+        }
       ]
     },
     
@@ -101,58 +150,106 @@ const avolveData = {
     },
     // Superpuzzle Developments
     {
-      id: "superpuzzle",
+      id: "superpuzzle-developments",
       title: "Superpuzzle Developments",
       url: "/superpuzzle",
       icon: BookOpen,
       category: "superachievers",
       gradientClass: "from-red-500 via-green-500 to-blue-500",
       items: [
-        { title: "Individuals", url: "/superpuzzle/individuals" },
-        { title: "Collectives", url: "/superpuzzle/collectives" },
-        { title: "Ecosystem", url: "/superpuzzle/ecosystem" },
+        {
+          id: "superpuzzle-individuals-link",
+          title: "Enhanced Individuals",
+          url: "/superpuzzle/individuals"
+        },
+        {
+          id: "superpuzzle-collectives-link",
+          title: "Advanced Collectives",
+          url: "/superpuzzle/collectives"
+        },
+        {
+          id: "superpuzzle-ecosystems-link",
+          title: "Balanced Ecosystems",
+          url: "/superpuzzle/ecosystem"
+        }
       ]
     },
     // Superhuman Enhancements (Rose-Red-Orange gradient)
     {
-      id: "superhuman",
+      id: "superhuman-enhancements",
       title: "Superhuman Enhancements",
       url: "/superhuman",
       icon: GraduationCap,
       category: "superachievers",
       gradientClass: "from-rose-500 via-red-500 to-orange-500",
       items: [
-        { title: "Academy", url: "/superhuman/academy" },
-        { title: "University", url: "/superhuman/university" },
-        { title: "Institute", url: "/superhuman/institute" },
+        {
+          id: "superhuman-academy-link",
+          title: "Academy",
+          url: "/superhuman/academy"
+        },
+        {
+          id: "superhuman-university-link",
+          title: "University",
+          url: "/superhuman/university"
+        },
+        {
+          id: "superhuman-institute-link",
+          title: "Institute",
+          url: "/superhuman/institute"
+        }
       ]
     },
     // Supersociety Advancements (Lime-Green-Emerald gradient)
     {
-      id: "supersociety",
+      id: "supersociety-advancements",
       title: "Supersociety Advancements",
       url: "/supersociety",
       icon: Users,
       category: "superachievers",
       gradientClass: "from-lime-500 via-green-500 to-emerald-500",
       items: [
-        { title: "Company", url: "/supersociety/company" },
-        { title: "Community", url: "/supersociety/community" },
-        { title: "Country", url: "/supersociety/country" },
+        {
+          id: "supersociety-company-link",
+          title: "Company",
+          url: "/supersociety/company"
+        },
+        {
+          id: "supersociety-community-link",
+          title: "Community",
+          url: "/supersociety/community"
+        },
+        {
+          id: "supersociety-country-link",
+          title: "Country",
+          url: "/supersociety/country"
+        }
       ]
     },
     // Supergenius Breakthroughs (Sky-Blue-Indigo gradient)
     {
-      id: "supergenius",
+      id: "supergenius-breakthroughs",
       title: "Supergenius Breakthroughs",
       url: "/supergenius",
       icon: Lightbulb,
       category: "superachievers",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
       items: [
-        { title: "Ventures", url: "/supergenius/ventures" },
-        { title: "Enterprises", url: "/supergenius/enterprises" },
-        { title: "Industries", url: "/supergenius/industries" },
+        {
+          id: "supergenius-ventures-link",
+          title: "Ventures",
+          url: "/supergenius/ventures"
+        },
+        {
+          id: "supergenius-enterprises-link",
+          title: "Enterprises",
+          url: "/supergenius/enterprises"
+        },
+        {
+          id: "supergenius-industries-link",
+          title: "Industries",
+          url: "/supergenius/industries"
+        }
       ]
     },
     
@@ -175,10 +272,26 @@ const avolveData = {
       category: "supercivilization",
       gradientClass: "from-zinc-500 to-zinc-700",
       items: [
-        { title: "Avolve", url: "/avolve/avolve" },
-        { title: "Avalue", url: "/avolve/avalue" },
-        { title: "Avault", url: "/avolve/avault" },
-        { title: "Avoice", url: "/avolve/avoice" },
+        {
+          id: "avolve-avolve-link",
+          title: "Avolve",
+          url: "/avolve/avolve"
+        },
+        {
+          id: "avolve-avalue-link",
+          title: "Avalue",
+          url: "/avolve/avalue"
+        },
+        {
+          id: "avolve-avault-link",
+          title: "Avault",
+          url: "/avolve/avault"
+        },
+        {
+          id: "avolve-avoice-link",
+          title: "Avoice",
+          url: "/avolve/avoice"
+        },
       ]
     },
     // Create Your Success Puzzle
@@ -190,10 +303,26 @@ const avolveData = {
       category: "supercivilization",
       gradientClass: "from-stone-500 to-stone-700",
       items: [
-        { title: "Superachiever Playbook", url: "/create-success/playbook" },
-        { title: "Personal Success Puzzle", url: "/create-success/personal" },
-        { title: "Business Success Puzzle", url: "/create-success/business" },
-        { title: "Supermind Superpowers", url: "/create-success/supermind" },
+        {
+          id: "create-success-playbook-link",
+          title: "Superachiever Playbook",
+          url: "/create-success/playbook"
+        },
+        {
+          id: "create-success-personal-link",
+          title: "Personal Success Puzzle",
+          url: "/create-success/personal"
+        },
+        {
+          id: "create-success-business-link",
+          title: "Business Success Puzzle",
+          url: "/create-success/business"
+        },
+        {
+          id: "create-success-supermind-link",
+          title: "Supermind Superpowers",
+          url: "/create-success/supermind"
+        },
       ]
     },
     // Co-Create Our Superpuzzle
@@ -205,11 +334,31 @@ const avolveData = {
       category: "supercivilization",
       gradientClass: "from-slate-500 to-slate-700",
       items: [
-        { title: "Supercivilization Quests", url: "/co-create/quests" },
-        { title: "Superpuzzle Developments", url: "/co-create/superpuzzle" },
-        { title: "Superhuman Enhancements", url: "/co-create/superhuman" },
-        { title: "Supersociety Advancements", url: "/co-create/supersociety" },
-        { title: "Supergenius Breakthroughs", url: "/co-create/supergenius" },
+        {
+          id: "co-create-quests-link",
+          title: "Supercivilization Quests",
+          url: "/co-create/quests"
+        },
+        {
+          id: "co-create-superpuzzle-link",
+          title: "Superpuzzle Developments",
+          url: "/co-create/superpuzzle"
+        },
+        {
+          id: "co-create-superhuman-link",
+          title: "Superhuman Enhancements",
+          url: "/co-create/superhuman"
+        },
+        {
+          id: "co-create-supersociety-link",
+          title: "Supersociety Advancements",
+          url: "/co-create/supersociety"
+        },
+        {
+          id: "co-create-supergenius-link",
+          title: "Supergenius Breakthroughs",
+          url: "/co-create/supergenius"
+        },
       ]
     },
     
@@ -231,10 +380,26 @@ const avolveData = {
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
-        { title: "Current", url: "/personal/health/current" },
-        { title: "Desired", url: "/personal/health/desired" },
-        { title: "Actions", url: "/personal/health/actions" },
-        { title: "Results", url: "/personal/health/results" },
+        {
+          id: "personal-health-current",
+          title: "Current",
+          url: "/personal/health/current"
+        },
+        {
+          id: "personal-health-desired",
+          title: "Desired",
+          url: "/personal/health/desired"
+        },
+        {
+          id: "personal-health-actions",
+          title: "Actions",
+          url: "/personal/health/actions"
+        },
+        {
+          id: "personal-health-results",
+          title: "Results",
+          url: "/personal/health/results"
+        }
       ]
     },
     {
@@ -245,10 +410,26 @@ const avolveData = {
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
-        { title: "Current", url: "/personal/wealth/current" },
-        { title: "Desired", url: "/personal/wealth/desired" },
-        { title: "Actions", url: "/personal/wealth/actions" },
-        { title: "Results", url: "/personal/wealth/results" },
+        {
+          id: "personal-wealth-current",
+          title: "Current",
+          url: "/personal/wealth/current"
+        },
+        {
+          id: "personal-wealth-desired",
+          title: "Desired",
+          url: "/personal/wealth/desired"
+        },
+        {
+          id: "personal-wealth-actions",
+          title: "Actions",
+          url: "/personal/wealth/actions"
+        },
+        {
+          id: "personal-wealth-results",
+          title: "Results",
+          url: "/personal/wealth/results"
+        }
       ]
     },
     {
@@ -259,10 +440,26 @@ const avolveData = {
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
-        { title: "Current", url: "/personal/peace/current" },
-        { title: "Desired", url: "/personal/peace/desired" },
-        { title: "Actions", url: "/personal/peace/actions" },
-        { title: "Results", url: "/personal/peace/results" },
+        {
+          id: "personal-peace-current",
+          title: "Current",
+          url: "/personal/peace/current"
+        },
+        {
+          id: "personal-peace-desired",
+          title: "Desired",
+          url: "/personal/peace/desired"
+        },
+        {
+          id: "personal-peace-actions",
+          title: "Actions",
+          url: "/personal/peace/actions"
+        },
+        {
+          id: "personal-peace-results",
+          title: "Results",
+          url: "/personal/peace/results"
+        }
       ]
     },
     
@@ -284,10 +481,26 @@ const avolveData = {
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
-        { title: "Current", url: "/business/users/current" },
-        { title: "Desired", url: "/business/users/desired" },
-        { title: "Actions", url: "/business/users/actions" },
-        { title: "Results", url: "/business/users/results" },
+        {
+          id: "business-users-current",
+          title: "Current",
+          url: "/business/users/current"
+        },
+        {
+          id: "business-users-desired",
+          title: "Desired",
+          url: "/business/users/desired"
+        },
+        {
+          id: "business-users-actions",
+          title: "Actions",
+          url: "/business/users/actions"
+        },
+        {
+          id: "business-users-results",
+          title: "Results",
+          url: "/business/users/results"
+        }
       ]
     },
     {
@@ -298,10 +511,26 @@ const avolveData = {
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
-        { title: "Current", url: "/business/admin/current" },
-        { title: "Desired", url: "/business/admin/desired" },
-        { title: "Actions", url: "/business/admin/actions" },
-        { title: "Results", url: "/business/admin/results" },
+        {
+          id: "business-admin-current",
+          title: "Current",
+          url: "/business/admin/current"
+        },
+        {
+          id: "business-admin-desired",
+          title: "Desired",
+          url: "/business/admin/desired"
+        },
+        {
+          id: "business-admin-actions",
+          title: "Actions",
+          url: "/business/admin/actions"
+        },
+        {
+          id: "business-admin-results",
+          title: "Results",
+          url: "/business/admin/results"
+        }
       ]
     },
     {
@@ -312,10 +541,26 @@ const avolveData = {
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
-        { title: "Current", url: "/business/profit/current" },
-        { title: "Desired", url: "/business/profit/desired" },
-        { title: "Actions", url: "/business/profit/actions" },
-        { title: "Results", url: "/business/profit/results" },
+        {
+          id: "business-profit-current",
+          title: "Current",
+          url: "/business/profit/current"
+        },
+        {
+          id: "business-profit-desired",
+          title: "Desired",
+          url: "/business/profit/desired"
+        },
+        {
+          id: "business-profit-actions",
+          title: "Actions",
+          url: "/business/profit/actions"
+        },
+        {
+          id: "business-profit-results",
+          title: "Results",
+          url: "/business/profit/results"
+        }
       ]
     },
     
@@ -497,33 +742,30 @@ const avolveData = {
 }
 
 // Helper function to determine active team based on pathname
-const getActiveTeamFromPath = (pathname: string) => {
-  // Check for exact path matches first
-  if (pathname === '/superachiever') return 'superachiever';
-  if (pathname === '/personal') return 'personal';
-  if (pathname === '/business') return 'business';
-  if (pathname === '/supermind') return 'supermind';
-  if (pathname === '/superachievers') return 'superachievers';
-  if (pathname === '/superpuzzle') return 'superpuzzle';
-  if (pathname === '/superhuman') return 'superhuman';
-  if (pathname === '/supersociety') return 'supersociety';
-  if (pathname === '/supergenius') return 'supergenius';
-  if (pathname === '/supercivilization') return 'supercivilization';
+const getActiveTeamFromPath = (path: string) => {
+  // Extract the first segment of the path
+  const segment = path.split('/')[1];
   
-  // Then check for path segments for nested routes
-  if (pathname.startsWith('/personal/')) return 'personal';
-  if (pathname.startsWith('/business/')) return 'business';
-  if (pathname.startsWith('/supermind/')) return 'supermind';
-  if (pathname.startsWith('/superachiever/')) return 'superachiever';
-  if (pathname.startsWith('/superachievers/')) return 'superachievers';
-  if (pathname.startsWith('/superpuzzle/')) return 'superpuzzle';
-  if (pathname.startsWith('/superhuman/')) return 'superhuman';
-  if (pathname.startsWith('/supersociety/')) return 'supersociety';
-  if (pathname.startsWith('/supergenius/')) return 'supergenius';
-  if (pathname.startsWith('/supercivilization/')) return 'supercivilization';
-  if (pathname.startsWith('/dashboard')) return 'dashboard';
+  // Check if the segment matches any of our main routes
+  const mainRoutes = [
+    'superachiever', 
+    'superachievers', 
+    'supercivilization',
+    'personal',
+    'business',
+    'supermind',
+    'superpuzzle',
+    'superhuman',
+    'supersociety',
+    'supergenius'
+  ];
   
-  return 'superachiever'; // Default
+  if (mainRoutes.includes(segment)) {
+    return segment;
+  }
+  
+  // Default to superachiever if no match
+  return 'superachiever';
 };
 
 export function AppSidebar({ 
@@ -543,66 +785,20 @@ export function AppSidebar({
     }
   }, [pathname, propActiveTeam]);
 
-  // Filter menu items based on active team
+  // Get filtered menu items based on active team
   const getFilteredMenuItems = () => {
-    // For main categories
-    if (activeTeamId === 'superachiever') {
+    if (!activeTeamId) return [];
+    
+    // For main routes, filter by category
+    if (['superachiever', 'superachievers', 'supercivilization'].includes(activeTeamId)) {
       return avolveData.navMain.filter(item => 
-        item.category === 'superachiever' || 
-        (item.category === 'main' && item.id === 'superachiever')
-      );
-    } 
-    else if (activeTeamId === 'superachievers') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'superachievers' || 
-        (item.category === 'main' && item.id === 'superachievers')
-      );
-    }
-    else if (activeTeamId === 'supercivilization') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'supercivilization' || 
-        (item.category === 'main' && item.id === 'supercivilization')
-      );
-    }
-    // For sub-categories
-    else if (activeTeamId === 'personal') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'personal'
-      );
-    }
-    else if (activeTeamId === 'business') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'business'
-      );
-    }
-    else if (activeTeamId === 'supermind') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'supermind'
-      );
-    }
-    else if (activeTeamId === 'superpuzzle') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'superpuzzle'
-      );
-    }
-    else if (activeTeamId === 'superhuman') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'superhuman'
-      );
-    }
-    else if (activeTeamId === 'supersociety') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'supersociety'
-      );
-    }
-    else if (activeTeamId === 'supergenius') {
-      return avolveData.navMain.filter(item => 
-        item.category === 'supergenius'
+        item.category === 'main' || 
+        item.category === activeTeamId
       );
     }
     
-    // Default: show all items
-    return avolveData.navMain.filter(item => item.category !== 'utility');
+    // For sub-routes, filter by their specific category
+    return avolveData.navMain.filter(item => item.category === activeTeamId);
   };
 
   return (
@@ -613,13 +809,20 @@ export function AppSidebar({
       {...props}
     >
       <SidebarHeader className="py-2 px-2">
-        <NavSwitcher 
-          activeTeamId={activeTeamId} 
-          onTeamChange={(teamId) => setActiveTeamId(teamId)}
-        />
+        <div className="flex h-full flex-col gap-2">
+          <div className="px-3 py-2">
+            <NavSwitcher
+              activeTeam={activeTeamId}
+              onTeamChange={(teamId) => setActiveTeamId(teamId)}
+            />
+          </div>
+        </div>
       </SidebarHeader>
       <SidebarContent className="px-2">
         <NavMain items={getFilteredMenuItems()} />
+        <div className="mt-6 border-t pt-4">
+          <TokenSidebarDisplay />
+        </div>
       </SidebarContent>
       <SidebarFooter className="py-2 px-2">
         <NavUser user={avolveData.user} />

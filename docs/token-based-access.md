@@ -754,3 +754,283 @@ export const TokenTransferForm: React.FC = () => {
 ```
 
 > 🎨 **Beautiful UI Components**: These components provide a polished, user-friendly interface for interacting with the token system.
+
+# Token-Based Access System
+
+## Overview
+
+The Avolve platform implements a sophisticated token-based access control system that aligns with the platform's three main pillars:
+
+1. **Superachiever** - Individual journey of transformation (Stone gradient) (SAP token)
+2. **Superachievers** - Collective journey of transformation (Slate gradient) (SCQ token)
+3. **Supercivilization** - Ecosystem journey for transformation (Zinc gradient) (GEN token)
+
+This hierarchical token structure enables granular access control to different features and content within the platform, creating a seamless progression path for users as they earn and accumulate tokens.
+
+## Token Hierarchy
+
+The token hierarchy follows a parent-child relationship:
+
+```
+GEN (Supercivilization)
+├── SAP (Superachiever)
+│   ├── PSP (Personal Success Puzzle)
+│   ├── BSP (Business Success Puzzle)
+│   └── SMS (Supermind Superpowers)
+└── SCQ (Superachievers)
+    ├── SPD (Superpuzzle Developments)
+    ├── SHE (Superhuman Enhancements)
+    ├── SSA (Supersociety Advancements)
+    └── SGB (Supergenius Breakthroughs)
+```
+
+Each token has specific properties:
+- **Symbol**: Unique identifier (e.g., GEN, SAP)
+- **Name**: Human-readable name
+- **Description**: Detailed description
+- **Gradient Class**: CSS gradient for visual representation
+- **Is Primary**: Whether it's a primary token
+- **Is Transferable**: Whether users can transfer it
+- **Transfer Fee**: Fee applied to transfers (if any)
+
+## Database Implementation
+
+The token system is implemented in the database with the following key tables:
+
+- **tokens**: Stores token definitions and relationships
+- **user_tokens**: Tracks token ownership and balances
+- **token_transactions**: Records all token movements
+- **token_staking**: Manages token staking
+- **staking_rewards**: Tracks rewards from staking
+- **token_rewards**: Defines reward rules for activities
+
+These tables work together to create a comprehensive token economy within the platform.
+
+## Server-Side Implementation
+
+The server-side implementation includes several PostgreSQL functions for token management:
+
+### Core Functions
+
+```sql
+-- Check if a user has a specific token
+has_token(user_id, token_symbol)
+
+-- Check if a user has sufficient token balance
+has_sufficient_token_balance(user_id, token_symbol, required_amount)
+
+-- Check if a user has access to a specific resource
+has_access_to_resource(user_id, resource_type, resource_id)
+
+-- Get all resources a user has access to
+get_accessible_resources(user_id)
+
+-- Award tokens to a user
+award_token(user_id, token_symbol, amount, reason)
+
+-- Transfer tokens between users
+transfer_token(from_user_id, to_user_id, token_symbol, amount, reason)
+
+-- Stake tokens
+stake_token(user_id, token_symbol, amount, lock_period_days)
+
+-- Unstake tokens
+unstake_token(staking_id)
+
+-- Distribute staking rewards
+distribute_staking_rewards()
+
+-- Claim staking rewards
+claim_staking_rewards(user_id, token_symbol)
+```
+
+### Row-Level Security
+
+The database implements Row-Level Security (RLS) policies to ensure users can only access data they're authorized to see:
+
+```sql
+-- Tokens are viewable by everyone
+create policy "Tokens are viewable by everyone" 
+  on public.tokens for select 
+  using (true);
+
+-- Only allow access to resources based on token ownership
+create policy "Access resources based on tokens" 
+  on public.components for select 
+  using (
+    auth.uid() = user_id or 
+    public.has_access_to_resource(auth.uid(), 'component', id)
+  );
+```
+
+## Client-Side Implementation
+
+The client-side implementation provides React hooks and components for interacting with the token system:
+
+### Hooks
+
+#### `useToken` Hook
+
+The `useToken` hook provides token-related functionality for React components:
+
+```tsx
+const { 
+  getUserTokens,
+  getAllTokenTypes,
+  getUserTokenBalance,
+  awardToken,
+  transferToken,
+  stakeToken,
+  unstakeToken,
+  claimRewards
+} = useToken();
+```
+
+#### `useTokenRBAC` Hook
+
+The `useTokenRBAC` hook extends the RBAC system with token-based permissions:
+
+```tsx
+const {
+  hasToken,
+  hasSufficientTokenBalance,
+  hasAccessToResource,
+  getAccessibleResources,
+  checkAccess
+} = useTokenRBAC();
+```
+
+### Components
+
+#### `TokenBadge` Component
+
+The `TokenBadge` component visualizes token ownership with optional balance and tooltip information:
+
+```tsx
+<TokenBadge 
+  tokenCode="GEN"
+  tokenName="Supercivilization"
+  tokenSymbol="GEN"
+  showBalance={true}
+  size="lg"
+/>
+```
+
+#### `TokenSidebarDisplay` Component
+
+The `TokenSidebarDisplay` component shows the user's tokens in a hierarchical structure that matches Avolve's three pillars:
+
+```tsx
+<TokenSidebarDisplay />
+```
+
+#### `TokenStats` Component
+
+The `TokenStats` component displays token-related progress and statistics:
+
+```tsx
+<TokenStats 
+  tokenCode="SAP"
+  tokenName="Superachiever"
+  tokenSymbol="SAP"
+  gradientClass="from-stone-500 to-stone-700"
+/>
+```
+
+#### `RouteCard` Component
+
+The `RouteCard` component provides a consistent card for navigation with token visualization:
+
+```tsx
+<RouteCard
+  title="Personal Success Puzzle"
+  description="Manage your personal goals and achievements."
+  href="/personal"
+  gradientClass="from-amber-500 to-yellow-500"
+  tokenCode="PSP"
+  tokenName="Personal Success Puzzle"
+  tokenSymbol="PSP"
+  icon={<Heart className="h-5 w-5" />}
+/>
+```
+
+## Usage Examples
+
+### Checking Access
+
+```tsx
+// Check if the user has a specific token
+const hasGenToken = await hasToken('GEN');
+
+// Check if the user has sufficient token balance
+const hasSufficientBalance = await hasSufficientTokenBalance('GEN', 100);
+
+// Check if the user has access to a specific resource
+const hasAccess = await hasAccessToResource('component', componentId);
+```
+
+### Token Transactions
+
+```tsx
+// Award tokens to a user
+await awardToken('GEN', 100, 'Completed onboarding');
+
+// Transfer tokens to another user
+await transferToken(recipientId, 'GEN', 50, 'Gift');
+
+// Stake tokens
+await stakeToken('GEN', 200, 30); // Stake 200 GEN for 30 days
+
+// Claim rewards
+await claimRewards('GEN');
+```
+
+### UI Integration
+
+```tsx
+// Display token information in a component
+function TokenDisplay() {
+  const { getUserTokens } = useToken();
+  const [tokens, setTokens] = useState([]);
+  
+  useEffect(() => {
+    async function fetchTokens() {
+      const result = await getUserTokens();
+      if (result.data) {
+        setTokens(result.data);
+      }
+    }
+    
+    fetchTokens();
+  }, [getUserTokens]);
+  
+  return (
+    <div>
+      <h2>Your Tokens</h2>
+      {tokens.map(token => (
+        <TokenBadge 
+          key={token.id}
+          tokenCode={token.symbol}
+          tokenName={token.name}
+          tokenSymbol={token.symbol}
+          showBalance={true}
+        />
+      ))}
+    </div>
+  );
+}
+```
+
+## Token-Based UI Navigation
+
+The Avolve platform uses tokens to control access to different sections of the UI:
+
+1. **Main Navigation**: The sidebar displays only the pillars and sections the user has tokens for
+2. **Route Cards**: Cards for different sections display token badges and are only clickable if the user has the required tokens
+3. **Progress Tracking**: Token statistics show progress toward earning more tokens and unlocking new features
+
+This creates a seamless experience where the UI naturally evolves as users earn more tokens and gain access to new features and content.
+
+## Conclusion
+
+The token-based access system is a core feature of the Avolve platform, enabling a sophisticated progression system that aligns with the platform's three pillars. By integrating tokens into both the database schema and UI components, we create a cohesive experience that encourages users to engage with the platform and earn tokens to unlock new features and content.

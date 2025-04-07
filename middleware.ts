@@ -2,6 +2,8 @@ import { updateSession } from "@/lib/supabase/middleware"
 import { rateLimit } from "@/lib/rate-limit"
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
+import { getRouteProtection } from "@/middleware/rbac-config"
+import { rbacMiddleware } from "@/middleware/rbac-middleware"
 
 // Define auth routes that should be rate limited
 const AUTH_ROUTES = ["/auth/login", "/auth/sign-up", "/auth/forgot-password", "/api/auth/"]
@@ -95,6 +97,21 @@ export async function middleware(request: NextRequest) {
       })
 
       return response
+    }
+  }
+
+  // Check for RBAC protection
+  const routeProtection = getRouteProtection(url)
+  if (routeProtection) {
+    const rbacResponse = await rbacMiddleware(request, routeProtection)
+    
+    // If the RBAC middleware returns a response (redirect or error),
+    // add security headers and return it
+    if (rbacResponse !== NextResponse.next()) {
+      Object.entries(securityHeaders).forEach(([key, value]) => {
+        rbacResponse.headers.set(key, value)
+      })
+      return rbacResponse
     }
   }
 

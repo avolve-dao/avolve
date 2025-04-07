@@ -25,7 +25,6 @@ import {
   ArrowLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { logActivity } from "@/lib/activity-logger"
 
 interface ImmersiveGrokProps {
   userId: string
@@ -72,16 +71,17 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
       userId,
     },
     onFinish: () => {
-      // Log activity when chat completes
-      logActivity({
-        userId,
-        action: "post_create",
-        entityType: "message",
-        entityId: nanoid(),
-        metadata: {
-          type: "grok_chat",
+      // Log activity when chat completes via API instead of direct client import
+      fetch("/api/grok/log-activity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "post_create",
+          entityType: "message",
           content: input.substring(0, 100),
-        },
+        }),
+      }).catch((error) => {
+        console.error("Error logging activity:", error)
       })
     },
   })
@@ -124,16 +124,17 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
         setCreationPrompt("")
         setSelectedTemplate(null)
 
-        // Log activity
-        logActivity({
-          userId,
-          action: "post_create",
-          entityType: "post",
-          entityId: nanoid(),
-          metadata: {
-            type: "grok_creation",
+        // Log activity via API instead of direct client import
+        fetch("/api/grok/log-activity", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "post_create",
+            entityType: "post",
             content: creationPrompt.substring(0, 100),
-          },
+          }),
+        }).catch((error) => {
+          console.error("Error logging activity:", error)
         })
       }
     } catch (error) {
@@ -389,7 +390,7 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
                                 <Bookmark className="h-4 w-4" />
                                 Save
                               </Button>
-                              <Button variant="primary" size="sm" className="h-8 gap-1 ml-auto">
+                              <Button variant="default" size="sm" className="h-8 gap-1 ml-auto">
                                 Post
                               </Button>
                             </div>
@@ -499,4 +500,3 @@ function GrokExplore({ userId }: { userId: string }) {
     </div>
   )
 }
-

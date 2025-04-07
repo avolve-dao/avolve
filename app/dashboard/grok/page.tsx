@@ -2,8 +2,11 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import GrokClientPage from "./page.client"
 
+export const dynamic = 'force-dynamic';
+
 export default async function GrokPage() {
-  const supabase = await createClient()
+  const supabase = createClient();
+  
   const { data: userData, error } = await supabase.auth.getUser()
 
   if (error || !userData?.user) {

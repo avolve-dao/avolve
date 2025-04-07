@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
@@ -9,8 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Badge } from "@/components/ui/badge"
 
 export function SignUpForm({
   className,
@@ -22,13 +24,58 @@ export function SignUpForm({
   const [repeatPassword, setRepeatPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [invitationCode, setInvitationCode] = useState("")
+  const [invitationValid, setInvitationValid] = useState(false)
+  const [invitationDetails, setInvitationDetails] = useState<any>(null)
+  
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const codeParam = searchParams?.get("code")
+  
+  useEffect(() => {
+    // Check for invitation code in URL or session storage
+    const code = codeParam || sessionStorage.getItem('invitation_code') || ""
+    setInvitationCode(code)
+    
+    if (code) {
+      validateInvitationCode(code)
+    }
+  }, [codeParam])
+  
+  const validateInvitationCode = async (code: string) => {
+    try {
+      const supabase = createClient()
+      const { data, error } = await supabase.rpc('check_invitation_code', {
+        p_code: code.trim().toUpperCase()
+      })
+      
+      if (error) throw error
+      
+      if (data.valid) {
+        setInvitationValid(true)
+        setInvitationDetails(data)
+      } else {
+        setInvitationValid(false)
+        setError(data.message || "Invalid invitation code")
+      }
+    } catch (error) {
+      console.error("Error validating invitation code:", error)
+      setInvitationValid(false)
+      setError("Could not validate invitation code")
+    }
+  }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
     setError(null)
+
+    if (!invitationValid) {
+      setError("A valid invitation code is required to sign up")
+      setIsLoading(false)
+      return
+    }
 
     if (password !== repeatPassword) {
       setError("Passwords do not match")
@@ -43,7 +90,7 @@ export function SignUpForm({
       const cleanOrigin = origin.endsWith("/") ? origin.slice(0, -1) : origin
 
       // Use the full URL for the callback to ensure it works correctly
-      const redirectUrl = `${cleanOrigin}/auth/callback`
+      const redirectUrl = `${cleanOrigin}/auth/callback?invitation_code=${invitationCode}`
 
       console.log("Using redirect URL:", redirectUrl)
 
@@ -56,6 +103,7 @@ export function SignUpForm({
           data: {
             full_name: email.split("@")[0],
             avatar_url: `https://ui-avatars.com/api/?name=${encodeURIComponent(email.split("@")[0])}&background=random`,
+            invitation_code: invitationCode
           },
         },
       })
@@ -81,11 +129,43 @@ export function SignUpForm({
           <CardDescription>Create a new account</CardDescription>
         </CardHeader>
         <CardContent>
+          {invitationValid ? (
+            <Alert className="mb-4 bg-green-50 text-green-800 dark:bg-green-950/30 dark:text-green-400">
+              <AlertDescription className="flex items-center">
+                <Badge variant="outline" className="mr-2 border-green-500 bg-green-100 text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-400">
+                  Valid Invitation
+                </Badge>
+                You've been invited to join Avolve
+              </AlertDescription>
+            </Alert>
+          ) : (
+            <Alert className="mb-4 bg-amber-50 text-amber-800 dark:bg-amber-950/30 dark:text-amber-400">
+              <AlertDescription>
+                A valid invitation code is required to sign up
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               {/* Hidden CSRF token field */}
               {csrfToken && <input type="hidden" name="csrf_token" value={csrfToken} />}
 
+              <div className="grid gap-2">
+                <Label htmlFor="invitation-code">Invitation Code</Label>
+                <Input
+                  id="invitation-code"
+                  value={invitationCode}
+                  onChange={(e) => {
+                    setInvitationCode(e.target.value)
+                    setInvitationValid(false)
+                  }}
+                  onBlur={() => invitationCode && validateInvitationCode(invitationCode)}
+                  required
+                  className={invitationValid ? "border-green-500" : ""}
+                />
+              </div>
+              
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -122,7 +202,7 @@ export function SignUpForm({
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading || !invitationValid}>
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
             </div>
@@ -138,4 +218,3 @@ export function SignUpForm({
     </div>
   )
 }
-

@@ -11,7 +11,7 @@ import { TokenService } from './token-service';
 import { useAuth } from '../auth/use-auth';
 
 // Import the RBAC hook from the correct location
-import { useRBAC } from '../rbac/use-rbac';
+import { useRBAC } from '../hooks/use-rbac';
 
 export interface UseTokenRBACResult {
   loading: boolean;

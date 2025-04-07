@@ -1,3 +1,6 @@
+// This file is only for server components
+// For client components, use client.ts instead
+
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/lib/database.types'
@@ -16,7 +19,8 @@ export const createClient = cache(() => {
     {
       cookies: {
         get(name) {
-          return cookieStore.get(name)?.value
+          const cookie = cookieStore.get(name)
+          return cookie?.value
         },
         set(name, value, options) {
           try {

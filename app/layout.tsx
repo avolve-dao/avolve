@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { RouteTransitionProvider } from "@/components/route-transition-provider"
-import { OnboardingProvider } from "@/components/Onboarding/OnboardingProvider"
+import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider"
 import { FeaturesProvider } from "@/components/Features/FeaturesProvider"
 
 import './globals.css'

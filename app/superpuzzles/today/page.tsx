@@ -3,7 +3,7 @@ import SuperpuzzlesList from '@/components/Superpuzzles/SuperpuzzlesList';
 
 export const metadata = {
   title: "Today's Superpuzzles | Avolve",
-  description: 'View and contribute to today's featured superpuzzles',
+  description: "View and contribute to today's featured superpuzzles",
 };
 
 export default function TodaySuperpuzzlesPage() {

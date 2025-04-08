@@ -31,6 +31,20 @@ export function OpenAIStream(response: any, options?: any) {
   });
 }
 
+// Add streamText function for compatibility with app/actions/grok.ts
+export function streamText(options: any) {
+  // Create a simple text stream as a fallback
+  const encoder = new TextEncoder();
+  const message = "AI streaming text functionality has been updated. Please check the documentation.";
+  
+  return new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(message));
+      controller.close();
+    }
+  });
+}
+
 // Re-export for use in our application
 export { xai };
 

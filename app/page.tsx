@@ -65,7 +65,7 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center bg-gradient-to-b from-zinc-900 to-black p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-zinc-900 to-black p-4">
       <div className="w-full max-w-md">
         <Card className="border-zinc-800 bg-zinc-950/50 backdrop-blur-sm">
           <CardHeader className="text-center">

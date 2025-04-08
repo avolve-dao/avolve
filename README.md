@@ -281,7 +281,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is proprietary software owned by Avolve DAO. All rights reserved.
 
 ## 🙏 Acknowledgements
 
@@ -290,5 +290,9 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 - [Tailwind CSS](https://tailwindcss.com/)
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Vercel](https://vercel.com/)
+
+## 📞 Support
+
+For support or inquiries, contact admin@avolve.io.
 
 ---

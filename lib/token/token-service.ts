@@ -1,185 +1,91 @@
 /**
+ * @ai-anchor #TOKEN_SYSTEM #TOKEN_SERVICE
+ * @ai-context This service centralizes all token management functionality for the Avolve platform
+ * @ai-related-to token-repository.ts, token-types.ts
+ * @ai-database-tables tokens, token_types, user_tokens, token_transactions
+ * @ai-sacred-geometry tesla-369
+ * 
  * Token Service
  * 
  * This service centralizes all token management functionality for the Avolve platform.
  * It provides methods for managing tokens, token ownership, and token-based permissions.
+ * 
+ * The service follows the repository pattern, delegating database operations to the TokenRepository.
+ * It implements sacred geometry principles, particularly Tesla's 3-6-9 pattern, in token calculations.
  */
 
-import { AuthError, SupabaseClient, createClient } from '@supabase/supabase-js';
-
-// Result interface
-export interface TokenResult<T = any> {
-  data: T | null;
-  error: AuthError | null;
-  message?: string;
-}
-
-// Token Type interface
-export interface TokenType {
-  id: string;
-  code: string;
-  name: string;
-  description?: string;
-  parent_token_type_id?: string;
-  is_system?: boolean;
-  metadata?: Record<string, any>;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// Token interface
-export interface Token {
-  id: string;
-  token_type_id: string;
-  name: string;
-  symbol: string;
-  description?: string;
-  metadata?: Record<string, any>;
-  is_transferable?: boolean;
-  is_active?: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// Token Ownership interface
-export interface TokenOwnership {
-  id: string;
-  user_id: string;
-  token_id: string;
-  balance: number;
-  created_at?: string;
-  updated_at?: string;
-  metadata?: Record<string, any>;
-  tokens?: Token;
-}
-
-// Token Permission interface
-export interface TokenPermission {
-  id: string;
-  token_type_id: string;
-  permission_id: string;
-  min_balance: number;
-  created_at?: string;
-}
-
-// Token Transaction interface
-export interface TokenTransaction {
-  id: string;
-  token_id: string;
-  from_user_id?: string;
-  to_user_id?: string;
-  amount: number;
-  transaction_type: string;
-  status: string;
-  metadata?: Record<string, any>;
-  created_at?: string;
-}
-
-// Transaction Types
-export enum TransactionType {
-  MINT = 'mint',
-  BURN = 'burn',
-  TRANSFER = 'transfer'
-}
-
-// Helper function to convert database error to AuthError
-function convertError(error: any): AuthError | null {
-  if (!error) return null;
-  return new AuthError(error.message || 'An unexpected error occurred');
-}
+import { SupabaseClient } from '@supabase/supabase-js';
+import { 
+  Token, 
+  TokenType, 
+  TokenOwnership, 
+  TokenTransaction,
+  TokenPermission,
+  TokenResult,
+  TokenError,
+  TransactionStatus,
+  TransactionType,
+  DailyToken,
+  DAY_TO_TOKEN_MAP
+} from './token-types';
+import { TokenRepository } from './token-repository';
 
 /**
  * Token Service Class
+ * 
+ * This service provides a high-level API for token-related operations.
+ * It implements business logic and delegates database operations to the TokenRepository.
  */
 export class TokenService {
-  private client: SupabaseClient;
-
+  private repository: TokenRepository;
+  
   /**
-   * Constructor
+   * Creates a new TokenService instance
+   * 
+   * @param client - The Supabase client instance
    */
   constructor(client: SupabaseClient) {
-    this.client = client;
+    this.repository = new TokenRepository(client);
   }
 
   /**
    * Get all token types
+   * 
+   * @returns A promise resolving to a TokenResult containing an array of TokenType objects
    */
   public async getAllTokenTypes(): Promise<TokenResult<TokenType[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('token_types')
-        .select('*')
-        .order('name');
-      
-      if (error) {
-        console.error('Get all token types error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get all token types error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting token types') 
-      };
-    }
+    return this.repository.getAllTokenTypes();
   }
 
   /**
    * Get a token type by ID
+   * 
+   * @param id - The ID of the token type to fetch
+   * @returns A promise resolving to a TokenResult containing a TokenType object
    */
   public async getTokenTypeById(id: string): Promise<TokenResult<TokenType>> {
-    try {
-      const { data, error } = await this.client
-        .from('token_types')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) {
-        console.error('Get token type by ID error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get token type by ID error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting token type') 
-      };
-    }
+    return this.repository.getTokenTypeById(id);
   }
 
   /**
    * Get a token type by code
+   * 
+   * @param code - The code of the token type to fetch (e.g., GEN, SAP, PSP)
+   * @returns A promise resolving to a TokenResult containing a TokenType object
    */
   public async getTokenTypeByCode(code: string): Promise<TokenResult<TokenType>> {
-    try {
-      const { data, error } = await this.client
-        .from('token_types')
-        .select('*')
-        .eq('code', code)
-        .single();
-      
-      if (error) {
-        console.error('Get token type by code error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get token type by code error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting token type') 
-      };
-    }
+    return this.repository.getTokenTypeByCode(code);
   }
 
   /**
    * Create a new token type
+   * 
+   * @param code - The unique code for the token type
+   * @param name - The display name for the token type
+   * @param description - Optional description of the token type
+   * @param parentTokenTypeId - Optional ID of the parent token type
+   * @param metadata - Optional additional metadata for the token type
+   * @returns A promise resolving to a TokenResult containing the created TokenType
    */
   public async createTokenType(
     code: string, 
@@ -188,87 +94,38 @@ export class TokenService {
     parentTokenTypeId?: string,
     metadata?: Record<string, any>
   ): Promise<TokenResult<TokenType>> {
-    try {
-      const { data, error } = await this.client
-        .from('token_types')
-        .insert([{
-          code,
-          name,
-          description,
-          parent_token_type_id: parentTokenTypeId,
-          metadata
-        }])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Create token type error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected create token type error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating token type') 
-      };
-    }
+    return this.repository.createTokenType(code, name, description, parentTokenTypeId, metadata);
   }
 
   /**
    * Get all tokens
+   * 
+   * @returns A promise resolving to a TokenResult containing an array of Token objects
    */
   public async getAllTokens(): Promise<TokenResult<Token[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('tokens')
-        .select('*')
-        .order('name');
-      
-      if (error) {
-        console.error('Get all tokens error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get all tokens error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting tokens') 
-      };
-    }
+    return this.repository.getAllTokens();
   }
 
   /**
    * Get tokens by token type
+   * 
+   * @param tokenTypeId - The ID of the token type to filter by
+   * @returns A promise resolving to a TokenResult containing an array of Token objects
    */
   public async getTokensByType(tokenTypeId: string): Promise<TokenResult<Token[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('tokens')
-        .select('*')
-        .eq('token_type_id', tokenTypeId)
-        .order('name');
-      
-      if (error) {
-        console.error('Get tokens by type error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get tokens by type error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting tokens by type') 
-      };
-    }
+    return this.repository.getTokensByType(tokenTypeId);
   }
 
   /**
    * Create a new token
+   * 
+   * @param tokenTypeId - The ID of the token type
+   * @param name - The display name for the token
+   * @param symbol - The symbol for the token
+   * @param description - Optional description of the token
+   * @param isTransferable - Whether the token can be transferred between users
+   * @param metadata - Optional additional metadata for the token
+   * @returns A promise resolving to a TokenResult containing the created Token
    */
   public async createToken(
     tokenTypeId: string,
@@ -278,318 +135,409 @@ export class TokenService {
     isTransferable: boolean = true,
     metadata?: Record<string, any>
   ): Promise<TokenResult<Token>> {
-    try {
-      const { data, error } = await this.client
-        .from('tokens')
-        .insert([{
-          token_type_id: tokenTypeId,
-          name,
-          symbol,
-          description,
-          is_transferable: isTransferable,
-          metadata
-        }])
-        .select()
-        .single();
-      
-      if (error) {
-        console.error('Create token error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected create token error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating token') 
-      };
-    }
+    return this.repository.createToken(tokenTypeId, name, symbol, description, isTransferable, metadata);
   }
 
   /**
    * Get token by ID
+   * 
+   * @param id - The ID of the token to fetch
+   * @returns A promise resolving to a TokenResult containing a Token object
    */
   public async getTokenById(id: string): Promise<TokenResult<Token>> {
-    try {
-      const { data, error } = await this.client
-        .from('tokens')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) {
-        console.error('Get token by ID error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get token by ID error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting token') 
-      };
-    }
+    return this.repository.getTokenById(id);
   }
 
   /**
-   * Get user tokens
+   * Get tokens owned by a user
+   * 
+   * @param userId - The ID of the user
+   * @returns A promise resolving to a TokenResult containing an array of TokenOwnership objects
    */
   public async getUserTokens(userId: string): Promise<TokenResult<TokenOwnership[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('user_tokens')
-        .select(`
-          *,
-          tokens(*)
-        `)
-        .eq('user_id', userId);
-
-      if (error) {
-        console.error('Get user tokens error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data: data as TokenOwnership[], error: null };
-    } catch (error) {
-      console.error('Unexpected get user tokens error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting user tokens') 
-      };
-    }
+    return this.repository.getUserTokens(userId);
   }
 
   /**
-   * Transfer tokens
+   * Get a user's token balance
+   * 
+   * @param userId - The ID of the user
+   * @param tokenId - The ID of the token
+   * @returns A promise resolving to a TokenResult containing the user's token balance
+   */
+  public async getUserTokenBalance(userId: string, tokenId: string): Promise<TokenResult<number>> {
+    return this.repository.getUserTokenBalance(userId, tokenId);
+  }
+
+  /**
+   * Transfer tokens from one user to another
+   * 
+   * @param fromUserId - The ID of the user sending tokens
+   * @param toUserId - The ID of the user receiving tokens
+   * @param tokenId - The ID of the token to transfer
+   * @param amount - The amount of tokens to transfer
+   * @param reason - Optional reason for the transfer
+   * @returns A promise resolving to a TokenResult containing the transaction result
    */
   public async transferTokens(
     fromUserId: string, 
     toUserId: string, 
     tokenId: string, 
-    amount: number
+    amount: number,
+    reason?: string
   ): Promise<TokenResult<{ success: boolean; message: string; transaction_id?: string }>> {
     try {
-      const validation = await this.validateTransfer(fromUserId, tokenId, amount);
-      if (!validation.success || !validation.token) {
-        return { data: { success: false, message: validation.message }, error: null };
+      // Validate the transfer
+      const validationResult = await this.validateTransfer(fromUserId, tokenId, amount);
+      
+      if (!validationResult.success) {
+        return { 
+          data: { success: false, message: validationResult.message }, 
+          error: null 
+        };
       }
-
-      const { data: transactionId, error: rpcError } = await this.client.rpc(
-        'process_token_transaction',
-        {
-          p_from_user_id: fromUserId,
-          p_to_user_id: toUserId,
-          p_token_id: tokenId,
-          p_amount: amount,
-          p_transaction_type: TransactionType.TRANSFER,
-        }
+      
+      // Create the transaction
+      const { data: transaction, error: transactionError } = await this.repository.createTransaction({
+        token_id: tokenId,
+        from_user_id: fromUserId,
+        to_user_id: toUserId,
+        amount,
+        transaction_type: TransactionType.TRANSFER,
+        status: TransactionStatus.PENDING,
+        reason
+      });
+      
+      if (transactionError) {
+        return { 
+          data: { success: false, message: 'Failed to create transaction' }, 
+          error: transactionError 
+        };
+      }
+      
+      // Update sender's balance
+      const { error: fromError } = await this.repository.updateUserTokenBalance(
+        fromUserId, 
+        tokenId, 
+        -amount
       );
-
-      if (rpcError) {
-        console.error('Transfer token RPC error:', rpcError);
-        return {
-          data: { success: false, message: 'Failed to process transfer transaction via RPC' },
-          error: convertError(rpcError)
+      
+      if (fromError) {
+        // Revert transaction status
+        await this.repository.createTransaction({
+          ...transaction,
+          status: TransactionStatus.FAILED,
+          metadata: { 
+            error: 'Failed to update sender balance',
+            original_transaction_id: transaction.id
+          }
+        });
+        
+        return { 
+          data: { success: false, message: 'Failed to update sender balance' }, 
+          error: fromError 
         };
       }
-
-      if (!transactionId) {
-        console.warn('Transfer token RPC returned null ID, possible validation failure in function.');
-        return {
-          data: { success: false, message: 'Transfer transaction failed validation within database function (e.g., insufficient balance).' },
-          error: null
+      
+      // Update receiver's balance
+      const { error: toError } = await this.repository.updateUserTokenBalance(
+        toUserId, 
+        tokenId, 
+        amount
+      );
+      
+      if (toError) {
+        // Revert sender's balance
+        await this.repository.updateUserTokenBalance(fromUserId, tokenId, amount);
+        
+        // Revert transaction status
+        await this.repository.createTransaction({
+          ...transaction,
+          status: TransactionStatus.FAILED,
+          metadata: { 
+            error: 'Failed to update receiver balance',
+            original_transaction_id: transaction.id
+          }
+        });
+        
+        return { 
+          data: { success: false, message: 'Failed to update receiver balance' }, 
+          error: toError 
         };
       }
-
-      return {
-        data: {
-          success: true,
-          message: 'Transfer initiated successfully',
-          transaction_id: transactionId
-        },
-        error: null
+      
+      // Update transaction status to completed
+      await this.repository.createTransaction({
+        ...transaction,
+        status: TransactionStatus.COMPLETED
+      });
+      
+      // Record activity
+      await this.repository.recordTokenActivity(
+        fromUserId,
+        tokenId,
+        'transfer_sent',
+        { amount, to_user_id: toUserId }
+      );
+      
+      await this.repository.recordTokenActivity(
+        toUserId,
+        tokenId,
+        'transfer_received',
+        { amount, from_user_id: fromUserId }
+      );
+      
+      return { 
+        data: { 
+          success: true, 
+          message: 'Transfer completed successfully', 
+          transaction_id: transaction.id 
+        }, 
+        error: null 
       };
     } catch (error) {
       console.error('Unexpected transfer tokens error:', error);
       return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while transferring tokens') 
+        data: { success: false, message: 'An unexpected error occurred during transfer' }, 
+        error: new TokenError('An unexpected error occurred during transfer', error) 
       };
     }
   }
 
   /**
-   * Mint tokens
+   * Mint new tokens for a user
+   * 
+   * @param toUserId - The ID of the user receiving tokens
+   * @param tokenId - The ID of the token to mint
+   * @param amount - The amount of tokens to mint
+   * @param reason - Optional reason for minting
+   * @returns A promise resolving to a TokenResult containing the transaction result
    */
   public async mintTokens(
-    tokenId: string,
-    toUserId: string,
+    toUserId: string, 
+    tokenId: string, 
     amount: number,
-    metadata?: Record<string, any>
+    reason?: string
   ): Promise<TokenResult<{ success: boolean; message: string; transaction_id?: string }>> {
     try {
       if (amount <= 0) {
-        return { data: { success: false, message: 'Amount must be greater than zero' }, error: null };
+        return { 
+          data: { success: false, message: 'Amount must be positive' }, 
+          error: null 
+        };
       }
-
-      const { data: transactionId, error: rpcError } = await this.client.rpc(
-        'process_token_transaction',
-        {
-          p_from_user_id: null,
-          p_to_user_id: toUserId,
-          p_token_id: tokenId,
-          p_amount: amount,
-          p_transaction_type: TransactionType.MINT,
-        }
+      
+      // Check if token exists and is active
+      const { data: token, error: tokenError } = await this.repository.getTokenById(tokenId);
+      
+      if (tokenError || !token) {
+        return { 
+          data: { success: false, message: 'Token not found' }, 
+          error: tokenError 
+        };
+      }
+      
+      if (!token.is_active) {
+        return { 
+          data: { success: false, message: 'Token is not active' }, 
+          error: null 
+        };
+      }
+      
+      // Create the transaction
+      const { data: transaction, error: transactionError } = await this.repository.createTransaction({
+        token_id: tokenId,
+        to_user_id: toUserId,
+        amount,
+        transaction_type: TransactionType.MINT,
+        status: TransactionStatus.PENDING,
+        reason
+      });
+      
+      if (transactionError) {
+        return { 
+          data: { success: false, message: 'Failed to create transaction' }, 
+          error: transactionError 
+        };
+      }
+      
+      // Update user's balance
+      const { error: updateError } = await this.repository.updateUserTokenBalance(
+        toUserId, 
+        tokenId, 
+        amount
       );
-
-      if (rpcError) {
-        console.error('Mint token RPC error:', rpcError);
-        return {
-          data: { success: false, message: 'Failed to process mint transaction via RPC' },
-          error: convertError(rpcError)
+      
+      if (updateError) {
+        // Revert transaction status
+        await this.repository.createTransaction({
+          ...transaction,
+          status: TransactionStatus.FAILED,
+          metadata: { 
+            error: 'Failed to update user balance',
+            original_transaction_id: transaction.id
+          }
+        });
+        
+        return { 
+          data: { success: false, message: 'Failed to update user balance' }, 
+          error: updateError 
         };
       }
-
-      if (!transactionId) {
-        console.warn('Mint token RPC returned null ID, possible validation failure in function.');
-        return {
-          data: { success: false, message: 'Mint transaction failed validation within database function.' },
-          error: null
-        };
-      }
-
-      return {
-        data: {
-          success: true,
-          message: 'Tokens minted successfully',
-          transaction_id: transactionId
-        },
-        error: null
+      
+      // Update transaction status to completed
+      await this.repository.createTransaction({
+        ...transaction,
+        status: TransactionStatus.COMPLETED
+      });
+      
+      // Record activity
+      await this.repository.recordTokenActivity(
+        toUserId,
+        tokenId,
+        'tokens_minted',
+        { amount }
+      );
+      
+      return { 
+        data: { 
+          success: true, 
+          message: 'Tokens minted successfully', 
+          transaction_id: transaction.id 
+        }, 
+        error: null 
       };
     } catch (error) {
       console.error('Unexpected mint tokens error:', error);
       return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while minting tokens') 
+        data: { success: false, message: 'An unexpected error occurred during minting' }, 
+        error: new TokenError('An unexpected error occurred during minting', error) 
       };
     }
   }
 
   /**
-   * Burn tokens
+   * Burn tokens from a user
+   * 
+   * @param fromUserId - The ID of the user whose tokens will be burned
+   * @param tokenId - The ID of the token to burn
+   * @param amount - The amount of tokens to burn
+   * @param reason - Optional reason for burning
+   * @returns A promise resolving to a TokenResult containing the transaction result
    */
   public async burnTokens(
-    tokenId: string,
-    fromUserId: string,
+    fromUserId: string, 
+    tokenId: string, 
     amount: number,
-    metadata?: Record<string, any>
+    reason?: string
   ): Promise<TokenResult<{ success: boolean; message: string; transaction_id?: string }>> {
     try {
-      const { data: transactionId, error: rpcError } = await this.client.rpc(
-        'process_token_transaction',
-        {
-          p_from_user_id: fromUserId,
-          p_to_user_id: null,
-          p_token_id: tokenId,
-          p_amount: amount,
-          p_transaction_type: TransactionType.BURN,
-        }
+      // Validate the burn
+      const validationResult = await this.validateTransfer(fromUserId, tokenId, amount);
+      
+      if (!validationResult.success) {
+        return { 
+          data: { success: false, message: validationResult.message }, 
+          error: null 
+        };
+      }
+      
+      // Create the transaction
+      const { data: transaction, error: transactionError } = await this.repository.createTransaction({
+        token_id: tokenId,
+        from_user_id: fromUserId,
+        amount,
+        transaction_type: TransactionType.BURN,
+        status: TransactionStatus.PENDING,
+        reason
+      });
+      
+      if (transactionError) {
+        return { 
+          data: { success: false, message: 'Failed to create transaction' }, 
+          error: transactionError 
+        };
+      }
+      
+      // Update user's balance
+      const { error: updateError } = await this.repository.updateUserTokenBalance(
+        fromUserId, 
+        tokenId, 
+        -amount
       );
-
-      if (rpcError) {
-        console.error('Burn token RPC error:', rpcError);
-        return {
-          data: { success: false, message: 'Failed to process burn transaction via RPC' },
-          error: convertError(rpcError)
+      
+      if (updateError) {
+        // Revert transaction status
+        await this.repository.createTransaction({
+          ...transaction,
+          status: TransactionStatus.FAILED,
+          metadata: { 
+            error: 'Failed to update user balance',
+            original_transaction_id: transaction.id
+          }
+        });
+        
+        return { 
+          data: { success: false, message: 'Failed to update user balance' }, 
+          error: updateError 
         };
       }
-
-      if (!transactionId) {
-        console.warn('Burn token RPC returned null ID, possible validation failure in function.');
-        return {
-          data: { success: false, message: 'Burn transaction failed validation within database function.' },
-          error: null
-        };
-      }
-
-      return {
-        data: {
-          success: true,
-          message: 'Tokens burned successfully',
-          transaction_id: transactionId
-        },
-        error: null
+      
+      // Update transaction status to completed
+      await this.repository.createTransaction({
+        ...transaction,
+        status: TransactionStatus.COMPLETED
+      });
+      
+      // Record activity
+      await this.repository.recordTokenActivity(
+        fromUserId,
+        tokenId,
+        'tokens_burned',
+        { amount }
+      );
+      
+      return { 
+        data: { 
+          success: true, 
+          message: 'Tokens burned successfully', 
+          transaction_id: transaction.id 
+        }, 
+        error: null 
       };
     } catch (error) {
       console.error('Unexpected burn tokens error:', error);
       return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while burning tokens') 
+        data: { success: false, message: 'An unexpected error occurred during burning' }, 
+        error: new TokenError('An unexpected error occurred during burning', error) 
       };
     }
   }
 
   /**
-   * Get user transactions
-   */
-  public async getUserTransactions(userId: string): Promise<TokenResult<TokenTransaction[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('token_transactions')
-        .select('*')
-        .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Get user transactions error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get user transactions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting user transactions') 
-      };
-    }
-  }
-
-  /**
-   * Check if user has permission via token
+   * Check if a user has permission via token
+   * 
+   * @param userId - The ID of the user
+   * @param resource - The resource to check permission for
+   * @param action - The action to check permission for
+   * @returns A promise resolving to a TokenResult containing a boolean indicating if the user has permission
    */
   public async hasPermissionViaToken(
     userId: string,
     resource: string,
     action: string
   ): Promise<TokenResult<boolean>> {
-    try {
-      const { data, error } = await this.client.rpc('has_permission_via_token', {
-        p_user_id: userId,
-        p_resource: resource,
-        p_action: action
-      });
-      
-      if (error) {
-        console.error('Check permission via token error:', error);
-        return { data: null, error: convertError(error) };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected check permission via token error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while checking permission via token') 
-      };
-    }
+    return this.repository.hasPermissionViaToken(userId, resource, action);
   }
 
   /**
    * Record token activity
+   * 
+   * @param userId - The ID of the user (can be null for system activities)
+   * @param tokenId - The ID of the token (can be null for general activities)
+   * @param activityType - The type of activity
+   * @param metadata - Optional additional metadata for the activity
+   * @returns A promise resolving to a TokenResult containing the ID of the created activity record
    */
   public async recordTokenActivity(
     userId: string | null,
@@ -597,27 +545,106 @@ export class TokenService {
     activityType: string,
     metadata?: Record<string, any>
   ): Promise<TokenResult<string>> {
+    return this.repository.recordTokenActivity(userId, tokenId, activityType, metadata);
+  }
+
+  /**
+   * Get the daily token for the current day
+   * 
+   * @returns A promise resolving to a TokenResult containing the daily token
+   */
+  public async getDailyToken(): Promise<TokenResult<DailyToken>> {
     try {
-      const { data, error } = await this.client.rpc('record_token_activity', {
-        p_user_id: userId,
-        p_token_id: tokenId,
-        p_activity_type: activityType,
-        p_metadata: metadata
-      });
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0-6, Sunday-Saturday
+      const tokenSymbol = DAY_TO_TOKEN_MAP[dayOfWeek];
+      
+      const { data: tokenType, error } = await this.repository.getTokenTypeByCode(tokenSymbol);
       
       if (error) {
-        console.error('Record token activity error:', error);
-        return { data: null, error: convertError(error) };
+        return { 
+          data: null, 
+          error 
+        };
       }
       
-      return { data, error: null };
+      // Get the first token of this type
+      const { data: tokens, error: tokensError } = await this.repository.getTokensByType(tokenType.id);
+      
+      if (tokensError || !tokens || tokens.length === 0) {
+        return { 
+          data: null, 
+          error: tokensError || new TokenError(`No tokens found for type ${tokenSymbol}`) 
+        };
+      }
+      
+      const token = tokens[0];
+      
+      // Apply sacred geometry principles
+      const digitalRoot = this.calculateDigitalRoot(dayOfWeek);
+      const isTesla369 = [3, 6, 9].includes(digitalRoot);
+      
+      const dailyToken: DailyToken = {
+        id: token.id,
+        symbol: token.symbol,
+        name: token.name,
+        day_of_week: dayOfWeek,
+        gradient: token.gradient || this.getGradientForDay(dayOfWeek),
+        is_tesla_369: isTesla369
+      };
+      
+      return { data: dailyToken, error: null };
     } catch (error) {
-      console.error('Unexpected record token activity error:', error);
+      console.error('Unexpected get daily token error:', error);
       return { 
         data: null, 
-        error: new AuthError('An unexpected error occurred while recording token activity') 
+        error: new TokenError('An unexpected error occurred while getting daily token', error) 
       };
     }
+  }
+
+  /**
+   * Calculate the Tesla 3-6-9 digital root of a number
+   * 
+   * @param num - The number to calculate the digital root for
+   * @returns The digital root (3, 6, or 9)
+   */
+  private calculateDigitalRoot(num: number): number {
+    // Sum the digits until we get a single digit
+    while (num > 9) {
+      num = String(num).split('').reduce((sum, digit) => sum + parseInt(digit), 0);
+    }
+    
+    // Map to Tesla's 3-6-9 pattern
+    if (num === 3 || num === 6 || num === 9) {
+      return num; // Already a Tesla number
+    } else if ([1, 4, 7].includes(num)) {
+      return 3; // Maps to 3
+    } else if ([2, 5, 8].includes(num)) {
+      return 6; // Maps to 6
+    } else {
+      return 9; // Default to 9
+    }
+  }
+
+  /**
+   * Get the gradient for a day of the week
+   * 
+   * @param dayOfWeek - The day of the week (0-6, Sunday-Saturday)
+   * @returns The CSS gradient for the day
+   */
+  private getGradientForDay(dayOfWeek: number): string {
+    const gradients = {
+      0: 'linear-gradient(to right, #ff0000, #00ff00, #0000ff)', // Sunday: SPD - Red-Green-Blue
+      1: 'linear-gradient(to right, #ff9a9e, #ff0844, #ff8c00)', // Monday: SHE - Rose-Red-Orange
+      2: 'linear-gradient(to right, #ffbf00, #ffff00)', // Tuesday: PSP - Amber-Yellow
+      3: 'linear-gradient(to right, #b2ff59, #00e676, #00bfa5)', // Wednesday: SSA - Lime-Green-Emerald
+      4: 'linear-gradient(to right, #20c997, #00b8d4)', // Thursday: BSP - Teal-Cyan
+      5: 'linear-gradient(to right, #87ceeb, #1e90ff, #4b0082)', // Friday: SGB - Sky-Blue-Indigo
+      6: 'linear-gradient(to right, #ee82ee, #9c27b0, #ff00ff, #ff69b4)' // Saturday: SMS - Violet-Purple-Fuchsia-Pink
+    };
+    
+    return gradients[dayOfWeek] || 'linear-gradient(to right, #808080, #a9a9a9)';
   }
 
   /**
@@ -642,11 +669,7 @@ export class TokenService {
       }
 
       // Check if token exists and is transferable
-      const { data: token, error: tokenError } = await this.client
-        .from('tokens')
-        .select('*') // Select all fields again to satisfy Token interface and usage
-        .eq('id', tokenId)
-        .single();
+      const { data: token, error: tokenError } = await this.repository.getTokenById(tokenId);
 
       if (tokenError || !token) {
         return {
@@ -669,21 +692,16 @@ export class TokenService {
         };
       }
 
-      const { data: userToken, error: userTokenError } = await this.client
-        .from('user_tokens')
-        .select('balance')
-        .eq('user_id', fromUserId)
-        .eq('token_id', tokenId)
-        .single();
+      const { data: balance, error: balanceError } = await this.repository.getUserTokenBalance(fromUserId, tokenId);
 
-      if (userTokenError || !userToken) {
-        if (userTokenError && userTokenError.code !== 'PGRST116') {
-          console.error("ValidateTransfer (Balance Fetch) Error:", userTokenError);
-        }
-        return { success: false, message: 'User balance record not found for this token' };
+      if (balanceError) {
+        return {
+          success: false,
+          message: 'Failed to retrieve user balance'
+        };
       }
 
-      if (userToken.balance < amount) {
+      if (balance < amount) {
         return {
           success: false,
           message: 'Insufficient balance'

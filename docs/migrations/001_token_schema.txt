@@ -1,0 +1,140 @@
+-- Migration: Token Schema Update
+-- Description: Updates and refines the token system schema
+-- Date: 2025-04-07
+
+-- 1. Ensure tokens table has all required fields
+ALTER TABLE public.tokens
+  -- Rename parent_token_id to parent_id for consistency with prompt
+  RENAME COLUMN parent_token_id TO parent_id;
+
+-- 2. Ensure user_tokens table has all required fields
+-- Rename user_tokens to user_balances for consistency with prompt
+ALTER TABLE IF EXISTS public.user_tokens
+  RENAME TO user_balances;
+
+-- Add policy for users to update their own balances (if not exists)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'user_balances' 
+    AND cmd = 'UPDATE'
+    AND qual = '(auth.uid() = user_id)'
+  ) THEN
+    CREATE POLICY "Users can update their own balances"
+      ON public.user_balances
+      FOR UPDATE
+      USING (auth.uid() = user_id);
+  END IF;
+END
+$$;
+
+-- Add policy for admins to manage all balances (if not exists)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' 
+    AND tablename = 'user_balances' 
+    AND cmd = 'ALL'
+    AND qual = '(auth.uid() IN (SELECT id FROM auth.users WHERE raw_user_meta_data->>''is_admin'' = ''true''))'
+  ) THEN
+    CREATE POLICY "Admins can manage all balances"
+      ON public.user_balances
+      FOR ALL
+      USING (auth.uid() IN (
+        SELECT id FROM auth.users WHERE raw_user_meta_data->>'is_admin' = 'true'
+      ));
+  END IF;
+END
+$$;
+
+-- 3. Rename token_transactions to transactions for consistency with prompt
+ALTER TABLE IF EXISTS public.token_transactions
+  RENAME TO transactions;
+
+-- 4. Ensure all required indexes exist
+-- Create index for user_balances if not exists
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes 
+    WHERE schemaname = 'public' 
+    AND tablename = 'user_balances' 
+    AND indexname = 'idx_user_balances_user_token'
+  ) THEN
+    CREATE INDEX idx_user_balances_user_token ON public.user_balances (user_id, token_id);
+  END IF;
+END
+$$;
+
+-- Create index for transactions if not exists
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_indexes 
+    WHERE schemaname = 'public' 
+    AND tablename = 'transactions' 
+    AND indexname = 'idx_transactions_created_at'
+  ) THEN
+    CREATE INDEX idx_transactions_created_at ON public.transactions (created_at);
+  END IF;
+END
+$$;
+
+-- 5. Update transaction types to include required enum values
+-- Add check constraint for transaction type if not exists
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'transactions_type_check'
+  ) THEN
+    ALTER TABLE public.transactions
+    ADD CONSTRAINT transactions_type_check
+    CHECK (transaction_type IN ('mint', 'earn', 'spend', 'convert', 'transfer', 'stake', 'unstake', 'reward', 'burn', 'daily_reward', 'challenge_reward', 'subscription'));
+  END IF;
+END
+$$;
+
+-- 6. Update token gradients to ensure they match the required format
+UPDATE public.tokens
+SET gradient_class = 'Zinc'
+WHERE symbol = 'GEN' AND gradient_class != 'Zinc';
+
+UPDATE public.tokens
+SET gradient_class = 'Stone'
+WHERE symbol = 'SAP' AND gradient_class != 'Stone';
+
+UPDATE public.tokens
+SET gradient_class = 'Slate'
+WHERE symbol = 'SCQ' AND gradient_class != 'Slate';
+
+UPDATE public.tokens
+SET gradient_class = 'Amber-Yellow'
+WHERE symbol = 'PSP' AND gradient_class != 'Amber-Yellow';
+
+UPDATE public.tokens
+SET gradient_class = 'Teal-Cyan'
+WHERE symbol = 'BSP' AND gradient_class != 'Teal-Cyan';
+
+UPDATE public.tokens
+SET gradient_class = 'Violet-Purple-Fuchsia-Pink'
+WHERE symbol = 'SMS' AND gradient_class != 'Violet-Purple-Fuchsia-Pink';
+
+UPDATE public.tokens
+SET gradient_class = 'Red-Green-Blue'
+WHERE symbol = 'SPD' AND gradient_class != 'Red-Green-Blue';
+
+UPDATE public.tokens
+SET gradient_class = 'Rose-Red-Orange'
+WHERE symbol = 'SHE' AND gradient_class != 'Rose-Red-Orange';
+
+UPDATE public.tokens
+SET gradient_class = 'Lime-Green-Emerald'
+WHERE symbol = 'SSA' AND gradient_class != 'Lime-Green-Emerald';
+
+UPDATE public.tokens
+SET gradient_class = 'Sky-Blue-Indigo'
+WHERE symbol = 'SGB' AND gradient_class != 'Sky-Blue-Indigo';

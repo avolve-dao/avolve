@@ -8,9 +8,48 @@ Welcome to the Avolve platform repository! This project is designed to help indi
 
 Avolve is built around three main value pillars:
 
-1. **Superachiever** 🏆 - For the individual journey of transformation
-2. **Superachievers** 👥 - For collective journey of transformation
-3. **Supercivilization** 🌍 - For the ecosystem journey of transformation
+1. **Superachiever** 🏆 - For the individual journey of transformation (SAP token)
+2. **Superachievers** 👥 - For collective journey of transformation (SCQ token)
+3. **Supercivilization** 🌍 - For the ecosystem journey of transformation (GEN token)
+
+Our platform provides tools, resources, and community support to help users evolve in all aspects of their lives, from personal success to business growth and beyond.
+
+### 🪙 Token System
+
+GEN is the primary token of the Avolve ecosystem, representing the Supercivilization pillar. When users contribute financially, their fiat is allocated as follows:
+- 10% to GEN (Supercivilization)
+- 40% to SAP (Superachiever)
+- 50% to SCQ (Superachievers)
+
+#### Daily Token Claims
+
+The platform follows a weekly schedule for token claims, with each day dedicated to a specific token:
+
+- **Sunday**: SPD (Superpuzzle Developments) - Red-Green-Blue gradient
+- **Monday**: SHE (Superhuman Enhancements) - Rose-Red-Orange gradient
+- **Tuesday**: PSP (Personal Success Puzzle) - Amber-Yellow gradient
+- **Wednesday**: SSA (Supersociety Advancements) - Lime-Green-Emerald gradient
+- **Thursday**: BSP (Business Success Puzzle) - Teal-Cyan gradient
+- **Friday**: SGB (Supergenius Breakthroughs) - Sky-Blue-Indigo gradient
+- **Saturday**: SMS (Supermind Superpowers) - Violet-Purple-Fuchsia-Pink gradient
+
+#### Metrics-Driven Gamification
+
+The platform uses key metrics to drive engagement and measure success:
+- **DAU/MAU Ratio**: Daily Active Users / Monthly Active Users (target: >0.3)
+- **Retention**: Percentage of users returning after 1, 7, and 30 days
+- **ARPU**: Average Revenue Per User
+- **NPS**: Net Promoter Score
+- **Engagement**: Time spent, actions taken, and content consumed
+
+### 🔓 Feature Unlocking Process
+
+Features are progressively unlocked based on user participation and metrics improvements:
+
+- **Teams**: Unlocked after completing 10 challenges
+- **Governance**: Unlocked after accumulating 100 GEN tokens
+- **Marketplace**: Unlocked after completing 20 challenges or achieving DAU/MAU > 0.3
+- **Token Utility**: Unlocked after completing 5 challenges and claiming 3 different day tokens
 
 Our platform provides tools, resources, and community support to help users evolve in all aspects of their lives, from personal success to business growth and beyond.
 
@@ -153,14 +192,13 @@ Learn more in our [Sacred Geometry Design System](./docs/sacred-geometry-design-
 Our platform features a sophisticated token-based access control system that integrates with traditional RBAC. This system:
 
 - Implements a hierarchical token structure aligned with our value pillars
-- Organizes tokens into three levels (3, 6, 9) representing creation, harmony, and completion
-- Categorizes tokens into families based on their digital roots
-- Calculates token values and exchange rates using sacred geometry principles
+- Organizes tokens into three main categories: GEN (Supercivilization), SAP (Superachiever), and SCQ (Superachievers)
+- Enables daily token claims based on the day of the week
 - Provides granular access control based on token ownership
 - Enables token transfers, rewards, and transactions
-- Supports gamification and progressive unlocking of features
+- Supports gamification and progressive unlocking of features based on metrics improvements
 
-Learn more in our [Token-Based Access documentation](./docs/token-based-access.md).
+Learn more in our [Token System documentation](./docs/token-system.md) and [Regenerative Gamification documentation](./docs/regenerative-gamification.md).
 
 ### 🔒 Security
 
@@ -206,14 +244,16 @@ Comprehensive documentation is available in the `docs/` directory:
 - [Security](./docs/security.md)
 - [Audit Logging](./docs/audit-logging.md)
 - [Database](./docs/database.md)
-- [Token-Based Access](./docs/token-based-access.md)
+- [Token System](./docs/token-system.md)
 - [API Reference](./docs/api.md)
 - [Authentication](./docs/authentication.md)
 - [Best Practices](./docs/best-practices.md)
-- [Token System](./docs/token-based-access.md)
+- [Regenerative Gamification](./docs/regenerative-gamification.md)
 - [Notification System](./docs/notification-system.md)
-- [Audit Logging](./docs/audit-logging.md)
 - [Service Layer](./docs/service-layer.md)
+- [Values](./docs/values.md)
+- [User Guide](./docs/user-guide.md)
+- [Developer Guide](./docs/developer-guide.md)
 
 ## 🧪 Testing
 

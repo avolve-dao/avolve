@@ -1,0 +1,484 @@
+-- Migration: Initialize Avolve Token System Schema
+-- Description: Sets up tables for tokens, user balances, treasury allocations, transactions, user progress, and metrics
+-- Date: 2025-04-07
+
+-- Create enum types
+create type token_type_enum as enum ('main', 'primary', 'sub');
+create type day_of_week_enum as enum ('SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'NONE');
+create type transaction_type_enum as enum ('mint', 'earn', 'spend', 'convert', 'transfer', 'stake', 'unstake', 'reward', 'burn', 'daily_reward', 'challenge_reward', 'subscription');
+create type metric_type_enum as enum ('dau', 'mau', 'retention', 'interaction', 'nps', 'growth', 'arpu', 'health', 'time_spent');
+
+-- Create tokens table
+create table public.tokens (
+  id uuid primary key default gen_random_uuid(),
+  symbol text not null unique,
+  name text not null,
+  description text,
+  token_type token_type_enum not null,
+  parent_id uuid references public.tokens(id),
+  gradient_class text not null,
+  claim_day day_of_week_enum not null default 'NONE',
+  is_locked boolean not null default true,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now()
+);
+
+-- Create user_balances table
+create table public.user_balances (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  token_id uuid not null references public.tokens(id) on delete cascade,
+  balance numeric not null default 0,
+  staked_balance numeric not null default 0,
+  pending_release numeric not null default 0,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  
+  constraint user_balances_user_token_unique unique (user_id, token_id)
+);
+
+-- Create treasury_allocations table
+create table public.treasury_allocations (
+  id uuid primary key default gen_random_uuid(),
+  subscription_id uuid,
+  token_id uuid not null references public.tokens(id) on delete cascade,
+  amount_usd numeric not null default 0,
+  percentage numeric not null default 0,
+  allocated_at timestamp with time zone not null default now(),
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now()
+);
+
+-- Create transactions table
+create table public.transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  token_id uuid not null references public.tokens(id) on delete cascade,
+  from_user_id uuid references auth.users(id),
+  to_user_id uuid references auth.users(id),
+  amount numeric not null,
+  transaction_type transaction_type_enum not null,
+  description text,
+  metadata jsonb,
+  status text not null default 'completed',
+  created_at timestamp with time zone not null default now(),
+  completed_at timestamp with time zone
+);
+
+-- Create user_progress table
+create table public.user_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  token_id uuid not null references public.tokens(id) on delete cascade,
+  points numeric not null default 0,
+  level integer not null default 1,
+  unlocked_at timestamp with time zone,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  
+  constraint user_progress_user_token_unique unique (user_id, token_id)
+);
+
+-- Create metrics table
+create table public.metrics (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade,
+  metric_type metric_type_enum not null,
+  value numeric not null,
+  metadata jsonb,
+  recorded_at timestamp with time zone not null default now(),
+  created_at timestamp with time zone not null default now()
+);
+
+-- Create daily_claims table
+create table public.daily_claims (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  token_id uuid not null references public.tokens(id) on delete cascade,
+  claim_date date not null default current_date,
+  amount numeric not null,
+  streak_count integer not null default 1,
+  streak_multiplier numeric not null default 1.0,
+  created_at timestamp with time zone not null default now(),
+  
+  constraint daily_claims_user_token_date_unique unique (user_id, token_id, claim_date)
+);
+
+-- Create indexes
+create index idx_user_balances_user_token on public.user_balances (user_id, token_id);
+create index idx_transactions_created_at on public.transactions (created_at);
+create index idx_transactions_user_id on public.transactions (user_id);
+create index idx_metrics_recorded_at on public.metrics (recorded_at);
+create index idx_metrics_user_id_type on public.metrics (user_id, metric_type);
+create index idx_daily_claims_user_date on public.daily_claims (user_id, claim_date);
+create index idx_user_progress_user_token on public.user_progress (user_id, token_id);
+create index idx_treasury_allocations_token on public.treasury_allocations (token_id);
+
+-- Enable Row Level Security on all tables
+alter table public.tokens enable row level security;
+alter table public.user_balances enable row level security;
+alter table public.treasury_allocations enable row level security;
+alter table public.transactions enable row level security;
+alter table public.user_progress enable row level security;
+alter table public.metrics enable row level security;
+alter table public.daily_claims enable row level security;
+
+-- Create RLS policies
+
+-- Tokens table policies
+create policy "Public can view tokens"
+  on public.tokens
+  for select
+  to public;
+
+create policy "Admins can manage tokens"
+  on public.tokens
+  for all
+  using (auth.uid() in (
+    select id from auth.users where raw_user_meta_data->>'is_admin' = 'true'
+  ));
+
+-- User balances policies
+create policy "Users can view their own balances"
+  on public.user_balances
+  for select
+  using (auth.uid() = user_id);
+
+create policy "Admins can manage all balances"
+  on public.user_balances
+  for all
+  using (auth.uid() in (
+    select id from auth.users where raw_user_meta_data->>'is_admin' = 'true'
+  ));
+
+-- Treasury allocations policies
+create policy "Public can view treasury allocations"
+  on public.treasury_allocations
+  for select
+  to public;
+
+create policy "Admins can manage treasury allocations"
+  on public.treasury_allocations
+  for all
+  using (auth.uid() in (
+    select id from auth.users where raw_user_meta_data->>'is_admin' = 'true'
+  ));
+
+-- Transactions policies
+create policy "Users can view their own transactions"
+  on public.transactions
+  for select
+  using (auth.uid() = user_id or auth.uid() = from_user_id or auth.uid() = to_user_id);
+
+create policy "Admins can manage all transactions"
+  on public.transactions
+  for all
+  using (auth.uid() in (
+    select id from auth.users where raw_user_meta_data->>'is_admin' = 'true'
+  ));
+
+-- User progress policies
+create policy "Users can view their own progress"
+  on public.user_progress
+  for select
+  using (auth.uid() = user_id);
+
+create policy "Users can update their own progress"
+  on public.user_progress
+  for update
+  using (auth.uid() = user_id);
+
+create policy "Admins can manage all progress"
+  on public.user_progress
+  for all
+  using (auth.uid() in (
+    select id from auth.users where raw_user_meta_data->>'is_admin' = 'true'
+  ));
+
+-- Metrics policies
+create policy "Users can view their own metrics"
+  on public.metrics
+  for select
+  using (auth.uid() = user_id);
+
+create policy "Admins can manage all metrics"
+  on public.metrics
+  for all
+  using (auth.uid() in (
+    select id from auth.users where raw_user_meta_data->>'is_admin' = 'true'
+  ));
+
+-- Daily claims policies
+create policy "Users can view their own claims"
+  on public.daily_claims
+  for select
+  using (auth.uid() = user_id);
+
+create policy "Admins can manage all claims"
+  on public.daily_claims
+  for all
+  using (auth.uid() in (
+    select id from auth.users where raw_user_meta_data->>'is_admin' = 'true'
+  ));
+
+-- Create functions for token management
+create or replace function public.unlock_token_for_user(
+  p_user_id uuid,
+  p_token_id uuid
+)
+returns boolean
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_unlocked boolean;
+begin
+  -- Check if the user already has this token unlocked
+  select (unlocked_at is not null) into v_unlocked
+  from public.user_progress
+  where user_id = p_user_id and token_id = p_token_id;
+  
+  -- If not found or not unlocked, create or update the record
+  if v_unlocked is null or not v_unlocked then
+    insert into public.user_progress (user_id, token_id, points, unlocked_at)
+    values (p_user_id, p_token_id, 0, now())
+    on conflict (user_id, token_id) 
+    do update set unlocked_at = now(), updated_at = now();
+    
+    return true;
+  end if;
+  
+  return v_unlocked;
+end;
+$$;
+
+create or replace function public.is_token_unlocked_for_user(
+  p_user_id uuid,
+  p_token_id uuid
+)
+returns boolean
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_unlocked boolean;
+  v_token_locked boolean;
+begin
+  -- Check if the token is locked by default
+  select is_locked into v_token_locked
+  from public.tokens
+  where id = p_token_id;
+  
+  -- If token is not locked by default, return true
+  if not v_token_locked then
+    return true;
+  end if;
+  
+  -- Check if the user has unlocked this token
+  select (unlocked_at is not null) into v_unlocked
+  from public.user_progress
+  where user_id = p_user_id and token_id = p_token_id;
+  
+  return coalesce(v_unlocked, false);
+end;
+$$;
+
+create or replace function public.add_token_points(
+  p_user_id uuid,
+  p_token_id uuid,
+  p_points numeric
+)
+returns numeric
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_new_points numeric;
+  v_current_level integer;
+  v_new_level integer;
+begin
+  -- Get current level
+  select coalesce(level, 1) into v_current_level
+  from public.user_progress
+  where user_id = p_user_id and token_id = p_token_id;
+  
+  -- Insert or update points
+  insert into public.user_progress (user_id, token_id, points)
+  values (p_user_id, p_token_id, p_points)
+  on conflict (user_id, token_id) 
+  do update set 
+    points = public.user_progress.points + p_points,
+    updated_at = now()
+  returning points into v_new_points;
+  
+  -- Calculate new level (simple formula: level = floor(sqrt(points/100)) + 1)
+  v_new_level := floor(sqrt(v_new_points/100)) + 1;
+  
+  -- Update level if changed
+  if v_new_level > v_current_level then
+    update public.user_progress
+    set level = v_new_level
+    where user_id = p_user_id and token_id = p_token_id;
+  end if;
+  
+  return v_new_points;
+end;
+$$;
+
+create or replace function public.claim_daily_token(
+  p_user_id uuid,
+  p_token_id uuid,
+  p_amount numeric
+)
+returns jsonb
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_token record;
+  v_today day_of_week_enum;
+  v_streak_count integer;
+  v_streak_multiplier numeric;
+  v_final_amount numeric;
+  v_result jsonb;
+begin
+  -- Get token info
+  select * into v_token
+  from public.tokens
+  where id = p_token_id;
+  
+  -- Check if token exists
+  if v_token.id is null then
+    return jsonb_build_object('success', false, 'message', 'Token not found');
+  end if;
+  
+  -- Get current day of week
+  select to_char(now(), 'DY') into v_today;
+  
+  -- Check if token can be claimed today
+  if v_token.claim_day != v_today and v_token.claim_day != 'NONE' then
+    return jsonb_build_object(
+      'success', false, 
+      'message', format('This token can only be claimed on %s', v_token.claim_day)
+    );
+  end if;
+  
+  -- Check if already claimed today
+  if exists (
+    select 1 from public.daily_claims
+    where user_id = p_user_id
+    and token_id = p_token_id
+    and claim_date = current_date
+  ) then
+    return jsonb_build_object('success', false, 'message', 'Token already claimed today');
+  end if;
+  
+  -- Calculate streak
+  select 
+    coalesce(max(streak_count), 0) + 1,
+    case
+      when max(claim_date) = current_date - interval '1 day' then coalesce(max(streak_multiplier), 1.0) + 0.1
+      else 1.0
+    end
+  into v_streak_count, v_streak_multiplier
+  from public.daily_claims
+  where user_id = p_user_id
+  and token_id = p_token_id
+  and claim_date >= current_date - interval '7 days';
+  
+  -- Cap streak multiplier at 2.0
+  v_streak_multiplier := least(v_streak_multiplier, 2.0);
+  
+  -- Calculate final amount with streak bonus
+  v_final_amount := p_amount * v_streak_multiplier;
+  
+  -- Record the claim
+  insert into public.daily_claims (
+    user_id, token_id, claim_date, amount, streak_count, streak_multiplier
+  ) values (
+    p_user_id, p_token_id, current_date, v_final_amount, v_streak_count, v_streak_multiplier
+  );
+  
+  -- Add tokens to user balance
+  insert into public.user_balances (user_id, token_id, balance)
+  values (p_user_id, p_token_id, v_final_amount)
+  on conflict (user_id, token_id)
+  do update set 
+    balance = public.user_balances.balance + v_final_amount,
+    updated_at = now();
+  
+  -- Record transaction
+  insert into public.transactions (
+    user_id, token_id, amount, transaction_type, description
+  ) values (
+    p_user_id, p_token_id, v_final_amount, 'daily_reward', 
+    format('Daily claim with %sx streak multiplier', v_streak_multiplier)
+  );
+  
+  -- Add points to user progress
+  perform public.add_token_points(p_user_id, p_token_id, v_final_amount);
+  
+  -- Return success result
+  return jsonb_build_object(
+    'success', true,
+    'amount', v_final_amount,
+    'streak_count', v_streak_count,
+    'streak_multiplier', v_streak_multiplier
+  );
+end;
+$$;
+
+create or replace function public.record_metric(
+  p_user_id uuid,
+  p_metric_type metric_type_enum,
+  p_value numeric,
+  p_metadata jsonb default null
+)
+returns uuid
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_metric_id uuid;
+begin
+  insert into public.metrics (
+    user_id, metric_type, value, metadata
+  ) values (
+    p_user_id, p_metric_type, p_value, p_metadata
+  )
+  returning id into v_metric_id;
+  
+  return v_metric_id;
+end;
+$$;
+
+-- Seed initial tokens
+insert into public.tokens (symbol, name, description, token_type, parent_id, gradient_class, claim_day, is_locked) values
+-- Main token
+('GEN', 'Supercivilization', 'Main token representing the entire ecosystem', 'main', null, 'Zinc', 'NONE', false),
+
+-- Primary tokens
+('SAP', 'Superachiever', 'Token for the individual journey of transformation', 'primary', (select id from public.tokens where symbol = 'GEN'), 'Stone', 'NONE', true),
+('SCQ', 'Superachievers', 'Token for the collective journey of transformation', 'primary', (select id from public.tokens where symbol = 'GEN'), 'Slate', 'NONE', true),
+
+-- Sub-tokens under SAP (individual journey)
+('PSP', 'Personal Success Puzzle', 'Token for greater personal successes', 'sub', (select id from public.tokens where symbol = 'SAP'), 'Amber-Yellow', 'TUE', true),
+('BSP', 'Business Success Puzzle', 'Token for greater business successes', 'sub', (select id from public.tokens where symbol = 'SAP'), 'Teal-Cyan', 'THU', true),
+('SMS', 'Supermind Superpowers', 'Token for going further, faster, and forever', 'sub', (select id from public.tokens where symbol = 'SAP'), 'Violet-Purple-Fuchsia-Pink', 'SAT', true),
+
+-- Sub-tokens under SCQ (collective journey)
+('SPD', 'Superpuzzle Developments', 'Token for conceiving, believing, and achieving', 'sub', (select id from public.tokens where symbol = 'SCQ'), 'Red-Green-Blue', 'SUN', true),
+('SHE', 'Superhuman Enhancements', 'Token for super enhanced individuals', 'sub', (select id from public.tokens where symbol = 'SCQ'), 'Rose-Red-Orange', 'MON', true),
+('SSA', 'Supersociety Advancements', 'Token for super advanced collectives', 'sub', (select id from public.tokens where symbol = 'SCQ'), 'Lime-Green-Emerald', 'WED', true),
+('SGB', 'Supergenius Breakthroughs', 'Token for super balanced ecosystems', 'sub', (select id from public.tokens where symbol = 'SCQ'), 'Sky-Blue-Indigo', 'FRI', true);
+
+-- Set up initial treasury allocations
+insert into public.treasury_allocations (token_id, amount_usd, percentage) values
+((select id from public.tokens where symbol = 'GEN'), 0, 10),
+((select id from public.tokens where symbol = 'SAP'), 0, 40),
+((select id from public.tokens where symbol = 'SCQ'), 0, 50);

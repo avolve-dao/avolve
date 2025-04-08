@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { RouteTransitionProvider } from "@/components/route-transition-provider"
+import { OnboardingProvider } from "@/components/Onboarding/OnboardingProvider"
+import { FeaturesProvider } from "@/components/Features/FeaturesProvider"
 
 import './globals.css'
 
@@ -26,9 +28,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <RouteTransitionProvider>
-            {children}
-          </RouteTransitionProvider>
+          <FeaturesProvider>
+            <OnboardingProvider>
+              <RouteTransitionProvider>
+                {children}
+              </RouteTransitionProvider>
+            </OnboardingProvider>
+          </FeaturesProvider>
           <Toaster />
         </ThemeProvider>
       </body>

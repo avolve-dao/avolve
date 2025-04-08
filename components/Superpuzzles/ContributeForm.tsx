@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { useUser } from '@supabase/auth-helpers-react';
 import { useSuperpuzzles } from '@/hooks/useSuperpuzzles';

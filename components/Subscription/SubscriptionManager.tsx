@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { useUser } from '@supabase/auth-helpers-react';
 import { useSubscription } from '../../hooks/useSubscription';

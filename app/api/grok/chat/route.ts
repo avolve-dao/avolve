@@ -1,4 +1,4 @@
-import { StreamingTextResponse } from "ai"
+import { StreamingTextResponse } from "@/lib/ai-sdk-setup"
 import { getContextualGrokModel } from "@/lib/grok-context"
 import { rateLimit } from "@/lib/rate-limit"
 import { logger } from "@/lib/logger"

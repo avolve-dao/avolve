@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import { useDailyClaims } from '../../hooks/useDailyClaims';
 import { TokenSymbol } from '../../types/supabase';

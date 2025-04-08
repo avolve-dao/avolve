@@ -4,11 +4,17 @@ import { createClient } from '@/lib/supabase/server';
 import { getComponentBySlug } from '@/lib/utils/avolve-db';
 import { ComponentProgress } from '@/components/avolve/component-progress';
 
-export default async function ComponentPage({ 
-  params 
-}: { 
-  params: { pillarSlug: string; componentSlug: string } 
-}) {
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+
+interface ComponentPageProps {
+  params: {
+    pillarSlug: string;
+    componentSlug: string;
+  }
+}
+
+export default async function ComponentPage({ params }: ComponentPageProps) {
   const cookieStore = cookies();
   const supabase = createClient();
   

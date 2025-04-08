@@ -1,3 +1,5 @@
+"use client"
+
 import { GrokSdkTest } from "@/components/grok/sdk-test"
 import { SimpleChatTest } from "@/components/grok/simple-chat-test"
 
@@ -20,4 +22,3 @@ export default function SdkTestPage() {
     </div>
   )
 }
-

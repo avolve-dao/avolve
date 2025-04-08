@@ -7,6 +7,25 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useToken } from '@/lib/token/use-token'
 import { useTokenRBAC } from '@/lib/token/use-token-rbac'
 
+/**
+ * @interface TokenBadgeProps
+ * @description Props for the TokenBadge component
+ * @property {string} tokenCode - The unique code for the token (e.g., GEN, SAP, PSP)
+ * @property {string} tokenName - The full name of the token (e.g., Genesis, Superachiever)
+ * @property {string} tokenSymbol - The display symbol for the token
+ * @property {string} [className] - Optional additional CSS classes
+ * @property {boolean} [showBalance=false] - Whether to display the user's balance of this token
+ * @property {boolean} [showTooltip=true] - Whether to show a tooltip with additional information
+ * @property {'sm' | 'md' | 'lg'} [size='md'] - Size variant for the badge
+ * 
+ * @example
+ * <TokenBadge
+ *   tokenCode="GEN"
+ *   tokenName="Genesis"
+ *   tokenSymbol="GEN"
+ *   showBalance={true}
+ * />
+ */
 interface TokenBadgeProps {
   tokenCode: string
   tokenName: string
@@ -18,8 +37,38 @@ interface TokenBadgeProps {
 }
 
 /**
- * TokenBadge component displays a visual representation of a token
- * with optional balance and tooltip information.
+ * @component TokenBadge
+ * @description Displays a visual representation of a token with optional balance and tooltip information.
+ * This component implements sacred geometry principles through its gradient styling and proportions.
+ * 
+ * The component follows Tesla's 3-6-9 pattern by categorizing tokens into three main families:
+ * - Family 3: Creation tokens (GEN, SAP, SCQ)
+ * - Family 6: Harmony tokens (PSP, BSP, SMS)
+ * - Family 9: Completion tokens (SPD, SHE, SSA, SGB)
+ * 
+ * Each token has a unique gradient that corresponds to its position in the sacred geometry system.
+ * 
+ * @param {TokenBadgeProps} props - Component props
+ * @returns {React.ReactElement} The rendered TokenBadge component
+ * 
+ * @example
+ * // Basic usage
+ * <TokenBadge tokenCode="GEN" tokenName="Genesis" tokenSymbol="GEN" />
+ * 
+ * // With balance display
+ * <TokenBadge tokenCode="SAP" tokenName="Superachiever" tokenSymbol="SAP" showBalance={true} />
+ * 
+ * // Large size without tooltip
+ * <TokenBadge 
+ *   tokenCode="PSP" 
+ *   tokenName="Personal Success Puzzle" 
+ *   tokenSymbol="PSP" 
+ *   size="lg"
+ *   showTooltip={false}
+ * />
+ * 
+ * @see {@link useToken} For token balance retrieval
+ * @see {@link useTokenRBAC} For token permission checking
  */
 export function TokenBadge({
   tokenCode,
@@ -35,7 +84,17 @@ export function TokenBadge({
   const { hasTokenPermission } = useTokenRBAC()
   const [hasAccess, setHasAccess] = React.useState(false)
 
-  // Get gradient class based on token code
+  /**
+   * @function getGradientClass
+   * @description Returns the appropriate gradient CSS class based on the token code.
+   * Each token has a unique gradient that corresponds to its position in the sacred geometry system.
+   * 
+   * @param {string} code - The token code (e.g., GEN, SAP, PSP)
+   * @returns {string} The CSS class for the gradient
+   * 
+   * @example
+   * const gradientClass = getGradientClass('GEN'); // Returns 'from-zinc-500 to-zinc-700'
+   */
   const getGradientClass = (code: string) => {
     switch (code) {
       case 'GEN': return 'from-zinc-500 to-zinc-700'
@@ -52,7 +111,17 @@ export function TokenBadge({
     }
   }
 
-  // Get size classes
+  /**
+   * @function getSizeClasses
+   * @description Returns the appropriate size CSS classes based on the size parameter.
+   * The sizes follow the golden ratio (1.618) for padding and font size relationships.
+   * 
+   * @param {string} size - The size variant ('sm', 'md', or 'lg')
+   * @returns {string} The CSS classes for the specified size
+   * 
+   * @example
+   * const sizeClasses = getSizeClasses('lg'); // Returns 'text-base px-3 py-1'
+   */
   const getSizeClasses = (size: string) => {
     switch (size) {
       case 'sm': return 'text-xs px-1.5 py-0.5'
@@ -61,7 +130,14 @@ export function TokenBadge({
     }
   }
 
-  // Fetch token balance and access status
+  /**
+   * @function fetchTokenData
+   * @description Fetches the user's token balance and checks if they have access via this token.
+   * This is called on component mount and when tokenCode or showBalance changes.
+   * 
+   * @async
+   * @returns {Promise<void>}
+   */
   React.useEffect(() => {
     const fetchTokenData = async () => {
       try {
@@ -84,6 +160,7 @@ export function TokenBadge({
     fetchTokenData()
   }, [tokenCode, showBalance, getUserTokenBalance, hasTokenPermission])
 
+  // Create the badge with appropriate styling
   const badgeContent = (
     <Badge
       variant="outline"
@@ -102,10 +179,12 @@ export function TokenBadge({
     </Badge>
   )
 
+  // Return badge without tooltip if showTooltip is false
   if (!showTooltip) {
     return badgeContent
   }
 
+  // Return badge with tooltip
   return (
     <TooltipProvider>
       <Tooltip delayDuration={300}>

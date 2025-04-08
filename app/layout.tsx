@@ -4,8 +4,13 @@ import { Toaster } from "@/components/ui/toaster"
 import { RouteTransitionProvider } from "@/components/route-transition-provider"
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider"
 import { FeaturesProvider } from "@/components/Features/FeaturesProvider"
+import "@/styles/globals.css"
+import { Inter } from "next/font/google"
 
-import './globals.css'
+// Force dynamic rendering for all pages
+export const dynamic = 'force-dynamic'
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: 'Avolve Platform',
@@ -21,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body className="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans antialiased overflow-hidden">
+      <body className={inter.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Mail } from "lucide-react"
 
+export const dynamic = 'force-dynamic'
+
 // Define the content type structure
 type ConfirmationType = "signup" | "reset" | "email" | "success"
 

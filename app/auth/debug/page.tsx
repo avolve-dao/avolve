@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
+export const dynamic = 'force-dynamic'
+
 export default function DebugPage() {
   const [session, setSession] = useState<any>(null)
   const [user, setUser] = useState<any>(null)
@@ -75,4 +77,3 @@ export default function DebugPage() {
     </div>
   )
 }
-

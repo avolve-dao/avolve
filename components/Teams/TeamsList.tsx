@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from 'react';
 import { useTeams } from '@/hooks/useTeams';
 import TeamCard from './TeamCard';

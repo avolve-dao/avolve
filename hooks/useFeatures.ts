@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from 'react';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { FeaturesService, UserFeatureStatuses, FeatureStatus, DayTokenStatus, TokenClaimResult } from '@/src/features';

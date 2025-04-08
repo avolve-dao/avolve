@@ -8,7 +8,17 @@ const filesToFix = [
   'components/Subscription/SubscriptionManager.tsx',
   'components/Superpuzzles/ContributeForm.tsx',
   'components/Superpuzzles/SuperpuzzleDetails.tsx',
-  'components/onboarding/OnboardingProvider.tsx'
+  'components/Superpuzzles/SuperpuzzlesList.tsx',
+  'components/Teams/CreateTeamForm.tsx',
+  'components/Teams/TeamDetails.tsx',
+  'components/Teams/TeamsList.tsx',
+  'components/onboarding/OnboardingProvider.tsx',
+  'hooks/useDailyClaims.ts',
+  'hooks/useFeatures.ts',
+  'hooks/useOnboarding.ts',
+  'hooks/useSuperpuzzles.ts',
+  'hooks/useSubscription.ts',
+  'hooks/useTeams.ts'
 ];
 
 // Root directory of the project

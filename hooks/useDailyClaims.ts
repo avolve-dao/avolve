@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '@supabase/auth-helpers-react';
 import { claimsService } from '../src/claims';

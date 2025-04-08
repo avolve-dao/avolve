@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect } from 'react';
 import { useSuperpuzzles } from '@/hooks/useSuperpuzzles';
 import SuperpuzzleCard from './SuperpuzzleCard';

@@ -12,6 +12,10 @@ This document provides an overview of the Avolve platform's database schema, foc
 6. [Row Level Security](#row-level-security)
 7. [Database Functions](#database-functions)
 8. [Developer Examples](#developer-examples)
+9. [Performance Optimization](#performance-optimization)
+10. [Table Partitioning](#table-partitioning)
+11. [Maintenance Automation](#maintenance-automation)
+12. [Monitoring System](#monitoring-system)
 
 ## Overview
 
@@ -655,3 +659,251 @@ async function getAllUserStreaksWithBonuses() {
     };
   });
 }
+
+## Performance Optimization
+
+The Avolve platform implements several database optimizations to ensure high performance and scalability as the user base grows to 100-1000 users.
+
+### Optimized Queries
+
+Complex queries have been optimized using Common Table Expressions (CTEs) and materialized views to improve performance.
+
+#### User Streak Queries
+
+The `get_user_streaks` function efficiently retrieves streak information for a user:
+
+```sql
+-- Retrieve streak information for a user
+select * from public.get_user_streaks('550e8400-e29b-41d4-a716-446655440000');
+```
+
+#### Transaction History Queries
+
+The `get_user_transaction_history` function retrieves transaction history with efficient filtering:
+
+```sql
+-- Get a user's transaction history for the last 30 days
+select * from public.get_user_transaction_history(
+  '550e8400-e29b-41d4-a716-446655440000',  -- user_id
+  50,                                      -- limit
+  0,                                       -- offset
+  now() - interval '30 days',              -- start_date
+  now(),                                   -- end_date
+  null,                                    -- token_id (optional)
+  null                                     -- transaction_type (optional)
+);
+```
+
+### Materialized Views
+
+Materialized views cache frequently accessed data to reduce query load:
+
+```sql
+-- Daily challenge summaries materialized view
+select * from public.daily_challenge_summaries;
+
+-- Refresh the materialized view
+select public.refresh_daily_challenge_summaries();
+```
+
+### Indexes
+
+Strategic indexes have been added to improve query performance:
+
+```sql
+-- Challenge streaks indexes
+create index if not exists idx_challenge_streaks_user_id on public.challenge_streaks(user_id);
+create index if not exists idx_challenge_streaks_token_type on public.challenge_streaks(token_type);
+create index if not exists idx_challenge_streaks_last_daily_completion on public.challenge_streaks(last_daily_completion_date);
+
+-- Transaction indexes
+create index if not exists idx_transactions_from_user_id on public.transactions(from_user_id);
+create index if not exists idx_transactions_to_user_id on public.transactions(to_user_id);
+create index if not exists idx_transactions_token_id on public.transactions(token_id);
+create index if not exists idx_transactions_created_at on public.transactions(created_at);
+```
+
+## Table Partitioning
+
+As transaction volume grows, the `transactions` table is partitioned by month to improve query performance and maintenance.
+
+### Partitioning Strategy
+
+The `transactions_partitioned` table uses range partitioning based on the `created_at` timestamp:
+
+```sql
+create table if not exists public.transactions_partitioned (
+    id uuid not null default gen_random_uuid(),
+    token_id uuid not null,
+    from_user_id uuid,
+    to_user_id uuid not null,
+    amount numeric not null,
+    transaction_type text not null,
+    reason text,
+    tx_hash text,
+    created_at timestamp with time zone not null default now(),
+    status text not null default 'completed',
+    metadata jsonb,
+    completed_at timestamp with time zone,
+    primary key (id, created_at)
+) partition by range (created_at);
+```
+
+### Monthly Partitions
+
+Each month has its own partition:
+
+```sql
+-- Example of monthly partitions
+create table if not exists public.transactions_y2025m04 
+partition of public.transactions_partitioned
+for values from ('2025-04-01') to ('2025-05-01');
+
+create table if not exists public.transactions_y2025m05 
+partition of public.transactions_partitioned
+for values from ('2025-05-01') to ('2025-06-01');
+```
+
+### Automatic Partition Creation
+
+New partitions are automatically created using the `create_transaction_partition_for_month` function:
+
+```sql
+-- Create a new partition for the next month
+select public.create_transaction_partition_for_month();
+```
+
+### Querying Partitioned Tables
+
+Queries against the partitioned table automatically use the appropriate partition:
+
+```sql
+-- Query recent transactions (uses only the relevant partition)
+select * from public.transactions_partitioned
+where created_at > now() - interval '30 days'
+order by created_at desc
+limit 100;
+```
+
+## Maintenance Automation
+
+The Avolve platform includes automated maintenance tasks to keep the database performant and efficient.
+
+### Transaction Archiving
+
+Transactions older than 90 days are automatically archived to maintain a lean primary table:
+
+```sql
+-- Archive transactions older than 90 days
+select public.archive_old_transactions(90);
+```
+
+### Expired Invitation Cleanup
+
+Expired invitation codes are automatically marked as expired:
+
+```sql
+-- Clean up expired invitation codes
+select public.cleanup_expired_invitations();
+```
+
+### Automated Maintenance Function
+
+All maintenance tasks can be run with a single function call:
+
+```sql
+-- Run all maintenance tasks
+select public.run_database_maintenance();
+```
+
+### Scheduled Maintenance
+
+Maintenance is scheduled using a Supabase Edge Function that runs daily:
+
+```typescript
+// Supabase Edge Function for database maintenance
+// Located at: /supabase/functions/database-maintenance/index.ts
+
+// To invoke manually:
+const { data, error } = await supabase.functions.invoke('database-maintenance', {
+  body: { 
+    days_old: 90,
+    auth_key: 'your-secret-key'
+  }
+});
+```
+
+## Monitoring System
+
+The Avolve platform includes a comprehensive monitoring system to track database performance and health.
+
+### Database Health Table
+
+Performance metrics are stored in the `database_health` table:
+
+```sql
+-- Structure of the database_health table
+create table if not exists public.database_health (
+    id uuid primary key default gen_random_uuid(),
+    timestamp timestamp with time zone not null default now(),
+    metric_name text not null,
+    metric_value numeric not null,
+    details jsonb,
+    created_at timestamp with time zone not null default now()
+);
+```
+
+### Metrics Collection
+
+Database metrics are collected using the `collect_database_metrics` function:
+
+```sql
+-- Collect current database metrics
+select public.collect_database_metrics();
+```
+
+### Performance Analysis
+
+The `analyze_database_performance` function identifies potential issues:
+
+```sql
+-- Analyze database performance and get alerts
+select * from public.analyze_database_performance();
+```
+
+### Health Reports
+
+Comprehensive health reports can be generated:
+
+```sql
+-- Generate a health report for the last 24 hours
+select public.generate_database_health_report(24);
+```
+
+### Key Metrics Monitored
+
+The monitoring system tracks several key metrics:
+
+1. **Query Duration**: Average query execution time
+2. **Cache Hit Ratio**: Percentage of data served from cache
+3. **Deadlocks**: Number of deadlocks detected
+4. **Connection Count**: Number of active database connections
+5. **Transaction Duration**: Duration of longest-running transaction
+6. **Table Statistics**: Size and access patterns of tables
+7. **Index Usage**: Effectiveness of indexes
+
+### Alert Thresholds
+
+The system generates alerts based on configurable thresholds:
+
+| Metric | Warning Threshold | Critical Threshold |
+|--------|-------------------|-------------------|
+| Query Duration | > 10 seconds | > 30 seconds |
+| Cache Hit Ratio | < 90% | < 70% |
+| Deadlocks | > 0 | N/A |
+| Connection Count | > 50 | > 80 |
+| Transaction Duration | > 60 seconds | > 300 seconds |
+
+### Monitoring Dashboard
+
+A monitoring dashboard can be implemented using the collected metrics and the Supabase UI or a custom dashboard solution.

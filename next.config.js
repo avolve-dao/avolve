@@ -10,6 +10,17 @@ const nextConfig = {
     serverActions: {
       bodySizeLimit: '2mb',
     },
+    // Enable optimizations for improved build performance
+    optimizeCss: true,
+    // Enable memory optimizations
+    memoryBasedWorkersCount: true,
+  },
+  // Enable SWC minification for faster builds
+  swcMinify: true,
+  // Optimize images
+  images: {
+    domains: ['avatars.githubusercontent.com', 'lh3.googleusercontent.com'],
+    formats: ['image/avif', 'image/webp'],
   },
   // Disable TypeScript checking during build to avoid type errors
   typescript: {
@@ -18,6 +29,28 @@ const nextConfig = {
     // your project has type errors.
     // !! WARN !!
     ignoreBuildErrors: true,
+  },
+  // Configure webpack for better performance
+  webpack: (config, { dev, isServer }) => {
+    // Only enable these optimizations for production builds
+    if (!dev) {
+      // Split chunks for better caching
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        maxInitialRequests: 25,
+        minSize: 20000,
+      };
+      
+      // Enable persistent caching
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename],
+        },
+      };
+    }
+    
+    return config;
   },
 }
 

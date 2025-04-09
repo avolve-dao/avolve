@@ -1,8 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useEffect } from 'react';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
+// Remove Vercel-specific imports that are causing build failures
+// import { Analytics } from '@vercel/analytics/react';
+// import { SpeedInsights } from '@vercel/speed-insights/react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 // Define the analytics context
@@ -30,7 +31,7 @@ export const useAnalytics = () => {
  * Analytics Provider Component
  * 
  * Provides analytics tracking functionality throughout the application
- * using Vercel Analytics for lightweight performance monitoring
+ * using lightweight performance monitoring
  */
 export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -131,8 +132,9 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <AnalyticsContext.Provider value={value}>
       {children}
-      <Analytics />
-      <SpeedInsights />
+      {/* Remove Vercel-specific components */}
+      {/* <Analytics /> */}
+      {/* <SpeedInsights /> */}
     </AnalyticsContext.Provider>
   );
 };

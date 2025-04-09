@@ -320,89 +320,86 @@ export class TokenService {
     reason?: string
   ): Promise<TokenResult<{ success: boolean; message: string; transaction_id?: string }>> {
     try {
+      // Validate inputs
+      if (!toUserId) {
+        return { 
+          data: { success: false, message: 'User ID is required' }, 
+          error: new TokenError('User ID is required') 
+        };
+      }
+      
+      if (!tokenId) {
+        return { 
+          data: { success: false, message: 'Token ID is required' }, 
+          error: new TokenError('Token ID is required') 
+        };
+      }
+      
       if (amount <= 0) {
         return { 
-          data: { success: false, message: 'Amount must be positive' }, 
-          error: null 
+          data: { success: false, message: 'Amount must be greater than zero' }, 
+          error: new TokenError('Amount must be greater than zero') 
         };
       }
       
-      // Check if token exists and is active
-      const { data: token, error: tokenError } = await this.repository.getTokenById(tokenId);
-      
-      if (tokenError || !token) {
-        return { 
-          data: { success: false, message: 'Token not found' }, 
-          error: tokenError 
-        };
-      }
-      
-      if (!token.is_active) {
-        return { 
-          data: { success: false, message: 'Token is not active' }, 
-          error: null 
-        };
-      }
-      
-      // Create the transaction
-      const { data: transaction, error: transactionError } = await this.repository.createTransaction({
-        token_id: tokenId,
-        to_user_id: toUserId,
-        amount,
-        transaction_type: TransactionType.MINT,
-        status: TransactionStatus.PENDING,
-        reason
-      });
-      
-      if (transactionError) {
-        return { 
-          data: { success: false, message: 'Failed to create transaction' }, 
-          error: transactionError 
-        };
-      }
-      
-      // Update user's balance
-      const { error: updateError } = await this.repository.updateUserTokenBalance(
-        toUserId, 
-        tokenId, 
-        amount
+      // Get token details
+      const { data: token, error: tokenError } = await this.retryOperation(() => 
+        this.repository.getTokenById(tokenId)
       );
       
-      if (updateError) {
-        // Revert transaction status
-        await this.repository.createTransaction({
-          ...transaction,
-          status: TransactionStatus.FAILED,
-          metadata: { 
-            error: 'Failed to update user balance',
-            original_transaction_id: transaction.id
-          }
-        });
+      if (tokenError || !token) {
+        console.error('Get token error:', tokenError);
+        return { 
+          data: { success: false, message: 'Invalid token ID' }, 
+          error: tokenError || new TokenError('Invalid token ID') 
+        };
+      }
+      
+      // Create transaction
+      const { data: transaction, error: transactionError } = await this.retryOperation(() => 
+        this.repository.createTransaction({
+          token_id: tokenId,
+          to_user_id: toUserId,
+          amount,
+          transaction_type: TransactionType.MINT,
+          reason: reason || `Minting ${amount} ${token.symbol} tokens`,
+          status: TransactionStatus.COMPLETED
+        })
+      );
+      
+      if (transactionError || !transaction) {
+        console.error('Create transaction error:', transactionError);
+        return { 
+          data: { success: false, message: 'Failed to create transaction' }, 
+          error: transactionError || new TokenError('Failed to create transaction') 
+        };
+      }
+      
+      // Update user balance
+      const { error: balanceError } = await this.retryOperation(() => 
+        this.repository.updateUserBalance(toUserId, tokenId, amount)
+      );
+      
+      if (balanceError) {
+        console.error('Update balance error:', balanceError);
+        
+        // If updating the balance fails, mark the transaction as failed
+        await this.repository.updateTransactionStatus(
+          transaction.id, 
+          TransactionStatus.FAILED,
+          'Failed to update user balance'
+        );
         
         return { 
           data: { success: false, message: 'Failed to update user balance' }, 
-          error: updateError 
+          error: balanceError 
         };
       }
-      
-      // Update transaction status to completed
-      await this.repository.createTransaction({
-        ...transaction,
-        status: TransactionStatus.COMPLETED
-      });
-      
-      // Record activity
-      await this.repository.recordTokenActivity(
-        toUserId,
-        tokenId,
-        'tokens_minted',
-        { amount }
-      );
       
       return { 
         data: { 
           success: true, 
-          message: 'Tokens minted successfully', 
+          message: `Successfully minted ${amount} ${token.symbol} tokens`, 
           transaction_id: transaction.id 
         }, 
         error: null 
@@ -410,10 +407,88 @@ export class TokenService {
     } catch (error) {
       console.error('Unexpected mint tokens error:', error);
       return { 
-        data: { success: false, message: 'An unexpected error occurred during minting' }, 
-        error: new TokenError('An unexpected error occurred during minting', error) 
+        data: { success: false, message: 'An unexpected error occurred while minting tokens' }, 
+        error: new TokenError('An unexpected error occurred while minting tokens', error) 
       };
     }
+  }
+  
+  /**
+   * Retry an operation with exponential backoff
+   * 
+   * @param operation - The operation to retry
+   * @param maxRetries - Maximum number of retries (default: 2)
+   * @param initialDelay - Initial delay in milliseconds (default: 300)
+   * @returns The result of the operation
+   */
+  private async retryOperation<T>(
+    operation: () => Promise<T>, 
+    maxRetries: number = 2,
+    initialDelay: number = 300
+  ): Promise<T> {
+    let lastError: any;
+    let delay = initialDelay;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        // Attempt the operation
+        return await operation();
+      } catch (error) {
+        lastError = error;
+        
+        // Don't wait on the last attempt
+        if (attempt < maxRetries) {
+          // Check if the error is retryable
+          if (this.isRetryableError(error)) {
+            console.log(`Retrying operation, attempt ${attempt + 1} of ${maxRetries}`);
+            
+            // Wait with exponential backoff
+            await new Promise(resolve => setTimeout(resolve, delay));
+            
+            // Increase delay for next attempt
+            delay *= 2;
+          } else {
+            // Non-retryable error, break out of the loop
+            break;
+          }
+        }
+      }
+    }
+    
+    // If we've exhausted all retries, throw the last error
+    throw lastError;
+  }
+  
+  /**
+   * Determine if an error is retryable
+   * 
+   * @param error - The error to check
+   * @returns True if the error is retryable, false otherwise
+   */
+  private isRetryableError(error: any): boolean {
+    // Network errors are generally retryable
+    if (error.message && (
+      error.message.includes('network') ||
+      error.message.includes('timeout') ||
+      error.message.includes('connection') ||
+      error.message.includes('ECONNREFUSED') ||
+      error.message.includes('ETIMEDOUT')
+    )) {
+      return true;
+    }
+    
+    // Supabase specific errors that might be retryable
+    if (error.code) {
+      // 429: Too Many Requests
+      // 500, 502, 503, 504: Server errors
+      const retryCodes = [429, 500, 502, 503, 504];
+      if (retryCodes.includes(error.code)) {
+        return true;
+      }
+    }
+    
+    // Default to not retrying
+    return false;
   }
 
   /**

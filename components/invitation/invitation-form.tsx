@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,7 +31,7 @@ const sacredGeometryClasses = {
   select: "w-full rounded-md border border-slate-300 p-2.5 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500",
   button: "w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2",
   errorText: "text-sm text-red-500 mt-1",
-  tierCard: "border rounded-lg p-4 cursor-pointer transition-all duration-300",
+  tierCard: "border rounded-lg p-4 cursor-pointer transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500",
   tierCardSelected: "border-2 border-indigo-500 bg-indigo-50 shadow-md",
   tierCardTitle: "font-semibold text-lg mb-1",
   tierCardDescription: "text-sm text-gray-500 mb-2",
@@ -42,9 +42,10 @@ const sacredGeometryClasses = {
   tierUnavailableBadge: "bg-red-100 text-red-800",
   tierLimitBadge: "bg-amber-100 text-amber-800",
   tierCostBadge: "bg-blue-100 text-blue-800",
-  refreshButton: "text-indigo-600 hover:text-indigo-800 text-sm flex items-center mt-2",
+  refreshButton: "text-indigo-600 hover:text-indigo-800 text-sm flex items-center mt-2 focus:outline-none focus:underline",
   tooltipContainer: "relative group",
-  tooltip: "absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 w-max z-10",
+  tooltip: "absolute bottom-full left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded py-1 px-2 mb-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 w-max z-10",
+  srOnly: "sr-only",
 };
 
 // Get token color based on symbol
@@ -76,14 +77,14 @@ const InvitationForm: React.FC = () => {
   const [tiers, setTiers] = useState<InvitationTierAvailability[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTier, setSelectedTier] = useState<string | null>(null);
-  const [refreshingTiers, setRefreshingTiers] = useState(false);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<InvitationFormValues>({
+  const [error, setError] = useState<string | null>(null);
+  
+  // Create a ref for the form
+  const formRef = React.useRef<HTMLFormElement>(null);
+  const emailInputRef = React.useRef<HTMLInputElement>(null);
+  
+  // Form validation with react-hook-form
+  const { register, handleSubmit, setValue, formState: { errors }, setFocus } = useForm<InvitationFormValues>({
     resolver: zodResolver(invitationFormSchema),
   });
 
@@ -95,7 +96,6 @@ const InvitationForm: React.FC = () => {
   // Fetch available invitation tiers with availability information
   const fetchTiers = async () => {
     try {
-      setRefreshingTiers(true);
       const invitationService = new InvitationService(supabase);
       
       // Use the new method to get tiers with availability information
@@ -124,8 +124,6 @@ const InvitationForm: React.FC = () => {
         description: "Failed to fetch invitation tiers. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setRefreshingTiers(false);
     }
   };
 
@@ -137,20 +135,35 @@ const InvitationForm: React.FC = () => {
     // Only allow selection if tier is available
     if (tier && tier.available) {
       setSelectedTier(tierName);
-      setValue('tier_name', tierName);
-    } else {
-      // Show toast explaining why tier can't be selected
-      const reason = tier 
-        ? (tier.remaining_invites <= 0 
-            ? "You've reached your monthly limit for this tier" 
-            : "You don't have enough tokens for this tier")
-        : "This tier is not available";
-        
+      setValue('tier_name', tierName, { shouldValidate: true });
+      
+      // Focus the email input after selecting a tier
+      if (emailInputRef.current) {
+        emailInputRef.current.focus();
+      }
+    } else if (tier) {
+      // Show a toast explaining why the tier is unavailable
+      let reason = "This tier is unavailable";
+      
+      if (tier.token_cost > 0 && !tier.user_has_tokens) {
+        reason = `You need more ${tier.token_type} tokens to use this tier`;
+      } else if (tier.remaining_invites <= 0) {
+        reason = "You've reached your monthly limit for this tier";
+      }
+      
       toast({
-        title: "Cannot select tier",
+        title: "Tier Unavailable",
         description: reason,
         variant: "destructive",
       });
+    }
+  };
+
+  // Handle keyboard navigation for tier selection
+  const handleTierKeyDown = (e: React.KeyboardEvent, tierName: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleTierSelect(tierName);
     }
   };
 
@@ -210,11 +223,7 @@ const InvitationForm: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Error creating invitation:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to create invitation. Please try again later.",
-        variant: "destructive",
-      });
+      setError(error.message || 'Failed to create invitation');
     } finally {
       setLoading(false);
     }
@@ -247,105 +256,135 @@ const InvitationForm: React.FC = () => {
   };
 
   return (
-    <div className={sacredGeometryClasses.container}>
-      <h2 className={sacredGeometryClasses.header}>Create New Invitation</h2>
+    <div className={sacredGeometryClasses.container} aria-labelledby="invitation-form-title">
+      <h2 id="invitation-form-title" className={sacredGeometryClasses.header}>Create Invitation</h2>
       
-      <form onSubmit={handleSubmit(onSubmit)} className={sacredGeometryClasses.form}>
+      {error && (
+        <div role="alert" className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex">
+            <AlertCircle className="h-5 w-5 text-red-500 mr-2" aria-hidden="true" />
+            <span className="text-red-800">{error}</span>
+          </div>
+        </div>
+      )}
+      
+      <form 
+        ref={formRef}
+        onSubmit={handleSubmit(onSubmit)} 
+        className={sacredGeometryClasses.form}
+        noValidate
+      >
         {/* Tier Selection */}
         <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className={sacredGeometryClasses.label}>
+          <fieldset>
+            <legend className={sacredGeometryClasses.label}>
               Select Invitation Tier
-            </label>
-            <button 
-              type="button" 
-              onClick={() => fetchTiers()}
-              className={sacredGeometryClasses.refreshButton}
-              disabled={refreshingTiers}
-            >
-              {refreshingTiers ? (
-                <>
-                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                  Refreshing...
-                </>
-              ) : (
-                <>
-                  <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Refresh Tiers
-                </>
-              )}
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-            {tiers.map((tier) => (
-              <div
-                key={tier.id}
-                className={`${sacredGeometryClasses.tierCard} ${
-                  selectedTier === tier.tier_name ? sacredGeometryClasses.tierCardSelected : ''
-                } ${!tier.available ? sacredGeometryClasses.tierUnavailable : ''}`}
-                onClick={() => handleTierSelect(tier.tier_name)}
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className={sacredGeometryClasses.tierCardTitle}>{tier.tier_name}</h3>
-                  <div className={`w-6 h-6 rounded-full ${getTokenColor(tier.token_type)}`}></div>
-                </div>
-                
-                <div className="mb-2">
-                  {getTierStatusBadge(tier)}
-                </div>
-                
-                <p className={sacredGeometryClasses.tierCardDescription}>
-                  {tier.description || `Standard ${tier.tier_name} invitation`}
-                </p>
-                
-                <div className={sacredGeometryClasses.tierCardDetails}>
-                  <div className="flex justify-between">
-                    <span>Token Cost:</span>
-                    <div className={sacredGeometryClasses.tooltipContainer}>
-                      <span className={`${sacredGeometryClasses.tierBadge} ${sacredGeometryClasses.tierCostBadge}`}>
-                        {tier.token_cost} {tier.token_type}
-                      </span>
-                      {!tier.user_has_tokens && tier.token_cost > 0 && (
-                        <span className={sacredGeometryClasses.tooltip}>
-                          You need more {tier.token_type} tokens
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Valid for:</span>
-                    <span>{tier.validity_days} days</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Reward Multiplier:</span>
-                    <span>x{tier.reward_multiplier}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Monthly Limit:</span>
-                    <div className={sacredGeometryClasses.tooltipContainer}>
-                      <span>{tier.remaining_invites} / {tier.max_invites}</span>
-                      {tier.remaining_invites <= 0 && (
-                        <span className={sacredGeometryClasses.tooltip}>
-                          You've reached your monthly limit
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              <span aria-hidden="true" className="text-red-500">*</span>
+              <span className={sacredGeometryClasses.srOnly}> (required)</span>
+            </legend>
+            
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" aria-hidden="true" />
+                <span className={sacredGeometryClasses.srOnly}>Loading invitation tiers</span>
               </div>
-            ))}
-          </div>
+            ) : tiers.length === 0 ? (
+              <div className="text-center py-4">
+                <p>No invitation tiers available</p>
+                <button 
+                  type="button"
+                  onClick={() => fetchTiers()}
+                  className={sacredGeometryClasses.refreshButton}
+                  aria-label="Refresh invitation tiers"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {tiers.map((tier) => (
+                  <div
+                    key={tier.id}
+                    onClick={() => tier.available && handleTierSelect(tier.tier_name)}
+                    onKeyDown={(e) => handleTierKeyDown(e, tier.tier_name)}
+                    tabIndex={tier.available ? 0 : -1}
+                    role="radio"
+                    aria-checked={selectedTier === tier.tier_name}
+                    aria-disabled={!tier.available}
+                    className={`${sacredGeometryClasses.tierCard} ${
+                      selectedTier === tier.tier_name ? sacredGeometryClasses.tierCardSelected : ''
+                    } ${!tier.available ? sacredGeometryClasses.tierUnavailable : ''}`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <h3 className={sacredGeometryClasses.tierCardTitle}>{tier.tier_name}</h3>
+                      <div 
+                        className={`w-6 h-6 rounded-full ${getTokenColor(tier.token_type)}`}
+                        aria-label={`Token type: ${tier.token_type}`}
+                      ></div>
+                    </div>
+                    
+                    <div className="mb-2">
+                      {getTierStatusBadge(tier)}
+                    </div>
+                    
+                    <p className={sacredGeometryClasses.tierCardDescription}>
+                      {tier.description || `Standard ${tier.tier_name} invitation`}
+                    </p>
+                    
+                    <div className={sacredGeometryClasses.tierCardDetails}>
+                      <div className="flex justify-between">
+                        <span id={`token-cost-${tier.id}`}>Token Cost:</span>
+                        <div className={sacredGeometryClasses.tooltipContainer}>
+                          <span 
+                            className={`${sacredGeometryClasses.tierBadge} ${sacredGeometryClasses.tierCostBadge}`}
+                            aria-labelledby={`token-cost-${tier.id}`}
+                          >
+                            {tier.token_cost} {tier.token_type}
+                          </span>
+                          {!tier.user_has_tokens && tier.token_cost > 0 && (
+                            <span className={sacredGeometryClasses.tooltip} role="tooltip">
+                              You need more {tier.token_type} tokens
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex justify-between">
+                        <span id={`validity-${tier.id}`}>Valid for:</span>
+                        <span aria-labelledby={`validity-${tier.id}`}>{tier.validity_days} days</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span id={`multiplier-${tier.id}`}>Reward Multiplier:</span>
+                        <span aria-labelledby={`multiplier-${tier.id}`}>x{tier.reward_multiplier}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span id={`limit-${tier.id}`}>Monthly Limit:</span>
+                        <div className={sacredGeometryClasses.tooltipContainer}>
+                          <span aria-labelledby={`limit-${tier.id}`}>{tier.remaining_invites} / {tier.max_invites}</span>
+                          {tier.remaining_invites <= 0 && (
+                            <span className={sacredGeometryClasses.tooltip} role="tooltip">
+                              You've reached your monthly limit
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </fieldset>
           
           <input
             type="hidden"
             {...register('tier_name')}
+            aria-hidden="true"
           />
           
           {errors.tier_name && (
-            <p className={sacredGeometryClasses.errorText}>{errors.tier_name.message}</p>
+            <p className={sacredGeometryClasses.errorText} role="alert">{errors.tier_name.message}</p>
           )}
         </div>
         
@@ -360,11 +399,13 @@ const InvitationForm: React.FC = () => {
             className={sacredGeometryClasses.input}
             placeholder="friend@example.com"
             {...register('email')}
+            ref={emailInputRef}
+            aria-describedby="email-hint"
           />
           {errors.email && (
-            <p className={sacredGeometryClasses.errorText}>{errors.email.message}</p>
+            <p className={sacredGeometryClasses.errorText} role="alert">{errors.email.message}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-1" id="email-hint">
             If provided, we'll send the invitation directly to this email.
           </p>
         </div>
@@ -378,10 +419,11 @@ const InvitationForm: React.FC = () => {
               ? 'bg-indigo-400 cursor-not-allowed'
               : 'bg-indigo-600 hover:bg-indigo-700'
           }`}
+          aria-busy={loading}
         >
           {loading ? (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" aria-hidden="true" />
               Creating...
             </>
           ) : (

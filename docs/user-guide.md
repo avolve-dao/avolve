@@ -2,6 +2,60 @@
 
 This guide explains how to engage with the Avolve platform's regenerative gamified system, including subscribing, participating through daily claims, contributing, and unlocking features through metrics improvements.
 
+## Get Started in 5 Minutes
+
+New to Avolve? Follow these simple steps to get up and running quickly:
+
+### 1. Redeem Your Invitation Code
+
+![Redeeming an invitation code](https://github.com/avolve-dao/avolve/assets/images/invitation-redemption.png)
+
+1. Visit [avolve.io/join](https://avolve.io/join)
+2. Enter your invitation code in the field
+3. Click "Verify Code" to validate your invitation
+4. You'll see confirmation of your invitation tier and benefits
+
+### 2. Create Your Account
+
+![Creating your account](https://github.com/avolve-dao/avolve/assets/images/account-creation.png)
+
+1. Fill in your name, email, and password
+2. Accept the terms of service
+3. Click "Create Account"
+4. Verify your email through the link sent to your inbox
+
+### 3. Claim Your First Token
+
+![Claiming your first token](https://github.com/avolve-dao/avolve/assets/images/token-claim.png)
+
+1. From your dashboard, navigate to "Daily Challenge"
+2. Read the day's challenge (based on the current day of the week)
+3. Complete the simple task or reflection
+4. Click the "Claim [TOKEN]" button
+5. Watch your token balance increase instantly!
+
+### 4. Complete Your First Challenge
+
+![Completing a challenge](https://github.com/avolve-dao/avolve/assets/images/challenge-completion.png)
+
+1. Go to the "Challenges" section
+2. Select today's challenge card
+3. Follow the instructions to complete the task
+4. Submit your completion
+5. Earn tokens and see your streak increase
+
+### 5. Check Your Progress
+
+![Checking your progress](https://github.com/avolve-dao/avolve/assets/images/progress-check.png)
+
+1. Visit your profile dashboard
+2. View your token balances
+3. Check your current streaks
+4. See your progress toward the next Tesla 3-6-9 milestone
+5. Explore available features based on your current metrics
+
+That's it! You're now ready to fully engage with the Avolve platform. Continue reading for more detailed information on how to maximize your experience.
+
 ## Getting Started
 
 ### Creating an Account
@@ -367,6 +421,30 @@ If you encounter any issues while using the Avolve platform, here are some commo
 - Check if you completed the challenge before the daily reset time (midnight UTC)
 - Verify that you completed the correct challenge for that day
 - Review your activity log for confirmation of completion
+
+### Frequently Asked Questions
+
+**Q: What happens if I miss a day in my streak?**
+A: If you miss a day, your streak for that specific token will reset to 0. However, your streaks for other tokens remain unaffected. Your longest streak is still recorded in your profile statistics.
+
+**Q: How exactly does the Tesla 3-6-9 bonus system work?**
+A: The Tesla 3-6-9 system provides increasing rewards as your streak grows:
+- Streaks of 1-2 days: Standard reward (1.0x multiplier)
+- Streaks of 3-5 days: 1.3x reward multiplier
+- Streaks of 6-8 days: 1.6x reward multiplier
+- Streaks of 9+ days: 1.9x reward multiplier, plus an additional 0.3x for every 3 days beyond 9
+
+**Q: Can I participate in multiple challenges on the same day?**
+A: Yes! While each day has a featured token challenge, you can participate in any available challenges. However, you'll only increase your streak for the token associated with the current day.
+
+**Q: What's the best strategy to maximize my token earnings?**
+A: Focus on maintaining consistent daily streaks, particularly for tokens that align with your interests. Aim to reach the 9-day milestone for maximum rewards, and participate in weekly challenges for additional bonuses.
+
+**Q: How do invitation tiers affect my experience?**
+A: Higher invitation tiers provide more substantial welcome bonuses and longer validity periods. However, once you're registered, all members have equal access to platform features regardless of their invitation tier.
+
+**Q: Can I change my email or username after registration?**
+A: You can change your display name at any time from your profile settings. Email changes require verification and can be done through the "Account Settings" section.
 
 For additional support, contact our team at **admin@avolve.io** with the following information:
 - Your username

@@ -9,6 +9,9 @@ This document contains Mermaid.js diagram code for visualizing key aspects of th
 3. [Tesla's 3-6-9 Streak Pattern](#teslas-3-6-9-streak-pattern)
 4. [Token Hierarchy](#token-hierarchy)
 5. [Database Schema Relationships](#database-schema-relationships)
+6. [Invitation Redemption Process](#invitation-redemption-process)
+7. [Challenge Completion Flow](#challenge-completion-flow)
+8. [Token Hierarchy Visualization](#token-hierarchy-visualization)
 
 ## Challenge Flow Diagram
 
@@ -288,6 +291,173 @@ erDiagram
         uuid claimed_by FK
         timestamp expires_at
     }
+```
+
+## Invitation Redemption Process
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Auth
+    participant API
+    participant Database
+
+    User->>Frontend: Enter invitation code
+    Frontend->>API: Validate code
+    API->>Database: Check code validity
+    Database-->>API: Code status
+    
+    alt Invalid Code
+        API-->>Frontend: Error: Invalid code
+        Frontend-->>User: Display error message
+    else Expired Code
+        API-->>Frontend: Error: Code expired
+        Frontend-->>User: Display expiration message
+    else Valid Code
+        API-->>Frontend: Code validated
+        Frontend-->>User: Show registration form
+        
+        User->>Frontend: Submit registration details
+        Frontend->>Auth: Create account
+        Auth->>Database: Store user account
+        Database-->>Auth: Account created
+        
+        Auth->>API: Redeem invitation
+        API->>Database: Update invitation status
+        API->>Database: Create user profile
+        API->>Database: Initialize streaks
+        API->>Database: Grant welcome bonus
+        
+        Database-->>API: Confirmation
+        API-->>Frontend: Registration complete
+        Frontend-->>User: Welcome & dashboard
+    end
+```
+
+## Challenge Completion Flow
+
+```mermaid
+stateDiagram-v2
+    [*] --> ViewChallenge
+    
+    ViewChallenge --> CompleteTask
+    CompleteTask --> SubmitCompletion
+    
+    SubmitCompletion --> VerifyCompletion
+    
+    state VerifyCompletion {
+        [*] --> CheckRequirements
+        CheckRequirements --> ValidateEvidence
+        ValidateEvidence --> [*]
+    }
+    
+    VerifyCompletion --> UpdateStreak
+    
+    state UpdateStreak {
+        [*] --> CheckPreviousDay
+        
+        CheckPreviousDay --> IncrementStreak: Completed yesterday
+        CheckPreviousDay --> ResetStreak: Missed yesterday
+        
+        IncrementStreak --> CheckMilestone
+        ResetStreak --> SetToOne
+        
+        CheckMilestone --> ReachedMilestone: 3, 6, or 9 days
+        CheckMilestone --> NoMilestone: Other count
+        
+        ReachedMilestone --> [*]
+        NoMilestone --> [*]
+        SetToOne --> [*]
+    }
+    
+    UpdateStreak --> CalculateReward
+    
+    state CalculateReward {
+        [*] --> GetBaseAmount
+        GetBaseAmount --> ApplyStreakMultiplier
+        
+        state ApplyStreakMultiplier {
+            [*] --> Check369
+            
+            Check369 --> Multiplier1: 1-2 days
+            Check369 --> Multiplier13: 3-5 days
+            Check369 --> Multiplier16: 6-8 days
+            Check369 --> Multiplier19Plus: 9+ days
+            
+            Multiplier1 --> [*]
+            Multiplier13 --> [*]
+            Multiplier16 --> [*]
+            Multiplier19Plus --> [*]
+        }
+        
+        ApplyStreakMultiplier --> FinalizeAmount
+        FinalizeAmount --> [*]
+    }
+    
+    CalculateReward --> MintTokens
+    MintTokens --> UpdateBalance
+    UpdateBalance --> ShowConfetti: Milestone reached
+    UpdateBalance --> DisplaySuccess: Regular completion
+    
+    ShowConfetti --> [*]
+    DisplaySuccess --> [*]
+```
+
+## Token Hierarchy Visualization
+
+```mermaid
+mindmap
+  root((GEN))
+    (Supercivilization)
+    ::icon(fa fa-globe)
+    (Zinc Gradient)
+    (Top-level token)
+    SAP
+      (Superachiever)
+      ::icon(fa fa-user)
+      (Stone Gradient)
+      (Individual journey)
+      PSP
+        (Personal Success Puzzle)
+        ::icon(fa fa-heart)
+        (Amber-Yellow Gradient)
+        (Tuesday)
+      BSP
+        (Business Success Puzzle)
+        ::icon(fa fa-briefcase)
+        (Teal-Cyan Gradient)
+        (Thursday)
+      SMS
+        (Supermind Superpowers)
+        ::icon(fa fa-brain)
+        (Violet-Purple-Fuchsia-Pink Gradient)
+        (Saturday)
+    SCQ
+      (Superachievers)
+      ::icon(fa fa-users)
+      (Slate Gradient)
+      (Collective journey)
+      SPD
+        (Superpuzzle Developments)
+        ::icon(fa fa-puzzle-piece)
+        (Red-Green-Blue Gradient)
+        (Sunday)
+      SHE
+        (Superhuman Enhancements)
+        ::icon(fa fa-bolt)
+        (Rose-Red-Orange Gradient)
+        (Monday)
+      SSA
+        (Supersociety Advancements)
+        ::icon(fa fa-handshake)
+        (Lime-Green-Emerald Gradient)
+        (Wednesday)
+      SGB
+        (Supergenius Breakthroughs)
+        ::icon(fa fa-lightbulb)
+        (Sky-Blue-Indigo Gradient)
+        (Friday)
 ```
 
 You can render these diagrams using:

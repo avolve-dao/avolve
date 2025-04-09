@@ -246,128 +246,191 @@ const NextBonusCountdown: React.FC<{ streak: number }> = ({ streak }) => {
  * Displays the current day's challenge, user streak progress, and available tokens
  */
 const ChallengeDashboard: React.FC = () => {
-  const { supabase } = useSupabase();
   const router = useRouter();
+  const { supabase } = useSupabase();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [claiming, setClaiming] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const [userTokens, setUserTokens] = useState<any[]>([]);
   const [userStreak, setUserStreak] = useState(0);
   const [todaysChallengeCompleted, setTodaysChallengeCompleted] = useState(false);
-  const [dailyChallenge, setDailyChallenge] = useState<any>(null);
+  const [claiming, setClaiming] = useState(false);
+  const [todayChallenge, setTodayChallenge] = useState<any>(null);
   
-  // Today's token symbol
   const todayTokenSymbol = useMemo(() => getTodayTokenSymbol(), []);
   
-  // Fetch user data on component mount
+  // Fetch user data
   useEffect(() => {
-    const fetchUserData = async () => {
-      setLoading(true);
-      try {
-        const tokenService = new TokenService(supabase);
-        
-        // Get user token balances
-        const { data: tokens } = await tokenService.getUserTokenBalances(
-          (await supabase.auth.getUser()).data.user?.id || ''
-        );
-        
-        if (tokens) {
-          setUserTokens(tokens);
-          
-          // Find today's token and get streak
-          const todayToken = tokens.find(t => t.token_symbol === todayTokenSymbol);
-          if (todayToken) {
-            // Get streak from token data or calculate it
-            setUserStreak(todayToken.streak || 0);
-            
-            // Check if today's challenge is completed
-            const lastClaimed = todayToken.last_claimed ? new Date(todayToken.last_claimed) : null;
-            const today = new Date();
-            
-            if (lastClaimed && 
-                lastClaimed.getDate() === today.getDate() && 
-                lastClaimed.getMonth() === today.getMonth() && 
-                lastClaimed.getFullYear() === today.getFullYear()) {
-              setTodaysChallengeCompleted(true);
-            }
-          }
-        }
-        
-        // Get today's challenge
-        const { data: challenges } = await supabase
-          .from('daily_challenges')
-          .select('*')
-          .eq('day_of_week', new Date().getDay())
-          .eq('is_active', true)
-          .limit(1);
-        
-        if (challenges && challenges.length > 0) {
-          setDailyChallenge(challenges[0]);
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load user data. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchUserData();
-  }, [supabase, toast, todayTokenSymbol]);
+  }, [retryCount]);
+  
+  const fetchUserData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get user session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        router.push('/login');
+        return;
+      }
+      
+      const userId = session.user.id;
+      
+      // Get user tokens
+      const { data: tokens, error: tokensError } = await supabase
+        .from('user_balances')
+        .select('*, tokens(*)')
+        .eq('user_id', userId);
+      
+      if (tokensError) {
+        console.error('Error fetching user tokens:', tokensError);
+        setError('Failed to load your token balances. Please try again.');
+        return;
+      }
+      
+      setUserTokens(tokens || []);
+      
+      // Get user streak
+      const { data: streak, error: streakError } = await supabase
+        .from('challenge_streaks')
+        .select('current_daily_streak')
+        .eq('user_id', userId)
+        .eq('token_type', todayTokenSymbol)
+        .single();
+      
+      if (streakError && streakError.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+        console.error('Error fetching user streak:', streakError);
+        // Don't set error for streak, just default to 0
+      }
+      
+      setUserStreak(streak?.current_daily_streak || 0);
+      
+      // Get today's challenge
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      
+      const { data: challenge, error: challengeError } = await supabase
+        .from('daily_token_challenges')
+        .select('*')
+        .eq('day_of_week', dayOfWeek)
+        .eq('token_symbol', todayTokenSymbol)
+        .single();
+      
+      if (challengeError) {
+        console.error('Error fetching today\'s challenge:', challengeError);
+        setError('Failed to load today\'s challenge. Please try again.');
+        return;
+      }
+      
+      setTodayChallenge(challenge);
+      
+      // Check if user has already completed today's challenge
+      if (challenge) {
+        const { data: completion, error: completionError } = await supabase
+          .from('user_challenge_completions')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('challenge_id', challenge.id)
+          .eq('completion_date', today.toISOString().split('T')[0])
+          .single();
+        
+        if (completionError && completionError.code !== 'PGRST116') {
+          console.error('Error checking challenge completion:', completionError);
+          // Don't set error for completion check, just default to false
+        }
+        
+        setTodaysChallengeCompleted(!!completion);
+      }
+    } catch (error) {
+      console.error('Unexpected error fetching user data:', error);
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Retry loading data
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
   
   // Claim daily token
   const claimDailyToken = async () => {
-    if (claiming || todaysChallengeCompleted) return;
-    
-    setClaiming(true);
     try {
-      const tokenService = new TokenService(supabase);
+      setClaiming(true);
       
-      // Get the challenge ID
-      const challengeId = dailyChallenge?.id || 'daily-challenge';
+      // Get user session
+      const { data: { session } } = await supabase.auth.getSession();
       
-      // Claim the token
-      const { data: claimResult, error } = await tokenService.claimChallengeReward(
-        (await supabase.auth.getUser()).data.user?.id || '',
-        todayTokenSymbol,
-        challengeId,
-        '10' // Default amount as string if not specified in the challenge
-      );
-      
-      if (error) {
-        throw error;
+      if (!session) {
+        router.push('/login');
+        return;
       }
       
-      if (claimResult) {
-        // Show success message
+      if (!todayChallenge) {
         toast({
-          title: "Success!",
-          description: claimResult.message || "Successfully claimed your daily token!",
-          variant: "default",
+          title: "Error",
+          description: "No challenge available for today",
+          variant: "destructive",
         });
-        
-        // Update UI state
+        return;
+      }
+      
+      // Call the RPC function to claim the daily token
+      const { data, error } = await supabase.rpc('process_daily_claim', {
+        p_reward_id: todayChallenge.reward_id
+      });
+      
+      if (error) {
+        console.error('Error claiming daily token:', error);
+        toast({
+          title: "Claim Failed",
+          description: error.message || "Failed to claim your daily token. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      if (data && data.success) {
+        // Update local state
         setTodaysChallengeCompleted(true);
         setUserStreak(prev => prev + 1);
         
-        // Refresh token balances
-        const { data: tokens } = await tokenService.getUserTokenBalances(
-          (await supabase.auth.getUser()).data.user?.id || ''
-        );
-        
-        if (tokens) {
-          setUserTokens(tokens);
+        // Show success toast with streak bonus if applicable
+        if (data.data && data.data.streak_multiplier > 1) {
+          toast({
+            title: "Streak Bonus!",
+            description: `You earned ${data.data.amount} ${todayTokenSymbol} tokens with a ${data.data.streak_multiplier}x streak bonus!`,
+            variant: "default",
+            className: "bg-green-50 border-green-200 text-green-800",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: data.message || `You've claimed your daily ${todayTokenSymbol} tokens!`,
+            variant: "default",
+            className: "bg-green-50 border-green-200 text-green-800",
+          });
         }
+        
+        // Refresh user data
+        fetchUserData();
+      } else {
+        toast({
+          title: "Claim Failed",
+          description: data?.message || "Failed to claim your daily token. Please try again.",
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error('Error claiming daily token:', error);
+    } catch (error: any) {
+      console.error('Unexpected error claiming daily token:', error);
       toast({
         title: "Error",
-        description: "Failed to claim daily token. Please try again.",
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -391,25 +454,65 @@ const ChallengeDashboard: React.FC = () => {
   
   // Format the challenge description
   const formatChallengeDescription = () => {
-    if (!dailyChallenge) return "Complete today's challenge to earn tokens!";
+    if (!todayChallenge) return "Complete today's challenge to earn tokens!";
     
-    const baseReward = dailyChallenge.base_reward || 10;
+    const baseReward = todayChallenge.base_reward || 10;
     const multiplier = getStreakMultiplier();
     const totalReward = baseReward * multiplier;
     
-    return `${dailyChallenge.description || "Complete today's challenge"} to earn ${totalReward} ${todayTokenSymbol} tokens${multiplier > 1 ? ` (includes ${multiplier}x streak bonus)` : ''}!`;
+    return `${todayChallenge.description || "Complete today's challenge"} to earn ${totalReward} ${todayTokenSymbol} tokens${multiplier > 1 ? ` (includes ${multiplier}x streak bonus)` : ''}!`;
   };
   
   return (
-    <div className="space-y-6">
-      <h2 className="text-3xl font-bold tracking-tight">Daily Challenge</h2>
-      <p className="text-slate-500 dark:text-slate-400">
-        Complete daily challenges to earn tokens and build your streak. Longer streaks earn bonus rewards!
-      </p>
+    <div className="container mx-auto py-8">
+      <h1 className="text-3xl font-bold mb-6">Daily Challenge</h1>
       
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+        <div className="flex flex-col items-center justify-center p-12">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+          <p className="text-lg text-slate-600 dark:text-slate-400">Loading your daily challenge...</p>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="bg-red-100 p-3 rounded-full mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-red-800 mb-2">Failed to load challenge data</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            <Button 
+              variant="outline" 
+              onClick={handleRetry}
+              className="flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Retry
+            </Button>
+          </div>
+        </div>
+      ) : !todayChallenge ? (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 text-center">
+          <div className="flex flex-col items-center">
+            <div className="bg-amber-100 p-3 rounded-full mb-4">
+              <Calendar className="h-8 w-8 text-amber-600" />
+            </div>
+            <h3 className="text-lg font-medium text-amber-800 mb-2">No challenge available</h3>
+            <p className="text-amber-600 mb-4">There is no challenge available for today. Please check back later.</p>
+            <Button 
+              variant="outline" 
+              onClick={handleRetry}
+              className="flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
+            </Button>
+          </div>
         </div>
       ) : (
         <div className={sacredGeometryClasses.container}>
@@ -431,9 +534,9 @@ const ChallengeDashboard: React.FC = () => {
             <CardContent className={sacredGeometryClasses.cardContent}>
               <div className="flex flex-col md:flex-row gap-6 items-center">
                 <div className="w-full md:w-1/2">
-                  <h3 className="text-lg font-semibold mb-2">{dailyChallenge?.title || `${getTokenName(todayTokenSymbol)} Day`}</h3>
+                  <h3 className="text-lg font-semibold mb-2">{todayChallenge?.title || `${getTokenName(todayTokenSymbol)} Day`}</h3>
                   <p className="text-slate-500 dark:text-slate-400 mb-4">
-                    {dailyChallenge?.long_description || `Today is ${getDayName(todayTokenSymbol)}, dedicated to ${getTokenName(todayTokenSymbol)}. Complete the daily challenge to earn tokens and build your streak.`}
+                    {todayChallenge?.long_description || `Today is ${getDayName(todayTokenSymbol)}, dedicated to ${getTokenName(todayTokenSymbol)}. Complete the daily challenge to earn tokens and build your streak.`}
                   </p>
                   
                   {/* Streak information */}

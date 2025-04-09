@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { RouteTransitionProvider } from "@/components/route-transition-provider"
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider"
 import { FeaturesProvider } from "@/components/Features/FeaturesProvider"
+import AnalyticsProvider from "@/lib/analytics/analytics-provider"
 import "@/styles/globals.css"
 import { Inter } from "next/font/google"
 
@@ -36,7 +37,9 @@ export default function RootLayout({
           <FeaturesProvider>
             <OnboardingProvider>
               <RouteTransitionProvider>
-                {children}
+                <AnalyticsProvider>
+                  {children}
+                </AnalyticsProvider>
               </RouteTransitionProvider>
             </OnboardingProvider>
           </FeaturesProvider>

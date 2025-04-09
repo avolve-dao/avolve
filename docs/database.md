@@ -11,6 +11,7 @@ This document provides an overview of the Avolve platform's database schema, foc
 5. [Token System](#token-system)
 6. [Row Level Security](#row-level-security)
 7. [Database Functions](#database-functions)
+8. [Developer Examples](#developer-examples)
 
 ## Overview
 
@@ -361,3 +362,296 @@ begin
 end;
 $$;
 ```
+
+## Developer Examples
+
+This section provides practical examples for common database operations in the Avolve platform.
+
+### Querying Challenges for a Specific Day
+
+#### SQL Example
+
+```sql
+-- Get today's challenges
+select 
+  c.id as challenge_id,
+  c.challenge_name,
+  c.challenge_description,
+  c.bonus_amount,
+  t.symbol as token_symbol,
+  t.name as token_name,
+  t.color_gradient
+from 
+  public.daily_token_challenges c
+  join public.tokens t on c.token_id = t.id
+where 
+  c.is_active = true
+  and c.day_of_week = extract(dow from current_date)
+order by 
+  c.challenge_name;
+
+-- Get challenges for a specific day (e.g., Monday = 1)
+select 
+  c.id as challenge_id,
+  c.challenge_name,
+  c.challenge_description,
+  c.bonus_amount,
+  t.symbol as token_symbol,
+  t.name as token_name,
+  t.color_gradient
+from 
+  public.daily_token_challenges c
+  join public.tokens t on c.token_id = t.id
+where 
+  c.is_active = true
+  and c.day_of_week = 1  -- Monday
+order by 
+  c.challenge_name;
+```
+
+#### TypeScript Example (using Supabase)
+
+```typescript
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+/**
+ * Get challenges for today
+ */
+async function getTodaysChallenges() {
+  // Get current day of week (0 = Sunday, 1 = Monday, etc.)
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  
+  const { data, error } = await supabase
+    .from('daily_token_challenges')
+    .select(`
+      id,
+      challenge_name,
+      challenge_description,
+      bonus_amount,
+      tokens (
+        id,
+        symbol,
+        name,
+        color_gradient
+      )
+    `)
+    .eq('is_active', true)
+    .eq('day_of_week', dayOfWeek);
+    
+  if (error) {
+    console.error('Error fetching today\'s challenges:', error);
+    return null;
+  }
+  
+  return data;
+}
+
+/**
+ * Get challenges for a specific day of the week
+ * @param dayOfWeek - 0 for Sunday, 1 for Monday, etc.
+ */
+async function getChallengesForDay(dayOfWeek: number) {
+  if (dayOfWeek < 0 || dayOfWeek > 6) {
+    throw new Error('Day of week must be between 0 (Sunday) and 6 (Saturday)');
+  }
+  
+  const { data, error } = await supabase
+    .from('daily_token_challenges')
+    .select(`
+      id,
+      challenge_name,
+      challenge_description,
+      bonus_amount,
+      tokens (
+        id,
+        symbol,
+        name,
+        color_gradient
+      )
+    `)
+    .eq('is_active', true)
+    .eq('day_of_week', dayOfWeek);
+    
+  if (error) {
+    console.error(`Error fetching challenges for day ${dayOfWeek}:`, error);
+    return null;
+  }
+  
+  return data;
+}
+```
+
+### Calculating Streak Bonuses
+
+#### SQL Example
+
+```sql
+-- Calculate streak bonus for a user and token type
+select 
+  public.calculate_streak_bonus(
+    '550e8400-e29b-41d4-a716-446655440000'::uuid,  -- user_id
+    'PSP',                                         -- token_type
+    10.0,                                          -- base_amount
+    true                                           -- is_daily
+  ) as bonus_amount;
+
+-- Get all user streaks with calculated bonus amounts
+select 
+  u.email,
+  cs.token_type,
+  cs.current_daily_streak,
+  cs.streak_milestone_reached,
+  t.base_reward_amount,
+  public.calculate_streak_bonus(
+    cs.user_id, 
+    cs.token_type, 
+    t.base_reward_amount, 
+    true
+  ) as calculated_reward
+from 
+  public.challenge_streaks cs
+  join auth.users u on cs.user_id = u.id
+  join public.tokens t on cs.token_type = t.symbol
+where 
+  cs.current_daily_streak > 0
+order by 
+  cs.token_type, cs.current_daily_streak desc;
+```
+
+#### TypeScript Example (using Supabase)
+
+```typescript
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+/**
+ * Calculate streak bonus using Tesla's 3-6-9 pattern
+ * @param streak - Current streak count
+ * @returns Bonus multiplier
+ */
+function calculateStreakBonus(streak: number): number {
+  if (streak <= 0) {
+    return 1.0; // No bonus for zero or negative streaks
+  }
+  
+  if (streak >= 9) {
+    // For streaks of 9 or more: 1.9x + 0.3x for each additional 3 days
+    return 1.9 + (Math.floor((streak - 9) / 3) * 0.3);
+  } else if (streak >= 6) {
+    // For streaks of 6-8: 1.6x
+    return 1.6;
+  } else if (streak >= 3) {
+    // For streaks of 3-5: 1.3x
+    return 1.3;
+  } else {
+    // For streaks of 1-2: 1.0x (no bonus)
+    return 1.0;
+  }
+}
+
+/**
+ * Get user's streak for a specific token type
+ * @param userId - User ID
+ * @param tokenType - Token symbol (e.g., PSP, BSP)
+ */
+async function getUserStreak(userId: string, tokenType: string) {
+  const { data, error } = await supabase
+    .from('challenge_streaks')
+    .select('current_daily_streak, longest_daily_streak, streak_milestone_reached')
+    .eq('user_id', userId)
+    .eq('token_type', tokenType)
+    .single();
+    
+  if (error) {
+    console.error(`Error fetching streak for user ${userId} and token ${tokenType}:`, error);
+    return null;
+  }
+  
+  return data;
+}
+
+/**
+ * Calculate reward amount with streak bonus
+ * @param userId - User ID
+ * @param tokenType - Token symbol (e.g., PSP, BSP)
+ * @param baseAmount - Base reward amount
+ */
+async function calculateRewardWithBonus(userId: string, tokenType: string, baseAmount: number) {
+  // Get user's current streak
+  const streak = await getUserStreak(userId, tokenType);
+  
+  if (!streak) {
+    return baseAmount; // No streak found, return base amount
+  }
+  
+  // Calculate bonus multiplier
+  const multiplier = calculateStreakBonus(streak.current_daily_streak);
+  
+  // Return calculated reward amount
+  return baseAmount * multiplier;
+}
+
+/**
+ * Get all user streaks with calculated bonuses
+ */
+async function getAllUserStreaksWithBonuses() {
+  // First get all tokens to have their base amounts
+  const { data: tokens, error: tokensError } = await supabase
+    .from('tokens')
+    .select('symbol, base_reward_amount');
+    
+  if (tokensError) {
+    console.error('Error fetching tokens:', tokensError);
+    return null;
+  }
+  
+  // Create a map of token symbols to base amounts
+  const tokenBaseAmounts = tokens.reduce((map, token) => {
+    map[token.symbol] = token.base_reward_amount;
+    return map;
+  }, {});
+  
+  // Get all user streaks
+  const { data: streaks, error: streaksError } = await supabase
+    .from('challenge_streaks')
+    .select(`
+      user_id,
+      token_type,
+      current_daily_streak,
+      longest_daily_streak,
+      streak_milestone_reached,
+      profiles (
+        display_name,
+        email
+      )
+    `)
+    .gt('current_daily_streak', 0);
+    
+  if (streaksError) {
+    console.error('Error fetching streaks:', streaksError);
+    return null;
+  }
+  
+  // Calculate bonus for each streak
+  return streaks.map(streak => {
+    const baseAmount = tokenBaseAmounts[streak.token_type] || 10; // Default to 10 if not found
+    const multiplier = calculateStreakBonus(streak.current_daily_streak);
+    
+    return {
+      ...streak,
+      base_amount: baseAmount,
+      bonus_multiplier: multiplier,
+      calculated_reward: baseAmount * multiplier
+    };
+  });
+}

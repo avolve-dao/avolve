@@ -38,7 +38,8 @@ export enum InvitationStatus {
   PENDING = 'pending',
   ACCEPTED = 'accepted',
   EXPIRED = 'expired',
-  REVOKED = 'revoked'
+  REVOKED = 'revoked',
+  CLAIMED = 'claimed'
 }
 
 /**
@@ -59,6 +60,8 @@ export interface Invitation {
   reward_claimed: boolean;
   reward_claimed_at?: string;
   invitation_tier: string;
+  tier_name: string;
+  token_type: string;
 }
 
 /**
@@ -72,9 +75,19 @@ export interface InvitationTier {
   max_invites: number;
   validity_days: number;
   reward_multiplier: number;
+  reward_amount: number;
   description?: string;
   created_at: string;
   updated_at: string;
+}
+
+/**
+ * Invitation tier availability interface
+ */
+export interface InvitationTierAvailability extends InvitationTier {
+  available: boolean;
+  remaining_invites: number;
+  user_has_tokens: boolean;
 }
 
 /**
@@ -94,6 +107,10 @@ export interface InvitationCreationResponse {
 export interface InvitationAcceptanceResponse {
   success: boolean;
   message: string;
+  invitation_id?: string;
+  token_type?: string;
+  amount?: number;
+  transaction_id?: string;
   reward_amount?: number;
 }
 
@@ -111,18 +128,42 @@ export interface InvitationWithCreator extends Invitation {
 export interface InvitationWithInvitee extends Invitation {
   invitee_username?: string;
   invitee_avatar_url?: string;
+  tier_name: string;
+}
+
+/**
+ * Statistics for invitation dashboard
+ */
+export interface InvitationStatistics {
+  invitations_created: number;
+  invitations_accepted: number;
+  invitations_claimed: number;
+  invitations_pending: number;
+  invitations_expired: number;
+  conversion_rate: number;
 }
 
 /**
  * Invitation dashboard data
  */
 export interface InvitationDashboardData {
+  statistics: InvitationStatistics;
+  tier_distribution: Record<string, number>;
+  created_invitations: InvitationWithInvitee[];
+  received_invitations: InvitationWithCreator[];
   available_tiers: InvitationTier[];
-  user_invitations: InvitationWithInvitee[];
-  pending_invitations: number;
-  accepted_invitations: number;
-  total_rewards_earned: number;
-  unclaimed_rewards: number;
+}
+
+/**
+ * Invitation validation result
+ */
+export interface InvitationValidationResult {
+  valid: boolean;
+  message: string;
+  status?: InvitationStatus;
+  expires_at?: string;
+  invitation?: Invitation;
+  error_code?: string;
 }
 
 /**
@@ -145,4 +186,22 @@ export interface AcceptInvitationRequest {
  */
 export interface ClaimInvitationRewardRequest {
   invitation_id: string;
+}
+
+/**
+ * Repository interface for invitations
+ */
+export interface IInvitationRepository {
+  getAllInvitationTiers(): Promise<InvitationResult<InvitationTier[]>>;
+  getInvitationTierByName(tierName: string): Promise<InvitationResult<InvitationTier>>;
+  getUserInvitationCountForTier(userId: string, tierName: string): Promise<InvitationResult<number>>;
+  createInvitation(userId: string, tierName: string, email?: string): Promise<InvitationResult<Invitation>>;
+  getInvitationByCode(code: string): Promise<InvitationResult<Invitation>>;
+  getInvitationById(id: string): Promise<InvitationResult<Invitation>>;
+  acceptInvitation(invitationId: string, userId: string): Promise<InvitationResult<InvitationAcceptanceResponse>>;
+  claimInvitationReward(invitationId: string, userId: string): Promise<InvitationResult<InvitationAcceptanceResponse>>;
+  getUserCreatedInvitations(userId: string): Promise<InvitationResult<Invitation[]>>;
+  getUserInvitationsWithInvitees(userId: string): Promise<InvitationResult<InvitationWithInvitee[]>>;
+  getUserReceivedInvitations(userId: string): Promise<InvitationResult<InvitationWithCreator[]>>;
+  updateInvitationStatus(invitationId: string, status: InvitationStatus): Promise<InvitationResult<Invitation>>;
 }

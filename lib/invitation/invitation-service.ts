@@ -17,16 +17,20 @@ import {
   Invitation,
   InvitationStatus,
   InvitationTier,
+  InvitationTierAvailability,
   InvitationCreationResponse,
   InvitationAcceptanceResponse,
   InvitationWithCreator,
   InvitationWithInvitee,
   InvitationDashboardData,
+  InvitationValidationResult,
   CreateInvitationRequest,
   AcceptInvitationRequest,
-  ClaimInvitationRewardRequest
+  ClaimInvitationRewardRequest,
+  IInvitationRepository
 } from './invitation-types';
 import { TokenService } from '../token/token-service';
+import { InvitationRepository } from './invitation-repository';
 
 /**
  * Invitation Service Class
@@ -36,6 +40,7 @@ import { TokenService } from '../token/token-service';
  */
 export class InvitationService {
   private tokenService: TokenService;
+  private repository: IInvitationRepository;
   
   /**
    * Creates a new InvitationService instance
@@ -44,6 +49,7 @@ export class InvitationService {
    */
   constructor(private readonly client: SupabaseClient) {
     this.tokenService = new TokenService(client);
+    this.repository = new InvitationRepository(client);
   }
 
   /**
@@ -52,28 +58,7 @@ export class InvitationService {
    * @returns A promise resolving to an InvitationResult containing an array of InvitationTier objects
    */
   public async getAllInvitationTiers(): Promise<InvitationResult<InvitationTier[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('invitation_tiers')
-        .select('*')
-        .order('token_cost');
-      
-      if (error) {
-        console.error('Get all invitation tiers error:', error);
-        return { 
-          data: null, 
-          error: new InvitationError('Failed to fetch invitation tiers', error) 
-        };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get all invitation tiers error:', error);
-      return { 
-        data: null, 
-        error: new InvitationError('An unexpected error occurred while getting invitation tiers', error) 
-      };
-    }
+    return this.repository.getAllInvitationTiers();
   }
 
   /**
@@ -83,29 +68,7 @@ export class InvitationService {
    * @returns A promise resolving to an InvitationResult containing an array of Invitation objects
    */
   public async getUserCreatedInvitations(userId: string): Promise<InvitationResult<Invitation[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('invitations')
-        .select('*')
-        .eq('created_by', userId)
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Get user created invitations error:', error);
-        return { 
-          data: null, 
-          error: new InvitationError('Failed to fetch user created invitations', error) 
-        };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get user created invitations error:', error);
-      return { 
-        data: null, 
-        error: new InvitationError('An unexpected error occurred while getting user created invitations', error) 
-      };
-    }
+    return this.repository.getUserCreatedInvitations(userId);
   }
 
   /**
@@ -115,45 +78,7 @@ export class InvitationService {
    * @returns A promise resolving to an InvitationResult containing an array of InvitationWithInvitee objects
    */
   public async getUserInvitationsWithInvitees(userId: string): Promise<InvitationResult<InvitationWithInvitee[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('invitations')
-        .select(`
-          *,
-          invitee:invitee_id (
-            username,
-            avatar_url
-          )
-        `)
-        .eq('created_by', userId)
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Get user invitations with invitees error:', error);
-        return { 
-          data: null, 
-          error: new InvitationError('Failed to fetch user invitations with invitees', error) 
-        };
-      }
-      
-      // Transform the data to match the InvitationWithInvitee interface
-      const transformedData: InvitationWithInvitee[] = data.map(invitation => {
-        const { invitee, ...rest } = invitation;
-        return {
-          ...rest,
-          invitee_username: invitee?.username,
-          invitee_avatar_url: invitee?.avatar_url
-        };
-      });
-      
-      return { data: transformedData, error: null };
-    } catch (error) {
-      console.error('Unexpected get user invitations with invitees error:', error);
-      return { 
-        data: null, 
-        error: new InvitationError('An unexpected error occurred while getting user invitations with invitees', error) 
-      };
-    }
+    return this.repository.getUserInvitationsWithInvitees(userId);
   }
 
   /**
@@ -163,45 +88,7 @@ export class InvitationService {
    * @returns A promise resolving to an InvitationResult containing an array of InvitationWithCreator objects
    */
   public async getUserReceivedInvitations(userId: string): Promise<InvitationResult<InvitationWithCreator[]>> {
-    try {
-      const { data, error } = await this.client
-        .from('invitations')
-        .select(`
-          *,
-          creator:created_by (
-            username,
-            avatar_url
-          )
-        `)
-        .eq('invitee_id', userId)
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Get user received invitations error:', error);
-        return { 
-          data: null, 
-          error: new InvitationError('Failed to fetch user received invitations', error) 
-        };
-      }
-      
-      // Transform the data to match the InvitationWithCreator interface
-      const transformedData: InvitationWithCreator[] = data.map(invitation => {
-        const { creator, ...rest } = invitation;
-        return {
-          ...rest,
-          creator_username: creator?.username,
-          creator_avatar_url: creator?.avatar_url
-        };
-      });
-      
-      return { data: transformedData, error: null };
-    } catch (error) {
-      console.error('Unexpected get user received invitations error:', error);
-      return { 
-        data: null, 
-        error: new InvitationError('An unexpected error occurred while getting user received invitations', error) 
-      };
-    }
+    return this.repository.getUserReceivedInvitations(userId);
   }
 
   /**
@@ -211,29 +98,7 @@ export class InvitationService {
    * @returns A promise resolving to an InvitationResult containing an Invitation object
    */
   public async getInvitationByCode(code: string): Promise<InvitationResult<Invitation>> {
-    try {
-      const { data, error } = await this.client
-        .from('invitations')
-        .select('*')
-        .eq('code', code)
-        .single();
-      
-      if (error) {
-        console.error('Get invitation by code error:', error);
-        return { 
-          data: null, 
-          error: new InvitationError(`Failed to fetch invitation with code: ${code}`, error) 
-        };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get invitation by code error:', error);
-      return { 
-        data: null, 
-        error: new InvitationError('An unexpected error occurred while getting invitation by code', error) 
-      };
-    }
+    return this.repository.getInvitationByCode(code);
   }
 
   /**
@@ -243,29 +108,7 @@ export class InvitationService {
    * @returns A promise resolving to an InvitationResult containing an Invitation object
    */
   public async getInvitationById(id: string): Promise<InvitationResult<Invitation>> {
-    try {
-      const { data, error } = await this.client
-        .from('invitations')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) {
-        console.error('Get invitation by ID error:', error);
-        return { 
-          data: null, 
-          error: new InvitationError(`Failed to fetch invitation with ID: ${id}`, error) 
-        };
-      }
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Unexpected get invitation by ID error:', error);
-      return { 
-        data: null, 
-        error: new InvitationError('An unexpected error occurred while getting invitation by ID', error) 
-      };
-    }
+    return this.repository.getInvitationById(id);
   }
 
   /**
@@ -280,20 +123,93 @@ export class InvitationService {
     request: CreateInvitationRequest
   ): Promise<InvitationResult<InvitationCreationResponse>> {
     try {
-      const { data, error } = await this.client.rpc('create_invitation', {
-        p_tier_name: request.tier_name,
-        p_email: request.email || null
-      });
+      // Check if the user has reached their invitation limit
+      const { data: hasReachedLimit, error: limitError } = 
+        await this.hasUserReachedInvitationLimit(userId, request.tier_name);
       
-      if (error) {
-        console.error('Create invitation error:', error);
+      if (limitError) {
+        return { data: null, error: limitError };
+      }
+      
+      if (hasReachedLimit) {
         return { 
-          data: null, 
-          error: new InvitationError('Failed to create invitation', error) 
+          data: { 
+            success: false, 
+            message: `You have reached your monthly limit for ${request.tier_name} invitations` 
+          }, 
+          error: null 
         };
       }
       
-      return { data, error: null };
+      // Get the tier details to check token cost
+      const { data: tier, error: tierError } = await this.repository.getInvitationTierByName(request.tier_name);
+      
+      if (tierError || !tier) {
+        return { 
+          data: null, 
+          error: new InvitationError(`Invalid tier name: ${request.tier_name}`, tierError) 
+        };
+      }
+      
+      // Check if the user has enough tokens
+      if (tier.token_cost > 0) {
+        const { data: tokenBalance, error: tokenError } = 
+          await this.tokenService.getUserTokenBalance(userId, tier.token_type);
+        
+        if (tokenError) {
+          return { 
+            data: null, 
+            error: new InvitationError('Failed to check token balance', tokenError) 
+          };
+        }
+        
+        if (!tokenBalance || tokenBalance < tier.token_cost) {
+          return { 
+            data: { 
+              success: false, 
+              message: `Insufficient ${tier.token_type} tokens. Required: ${tier.token_cost}, Available: ${tokenBalance || 0}` 
+            }, 
+            error: null 
+          };
+        }
+        
+        // Deduct tokens
+        const { data: burnResult, error: burnError } = await this.tokenService.burnTokens(
+          userId,
+          tier.token_type,
+          tier.token_cost,
+          `Created ${tier.tier_name} invitation`
+        );
+        
+        if (burnError || !burnResult?.success) {
+          return { 
+            data: null, 
+            error: new InvitationError('Failed to deduct tokens', burnError) 
+          };
+        }
+      }
+      
+      // Create the invitation
+      const { data: invitation, error: invitationError } = 
+        await this.repository.createInvitation(userId, request.tier_name, request.email);
+      
+      if (invitationError || !invitation) {
+        return { 
+          data: null, 
+          error: invitationError 
+        };
+      }
+      
+      return { 
+        data: { 
+          success: true, 
+          message: 'Invitation created successfully',
+          invitation_id: invitation.id,
+          invitation_code: invitation.code,
+          expires_at: invitation.expires_at
+        }, 
+        error: null 
+      };
     } catch (error) {
       console.error('Unexpected create invitation error:', error);
       return { 
@@ -315,19 +231,48 @@ export class InvitationService {
     request: AcceptInvitationRequest
   ): Promise<InvitationResult<InvitationAcceptanceResponse>> {
     try {
-      const { data, error } = await this.client.rpc('accept_invitation', {
-        p_invitation_code: request.invitation_code
-      });
+      // Get the invitation by code
+      const { data: invitation, error: invitationError } = 
+        await this.repository.getInvitationByCode(request.invitation_code);
       
-      if (error) {
-        console.error('Accept invitation error:', error);
+      if (invitationError) {
+        return { data: null, error: invitationError };
+      }
+      
+      if (!invitation) {
         return { 
-          data: null, 
-          error: new InvitationError('Failed to accept invitation', error) 
+          data: { success: false, message: 'Invalid invitation code' }, 
+          error: null 
         };
       }
       
-      return { data, error: null };
+      // Check if the invitation is valid
+      if (invitation.status !== InvitationStatus.PENDING) {
+        return { 
+          data: { success: false, message: `Invitation is ${invitation.status}` }, 
+          error: null 
+        };
+      }
+      
+      // Check if the invitation is expired
+      const now = new Date();
+      const expiresAt = new Date(invitation.expires_at);
+      
+      if (expiresAt < now) {
+        // Update the invitation to expired
+        await this.client
+          .from('invitations')
+          .update({ status: InvitationStatus.EXPIRED })
+          .eq('id', invitation.id);
+        
+        return { 
+          data: { success: false, message: 'Invitation has expired' }, 
+          error: null 
+        };
+      }
+      
+      // Accept the invitation
+      return this.repository.acceptInvitation(invitation.id, userId);
     } catch (error) {
       console.error('Unexpected accept invitation error:', error);
       return { 
@@ -349,19 +294,117 @@ export class InvitationService {
     request: ClaimInvitationRewardRequest
   ): Promise<InvitationResult<InvitationAcceptanceResponse>> {
     try {
-      const { data, error } = await this.client.rpc('claim_invitation_reward', {
-        p_invitation_id: request.invitation_id
-      });
+      // Validate invitation
+      const { data: invitation, error: invitationError } = await this.repository.getInvitationById(request.invitation_id);
       
-      if (error) {
-        console.error('Claim invitation reward error:', error);
+      if (invitationError) {
+        return { data: null, error: invitationError };
+      }
+      
+      if (!invitation) {
         return { 
           data: null, 
-          error: new InvitationError('Failed to claim invitation reward', error) 
+          error: new InvitationError('Invitation not found') 
         };
       }
       
-      return { data, error: null };
+      // Check if invitation is already claimed
+      if (invitation.status === InvitationStatus.CLAIMED) {
+        return { 
+          data: null, 
+          error: new InvitationError('Invitation reward has already been claimed') 
+        };
+      }
+      
+      // Check if invitation is accepted
+      if (invitation.status !== InvitationStatus.ACCEPTED) {
+        return { 
+          data: null, 
+          error: new InvitationError(`Invitation must be accepted before claiming reward. Current status: ${invitation.status}`) 
+        };
+      }
+      
+      // Check if the user is the invitee
+      if (invitation.invitee_id !== userId) {
+        return { 
+          data: null, 
+          error: new InvitationError('Only the invited user can claim this reward') 
+        };
+      }
+      
+      // Get the tier for this invitation
+      const { data: tier, error: tierError } = await this.repository.getInvitationTierByName(invitation.tier_name);
+      
+      if (tierError) {
+        return { data: null, error: tierError };
+      }
+      
+      if (!tier) {
+        return { 
+          data: null, 
+          error: new InvitationError(`Invitation tier "${invitation.tier_name}" not found`) 
+        };
+      }
+      
+      // Find the token ID for this token type
+      const { data: tokenData, error: tokenError } = await this.tokenService.getTokenTypeByCode(tier.token_type);
+      
+      if (tokenError || !tokenData) {
+        return { 
+          data: null, 
+          error: new InvitationError(`Failed to find token type: ${tier.token_type}`, tokenError) 
+        };
+      }
+      
+      // Get the first token of this type
+      const { data: tokens, error: tokensError } = await this.tokenService.getTokensByType(tokenData.id);
+      
+      if (tokensError || !tokens || tokens.length === 0) {
+        return { 
+          data: null, 
+          error: new InvitationError(`No tokens found for type: ${tier.token_type}`, tokensError) 
+        };
+      }
+      
+      // Mint tokens to the invitee
+      const { data: claimResult, error: claimError } = await this.tokenService.mintTokens(
+        userId,
+        tokens[0].id,
+        tier.reward_amount,
+        `Invitation reward for tier ${tier.tier_name}`
+      );
+      
+      if (claimError) {
+        return { 
+          data: null, 
+          error: new InvitationError('Failed to mint tokens for invitation reward', claimError) 
+        };
+      }
+      
+      // Update invitation status to claimed
+      const { data: updatedInvitation, error: updateError } = await this.repository.updateInvitationStatus(
+        invitation.id,
+        InvitationStatus.CLAIMED
+      );
+      
+      if (updateError) {
+        // If we failed to update the status but already minted tokens, we should log this
+        // but still consider the claim successful since the user got their tokens
+        console.error('Failed to update invitation status after successful token claim:', updateError);
+      }
+      
+      // Return success response
+      return { 
+        data: { 
+          success: true,
+          message: `Successfully claimed ${tier.reward_amount} ${tier.token_type} tokens!`,
+          invitation_id: invitation.id,
+          token_type: tier.token_type,
+          amount: tier.reward_amount,
+          transaction_id: claimResult?.transaction_id || 'unknown'
+        }, 
+        error: null 
+      };
     } catch (error) {
       console.error('Unexpected claim invitation reward error:', error);
       return { 
@@ -379,51 +422,64 @@ export class InvitationService {
    */
   public async getInvitationDashboard(userId: string): Promise<InvitationResult<InvitationDashboardData>> {
     try {
-      // Get all invitation tiers
-      const { data: tiers, error: tiersError } = await this.getAllInvitationTiers();
+      // Get created invitations
+      const { data: createdInvitations, error: createdError } = await this.repository.getUserInvitationsWithInvitees(userId);
+      
+      if (createdError) {
+        return { data: null, error: createdError };
+      }
+      
+      // Get received invitations
+      const { data: receivedInvitations, error: receivedError } = await this.repository.getUserReceivedInvitations(userId);
+      
+      if (receivedError) {
+        return { data: null, error: receivedError };
+      }
+      
+      // Get all tiers
+      const { data: tiers, error: tiersError } = await this.repository.getAllInvitationTiers();
       
       if (tiersError) {
         return { data: null, error: tiersError };
       }
       
-      // Get user invitations with invitee details
-      const { data: invitations, error: invitationsError } = await this.getUserInvitationsWithInvitees(userId);
+      // Calculate statistics
+      const invitationsCreated = createdInvitations ? createdInvitations.length : 0;
+      const invitationsAccepted = createdInvitations ? createdInvitations.filter(inv => inv.status === InvitationStatus.ACCEPTED || inv.status === InvitationStatus.CLAIMED).length : 0;
+      const invitationsClaimed = createdInvitations ? createdInvitations.filter(inv => inv.status === InvitationStatus.CLAIMED).length : 0;
+      const invitationsPending = createdInvitations ? createdInvitations.filter(inv => inv.status === InvitationStatus.PENDING).length : 0;
+      const invitationsExpired = createdInvitations ? createdInvitations.filter(inv => inv.status === InvitationStatus.EXPIRED).length : 0;
       
-      if (invitationsError) {
-        return { data: null, error: invitationsError };
+      // Calculate conversion rate
+      const conversionRate = invitationsCreated > 0 ? (invitationsAccepted / invitationsCreated) * 100 : 0;
+      
+      // Calculate tier distribution
+      const tierDistribution: Record<string, number> = {};
+      
+      if (createdInvitations && createdInvitations.length > 0) {
+        createdInvitations.forEach(inv => {
+          tierDistribution[inv.tier_name] = (tierDistribution[inv.tier_name] || 0) + 1;
+        });
       }
       
-      // Calculate dashboard metrics
-      const pendingInvitations = invitations?.filter(inv => inv.status === InvitationStatus.PENDING).length || 0;
-      const acceptedInvitations = invitations?.filter(inv => inv.status === InvitationStatus.ACCEPTED).length || 0;
-      
-      // Calculate total rewards earned
-      const totalRewardsEarned = invitations?.reduce((sum, inv) => {
-        if (inv.status === InvitationStatus.ACCEPTED && inv.reward_claimed) {
-          return sum + inv.reward_amount;
-        }
-        return sum;
-      }, 0) || 0;
-      
-      // Calculate unclaimed rewards
-      const unclaimedRewards = invitations?.reduce((sum, inv) => {
-        if (inv.status === InvitationStatus.ACCEPTED && !inv.reward_claimed) {
-          return sum + inv.reward_amount;
-        }
-        return sum;
-      }, 0) || 0;
-      
-      // Build dashboard data
-      const dashboardData: InvitationDashboardData = {
-        available_tiers: tiers || [],
-        user_invitations: invitations || [],
-        pending_invitations: pendingInvitations,
-        accepted_invitations: acceptedInvitations,
-        total_rewards_earned: totalRewardsEarned,
-        unclaimed_rewards: unclaimedRewards
+      // Format the dashboard data
+      return {
+        data: {
+          statistics: {
+            invitations_created: invitationsCreated,
+            invitations_accepted: invitationsAccepted,
+            invitations_claimed: invitationsClaimed,
+            invitations_pending: invitationsPending,
+            invitations_expired: invitationsExpired,
+            conversion_rate: conversionRate
+          },
+          tier_distribution: tierDistribution,
+          created_invitations: createdInvitations || [],
+          received_invitations: receivedInvitations || [],
+          available_tiers: tiers || []
+        },
+        error: null
       };
-      
-      return { data: dashboardData, error: null };
     } catch (error) {
       console.error('Unexpected get invitation dashboard error:', error);
       return { 
@@ -441,7 +497,7 @@ export class InvitationService {
    */
   public async isInvitationCodeValid(code: string): Promise<InvitationResult<boolean>> {
     try {
-      const { data: invitation, error } = await this.getInvitationByCode(code);
+      const { data: invitation, error } = await this.repository.getInvitationByCode(code);
       
       if (error) {
         return { data: false, error: null };
@@ -478,33 +534,7 @@ export class InvitationService {
     userId: string,
     tierName: string
   ): Promise<InvitationResult<number>> {
-    try {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      const { data, error } = await this.client
-        .from('invitations')
-        .select('id', { count: 'exact' })
-        .eq('created_by', userId)
-        .eq('invitation_tier', tierName)
-        .gte('created_at', thirtyDaysAgo.toISOString());
-      
-      if (error) {
-        console.error('Get user invitation count error:', error);
-        return { 
-          data: null, 
-          error: new InvitationError('Failed to get user invitation count', error) 
-        };
-      }
-      
-      return { data: data.length, error: null };
-    } catch (error) {
-      console.error('Unexpected get user invitation count error:', error);
-      return { 
-        data: null, 
-        error: new InvitationError('An unexpected error occurred while getting user invitation count', error) 
-      };
-    }
+    return this.repository.getUserInvitationCountForTier(userId, tierName);
   }
 
   /**
@@ -520,31 +550,17 @@ export class InvitationService {
   ): Promise<InvitationResult<boolean>> {
     try {
       // Get the tier details
-      const { data: tiers, error: tiersError } = await this.client
-        .from('invitation_tiers')
-        .select('*')
-        .eq('tier_name', tierName)
-        .limit(1);
+      const { data: tier, error: tierError } = await this.repository.getInvitationTierByName(tierName);
       
-      if (tiersError) {
-        console.error('Get tier details error:', tiersError);
+      if (tierError || !tier) {
         return { 
           data: null, 
-          error: new InvitationError('Failed to get tier details', tiersError) 
+          error: new InvitationError(`Invalid tier name: ${tierName}`, tierError) 
         };
       }
-      
-      if (!tiers || tiers.length === 0) {
-        return { 
-          data: null, 
-          error: new InvitationError(`Invalid tier name: ${tierName}`) 
-        };
-      }
-      
-      const tier = tiers[0];
       
       // Get the user's invitation count for this tier
-      const { data: count, error: countError } = await this.getUserInvitationCountForTier(userId, tierName);
+      const { data: count, error: countError } = await this.repository.getUserInvitationCountForTier(userId, tierName);
       
       if (countError) {
         return { data: null, error: countError };
@@ -556,6 +572,159 @@ export class InvitationService {
       return { 
         data: null, 
         error: new InvitationError('An unexpected error occurred while checking invitation limit', error) 
+      };
+    }
+  }
+
+  /**
+   * Gets available invitation tiers for a user
+   * 
+   * @param userId - The ID of the user
+   * @returns A promise resolving to an InvitationResult containing an array of InvitationTierAvailability objects
+   */
+  public async getAvailableInvitationTiers(userId: string): Promise<InvitationResult<InvitationTierAvailability[]>> {
+    try {
+      // Get all tiers
+      const { data: tiers, error: tiersError } = await this.repository.getAllInvitationTiers();
+      
+      if (tiersError || !tiers) {
+        return { data: null, error: tiersError };
+      }
+      
+      const result: InvitationTierAvailability[] = [];
+      
+      // Check each tier's availability
+      for (const tier of tiers) {
+        // Check invitation limit
+        const { data: count, error: countError } = 
+          await this.repository.getUserInvitationCountForTier(userId, tier.tier_name);
+        
+        if (countError) {
+          console.error(`Error checking count for tier ${tier.tier_name}:`, countError);
+          continue;
+        }
+        
+        // Check token balance if tier has a cost
+        let userHasTokens = true;
+        if (tier.token_cost > 0) {
+          const { data: balance, error: balanceError } = 
+            await this.tokenService.getUserTokenBalance(userId, tier.token_type);
+          
+          if (balanceError) {
+            console.error(`Error checking balance for tier ${tier.tier_name}:`, balanceError);
+            userHasTokens = false;
+          } else {
+            userHasTokens = balance !== null && balance >= tier.token_cost;
+          }
+        }
+        
+        result.push({
+          ...tier,
+          available: count !== null && count < tier.max_invites && userHasTokens,
+          remaining_invites: count !== null ? Math.max(0, tier.max_invites - count) : 0,
+          user_has_tokens: userHasTokens
+        });
+      }
+      
+      return { data: result, error: null };
+    } catch (error) {
+      console.error('Unexpected get available invitation tiers error:', error);
+      return { 
+        data: null, 
+        error: new InvitationError('An unexpected error occurred while getting available invitation tiers', error) 
+      };
+    }
+  }
+
+  /**
+   * Validates an invitation code and returns detailed information
+   * 
+   * @param code - The invitation code to validate
+   * @returns A promise resolving to an InvitationResult containing an InvitationValidationResult
+   */
+  public async validateInvitationCode(code: string): Promise<InvitationResult<InvitationValidationResult>> {
+    try {
+      if (!code || code.trim() === '') {
+        return {
+          data: {
+            valid: false,
+            message: 'Invitation code is required',
+            error_code: 'EMPTY_CODE'
+          },
+          error: null
+        };
+      }
+
+      const { data: invitation, error } = await this.repository.getInvitationByCode(code);
+      
+      if (error) {
+        return {
+          data: {
+            valid: false,
+            message: 'Error validating invitation code',
+            error_code: 'VALIDATION_ERROR'
+          },
+          error
+        };
+      }
+      
+      if (!invitation) {
+        return {
+          data: {
+            valid: false,
+            message: 'Invalid invitation code',
+            error_code: 'INVALID_CODE'
+          },
+          error: null
+        };
+      }
+      
+      // Check invitation status
+      if (invitation.status !== InvitationStatus.PENDING) {
+        return {
+          data: {
+            valid: false,
+            message: `Invitation has already been ${invitation.status}`,
+            status: invitation.status,
+            error_code: 'ALREADY_USED'
+          },
+          error: null
+        };
+      }
+      
+      // Check if expired
+      const now = new Date();
+      const expiresAt = new Date(invitation.expires_at);
+      
+      if (expiresAt < now) {
+        return {
+          data: {
+            valid: false,
+            message: 'Invitation has expired',
+            status: InvitationStatus.EXPIRED,
+            expires_at: invitation.expires_at,
+            error_code: 'EXPIRED'
+          },
+          error: null
+        };
+      }
+      
+      // Valid invitation
+      return {
+        data: {
+          valid: true,
+          message: 'Valid invitation code',
+          status: invitation.status,
+          expires_at: invitation.expires_at,
+          invitation
+        },
+        error: null
+      };
+    } catch (error) {
+      console.error('Unexpected validate invitation code error:', error);
+      return { 
+        data: null, 
+        error: new InvitationError('An unexpected error occurred while validating invitation code', error) 
       };
     }
   }

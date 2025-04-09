@@ -721,4 +721,350 @@ export class TokenService {
       };
     }
   }
+
+  /**
+   * Claim daily token
+   * 
+   * @param userId - The ID of the user claiming the token
+   * @param tokenId - The ID of the token to claim
+   * @param amount - The amount of tokens to claim
+   * @returns A promise resolving to a TokenResult containing the claim result
+   */
+  public async claimDailyToken(
+    userId: string,
+    tokenId: string,
+    amount: number
+  ): Promise<TokenResult<{ success: boolean; message: string; transaction_id?: string }>> {
+    try {
+      // Validate the claim
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ...
+      
+      // Get token details
+      const { data: token, error: tokenError } = await this.repository.getTokenById(tokenId);
+      
+      if (tokenError || !token) {
+        console.error('Token not found error:', tokenError);
+        return { 
+          data: { success: false, message: 'Token not found' }, 
+          error: new TokenError('Token not found', tokenError) 
+        };
+      }
+      
+      // Check if this is the correct day for this token
+      const expectedTokenSymbol = DAY_TO_TOKEN_MAP[dayOfWeek];
+      if (token.symbol !== expectedTokenSymbol) {
+        return { 
+          data: { 
+            success: false, 
+            message: `This token can only be claimed on ${this.getDayForToken(token.symbol)}` 
+          }, 
+          error: null 
+        };
+      }
+      
+      // Check if user has already claimed this token today
+      const { data: hasClaimedToday, error: claimCheckError } = await this.hasUserClaimedTokenToday(userId, tokenId);
+      
+      if (claimCheckError) {
+        console.error('Claim check error:', claimCheckError);
+        return { 
+          data: { success: false, message: 'Failed to check previous claims' }, 
+          error: claimCheckError 
+        };
+      }
+      
+      if (hasClaimedToday) {
+        return { 
+          data: { 
+            success: false, 
+            message: `You have already claimed ${token.symbol} today. Come back tomorrow!` 
+          }, 
+          error: null 
+        };
+      }
+      
+      // Apply Tesla's 3-6-9 pattern for streak bonuses
+      const { data: streak, error: streakError } = await this.getUserTokenStreak(userId, tokenId);
+      let bonusMultiplier = 1.0;
+      
+      if (!streakError && streak) {
+        // Apply Tesla's 3-6-9 pattern
+        if (streak % 9 === 0) {
+          bonusMultiplier = 3.0; // Triple bonus at multiples of 9
+        } else if (streak % 6 === 0) {
+          bonusMultiplier = 2.0; // Double bonus at multiples of 6
+        } else if (streak % 3 === 0) {
+          bonusMultiplier = 1.5; // 50% bonus at multiples of 3
+        }
+      }
+      
+      const adjustedAmount = amount * bonusMultiplier;
+      
+      // Mint the tokens
+      const { data: mintResult, error: mintError } = await this.mintTokens(
+        userId, 
+        tokenId, 
+        adjustedAmount, 
+        'Daily token claim'
+      );
+      
+      if (mintError || !mintResult.success) {
+        console.error('Mint error:', mintError);
+        return { 
+          data: { success: false, message: 'Failed to mint tokens' }, 
+          error: mintError 
+        };
+      }
+      
+      // Record the claim
+      const { error: recordError } = await this.repository.recordTokenClaim(
+        userId,
+        tokenId,
+        adjustedAmount,
+        bonusMultiplier > 1 ? `Streak bonus: x${bonusMultiplier}` : undefined
+      );
+      
+      if (recordError) {
+        console.error('Record claim error:', recordError);
+        // Don't fail the whole operation if just the recording fails
+      }
+      
+      // Update streak
+      await this.repository.updateTokenStreak(userId, tokenId);
+      
+      return { 
+        data: { 
+          success: true, 
+          message: bonusMultiplier > 1 
+            ? `Claimed ${adjustedAmount} ${token.symbol} tokens with a x${bonusMultiplier} streak bonus!` 
+            : `Claimed ${adjustedAmount} ${token.symbol} tokens!`,
+          transaction_id: mintResult.transaction_id
+        }, 
+        error: null 
+      };
+    } catch (error) {
+      console.error('Unexpected claim daily token error:', error);
+      return { 
+        data: { success: false, message: 'An unexpected error occurred while claiming token' }, 
+        error: new TokenError('An unexpected error occurred while claiming token', error) 
+      };
+    }
+  }
+
+  /**
+   * Claim challenge reward
+   * 
+   * @param userId - The ID of the user claiming the reward
+   * @param tokenId - The ID of the token to claim
+   * @param amount - The amount of tokens to claim
+   * @param challengeId - The ID of the completed challenge
+   * @returns A promise resolving to a TokenResult containing the claim result
+   */
+  public async claimChallengeReward(
+    userId: string,
+    tokenId: string,
+    amount: number,
+    challengeId: string
+  ): Promise<TokenResult<{ success: boolean; message: string; transaction_id?: string; unlocked?: boolean }>> {
+    try {
+      // Get token details
+      const { data: token, error: tokenError } = await this.repository.getTokenById(tokenId);
+      
+      if (tokenError || !token) {
+        console.error('Token not found error:', tokenError);
+        return { 
+          data: { success: false, message: 'Token not found' }, 
+          error: new TokenError('Token not found', tokenError) 
+        };
+      }
+      
+      // Check if user has already claimed this challenge
+      const { data: hasClaimedChallenge, error: claimCheckError } = 
+        await this.repository.hasUserClaimedChallenge(userId, challengeId);
+      
+      if (claimCheckError) {
+        console.error('Challenge claim check error:', claimCheckError);
+        return { 
+          data: { success: false, message: 'Failed to check previous claims' }, 
+          error: claimCheckError 
+        };
+      }
+      
+      if (hasClaimedChallenge) {
+        return { 
+          data: { 
+            success: false, 
+            message: `You have already claimed the reward for this challenge` 
+          }, 
+          error: null 
+        };
+      }
+      
+      // Apply Tesla's 3-6-9 pattern for streak bonuses
+      const { data: streak, error: streakError } = await this.getUserTokenStreak(userId, tokenId);
+      let bonusMultiplier = 1.0;
+      
+      if (!streakError && streak) {
+        // Apply Tesla's 3-6-9 pattern
+        if (streak % 9 === 0) {
+          bonusMultiplier = 3.0; // Triple bonus at multiples of 9
+        } else if (streak % 6 === 0) {
+          bonusMultiplier = 2.0; // Double bonus at multiples of 6
+        } else if (streak % 3 === 0) {
+          bonusMultiplier = 1.5; // 50% bonus at multiples of 3
+        }
+      }
+      
+      const adjustedAmount = amount * bonusMultiplier;
+      
+      // Check if this token is locked for the user
+      const { data: isLocked, error: lockCheckError } = 
+        await this.repository.isTokenLockedForUser(userId, tokenId);
+      
+      if (lockCheckError) {
+        console.error('Lock check error:', lockCheckError);
+        // Continue anyway, don't fail the whole operation
+      }
+      
+      let unlocked = false;
+      
+      // Mint the tokens
+      const { data: mintResult, error: mintError } = await this.mintTokens(
+        userId, 
+        tokenId, 
+        adjustedAmount, 
+        `Challenge reward: ${challengeId}`
+      );
+      
+      if (mintError || !mintResult.success) {
+        console.error('Mint error:', mintError);
+        return { 
+          data: { success: false, message: 'Failed to mint tokens' }, 
+          error: mintError 
+        };
+      }
+      
+      // Record the claim
+      const { error: recordError } = await this.repository.recordChallengeReward(
+        userId,
+        tokenId,
+        challengeId,
+        adjustedAmount,
+        bonusMultiplier > 1 ? `Streak bonus: x${bonusMultiplier}` : undefined
+      );
+      
+      if (recordError) {
+        console.error('Record challenge reward error:', recordError);
+        // Don't fail the whole operation if just the recording fails
+      }
+      
+      // Check if we need to unlock the token
+      if (isLocked) {
+        // Get user's total balance for this token
+        const { data: balance, error: balanceError } = 
+          await this.repository.getUserTokenBalance(userId, tokenId);
+        
+        if (!balanceError && balance >= 50) { // Threshold for unlocking
+          // Unlock the token
+          const { error: unlockError } = await this.repository.unlockTokenForUser(userId, tokenId);
+          
+          if (!unlockError) {
+            unlocked = true;
+          }
+        }
+      }
+      
+      // Update streak
+      await this.repository.updateTokenStreak(userId, tokenId);
+      
+      return { 
+        data: { 
+          success: true, 
+          message: bonusMultiplier > 1 
+            ? `Earned ${adjustedAmount} ${token.symbol} tokens with a x${bonusMultiplier} streak bonus!` 
+            : `Earned ${adjustedAmount} ${token.symbol} tokens!`,
+          transaction_id: mintResult.transaction_id,
+          unlocked
+        }, 
+        error: null 
+      };
+    } catch (error) {
+      console.error('Unexpected claim challenge reward error:', error);
+      return { 
+        data: { success: false, message: 'An unexpected error occurred while claiming reward' }, 
+        error: new TokenError('An unexpected error occurred while claiming reward', error) 
+      };
+    }
+  }
+
+  /**
+   * Get user token balances with additional information
+   * 
+   * @param userId - The ID of the user
+   * @returns A promise resolving to a TokenResult containing an array of TokenBalance objects
+   */
+  public async getUserTokenBalances(userId: string): Promise<TokenResult<TokenBalance[]>> {
+    try {
+      const { data: ownerships, error } = await this.repository.getUserTokens(userId);
+      
+      if (error) {
+        console.error('Get user token balances error:', error);
+        return { data: null, error };
+      }
+      
+      if (!ownerships || ownerships.length === 0) {
+        return { data: [], error: null };
+      }
+      
+      // Get token details for each ownership
+      const balances: TokenBalance[] = [];
+      
+      for (const ownership of ownerships) {
+        const { data: token, error: tokenError } = await this.repository.getTokenById(ownership.token_id);
+        
+        if (tokenError || !token) {
+          console.error(`Error fetching token ${ownership.token_id}:`, tokenError);
+          continue;
+        }
+        
+        balances.push({
+          token_id: token.id,
+          token_name: token.name,
+          token_symbol: token.symbol,
+          amount: ownership.amount,
+          is_locked: ownership.is_locked,
+          level: Math.floor(ownership.amount / 100) + 1, // Level increases every 100 tokens
+          last_claimed: ownership.last_claimed
+        });
+      }
+      
+      return { data: balances, error: null };
+    } catch (error) {
+      console.error('Unexpected get user token balances error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting user token balances', error) 
+      };
+    }
+  }
+
+  /**
+   * Get day name for a token symbol
+   * 
+   * @param tokenSymbol - The token symbol
+   * @returns The day name for the token
+   */
+  private getDayForToken(tokenSymbol: string): string {
+    switch (tokenSymbol) {
+      case 'SPD': return 'Sunday';
+      case 'SHE': return 'Monday';
+      case 'PSP': return 'Tuesday';
+      case 'SSA': return 'Wednesday';
+      case 'BSP': return 'Thursday';
+      case 'SGB': return 'Friday';
+      case 'SMS': return 'Saturday';
+      default: return 'Unknown day';
+    }
+  }
 }

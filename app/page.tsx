@@ -1,14 +1,21 @@
-"use server"
-
 import { Suspense } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { InviteForm } from "@/components/landing/invite-form"
 
-// Configure page options
-export const dynamic = 'force-static'
-export const config = {
-  revalidate: 3600 // Enable ISR with 1 hour revalidation
+// Next.js 15 page configuration
+export const generateStaticParams = async () => {
+  return []
 }
+
+export const generateMetadata = async () => {
+  return {
+    title: 'Avolve - Evolve into your highest potential',
+    description: 'A private community for extraordinary individuals'
+  }
+}
+
+// Set revalidation time (ISR)
+export const revalidate = 3600 // 1 hour
 
 export default async function Page() {
   // Track anonymous page view happens client-side in the InviteForm component

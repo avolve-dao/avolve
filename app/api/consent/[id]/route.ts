@@ -3,14 +3,17 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { Database } from '@/lib/database.types';
 
+/**
+ * GET handler for retrieving a specific consent record
+ */
 export async function GET(
-  request: NextRequest,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
-  const id = context.params.id;
-  const supabase = createRouteHandlerClient<Database>({ cookies });
-  
   try {
+    const supabase = createRouteHandlerClient<Database>({ cookies });
+    const id = params.id;
+    
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -49,14 +52,17 @@ export async function GET(
   }
 }
 
+/**
+ * PATCH handler for updating a consent record
+ */
 export async function PATCH(
-  request: NextRequest,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
-  const id = context.params.id;
-  const supabase = createRouteHandlerClient<Database>({ cookies });
-  
   try {
+    const supabase = createRouteHandlerClient<Database>({ cookies });
+    const id = params.id;
+    
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -68,7 +74,7 @@ export async function PATCH(
     }
     
     // Parse request body
-    const body = await request.json();
+    const body = await req.json();
     const { status, metadata } = body;
     
     // Validate required fields

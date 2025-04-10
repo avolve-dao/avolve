@@ -3,7 +3,7 @@
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Database } from '@/lib/database.types';
 
-export type ActivityActionType = 'page_view' | 'button_click' | 'form_submit' | 'feature_usage';
+export type ActivityActionType = 'page_view' | 'button_click' | 'form_submit' | 'feature_usage' | 'enter_invite_code' | 'select_journey' | 'accept_prime_law';
 
 export interface ActivityLogData {
   details?: Record<string, any>;
@@ -118,3 +118,15 @@ export class ActivityLogger {
 
 // Export a singleton instance
 export const activityLogger = new ActivityLogger();
+
+/**
+ * Convenience function for logging user activity
+ * @param data Activity data to log
+ * @returns Promise resolving to the result of the logging operation
+ */
+export const logUserActivity = (data: { action_type: ActivityActionType; details?: Record<string, any>; metadata?: Record<string, any> }): Promise<{ success: boolean; error?: any }> => {
+  return activityLogger.logActivity(data.action_type, {
+    details: data.details || {},
+    metadata: data.metadata || {},
+  });
+};

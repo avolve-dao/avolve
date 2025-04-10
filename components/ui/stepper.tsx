@@ -31,6 +31,119 @@ export interface StepperProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: 'default' | 'outline' | 'ghost';
 }
 
+// Add missing exports for the stepper components
+export interface StepProps extends React.HTMLAttributes<HTMLDivElement> {
+  status?: 'complete' | 'current' | 'upcoming';
+  children?: React.ReactNode;
+}
+
+export interface StepIndicatorProps extends React.HTMLAttributes<HTMLDivElement> {
+  status?: 'complete' | 'current' | 'upcoming';
+  children?: React.ReactNode;
+}
+
+export interface StepStatusProps extends React.HTMLAttributes<HTMLDivElement> {
+  status?: 'complete' | 'current' | 'upcoming';
+  children?: React.ReactNode;
+}
+
+export interface StepTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
+  children?: React.ReactNode;
+}
+
+export interface StepDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  children?: React.ReactNode;
+}
+
+export interface StepSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {
+  orientation?: 'horizontal' | 'vertical';
+}
+
+// Export the individual components
+export const Step = React.forwardRef<HTMLDivElement, StepProps>(
+  ({ className, status = 'upcoming', ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn('flex flex-col gap-1', className)}
+      data-status={status}
+      {...props}
+    />
+  )
+);
+Step.displayName = 'Step';
+
+export const StepIndicator = React.forwardRef<HTMLDivElement, StepIndicatorProps>(
+  ({ className, status = 'upcoming', children, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex h-8 w-8 items-center justify-center rounded-full',
+        status === 'complete' ? 'bg-primary text-primary-foreground' : 
+        status === 'current' ? 'border-2 border-primary bg-background text-primary' : 
+        'border border-muted bg-muted/40 text-muted-foreground',
+        className
+      )}
+      {...props}
+    >
+      {status === 'complete' ? <CheckIcon className="h-4 w-4" /> : children}
+    </div>
+  )
+);
+StepIndicator.displayName = 'StepIndicator';
+
+export const StepStatus = React.forwardRef<HTMLDivElement, StepStatusProps>(
+  ({ className, status = 'upcoming', ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'flex items-center gap-2',
+        status === 'complete' ? 'text-foreground' : 
+        status === 'current' ? 'font-medium text-foreground' : 
+        'text-muted-foreground',
+        className
+      )}
+      {...props}
+    />
+  )
+);
+StepStatus.displayName = 'StepStatus';
+
+export const StepTitle = React.forwardRef<HTMLHeadingElement, StepTitleProps>(
+  ({ className, ...props }, ref) => (
+    <h3
+      ref={ref}
+      className={cn('text-sm font-medium', className)}
+      {...props}
+    />
+  )
+);
+StepTitle.displayName = 'StepTitle';
+
+export const StepDescription = React.forwardRef<HTMLParagraphElement, StepDescriptionProps>(
+  ({ className, ...props }, ref) => (
+    <p
+      ref={ref}
+      className={cn('text-xs text-muted-foreground', className)}
+      {...props}
+    />
+  )
+);
+StepDescription.displayName = 'StepDescription';
+
+export const StepSeparator = React.forwardRef<HTMLDivElement, StepSeparatorProps>(
+  ({ className, orientation = 'horizontal', ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        orientation === 'horizontal' ? 'w-full border-t border-muted' : 'h-full border-l border-muted',
+        className
+      )}
+      {...props}
+    />
+  )
+);
+StepSeparator.displayName = 'StepSeparator';
+
 export function Stepper({
   steps,
   activeStep,

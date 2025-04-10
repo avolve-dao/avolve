@@ -4,7 +4,6 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { getRouteProtection } from "@/middleware/rbac-config"
 import { rbacMiddleware } from "@/middleware/rbac-middleware"
-import crypto from 'crypto'
 
 // Define auth routes that should be rate limited
 const AUTH_ROUTES = ["/auth/login", "/auth/sign-up", "/auth/forgot-password", "/api/auth/"]
@@ -33,9 +32,13 @@ const securityHeaders = {
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
 }
 
-// Generate a CSP nonce for each request
+// Generate a CSP nonce for each request using Web Crypto API
 function generateCspNonce() {
-  return Buffer.from(crypto.randomUUID()).toString('base64')
+  // Create a random array of 16 bytes
+  const randomBytes = new Uint8Array(16);
+  crypto.getRandomValues(randomBytes);
+  // Convert to base64 using btoa which is available in Edge Runtime
+  return btoa(String.fromCharCode.apply(null, [...randomBytes]));
 }
 
 // Generate Content Security Policy with nonce

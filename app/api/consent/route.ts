@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
  * GET /api/consent
  * 
  * Retrieves consent records for the authenticated user
+ * If consent_id is provided as a query parameter, retrieves a specific consent record
  */
 export async function GET(request: NextRequest) {
   try {
@@ -105,6 +106,31 @@ export async function GET(request: NextRequest) {
     
     // Parse query parameters
     const searchParams = request.nextUrl.searchParams;
+    const consentId = searchParams.get('consent_id');
+    
+    // If consent_id is provided, fetch a specific consent record
+    if (consentId) {
+      const { data, error } = await supabase
+        .from('user_consent')
+        .select('*')
+        .eq('consent_id', consentId)
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error || !data) {
+        return NextResponse.json(
+          { error: 'Not Found', message: 'Consent record not found' },
+          { status: 404 }
+        );
+      }
+      
+      return NextResponse.json({
+        success: true,
+        record: data
+      });
+    }
+    
+    // Otherwise, fetch all consent records with filters
     const interaction_type = searchParams.get('interaction_type');
     const status = searchParams.get('status');
     const from = searchParams.get('from');
@@ -148,6 +174,92 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       records: data
+    });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json(
+      { error: 'Server Error', message: 'An unexpected error occurred' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/consent
+ * 
+ * Updates a consent record (e.g., to revoke consent)
+ * Requires consent_id in the request body
+ */
+export async function PATCH(request: NextRequest) {
+  try {
+    const supabase = createRouteHandlerClient<Database>({ cookies });
+    
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'You must be logged in to update consent records' },
+        { status: 401 }
+      );
+    }
+    
+    // Parse request body
+    const body = await request.json();
+    const { consent_id, status, metadata } = body;
+    
+    // Validate required fields
+    if (!consent_id || !status) {
+      return NextResponse.json(
+        { error: 'Bad Request', message: 'Missing required fields: consent_id, status' },
+        { status: 400 }
+      );
+    }
+    
+    // Check if consent record exists and belongs to user
+    const { data: existingConsent, error: fetchError } = await supabase
+      .from('user_consent')
+      .select('user_id')
+      .eq('consent_id', consent_id)
+      .single();
+    
+    if (fetchError || !existingConsent) {
+      return NextResponse.json(
+        { error: 'Not Found', message: 'Consent record not found' },
+        { status: 404 }
+      );
+    }
+    
+    if (existingConsent.user_id !== user.id) {
+      return NextResponse.json(
+        { error: 'Forbidden', message: 'You can only update your own consent records' },
+        { status: 403 }
+      );
+    }
+    
+    // Update consent record
+    const updateData = {
+      status,
+      updated_at: new Date().toISOString(),
+      ...(metadata ? { metadata } : {})
+    };
+    
+    const { error: updateError } = await supabase
+      .from('user_consent')
+      .update(updateData)
+      .eq('consent_id', consent_id);
+    
+    if (updateError) {
+      console.error('Error updating consent record:', updateError);
+      return NextResponse.json(
+        { error: 'Database Error', message: 'Failed to update consent record' },
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Consent record updated successfully'
     });
   } catch (error) {
     console.error('Unexpected error:', error);

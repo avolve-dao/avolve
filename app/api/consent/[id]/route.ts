@@ -3,18 +3,63 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { Database } from '@/lib/database.types';
 
-/**
- * PATCH /api/consent/:id
- * 
- * Updates a consent record (e.g., to revoke consent)
- */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+// Define the context type for dynamic routes
+type Context = {
+  params: {
+    id: string;
+  };
+};
+
+// GET handler for retrieving a specific consent record
+export async function GET(request: NextRequest, context: Context) {
+  const id = context.params.id;
+  const supabase = createRouteHandlerClient<Database>({ cookies });
+  
   try {
-    const supabase = createRouteHandlerClient<Database>({ cookies });
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized', message: 'You must be logged in to view consent records' },
+        { status: 401 }
+      );
+    }
+    
+    // Fetch the consent record
+    const { data, error } = await supabase
+      .from('user_consent')
+      .select('*')
+      .eq('consent_id', id)
+      .eq('user_id', user.id)
+      .single();
+    
+    if (error || !data) {
+      return NextResponse.json(
+        { error: 'Not Found', message: 'Consent record not found' },
+        { status: 404 }
+      );
+    }
+    
+    return NextResponse.json({
+      success: true,
+      record: data
+    });
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return NextResponse.json(
+      { error: 'Server Error', message: 'An unexpected error occurred' },
+      { status: 500 }
+    );
+  }
+}
+
+// PATCH handler for updating a consent record
+export async function PATCH(request: NextRequest, context: Context) {
+  const id = context.params.id;
+  const supabase = createRouteHandlerClient<Database>({ cookies });
+  
+  try {
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
@@ -37,14 +82,11 @@ export async function PATCH(
       );
     }
     
-    // Get consent ID from URL params
-    const consentId = params.id;
-    
     // Check if consent record exists and belongs to user
     const { data: existingConsent, error: fetchError } = await supabase
       .from('user_consent')
       .select('user_id')
-      .eq('consent_id', consentId)
+      .eq('consent_id', id)
       .single();
     
     if (fetchError || !existingConsent) {
@@ -62,19 +104,16 @@ export async function PATCH(
     }
     
     // Update consent record
-    const updateData: any = {
+    const updateData = {
       status,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      ...(metadata ? { metadata } : {})
     };
-    
-    if (metadata) {
-      updateData.metadata = metadata;
-    }
     
     const { error: updateError } = await supabase
       .from('user_consent')
       .update(updateData)
-      .eq('consent_id', consentId);
+      .eq('consent_id', id);
     
     if (updateError) {
       console.error('Error updating consent record:', updateError);

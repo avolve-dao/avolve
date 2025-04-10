@@ -2,12 +2,13 @@
 
 import { createServerClient } from '@supabase/ssr'
 import { Database } from '@/lib/database.types'
+import { env } from '@/lib/env'
 
 // For pages directory and other non-app directory environments
 export function createPagesClient() {
   return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+    env.SUPABASE_URL,
+    env.SUPABASE_ANON_KEY,
     {
       cookies: {
         get: (name) => undefined,
@@ -27,8 +28,8 @@ export function createServerComponentClient() {
     const cookieStore = cookies()
     
     return createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+      env.SUPABASE_URL,
+      env.SUPABASE_ANON_KEY,
       {
         cookies: {
           get: (name) => {

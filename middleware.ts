@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { getRouteProtection } from "@/middleware/rbac-config"
 import { rbacMiddleware } from "@/middleware/rbac-middleware"
+import crypto from 'crypto'
 
 // Define auth routes that should be rate limited
 const AUTH_ROUTES = ["/auth/login", "/auth/sign-up", "/auth/forgot-password", "/api/auth/"]
@@ -30,18 +31,29 @@ const securityHeaders = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
   "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
-  "Content-Security-Policy": `
+}
+
+// Generate a CSP nonce for each request
+function generateCspNonce() {
+  return Buffer.from(crypto.randomUUID()).toString('base64')
+}
+
+// Generate Content Security Policy with nonce
+function generateCsp(nonce: string) {
+  return `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
-    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    script-src 'self' 'nonce-${nonce}' https://cdn.jsdelivr.net;
+    style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com;
     img-src 'self' data: blob: https://*.supabase.co;
     font-src 'self' https://fonts.gstatic.com;
     connect-src 'self' https://*.supabase.co wss://*.supabase.co;
     frame-src 'self';
     object-src 'none';
-  `
-    .replace(/\s+/g, " ")
-    .trim(),
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'self';
+    upgrade-insecure-requests;
+  `.replace(/\s+/g, " ").trim()
 }
 
 // Cache for rate limiting results to avoid recalculating for the same IP
@@ -91,6 +103,11 @@ export async function middleware(request: NextRequest) {
       response.headers.set(key, value)
     })
     
+    // Generate CSP nonce
+    const nonce = generateCspNonce()
+    response.headers.set("Content-Security-Policy", generateCsp(nonce))
+    response.headers.set("X-Nonce", nonce)
+    
     return response
   }
 
@@ -133,7 +150,12 @@ export async function middleware(request: NextRequest) {
       Object.entries(securityHeaders).forEach(([key, value]) => {
         response.headers.set(key, value)
       })
-
+      
+      // Generate CSP nonce
+      const nonce = generateCspNonce()
+      response.headers.set("Content-Security-Policy", generateCsp(nonce))
+      response.headers.set("X-Nonce", nonce)
+      
       return response
     }
   }
@@ -149,6 +171,12 @@ export async function middleware(request: NextRequest) {
       Object.entries(securityHeaders).forEach(([key, value]) => {
         rbacResponse.headers.set(key, value)
       })
+      
+      // Generate CSP nonce
+      const nonce = generateCspNonce()
+      rbacResponse.headers.set("Content-Security-Policy", generateCsp(nonce))
+      rbacResponse.headers.set("X-Nonce", nonce)
+      
       return rbacResponse
     }
   }
@@ -160,7 +188,12 @@ export async function middleware(request: NextRequest) {
   Object.entries(securityHeaders).forEach(([key, value]) => {
     response.headers.set(key, value)
   })
-
+  
+  // Generate CSP nonce
+  const nonce = generateCspNonce()
+  response.headers.set("Content-Security-Policy", generateCsp(nonce))
+  response.headers.set("X-Nonce", nonce)
+  
   return response
 }
 

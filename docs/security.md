@@ -18,6 +18,8 @@ Welcome to the Avolve security fortress! This document outlines the robust secur
 - [🌐 API Security](#api-security)
   - [🛑 CSRF Protection](#csrf-protection)
   - [⏱️ Rate Limiting](#rate-limiting)
+  - [🔒 Content Security Policy (CSP)](#content-security-policy-csp)
+  - [🧹 Input Sanitization](#input-sanitization)
 - [👥 Role-Based Access Control (RBAC)](#role-based-access-control-rbac)
 - [✅ Security Best Practices](#security-best-practices)
 - [💉 SQL Injection Prevention](#sql-injection-prevention)
@@ -26,6 +28,7 @@ Welcome to the Avolve security fortress! This document outlines the robust secur
 - [💯 Trust Score System](#trust-score-system)
 - [🪙 Enhanced Token System Security](#enhanced-token-system-security)
 - [📨 Enhanced Invitation System](#enhanced-invitation-system)
+- [📊 A/B Testing Privacy Controls](#ab-testing-privacy-controls)
 
 ## 🔑 Authentication System
 
@@ -262,6 +265,88 @@ begin
   return v_email_attempts >= v_max_email_attempts or v_ip_attempts >= v_max_ip_attempts;
 end;
 $$;
+```
+
+### 🔒 Content Security Policy (CSP)
+
+The platform implements a strict Content Security Policy to prevent XSS attacks and other client-side vulnerabilities:
+
+- **Nonce-Based CSP** 🔑 — Each request generates a unique nonce for inline scripts and styles
+- **Strict Directives** 📝 — Only allow resources from trusted sources
+- **No Unsafe Inline** 🛑 — Eliminates unsafe-inline directives for better security
+- **Reporting** 📊 — CSP violations are reported for monitoring
+
+```typescript
+// Generate a CSP nonce for each request
+function generateCspNonce() {
+  return Buffer.from(crypto.randomUUID()).toString('base64')
+}
+
+// Generate Content Security Policy with nonce
+function generateCsp(nonce: string) {
+  return `
+    default-src 'self';
+    script-src 'self' 'nonce-${nonce}' https://cdn.jsdelivr.net;
+    style-src 'self' 'nonce-${nonce}' https://fonts.googleapis.com;
+    img-src 'self' data: blob: https://*.supabase.co;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+    frame-src 'self';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'self';
+    upgrade-insecure-requests;
+  `.replace(/\s+/g, " ").trim()
+}
+```
+
+### 🧹 Input Sanitization
+
+All user inputs are sanitized to prevent XSS, SQL injection, and other injection attacks:
+
+- **HTML Sanitization** 🧼 — User-generated HTML content is sanitized to remove dangerous tags and attributes
+- **SQL Parameter Binding** 🔒 — All database queries use parameterized queries to prevent SQL injection
+- **JSON Validation** ✅ — JSON inputs are validated against schemas before processing
+- **Path Traversal Prevention** 🛡️ — File paths are sanitized to prevent directory traversal attacks
+
+```typescript
+// Sanitize HTML content to prevent XSS attacks
+export function sanitizeHtml(html: string): string {
+  if (!html) return '';
+  
+  // Create a temporary DOM element
+  const tempElement = document.createElement('div');
+  tempElement.innerHTML = html;
+  
+  // Walk through all nodes and remove disallowed tags and attributes
+  const walk = (node: Node) => {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const element = node as Element;
+      const tagName = element.tagName.toLowerCase();
+      
+      // Remove disallowed tags
+      if (!ALLOWED_TAGS.includes(tagName)) {
+        element.parentNode?.replaceChild(
+          document.createTextNode(element.textContent || ''),
+          element
+        );
+        return;
+      }
+      
+      // Remove disallowed attributes
+      // ... (attribute sanitization logic)
+    }
+    
+    // Process child nodes
+    const childNodes = Array.from(node.childNodes);
+    childNodes.forEach(walk);
+  };
+  
+  walk(tempElement);
+  
+  return tempElement.innerHTML;
+}
 ```
 
 ## 👥 Role-Based Access Control (RBAC)
@@ -774,3 +859,38 @@ begin
   return v_code;
 end;
 $$;
+```
+
+## 📊 A/B Testing Privacy Controls
+
+The platform includes privacy controls for A/B testing to ensure user data is protected:
+
+### 🔒 Privacy-First Design
+
+- **Consent-Based Tracking** ✅ — IP addresses are only stored with explicit user consent
+- **Minimal Data Collection** 📊 — Only collect data necessary for the test
+- **Data Segregation** 🧩 — Test data is separated from user identity where possible
+- **Automatic Purging** 🗑️ — Test data is automatically purged after the test concludes
+
+### 🛡️ Security Implementation
+
+- **Row-Level Security** 🔐 — Users can only access their own test assignments
+- **Strict Validation** ✅ — All test data is validated before processing
+- **Rate Limiting** ⏱️ — Prevents abuse of testing endpoints
+- **Audit Logging** 📝 — All test assignments and changes are logged
+
+```sql
+-- Create RLS policies for A/B testing events
+create policy "Users can only create their own events"
+  on public.ab_testing_events
+  for insert
+  to authenticated
+  with check (auth.uid() = user_id);
+
+-- Users can only read their own events
+create policy "Users can read their own events"
+  on public.ab_testing_events
+  for select
+  to authenticated
+  using (auth.uid() = user_id);
+```

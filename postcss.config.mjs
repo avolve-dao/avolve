@@ -2,6 +2,26 @@
 const config = {
   plugins: {
     tailwindcss: {},
+    autoprefixer: {},
+    // Only use cssnano if it's already installed
+    ...(process.env.NODE_ENV === 'production' && 
+      (() => {
+        try {
+          require.resolve('cssnano');
+          return { 
+            cssnano: {
+              preset: ['default', {
+                discardComments: {
+                  removeAll: true,
+                },
+              }],
+            }
+          };
+        } catch (e) {
+          return {};
+        }
+      })()
+    )
   },
 };
 

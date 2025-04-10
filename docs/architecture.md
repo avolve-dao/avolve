@@ -63,7 +63,7 @@ Avolve follows a modern web application architecture with the following key comp
 │  ┌─────────┐     ┌─────────┐   │
 │  │PostgreSQL│     │  Auth   │   │
 │  │ Database │     │ Service │   │
-│  └─────────┘     └─────────┘   │
+│  └─────────┘     └───────────┘  │
 │                                 │
 └─────────────────────────────────┘
 ```
@@ -242,6 +242,335 @@ The authentication flow uses Supabase Auth with the following pattern:
 2. Supabase client processes authentication request
 3. On success, session is stored in cookies
 4. Server-side components can access the authenticated session
+
+## Governance and Consent Architecture
+
+The Avolve platform implements a comprehensive governance and consent system that adheres to The Prime Law's principles of voluntary participation. This section outlines the technical implementation of these features.
+
+### Governance System Components
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant NextJS as Next.js Frontend
+    participant API as API Routes
+    participant Supabase as Supabase Database
+    participant PsibaseSim as Psibase Simulator
+    participant SmartContract as Future Psibase
+
+    Note over User,Supabase: Current Implementation
+    
+    alt Create Proposal
+        User->>NextJS: Create proposal
+        NextJS->>API: Request consent
+        API->>User: Prompt for explicit consent
+        User->>API: Provide consent
+        API->>Supabase: Record consent
+        API->>Supabase: Store proposal
+        Supabase-->>API: Confirm proposal created
+        API-->>NextJS: Return proposal details
+        NextJS-->>User: Display confirmation
+    end
+    
+    alt Vote on Proposal
+        User->>NextJS: Vote on proposal
+        NextJS->>API: Request consent
+        API->>User: Prompt for explicit consent
+        User->>API: Provide consent
+        API->>Supabase: Record consent
+        NextJS->>API: Record vote
+        API->>Supabase: Store vote with weight
+        Supabase-->>API: Confirm vote recorded
+        API-->>NextJS: Update vote count
+        NextJS-->>User: Display updated status
+    end
+    
+    alt Current: Simulated Blockchain
+        Note over User,PsibaseSim: Psibase Simulation
+        User->>NextJS: Submit governance action
+        NextJS->>API: Request consent
+        API->>User: Prompt for explicit consent
+        User->>API: Provide consent
+        API->>Supabase: Record consent
+        API->>PsibaseSim: Validate transaction
+        PsibaseSim->>PsibaseSim: Check Prime Law compliance
+        PsibaseSim->>API: Return validation result
+        API->>Supabase: Store simulated transaction
+        API-->>NextJS: Return transaction result
+        NextJS-->>User: Display confirmation
+    end
+    
+    alt Future: On-chain Governance
+        Note over User,SmartContract: Future Psibase Integration
+        User->>NextJS: Submit on-chain action
+        NextJS->>API: Record consent
+        API->>Supabase: Store consent record
+        NextJS->>SmartContract: Submit transaction
+        SmartContract-->>NextJS: Confirm transaction
+        NextJS-->>User: Display confirmation
+    end
+```
+
+### Technical Implementation
+
+#### 1. Governance Dashboard Component
+
+The Governance Dashboard (`app/governance/governance-dashboard.tsx`) is a client-side React component that:
+
+- Displays active, approved, and rejected proposals
+- Provides interfaces for creating proposals and voting
+- Implements consent checkboxes for all governance actions
+- Uses the `useGovernance` hook for data fetching and mutations
+
+#### 2. Consent History Component
+
+The Consent History component (`app/governance/consent-history.tsx`) allows users to:
+
+- View their consent records with filtering options
+- Manage their consent status (e.g., revoke consent)
+- Download their consent history for record-keeping
+
+#### 3. API Endpoints
+
+The platform implements several API endpoints for governance and consent:
+
+- `/api/governance/proposals`: CRUD operations for proposals
+- `/api/governance/votes`: Managing votes on proposals
+- `/api/consent`: Recording and retrieving consent records
+
+#### 4. Database Schema
+
+The governance and consent features rely on the following database tables:
+
+- `petitions`: Stores proposal data including title, description, status
+- `votes`: Records votes on petitions with user ID and vote weight
+- `user_consent`: Tracks all consent records with detailed terms and metadata
+
+#### 5. Service Layer
+
+The governance and consent features are implemented through several services:
+
+- `GovernanceService`: Manages proposal creation, voting, and status updates
+- `TokenService`: Handles token operations with consent checks
+- `ConsentService`: Records and verifies user consent for various actions
+
+### Consent Flow
+
+The consent flow follows these steps:
+
+1. **Request Consent**: User is presented with consent terms before an action
+2. **Record Consent**: Upon approval, consent is recorded with detailed terms
+3. **Verify Consent**: Before executing an action, consent is verified
+4. **Execute Action**: The requested action is performed only after consent verification
+5. **Audit Trail**: All consent actions are recorded for transparency
+
+### Integration with Token System
+
+The governance system integrates with the token system in several ways:
+
+- **Eligibility Checks**: Token balances determine eligibility for proposal creation
+- **Voting Weight**: Token holdings influence voting power
+- **Reward Distribution**: Governance participation may be rewarded with tokens
+- **Consent for Transfers**: Token transfers require explicit consent
+
+### Future Architecture: Psibase Integration
+
+The current architecture is designed to facilitate future integration with Psibase blockchain:
+
+- **Hybrid Approach**: Maintaining off-chain governance with on-chain execution
+- **Consent Bridge**: Ensuring consent records are maintained across systems
+- **Transaction Signing**: Adding cryptographic signatures to consent records
+- **State Synchronization**: Keeping on-chain and off-chain state in sync
+
+## Simulating Smart Contracts
+
+The Avolve platform implements a simulation layer for blockchain functionality to prepare for future integration with Psibase while maintaining compliance with The Prime Law principles.
+
+### Psibase Simulator
+
+The Psibase Simulator (`lib/psibase/PsibaseSimulator.ts`) provides a way to validate and process governance transactions in a manner that mimics how they would be handled on a blockchain:
+
+```typescript
+export class PsibaseSimulator {
+  private supabase: SupabaseClient;
+  
+  constructor(supabase: SupabaseClient) {
+    this.supabase = supabase;
+  }
+  
+  async validateTransaction(transaction: PsibaseTransaction): Promise<ValidationResult> {
+    // Check for required consent
+    const consentResult = await this.verifyConsent(transaction.userId, transaction.action);
+    if (!consentResult.valid) {
+      return {
+        valid: false,
+        error: 'Transaction violates The Prime Law: Missing explicit consent',
+        details: consentResult.details
+      };
+    }
+    
+    // Validate transaction based on action type
+    switch (transaction.action) {
+      case 'create_proposal':
+        return this.validateProposalCreation(transaction);
+      case 'vote':
+        return this.validateVote(transaction);
+      default:
+        return {
+          valid: false,
+          error: `Unknown action type: ${transaction.action}`,
+          details: null
+        };
+    }
+  }
+  
+  async processTransaction(transaction: PsibaseTransaction): Promise<TransactionResult> {
+    // First validate the transaction
+    const validationResult = await this.validateTransaction(transaction);
+    if (!validationResult.valid) {
+      return {
+        success: false,
+        error: validationResult.error,
+        transactionId: null
+      };
+    }
+    
+    // Record the transaction in the database
+    const { data, error } = await this.supabase
+      .from('psibase_transactions')
+      .insert({
+        user_id: transaction.userId,
+        action: transaction.action,
+        payload: transaction.payload,
+        status: 'confirmed',
+        metadata: {
+          simulation_time: new Date().toISOString(),
+          validation_result: validationResult
+        }
+      })
+      .select('id')
+      .single();
+      
+    if (error) {
+      return {
+        success: false,
+        error: 'Failed to record transaction',
+        transactionId: null
+      };
+    }
+    
+    // Process the transaction based on action type
+    switch (transaction.action) {
+      case 'create_proposal':
+        return this.processProposalCreation(transaction, data.id);
+      case 'vote':
+        return this.processVote(transaction, data.id);
+      default:
+        return {
+          success: false,
+          error: `Unknown action type: ${transaction.action}`,
+          transactionId: data.id
+        };
+    }
+  }
+}
+```
+
+### API Integration
+
+The Psibase Simulator is integrated through a dedicated API route (`app/api/psibase/route.ts`):
+
+```typescript
+import { NextRequest, NextResponse } from 'next/server';
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+import { PsibaseSimulator } from '@/lib/psibase/PsibaseSimulator';
+
+export async function POST(req: NextRequest) {
+  try {
+    const supabase = createRouteHandlerClient({ cookies });
+    
+    // Verify authentication
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    // Parse the transaction request
+    const body = await req.json();
+    const transaction = {
+      userId: user.id,
+      action: body.action,
+      payload: body.payload
+    };
+    
+    // Process the transaction
+    const simulator = new PsibaseSimulator(supabase);
+    const result = await simulator.processTransaction(transaction);
+    
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error('Error processing Psibase transaction:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Database Structure
+
+The simulation uses a `psibase_transactions` table to store transaction records:
+
+```sql
+create table public.psibase_transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  action text not null,
+  payload jsonb not null,
+  status text not null,
+  metadata jsonb,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+
+-- Add indexes for performance
+create index idx_psibase_transactions_user_id on public.psibase_transactions(user_id);
+create index idx_psibase_transactions_action on public.psibase_transactions(action);
+create index idx_psibase_transactions_status on public.psibase_transactions(status);
+
+-- Add RLS policies
+alter table public.psibase_transactions enable row level security;
+
+-- Users can view their own transactions
+create policy "Users can view their own transactions"
+on public.psibase_transactions
+for select using (user_id = auth.uid());
+```
+
+### Prime Law Compliance
+
+The Psibase Simulator enforces The Prime Law principles by:
+
+1. **Verifying Explicit Consent**: Every transaction requires explicit consent records
+2. **Validating Transaction Rules**: Ensuring transactions follow governance rules
+3. **Maintaining Transparency**: Recording all transaction details for audit
+4. **Providing Feedback**: Returning clear validation results to users
+
+### Future Psibase Integration
+
+This simulation layer prepares the platform for future integration with Psibase by:
+
+1. **Mimicking Blockchain Behavior**: Using similar validation and transaction patterns
+2. **Maintaining Compatibility**: Structuring data in a way that can be migrated to blockchain
+3. **Enforcing Consent**: Establishing consent patterns that will translate to on-chain governance
+4. **Building User Familiarity**: Getting users accustomed to blockchain-like interactions
+
+When the platform transitions to actual Psibase integration, the simulation layer will be replaced with real blockchain interactions, but the user experience and consent mechanisms will remain consistent.
 
 ## Data Flow
 

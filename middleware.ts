@@ -17,6 +17,10 @@ const STATIC_ASSET_PATTERNS = [
   /^\/api\/health$/,
 ]
 
+// Define onboarding A/B test variants
+const AB_TEST_COOKIE = 'avolve-onboarding-variant'
+const AB_VARIANTS = ['A', 'B'] // A = streamlined (2-step), B = original (4-step)
+
 // Define security headers
 const securityHeaders = {
   "X-DNS-Prefetch-Control": "on",
@@ -54,6 +58,40 @@ export async function middleware(request: NextRequest) {
   // Skip middleware for auth callback routes to prevent interference with the auth flow
   if (request.nextUrl.pathname.startsWith("/auth/callback")) {
     return NextResponse.next()
+  }
+  
+  // Handle A/B testing for onboarding flow
+  if (url === '/onboarding') {
+    // Get or set A/B test variant
+    let response = NextResponse.next()
+    let variant = request.cookies.get(AB_TEST_COOKIE)?.value
+    
+    // If no variant is set, randomly assign one
+    if (!variant || !AB_VARIANTS.includes(variant)) {
+      variant = AB_VARIANTS[Math.floor(Math.random() * AB_VARIANTS.length)]
+      response.cookies.set(AB_TEST_COOKIE, variant, { 
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+        path: '/' 
+      })
+    }
+    
+    // For variant B (original), redirect to the original onboarding flow
+    if (variant === 'B') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding/original'
+      response = NextResponse.redirect(url)
+    }
+    
+    // Add analytics headers to track the variant
+    response.headers.set('x-avolve-ab-variant', variant)
+    
+    // Update session and add security headers
+    response = await updateSession(request)
+    Object.entries(securityHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value)
+    })
+    
+    return response
   }
 
   // Apply rate limiting to auth routes

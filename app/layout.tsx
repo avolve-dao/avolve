@@ -5,6 +5,8 @@ import { RouteTransitionProvider } from "@/components/route-transition-provider"
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider"
 import { FeaturesProvider } from "@/components/Features/FeaturesProvider"
 import AnalyticsProvider from "@/lib/analytics/analytics-provider"
+import QueryProvider from '@/providers/QueryProvider';
+import { GovernanceActionFeedback } from '@/components/Governance/GovernanceActionFeedback';
 import "@/styles/globals.css"
 import { Inter } from "next/font/google"
 
@@ -34,16 +36,19 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <FeaturesProvider>
-            <OnboardingProvider>
-              <RouteTransitionProvider>
-                <AnalyticsProvider>
-                  {children}
-                </AnalyticsProvider>
-              </RouteTransitionProvider>
-            </OnboardingProvider>
-          </FeaturesProvider>
-          <Toaster />
+          <QueryProvider>
+            <FeaturesProvider>
+              <OnboardingProvider>
+                <RouteTransitionProvider>
+                  <AnalyticsProvider>
+                    {children}
+                  </AnalyticsProvider>
+                </RouteTransitionProvider>
+              </OnboardingProvider>
+            </FeaturesProvider>
+            <GovernanceActionFeedback />
+            <Toaster />
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

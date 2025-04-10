@@ -1,3 +1,19 @@
+/**
+ * @file next.config.js
+ * @description Production-optimized Next.js configuration for the Avolve platform.
+ * 
+ * This file contains performance optimizations and production-specific settings.
+ * It works in conjunction with next.config.mjs, which handles configuration loading.
+ * 
+ * Key features:
+ * - Performance optimizations for production builds
+ * - Image optimization settings
+ * - Webpack customizations for better caching and code splitting
+ * - TypeScript type checking enforcement for code quality
+ * 
+ * @see next.config.mjs - For configuration loading logic
+ */
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -14,6 +30,14 @@ const nextConfig = {
     optimizeCss: true,
     // Enable memory optimizations
     memoryBasedWorkersCount: true,
+    // Enable edge runtime for API routes
+    runtime: 'edge',
+    // Enable font optimization
+    optimizeFonts: true,
+    // Enable app directory features
+    appDir: true,
+    // Enable server components
+    serverComponents: true,
   },
   // Enable SWC minification for faster builds
   swcMinify: true,
@@ -22,13 +46,10 @@ const nextConfig = {
     domains: ['avatars.githubusercontent.com', 'lh3.googleusercontent.com'],
     formats: ['image/avif', 'image/webp'],
   },
-  // Disable TypeScript checking during build to avoid type errors
+  // Enable TypeScript checking during build to ensure code quality
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
-    ignoreBuildErrors: true,
+    // Enable type checking to catch errors early
+    ignoreBuildErrors: false,
   },
   // Configure webpack for better performance
   webpack: (config, { dev, isServer }) => {

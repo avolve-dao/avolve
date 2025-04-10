@@ -4,7 +4,7 @@
  * These tests verify that the Tesla 3-6-9 streak bonus pattern works correctly
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 
 /**
  * Calculate streak bonus multiplier based on Tesla's 3-6-9 pattern

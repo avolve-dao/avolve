@@ -3,11 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { HumanVerification } from '@/components/verification/HumanVerification'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/ui/use-toast'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock dependencies
-jest.mock('@/lib/supabase/client')
-jest.mock('@/components/ui/use-toast')
-jest.mock('@/components/verification/CommunityPuzzle', () => ({
+vi.mock('@/lib/supabase/client')
+vi.mock('@/components/ui/use-toast')
+vi.mock('@/components/verification/CommunityPuzzle', () => ({
   CommunityPuzzle: ({ onComplete }: any) => (
     <div data-testid="community-puzzle">
       <button onClick={() => onComplete(25, { type: 'puzzle' })}>
@@ -16,7 +17,7 @@ jest.mock('@/components/verification/CommunityPuzzle', () => ({
     </div>
   )
 }))
-jest.mock('@/components/verification/PatternChallenge', () => ({
+vi.mock('@/components/verification/PatternChallenge', () => ({
   PatternChallenge: ({ onComplete }: any) => (
     <div data-testid="pattern-challenge">
       <button onClick={() => onComplete(25, { type: 'pattern' })}>
@@ -25,7 +26,7 @@ jest.mock('@/components/verification/PatternChallenge', () => ({
     </div>
   )
 }))
-jest.mock('@/components/verification/ImageVerification', () => ({
+vi.mock('@/components/verification/ImageVerification', () => ({
   ImageVerification: ({ onComplete }: any) => (
     <div data-testid="image-verification">
       <button onClick={() => onComplete(25, { type: 'image' })}>
@@ -37,41 +38,41 @@ jest.mock('@/components/verification/ImageVerification', () => ({
 
 describe('HumanVerification Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Mock useToast
-    ;(useToast as jest.Mock).mockReturnValue({
-      toast: jest.fn()
+    ;(useToast as any).mockReturnValue({
+      toast: vi.fn()
     })
     
     // Default Supabase mock implementation
     const mockSupabase = {
-      from: jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
             data: null,
             error: { code: 'PGRST116' } // No data found error
           })
         }),
-        upsert: jest.fn().mockReturnValue({
-          select: jest.fn().mockResolvedValue({
+        upsert: vi.fn().mockReturnValue({
+          select: vi.fn().mockResolvedValue({
             data: [{ is_verified: false }],
             error: null
           })
         }),
-        insert: jest.fn().mockResolvedValue({
+        insert: vi.fn().mockResolvedValue({
           data: null,
           error: null
         })
       }),
       auth: {
-        getUser: jest.fn().mockResolvedValue({
+        getUser: vi.fn().mockResolvedValue({
           data: { user: { id: 'test-user-id' } },
           error: null
         })
       }
     }
-    ;(createClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(createClient as any).mockReturnValue(mockSupabase)
   })
   
   it('renders the verification component in pending state', async () => {
@@ -97,18 +98,18 @@ describe('HumanVerification Component', () => {
   it('renders completed state when user is already verified', async () => {
     // Mock Supabase to return verified user
     const mockSupabase = {
-      from: jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          single: jest.fn().mockResolvedValue({
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({
             data: { is_verified: true },
             error: null
           })
         })
       })
     }
-    ;(createClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(createClient as any).mockReturnValue(mockSupabase)
     
-    const onVerificationCompleteMock = jest.fn()
+    const onVerificationCompleteMock = vi.fn()
     render(<HumanVerification onVerificationComplete={onVerificationCompleteMock} />)
     
     await waitFor(() => {
@@ -143,7 +144,7 @@ describe('HumanVerification Component', () => {
   })
   
   it('completes verification when score reaches required level', async () => {
-    const onVerificationCompleteMock = jest.fn()
+    const onVerificationCompleteMock = vi.fn()
     render(<HumanVerification onVerificationComplete={onVerificationCompleteMock} requiredScore={75} />)
     
     // Complete multiple challenges to reach required score
@@ -174,13 +175,13 @@ describe('HumanVerification Component', () => {
   it('handles Supabase errors gracefully', async () => {
     // Mock Supabase to return an error
     const mockSupabase = {
-      from: jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          single: jest.fn().mockRejectedValue(new Error('Database error'))
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockRejectedValue(new Error('Database error'))
         })
       })
     }
-    ;(createClient as jest.Mock).mockReturnValue(mockSupabase)
+    ;(createClient as any).mockReturnValue(mockSupabase)
     
     render(<HumanVerification />)
     
@@ -200,13 +201,19 @@ describe('HumanVerification Component', () => {
     // Switch to pattern challenge
     fireEvent.click(screen.getByRole('tab', { name: /pattern/i }))
     
-    expect(screen.getByTestId('pattern-challenge')).toBeInTheDocument()
-    expect(screen.queryByTestId('community-puzzle')).not.toBeInTheDocument()
+    // Wait for the pattern challenge to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('pattern-challenge')).toBeInTheDocument()
+      expect(screen.queryByTestId('community-puzzle')).not.toBeInTheDocument()
+    })
     
     // Switch to image verification
     fireEvent.click(screen.getByRole('tab', { name: /image/i }))
     
-    expect(screen.getByTestId('image-verification')).toBeInTheDocument()
-    expect(screen.queryByTestId('pattern-challenge')).not.toBeInTheDocument()
+    // Wait for the image verification to appear
+    await waitFor(() => {
+      expect(screen.getByTestId('image-verification')).toBeInTheDocument()
+      expect(screen.queryByTestId('pattern-challenge')).not.toBeInTheDocument()
+    })
   })
 })

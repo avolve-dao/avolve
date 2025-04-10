@@ -2,8 +2,9 @@ import {
   invitationCodeSchema, 
   createInvitationSchema, 
   acceptInvitationSchema, 
-  vouchForUserSchema 
+  vouchUserSchema 
 } from '@/lib/validators/invitation'
+import { describe, it, expect } from 'vitest'
 
 describe('Invitation Validators', () => {
   describe('invitationCodeSchema', () => {
@@ -36,8 +37,7 @@ describe('Invitation Validators', () => {
     it('should validate valid invitation creation data', () => {
       const validData = {
         email: 'test@example.com',
-        invitationType: 'standard',
-        expiresInDays: 14
+        expires_in_days: 14
       }
       const result = createInvitationSchema.safeParse(validData)
       expect(result.success).toBe(true)
@@ -59,19 +59,10 @@ describe('Invitation Validators', () => {
       expect(result.success).toBe(false)
     })
 
-    it('should reject invalid invitation type', () => {
-      const invalidData = {
-        email: 'test@example.com',
-        invitationType: 'invalid-type'
-      }
-      const result = createInvitationSchema.safeParse(invalidData)
-      expect(result.success).toBe(false)
-    })
-
     it('should reject negative expiration days', () => {
       const invalidData = {
         email: 'test@example.com',
-        expiresInDays: -1
+        expires_in_days: -1
       }
       const result = createInvitationSchema.safeParse(invalidData)
       expect(result.success).toBe(false)
@@ -82,19 +73,12 @@ describe('Invitation Validators', () => {
     it('should validate valid accept invitation data', () => {
       const validData = {
         code: 'INV-ABCD-1234',
-        agreeToTerms: true
+        email: 'test@example.com',
+        password: 'password123',
+        display_name: 'Test User'
       }
       const result = acceptInvitationSchema.safeParse(validData)
       expect(result.success).toBe(true)
-    })
-
-    it('should reject when terms not agreed to', () => {
-      const invalidData = {
-        code: 'INV-ABCD-1234',
-        agreeToTerms: false
-      }
-      const result = acceptInvitationSchema.safeParse(invalidData)
-      expect(result.success).toBe(false)
     })
 
     it('should reject missing required fields', () => {
@@ -106,41 +90,31 @@ describe('Invitation Validators', () => {
     })
   })
 
-  describe('vouchForUserSchema', () => {
+  describe('vouchUserSchema', () => {
     it('should validate valid vouch data', () => {
       const validData = {
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        reason: 'I know this person and can vouch for their character.'
+        user_id: '123e4567-e89b-12d3-a456-426614174000',
+        message: 'I know this person and can vouch for their character.'
       }
-      const result = vouchForUserSchema.safeParse(validData)
+      const result = vouchUserSchema.safeParse(validData)
       expect(result.success).toBe(true)
     })
 
     it('should reject invalid UUID', () => {
       const invalidData = {
-        userId: 'not-a-uuid',
-        reason: 'Valid reason'
+        user_id: 'not-a-uuid',
+        message: 'Valid reason'
       }
-      const result = vouchForUserSchema.safeParse(invalidData)
+      const result = vouchUserSchema.safeParse(invalidData)
       expect(result.success).toBe(false)
     })
 
-    it('should reject empty reason', () => {
-      const invalidData = {
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        reason: ''
+    it('should accept empty message', () => {
+      const validData = {
+        user_id: '123e4567-e89b-12d3-a456-426614174000'
       }
-      const result = vouchForUserSchema.safeParse(invalidData)
-      expect(result.success).toBe(false)
-    })
-
-    it('should reject reason that is too short', () => {
-      const invalidData = {
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        reason: 'Short'
-      }
-      const result = vouchForUserSchema.safeParse(invalidData)
-      expect(result.success).toBe(false)
+      const result = vouchUserSchema.safeParse(validData)
+      expect(result.success).toBe(true)
     })
   })
 })

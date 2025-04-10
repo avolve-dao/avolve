@@ -4,7 +4,7 @@ import { PageGrid } from "@/components/page-container"
 import { RouteLayout } from "@/components/layouts/route-layout"
 import { RouteCard } from "@/components/layouts/route-card"
 import { TokenStats } from "@/components/token/token-stats"
-import { Heart, DollarSign, Users, CheckCircle, MessageSquare } from "lucide-react"
+import { Heart, DollarSign, Users, CheckCircle, MessageSquare, MessageCircle, Calendar } from "lucide-react"
 
 export default function PersonalPage() {
   return (
@@ -53,6 +53,30 @@ export default function PersonalPage() {
         />
         
         <RouteCard
+          title="Chat"
+          description="Message directly with other members of the community."
+          href="/personal/chat"
+          gradientClass="from-amber-500 to-yellow-500"
+          tokenCode="PSP"
+          tokenName="Personal Success Chat"
+          tokenSymbol="PSP"
+          icon={<MessageCircle className="h-5 w-5" />}
+          delay={2}
+        />
+        
+        <RouteCard
+          title="Events"
+          description="Join virtual and in-person events with the community."
+          href="/personal/events"
+          gradientClass="from-amber-500 to-yellow-500"
+          tokenCode="PSP"
+          tokenName="Personal Success Events"
+          tokenSymbol="PSP"
+          icon={<Calendar className="h-5 w-5" />}
+          delay={3}
+        />
+        
+        <RouteCard
           title="Health & Energy"
           description="Track and improve your physical health, mental wellbeing, and energy levels."
           href="/personal/health"
@@ -61,7 +85,7 @@ export default function PersonalPage() {
           tokenName="Health & Energy"
           tokenSymbol="PSP"
           icon={<Heart className="h-5 w-5" />}
-          delay={2}
+          delay={4}
         />
         
         <RouteCard
@@ -73,7 +97,7 @@ export default function PersonalPage() {
           tokenName="Wealth & Career"
           tokenSymbol="PSP"
           icon={<DollarSign className="h-5 w-5" />}
-          delay={3}
+          delay={5}
         />
         
         <RouteCard
@@ -85,7 +109,7 @@ export default function PersonalPage() {
           tokenName="Peace & People"
           tokenSymbol="PSP"
           icon={<Users className="h-5 w-5" />}
-          delay={4}
+          delay={6}
         />
       </PageGrid>
     </RouteLayout>

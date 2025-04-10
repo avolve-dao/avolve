@@ -737,4 +737,37 @@ export class TokenService implements ITokenService {
       };
     }
   }
+
+  /**
+   * Gets all tokens for a user
+   * 
+   * @param userId - The user ID to look up
+   * @returns A Promise with an array of user tokens
+   */
+  public async getUserTokens(userId: string): Promise<any[]> {
+    try {
+      this.logger.info('Getting user tokens', { userId });
+
+      // Get token balances from database
+      const { data, error } = await this.supabase
+        .from('user_tokens')
+        .select(`
+          token_id,
+          token_type,
+          balance,
+          last_updated
+        `)
+        .eq('user_id', userId);
+
+      if (error) {
+        this.logger.error('Error getting user tokens', error, { userId });
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      this.logger.error('Unexpected error getting user tokens', error as Error, { userId });
+      return [];
+    }
+  }
 }

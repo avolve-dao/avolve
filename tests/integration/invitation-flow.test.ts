@@ -5,14 +5,14 @@
  * redeeming it, and signing up with the invitation code.
  */
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach, jest } from '@jest/globals';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { InvitationService } from '../../lib/invitation/invitation-service';
 import { v4 as uuidv4 } from 'uuid';
 
 // Mock Supabase client
-jest.mock('@supabase/supabase-js', () => {
-  const originalModule = jest.requireActual('@supabase/supabase-js');
+vi.mock('@supabase/supabase-js', () => {
+  const originalModule = vi.importActual('@supabase/supabase-js');
   
   // Mock data
   const mockUsers = new Map();
@@ -22,33 +22,33 @@ jest.mock('@supabase/supabase-js', () => {
   // Mock client
   const mockClient = {
     auth: {
-      signUp: jest.fn(async ({ email, password, options }) => {
+      signUp: vi.fn(async ({ email, password, options }) => {
         const userId = options?.data?.user_id || uuidv4();
         mockUsers.set(userId, { id: userId, email, password });
         return { data: { user: { id: userId, email } }, error: null };
       }),
-      signIn: jest.fn(async ({ email, password }) => {
+      signIn: vi.fn(async ({ email, password }) => {
         const user = Array.from(mockUsers.values()).find(u => u.email === email && u.password === password);
         if (user) {
           return { data: { user }, error: null };
         }
         return { data: null, error: { message: 'Invalid login credentials' } };
       }),
-      getUser: jest.fn(() => {
+      getUser: vi.fn(() => {
         return { data: { user: { id: 'test-user-id', email: 'test@example.com' } } };
       }),
-      getSession: jest.fn(() => {
+      getSession: vi.fn(() => {
         return { data: { session: { user: { id: 'test-user-id', email: 'test@example.com' } } } };
       })
     },
-    from: jest.fn((table) => {
+    from: vi.fn((table) => {
       return {
-        select: jest.fn(() => {
+        select: vi.fn(() => {
           return {
-            eq: jest.fn(() => {
+            eq: vi.fn(() => {
               if (table === 'invitation_tiers') {
                 return {
-                  single: jest.fn(() => {
+                  single: vi.fn(() => {
                     return { 
                       data: { 
                         id: 'test-tier-id', 
@@ -65,7 +65,7 @@ jest.mock('@supabase/supabase-js', () => {
                 };
               } else if (table === 'invitations') {
                 return {
-                  single: jest.fn(() => {
+                  single: vi.fn(() => {
                     return { 
                       data: Array.from(mockInvitations.values())[0] || null, 
                       error: mockInvitations.size === 0 ? { message: 'No invitation found' } : null 
@@ -80,7 +80,7 @@ jest.mock('@supabase/supabase-js', () => {
               }
               return { data: null, error: null };
             }),
-            single: jest.fn(() => {
+            single: vi.fn(() => {
               if (table === 'tokens') {
                 return { 
                   data: { 
@@ -96,7 +96,7 @@ jest.mock('@supabase/supabase-js', () => {
             })
           };
         }),
-        insert: jest.fn((data) => {
+        insert: vi.fn((data) => {
           if (table === 'invitations') {
             const invitation = { 
               id: uuidv4(), 
@@ -113,34 +113,32 @@ jest.mock('@supabase/supabase-js', () => {
           }
           return { data: null, error: null };
         }),
-        update: jest.fn(() => {
+        update: vi.fn(() => {
           return {
-            eq: jest.fn(() => {
+            eq: vi.fn(() => {
               return { data: { updated: true }, error: null };
             })
           };
         })
       };
     }),
-    rpc: jest.fn((functionName, params) => {
+    rpc: vi.fn((functionName, params) => {
       if (functionName === 'create_invitation') {
         const invitation = {
           id: uuidv4(),
           code: 'TEST' + Math.floor(Math.random() * 10000),
           tier_id: params.p_tier_id,
           created_by: 'test-user-id',
-          status: 'CREATED',
           created_at: new Date().toISOString(),
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+          status: 'CREATED'
         };
         mockInvitations.set(invitation.id, invitation);
-        return { data: invitation, error: null };
+        return { data: { success: true, invitation }, error: null };
       } else if (functionName === 'redeem_invitation') {
         const invitation = Array.from(mockInvitations.values()).find(inv => inv.code === params.p_code);
         if (invitation) {
-          invitation.status = 'CLAIMED';
-          invitation.claimed_by = 'test-user-id';
-          invitation.claimed_at = new Date().toISOString();
+          invitation.status = 'REDEEMED';
+          invitation.redeemed_at = new Date().toISOString();
           return { data: { success: true, invitation }, error: null };
         }
         return { data: null, error: { message: 'Invalid invitation code' } };
@@ -151,7 +149,7 @@ jest.mock('@supabase/supabase-js', () => {
   
   return {
     ...originalModule,
-    createClient: jest.fn(() => mockClient)
+    createClient: vi.fn(() => mockClient)
   };
 });
 
@@ -162,16 +160,13 @@ describe('Invitation Flow', () => {
   beforeAll(() => {
     // Create a mock Supabase client
     supabase = createClient('https://example.com', 'fake-key');
+    
+    // Initialize the invitation service
     invitationService = new InvitationService(supabase);
   });
   
-  beforeEach(() => {
-    // Clear mocks between tests
-    jest.clearAllMocks();
-  });
-  
   describe('Creating an invitation', () => {
-    it('should successfully create an invitation', async () => {
+    it('should successfully create a new invitation', async () => {
       // Create an invitation
       const { data, error } = await invitationService.createInvitation('test-tier-id');
       
@@ -179,12 +174,13 @@ describe('Invitation Flow', () => {
       expect(error).toBeNull();
       expect(data).not.toBeNull();
       expect(data?.code).toBeDefined();
+      expect(data?.tier_id).toBe('test-tier-id');
       expect(data?.status).toBe('CREATED');
     });
     
     it('should handle errors when creating an invitation', async () => {
-      // Mock a failure
-      (supabase.rpc as jest.Mock).mockImplementationOnce(() => {
+      // Mock a failure in the RPC call
+      (supabase.rpc as any).mockImplementationOnce(() => {
         return { data: null, error: { message: 'Failed to create invitation' } };
       });
       
@@ -254,7 +250,7 @@ describe('Invitation Flow', () => {
     
     it('should handle errors during sign up', async () => {
       // Mock a failure in sign up
-      (supabase.auth.signUp as jest.Mock).mockImplementationOnce(() => {
+      (supabase.auth.signUp as any).mockImplementationOnce(() => {
         return { data: null, error: { message: 'Email already in use' } };
       });
       
@@ -297,7 +293,7 @@ describe('Invitation Flow', () => {
     
     it('should handle errors when claiming rewards', async () => {
       // Mock a failure in the RPC call
-      (supabase.rpc as jest.Mock).mockImplementationOnce(() => {
+      (supabase.rpc as any).mockImplementationOnce(() => {
         return { data: null, error: { message: 'Invitation already claimed' } };
       });
       

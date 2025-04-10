@@ -2,6 +2,28 @@
 
 This document provides comprehensive documentation for all API endpoints in the Avolve application.
 
+## Table of Contents
+
+- [Authentication API](#authentication-api)
+- [Chat API](#chat-api)
+- [Grok API](#grok-api)
+- [Invitation API](#invitation-api)
+- [Verification API](#verification-api)
+- [Token API](#token-api)
+- [Trust Score API](#trust-score-api)
+- [Governance API](#governance-api)
+- [Analytics API](#analytics-api)
+- [Consent API](#consent-api)
+- [Error Handling](#error-handling)
+- [Rate Limiting](#rate-limiting)
+- [Caching](#caching)
+- [Security Headers](#security-headers)
+- [Input Validation](#input-validation)
+- [Structured Logging](#structured-logging)
+- [API Versioning](#api-versioning)
+- [Tracking API](#tracking-api)
+- [Webhook Support](#webhook-support)
+
 ## Authentication API
 
 ### CSRF Token
@@ -592,45 +614,477 @@ Retrieves the trust score history for the authenticated user.
   }
   ```
 
-## Authentication Routes
+## Governance API
 
-These are not API endpoints but server-rendered routes for authentication flows.
+### List Proposals
 
-### Login
+Retrieves a list of governance proposals based on status filter.
 
-- **URL**: `/auth/login`
+- **URL**: `/api/governance/proposals`
 - **Method**: `GET`
-- **Description**: Renders the login page
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Query Parameters**:
+  - `status`: Filter by proposal status (`pending`, `approved`, `rejected`)
+  - `limit`: Maximum number of proposals to return (default: 20)
+  - `offset`: Offset for pagination (default: 0)
+- **Response**:
+  ```json
+  {
+    "proposals": [
+      {
+        "id": "proposal-uuid",
+        "title": "Proposal Title",
+        "description": "Detailed proposal description",
+        "status": "pending",
+        "created_at": "2025-04-01T10:30:00Z",
+        "created_by": "user-uuid",
+        "voteCount": 15,
+        "approved_at": null,
+        "rejected_at": null,
+        "profiles": {
+          "username": "proposer_username",
+          "avatar_url": "https://example.com/avatar.png"
+        }
+      }
+    ],
+    "total": 45
+  }
+  ```
 
-### Sign Up
+### Get Proposal Details
 
-- **URL**: `/auth/sign-up`
+Retrieves detailed information about a specific proposal.
+
+- **URL**: `/api/governance/proposals/:id`
 - **Method**: `GET`
-- **Description**: Renders the sign-up page
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Response**:
+  ```json
+  {
+    "id": "proposal-uuid",
+    "title": "Proposal Title",
+    "description": "Detailed proposal description",
+    "status": "pending",
+    "created_at": "2025-04-01T10:30:00Z",
+    "created_by": "user-uuid",
+    "voteCount": 15,
+    "approved_at": null,
+    "rejected_at": null,
+    "profiles": {
+      "username": "proposer_username",
+      "avatar_url": "https://example.com/avatar.png"
+    },
+    "votes": [
+      {
+        "id": "vote-uuid",
+        "user_id": "user-uuid",
+        "vote_weight": 10,
+        "created_at": "2025-04-02T14:25:00Z",
+        "profiles": {
+          "username": "voter_username",
+          "avatar_url": "https://example.com/avatar2.png"
+        }
+      }
+    ]
+  }
+  ```
 
-### Forgot Password
+### Create Proposal
 
-- **URL**: `/auth/forgot-password`
+Creates a new governance proposal.
+
+- **URL**: `/api/governance/proposals`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 10 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "title": "Proposal Title",
+    "description": "Detailed proposal description",
+    "consent_id": "consent-record-uuid"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "petitionId": "proposal-uuid",
+      "message": "Proposal created successfully"
+    }
+  }
+  ```
+
+### Vote on Proposal
+
+Records a vote on a governance proposal.
+
+- **URL**: `/api/governance/proposals/:id/vote`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 20 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "consent_id": "consent-record-uuid"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "voteId": "vote-uuid",
+      "voteWeight": 10,
+      "message": "Vote recorded successfully"
+    }
+  }
+  ```
+
+### Check Eligibility
+
+Checks if the authenticated user is eligible to create proposals.
+
+- **URL**: `/api/governance/eligibility`
 - **Method**: `GET`
-- **Description**: Renders the forgot password page
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Response**:
+  ```json
+  {
+    "isEligible": true,
+    "genBalance": 150,
+    "requiredGen": 100
+  }
+  ```
 
-### Callback
+## Analytics API
 
-- **URL**: `/auth/callback`
+The Analytics API provides access to platform engagement, contribution, and impact metrics for users and the overall network state.
+
+### Get Engagement Analytics
+
+Retrieves engagement metrics for the authenticated user or the entire platform.
+
+- **URL**: `/api/analytics/engagement`
 - **Method**: `GET`
-- **Description**: Handles authentication callbacks from Supabase
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Query Parameters**:
+  - `scope`: Scope of analytics (`user` or `platform`, default: `user`)
+  - `period`: Time period for analytics (`day`, `week`, `month`, `quarter`, `year`, default: `month`)
+  - `start_date`: Start date for custom period (ISO format, optional)
+  - `end_date`: End date for custom period (ISO format, optional)
+- **Response**:
+  ```json
+  {
+    "metrics": {
+      "dau": 125,
+      "mau": 450,
+      "dau_mau_ratio": 0.278,
+      "average_session_duration": 12.5,
+      "sessions_per_user": 3.2,
+      "retention_rate": 0.85,
+      "churn_rate": 0.15
+    },
+    "trends": {
+      "dau_trend": [120, 118, 125, 130, 125],
+      "mau_trend": [430, 435, 440, 445, 450],
+      "retention_trend": [0.82, 0.83, 0.84, 0.84, 0.85]
+    },
+    "period": {
+      "start": "2025-03-01T00:00:00Z",
+      "end": "2025-03-31T23:59:59Z",
+      "type": "month"
+    }
+  }
+  ```
 
-### Confirm
+### Get Contribution Analytics
 
-- **URL**: `/auth/confirm`
+Retrieves contribution metrics for the authenticated user or specific users.
+
+- **URL**: `/api/analytics/contributions`
 - **Method**: `GET`
-- **Description**: Confirms email addresses
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Query Parameters**:
+  - `user_id`: Specific user ID to analyze (optional, defaults to authenticated user)
+  - `period`: Time period for analytics (`day`, `week`, `month`, `quarter`, `year`, default: `month`)
+  - `start_date`: Start date for custom period (ISO format, optional)
+  - `end_date`: End date for custom period (ISO format, optional)
+  - `type`: Filter by contribution type (`content`, `governance`, `community`, `technical`, `educational`, optional)
+- **Response**:
+  ```json
+  {
+    "contributions": {
+      "total": 42,
+      "by_type": {
+        "content": 15,
+        "governance": 8,
+        "community": 12,
+        "technical": 4,
+        "educational": 3
+      },
+      "by_token": {
+        "GEN": 10,
+        "SPD": 5,
+        "SHE": 4,
+        "PSP": 6,
+        "SSA": 7,
+        "BSP": 3,
+        "SGB": 4,
+        "SMS": 3
+      }
+    },
+    "impact": {
+      "reach": 230,
+      "engagement": 85,
+      "value_created": 450,
+      "influence_score": 72
+    },
+    "trends": {
+      "contribution_trend": [38, 39, 40, 41, 42],
+      "impact_trend": [65, 68, 70, 71, 72]
+    },
+    "period": {
+      "start": "2025-03-01T00:00:00Z",
+      "end": "2025-03-31T23:59:59Z",
+      "type": "month"
+    }
+  }
+  ```
 
-### Update Password
+### Get Census Data
 
-- **URL**: `/auth/update-password`
+Retrieves comprehensive census data for the authenticated user.
+
+- **URL**: `/api/analytics/census`
 - **Method**: `GET`
-- **Description**: Renders the update password page
+- **Authentication Required**: Yes
+- **Rate Limit**: 30 requests per hour
+- **Query Parameters**:
+  - `include_trends`: Whether to include historical trends (boolean, default: `true`)
+  - `include_predictions`: Whether to include future predictions (boolean, default: `false`)
+- **Response**:
+  ```json
+  {
+    "census": {
+      "user_id": "user-uuid",
+      "contribution_score": 78.5,
+      "network_influence": 42.3,
+      "engagement_rate": 0.67,
+      "value_creation": 450,
+      "token_distribution": {
+        "GEN": 250,
+        "SAP": 180,
+        "SCQ": 210,
+        "SPD": 45,
+        "SHE": 35,
+        "PSP": 65,
+        "SSA": 75,
+        "BSP": 40,
+        "SGB": 50,
+        "SMS": 30
+      },
+      "governance_participation": {
+        "proposals_created": 5,
+        "proposals_voted": 28,
+        "vote_weight": 250,
+        "consent_actions": 33
+      },
+      "streak_data": {
+        "current_streaks": {
+          "SPD": 3,
+          "SHE": 5,
+          "PSP": 9,
+          "SSA": 2,
+          "BSP": 4,
+          "SGB": 7,
+          "SMS": 1
+        },
+        "longest_streaks": {
+          "SPD": 12,
+          "SHE": 15,
+          "PSP": 21,
+          "SSA": 8,
+          "BSP": 14,
+          "SGB": 18,
+          "SMS": 6
+        }
+      }
+    },
+    "trends": {
+      "contribution_score_trend": [72.5, 74.0, 75.5, 77.0, 78.5],
+      "network_influence_trend": [38.5, 39.2, 40.1, 41.5, 42.3],
+      "engagement_rate_trend": [0.62, 0.63, 0.65, 0.66, 0.67]
+    },
+    "predictions": {
+      "contribution_score_prediction": [79.2, 80.1, 81.0, 82.2, 83.5],
+      "network_influence_prediction": [43.0, 43.8, 44.5, 45.2, 46.0],
+      "engagement_rate_prediction": [0.68, 0.69, 0.70, 0.71, 0.72]
+    },
+    "timestamp": "2025-04-09T14:05:39-06:00"
+  }
+  ```
+
+### Export Analytics Data
+
+Exports analytics data in various formats for the authenticated user.
+
+- **URL**: `/api/analytics/export`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 10 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "data_type": "census",
+    "format": "csv",
+    "period": {
+      "start": "2025-01-01T00:00:00Z",
+      "end": "2025-03-31T23:59:59Z"
+    },
+    "metrics": ["contribution_score", "network_influence", "engagement_rate"]
+  }
+  ```
+- **Response**: Binary file download with the requested data in the specified format
+
+## Consent API
+
+### Record Consent
+
+Records user consent for a specific action.
+
+- **URL**: `/api/consent`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "interaction_type": "governance_proposal",
+    "terms": {
+      "action": "create",
+      "title": "Proposal Title",
+      "description": "Proposal Description"
+    },
+    "status": "approved",
+    "metadata": {
+      "client_ip": "127.0.0.1",
+      "user_agent": "Mozilla/5.0..."
+    }
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "consent_id": "consent-record-uuid",
+      "created_at": "2025-04-09T12:30:00Z"
+    }
+  }
+  ```
+
+### Get Consent Records
+
+Retrieves consent records for the authenticated user.
+
+- **URL**: `/api/consent`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Query Parameters**:
+  - `start_date`: Filter by start date (ISO format)
+  - `end_date`: Filter by end date (ISO format)
+  - `interaction_type`: Filter by interaction type
+  - `status`: Filter by consent status (`approved`, `revoked`)
+  - `limit`: Maximum number of records to return (default: 20)
+  - `offset`: Offset for pagination (default: 0)
+- **Response**:
+  ```json
+  {
+    "records": [
+      {
+        "id": "consent-record-uuid",
+        "user_id": "user-uuid",
+        "interaction_type": "governance_proposal",
+        "terms": {
+          "action": "create",
+          "title": "Proposal Title",
+          "description": "Proposal Description"
+        },
+        "status": "approved",
+        "created_at": "2025-04-09T12:30:00Z",
+        "updated_at": "2025-04-09T12:30:00Z",
+        "metadata": {
+          "client_ip": "127.0.0.1",
+          "user_agent": "Mozilla/5.0..."
+        }
+      }
+    ],
+    "total": 45
+  }
+  ```
+
+### Get Consent Record
+
+Retrieves a specific consent record.
+
+- **URL**: `/api/consent/:id`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Response**:
+  ```json
+  {
+    "id": "consent-record-uuid",
+    "user_id": "user-uuid",
+    "interaction_type": "governance_proposal",
+    "terms": {
+      "action": "create",
+      "title": "Proposal Title",
+      "description": "Proposal Description"
+    },
+    "status": "approved",
+    "created_at": "2025-04-09T12:30:00Z",
+    "updated_at": "2025-04-09T12:30:00Z",
+    "metadata": {
+      "client_ip": "127.0.0.1",
+      "user_agent": "Mozilla/5.0..."
+    }
+  }
+  ```
+
+### Revoke Consent
+
+Revokes a previously given consent.
+
+- **URL**: `/api/consent/:id/revoke`
+- **Method**: `POST`
+- **Authentication Required**: Yes
+- **Rate Limit**: 20 requests per hour
+- **Request Body**:
+  ```json
+  {
+    "reason": "Optional reason for revocation"
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "data": {
+      "id": "consent-record-uuid",
+      "status": "revoked",
+      "updated_at": "2025-04-09T14:45:00Z"
+    }
+  }
+  ```
 
 ## Error Handling
 
@@ -734,6 +1188,110 @@ All API requests are logged with structured data:
 
 The current API version is v1 (implicit in the routes). Future versions will be explicitly versioned with a prefix (e.g., `/api/v2/chat`).
 
+## Tracking API
+
+The Tracking API allows for recording user actions and events within the Avolve platform.
+
+### Track Event
+
+Records a user action or event for analytics and activity tracking.
+
+- **URL**: `/api/track`
+- **Method**: `POST`
+- **Authentication Required**: Optional (supports both authenticated and anonymous tracking)
+- **Rate Limit**: 100 requests per minute for authenticated users, 20 per minute for anonymous
+- **Request Body**:
+  ```json
+  {
+    "event_type": "challenge_completion",
+    "user_id": "user-uuid", // Optional for authenticated requests
+    "metadata": {
+      "challenge_id": "challenge-uuid",
+      "token_type": "PSP",
+      "points_earned": 10,
+      "completion_time": 120 // seconds
+    },
+    "timestamp": "2025-04-09T14:30:00Z" // Optional, defaults to server time
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "event_id": "event-uuid",
+    "recorded_at": "2025-04-09T14:30:05Z"
+  }
+  ```
+
+### Track Anonymous Event
+
+Records an event from an unauthenticated user, typically for landing page analytics.
+
+- **URL**: `/api/track/anonymous`
+- **Method**: `POST`
+- **Authentication Required**: No
+- **Rate Limit**: 10 requests per minute per IP
+- **Request Body**:
+  ```json
+  {
+    "event_type": "page_view",
+    "session_id": "browser-session-id", // Client-generated session ID
+    "metadata": {
+      "page": "/landing",
+      "referrer": "https://example.com",
+      "device_type": "mobile"
+    }
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "success": true,
+    "event_id": "event-uuid"
+  }
+  ```
+
+### Get User Activity
+
+Retrieves activity history for the authenticated user.
+
+- **URL**: `/api/track/activity`
+- **Method**: `GET`
+- **Authentication Required**: Yes
+- **Rate Limit**: 60 requests per hour
+- **Query Parameters**:
+  - `limit`: Maximum number of events to return (default: 20, max: 100)
+  - `offset`: Offset for pagination (default: 0)
+  - `event_type`: Filter by event type (optional)
+  - `start_date`: Filter by start date (ISO format, optional)
+  - `end_date`: Filter by end date (ISO format, optional)
+- **Response**:
+  ```json
+  {
+    "events": [
+      {
+        "id": "event-uuid",
+        "event_type": "challenge_completion",
+        "timestamp": "2025-04-09T14:30:00Z",
+        "metadata": {
+          "challenge_id": "challenge-uuid",
+          "token_type": "PSP",
+          "points_earned": 10
+        }
+      },
+      {
+        "id": "event-uuid-2",
+        "event_type": "profile_update",
+        "timestamp": "2025-04-08T10:15:22Z",
+        "metadata": {
+          "fields_updated": ["display_name", "avatar"]
+        }
+      }
+    ],
+    "total": 42
+  }
+  ```
+
 ## Webhook Support
 
 Avolve supports webhooks for certain events:
@@ -743,3 +1301,43 @@ Avolve supports webhooks for certain events:
 - Content creation
 
 To register a webhook, contact the Avolve team with your endpoint URL and the events you want to subscribe to.
+
+## Authentication Routes
+
+These are not API endpoints but server-rendered routes for authentication flows.
+
+### Login
+
+- **URL**: `/auth/login`
+- **Method**: `GET`
+- **Description**: Renders the login page
+
+### Sign Up
+
+- **URL**: `/auth/sign-up`
+- **Method**: `GET`
+- **Description**: Renders the sign-up page
+
+### Forgot Password
+
+- **URL**: `/auth/forgot-password`
+- **Method**: `GET`
+- **Description**: Renders the forgot password page
+
+### Callback
+
+- **URL**: `/auth/callback`
+- **Method**: `GET`
+- **Description**: Handles authentication callbacks from Supabase
+
+### Confirm
+
+- **URL**: `/auth/confirm`
+- **Method**: `GET`
+- **Description**: Confirms email addresses
+
+### Update Password
+
+- **URL**: `/auth/update-password`
+- **Method**: `GET`
+- **Description**: Renders the update password page

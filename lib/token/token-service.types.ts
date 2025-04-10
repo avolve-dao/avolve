@@ -13,44 +13,52 @@ import { Database } from '@/lib/supabase/database.types';
 export type Token = Database['public']['Tables']['tokens']['Row'];
 export type TokenTransaction = Database['public']['Tables']['token_transactions']['Row'];
 export type UserBalance = Database['public']['Tables']['user_balances']['Row'];
-export type UserStreak = Database['public']['Tables']['user_streaks']['Row'];
+export type UserStreak = {
+  current_streak: number;
+  longest_streak: number;
+  last_claim_date: string;
+  next_milestone: number;
+  days_until_milestone: number;
+};
 
 /**
  * Token result wrapper for handling success/error responses
  */
-export interface TokenResult<T> {
+export type TokenResult<T> = {
   success: boolean;
   data?: T;
   error?: {
     code: string;
     message: string;
-    details?: unknown;
+    details?: any;
   };
-}
+};
 
 /**
  * Token claim options
  */
-export interface TokenClaimOptions {
+export type TokenClaimOptions = {
   userId: string;
-  challengeId: string;
+  tokenId: string;
   amount: number;
-  multiplier?: number;
   reason?: string;
-}
+  metadata?: Record<string, any>;
+};
 
 /**
  * Token claim result
  */
-export interface TokenClaimResult {
+export type TokenClaimResult = {
   success: boolean;
   message: string;
   transaction_id?: string;
-  amount?: number;
-  token_id?: string;
-  streak?: number;
-  longest_streak?: number;
-}
+  streak?: {
+    current: number;
+    next_milestone: number;
+    days_until_milestone: number;
+    bonus_multiplier: number;
+  };
+};
 
 /**
  * Token transfer options
@@ -66,16 +74,11 @@ export interface TokenTransferOptions {
 /**
  * Token transfer result
  */
-export interface TokenTransferResult {
+export type TokenTransferResult = {
   success: boolean;
   message: string;
   transaction_id?: string;
-  amount?: number;
-  token_id?: string;
-  token_symbol?: string;
-  from_user_id?: string;
-  to_user_id?: string;
-}
+};
 
 /**
  * Token mint options
@@ -173,6 +176,30 @@ export interface AnalyticsSummary {
   unique_token_types: number;
   most_active_day: string;
 }
+
+/**
+ * User consent record
+ */
+export type UserConsent = {
+  consent_id: string;
+  user_id: string;
+  interaction_type: string;
+  terms: Record<string, any>;
+  status: 'approved' | 'revoked' | 'pending';
+  metadata?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+};
+
+/**
+ * Consent operation result
+ */
+export type ConsentResult = {
+  success: boolean;
+  consent_id?: string;
+  message?: string;
+  error?: string;
+};
 
 /**
  * Token service interface

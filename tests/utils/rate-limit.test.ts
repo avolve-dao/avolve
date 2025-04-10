@@ -1,13 +1,14 @@
 import { rateLimit } from '@/lib/utils/rate-limit'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock LRUCache
-jest.mock('lru-cache', () => {
+vi.mock('lru-cache', () => {
   return {
-    LRUCache: jest.fn().mockImplementation(() => {
+    LRUCache: vi.fn().mockImplementation(() => {
       const cache = new Map()
       return {
-        get: jest.fn((key) => cache.get(key)),
-        set: jest.fn((key, value) => cache.set(key, value)),
+        get: vi.fn((key) => cache.get(key)),
+        set: vi.fn((key, value) => cache.set(key, value)),
       }
     }),
   }
@@ -15,12 +16,12 @@ jest.mock('lru-cache', () => {
 
 describe('Rate Limit Utility', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    jest.useFakeTimers()
+    vi.clearAllMocks()
+    vi.useFakeTimers()
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('should allow requests within the limit', async () => {
@@ -76,7 +77,7 @@ describe('Rate Limit Utility', () => {
     expect(blockedResult.success).toBe(false)
 
     // Advance time past the interval
-    jest.advanceTimersByTime(61 * 1000)
+    vi.advanceTimersByTime(61 * 1000)
 
     // Should be allowed again after interval
     const newResult = await limiter.check('test-ip')

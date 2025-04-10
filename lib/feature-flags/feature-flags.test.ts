@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useFeatureFlags, FeatureFlagProvider, FEATURE_FLAGS } from './feature-flags';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 // Mock window.localStorage
 const localStorageMock = (() => {
@@ -21,9 +22,9 @@ Object.defineProperty(window, 'localStorage', {
 
 // Mock Supabase client
 const mockSupabase = {
-  from: jest.fn().mockReturnThis(),
-  select: jest.fn().mockReturnThis(),
-  eq: jest.fn().mockReturnThis(),
+  from: vi.fn().mockReturnThis(),
+  select: vi.fn().mockReturnThis(),
+  eq: vi.fn().mockReturnThis(),
   data: null,
   error: null
 };
@@ -36,13 +37,13 @@ const mockSupabaseContext = {
 };
 
 // Mock useSupabase hook
-jest.mock('@/lib/supabase/use-supabase', () => ({
+vi.mock('@/lib/supabase/use-supabase', () => ({
   useSupabase: () => mockSupabaseContext
 }));
 
 describe('Feature Flags', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     localStorageMock.clear();
     
     // Mock environment variables

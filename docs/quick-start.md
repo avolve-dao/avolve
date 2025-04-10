@@ -178,59 +178,133 @@ This will provide insights into user behavior, performance metrics, and potentia
 
 ## Launch Checklist
 
-Use this checklist to ensure your Avolve platform is fully ready for launch day:
+Follow this comprehensive checklist to ensure a smooth launch of your Avolve platform instance:
 
-### Pre-Launch Database Preparation
+### 1. Database Preparation
 
 ```bash
-# Seed the weekly_events table with engaging content
-psql -U postgres -h localhost -p 54322 -d postgres -f supabase/seed/weekly_events_2025.sql
+# Apply all migrations to your Supabase instance
+supabase migration up
 
-# Verify events were created successfully
-supabase db query "SELECT * FROM public.weekly_events WHERE start_date >= CURRENT_DATE ORDER BY start_date LIMIT 10"
+# Verify migrations applied correctly
+supabase db lint
 
-# Run database health check
-supabase db query "SELECT * FROM public.run_database_maintenance()"
+# Check RLS policies are properly configured
+supabase db query "SELECT tablename, policyname, permissive, roles, cmd FROM pg_policies WHERE schemaname = 'public' ORDER BY tablename"
 ```
 
-Ensure that you have at least 4 weeks of events pre-populated in the `weekly_events` table to provide a consistent experience for new users.
-
-### Deployment Process
+### 2. Deployment Process
 
 ```bash
-# Build the application with production optimizations
-npm run build
-
-# Deploy to Vercel production environment
+# Build and deploy to Vercel production environment
 vercel --prod
 
-# Verify edge functions are deployed correctly
+# Verify deployment status
+vercel ls
+
+# Check edge functions are deployed correctly
 vercel functions ls
 ```
 
-After deployment, verify these critical paths are working:
-- `/dashboard` - Check that the Regen Score widget loads correctly
-- `/api/feedback` - Test submitting feedback from the UI
-- Real-time subscriptions - Verify leaderboard updates
-
-### Post-Launch Monitoring
+### 3. Real-Time Features Testing
 
 ```bash
-# Monitor journey analytics in real-time
-supabase db query "SELECT * FROM public.journey_analytics ORDER BY updated_at DESC LIMIT 20"
+# Test real-time subscriptions
+# Run this in a separate terminal to simulate activity
+curl -X POST https://your-domain.vercel.app/api/simulate-activity \
+  -H "Content-Type: application/json" \
+  -d '{"userId": "test-user", "action": "complete_challenge"}'
 
-# Check user feedback submissions
-supabase db query "SELECT category, rating, submitted_at FROM public.user_feedback ORDER BY submitted_at DESC LIMIT 10"
-
-# Monitor real-time connections
-vercel logs --function api/realtime --follow
+# Verify the subscription is working in your browser console
+# You should see real-time updates appearing
 ```
 
-Set up alerts for these critical metrics:
-- User registration rate (target: >100/day)
-- Event completion rate (target: >60%)
-- Average feedback rating (target: >4.2/5)
-- API response times (target: <100ms)
+### 4. Performance Verification
+
+```bash
+# Run Lighthouse audit
+npx lighthouse https://your-domain.vercel.app --view
+
+# Check Core Web Vitals
+npx web-vitals https://your-domain.vercel.app
+```
+
+### 5. Critical Path Testing
+
+Manually verify these critical user flows:
+
+- **User Registration**: Complete the full onboarding process
+- **Token Claiming**: Test daily token claims for each day of the week
+- **Streak System**: Verify the Tesla 3-6-9 multiplier is working correctly
+- **Real-time Leaderboard**: Confirm updates appear without page refresh
+- **AI Insights**: Check personalized recommendations are generating
+
+### 6. Troubleshooting Guide
+
+#### Slow Performance Issues
+
+If you encounter slow performance:
+
+```bash
+# Analyze query performance
+supabase.ai.analyze('query_name')
+
+# Check for missing indexes
+supabase db query "SELECT relname as table_name, 
+                         seq_scan, 
+                         idx_scan,
+                         seq_scan - idx_scan as difference
+                  FROM pg_stat_user_tables 
+                  WHERE seq_scan > idx_scan
+                  ORDER BY difference DESC;"
+
+# Add indexes for frequently accessed columns
+supabase db query "CREATE INDEX IF NOT EXISTS idx_user_activity_user_id ON public.user_activity(user_id);"
+```
+
+#### Real-Time Connection Issues
+
+If real-time features aren't working:
+
+```bash
+# Verify publication includes necessary tables
+supabase db query "SELECT * FROM pg_publication_tables WHERE pubname = 'supabase_realtime'"
+
+# Check for connection errors in browser console
+# Look for messages like "Error: Connection closed" or "Error: Subscription error"
+
+# Restart the real-time service if needed
+supabase restart
+```
+
+#### Token Calculation Problems
+
+If token calculations or streak bonuses aren't working correctly:
+
+```bash
+# Check the streak calculation function
+supabase db query "SELECT * FROM calculate_streak_bonus(user_id => 'test-user', streak_days => 9)"
+
+# Verify streak data is being recorded properly
+supabase db query "SELECT * FROM user_streaks WHERE user_id = 'test-user' ORDER BY updated_at DESC LIMIT 5"
+```
+
+### 7. Post-Launch Monitoring
+
+Set up monitoring for these key metrics:
+
+- **User Engagement**: Track daily active users and session duration
+- **Feature Usage**: Monitor which features are most/least used
+- **Performance**: Watch for slow database queries or API endpoints
+- **Error Rates**: Monitor for unexpected errors or exceptions
+- **User Feedback**: Collect and analyze user satisfaction scores
+
+```bash
+# Set up daily performance report
+vercel cron add "0 0 * * *" -- "curl -X POST https://your-domain.vercel.app/api/generate-performance-report"
+```
+
+By following this launch checklist, you'll ensure your Avolve platform provides a smooth, engaging experience for users from day one, while having the tools to quickly identify and resolve any issues that arise.
 
 ## Troubleshooting Guide
 

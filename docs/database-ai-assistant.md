@@ -1,83 +1,207 @@
-# Supabase AI Assistant Usage Guide
+# Supabase AI Assistant Usage Guide for Avolve Platform (2025)
 
 ## Overview
 
-This document outlines how to use the Supabase AI Assistant for database management and optimization in the Avolve platform. The AI Assistant is a powerful tool that helps with schema validation, query optimization, and general database management tasks.
+This document outlines how to use the Supabase AI Assistant for database management and optimization in the Avolve platform. The AI Assistant is a powerful tool that helps with schema validation, query optimization, and general database management tasks, supporting the platform's progression from Degen to Regen through the token system and experience phases.
 
 ## Getting Started
 
 To access the Supabase AI Assistant, navigate to your Supabase project dashboard and click on the "AI Assistant" tab in the sidebar.
 
-## Common Use Cases
+## Advanced Analytics Implementation
 
-### Schema Validation
+### Regen Analytics View
 
-```sql
--- Validate the entire database schema for integrity issues
-supabase.ai.validate_schema()
-
--- Validate a specific table structure
-supabase.ai.validate_table('user_feedback')
-
--- Check for missing indexes on frequently queried columns
-supabase.ai.suggest_indexes()
-```
-
-### Query Optimization
+The `regen_analytics_mv` materialized view provides comprehensive analytics on user progression from Degen to Regen based on token usage, event participation, and platform engagement.
 
 ```sql
--- Optimize a specific query
-supabase.ai.optimize_query('SELECT * FROM user_activity_log WHERE user_id = $1 ORDER BY timestamp DESC')
+-- Refresh the regen analytics view
+REFRESH MATERIALIZED VIEW public.regen_analytics_mv;
 
--- Analyze query performance
-supabase.ai.analyze_query_performance('SELECT * FROM weekly_events WHERE start_date > current_date')
+-- Access regen analytics data with security controls
+SELECT * FROM public.get_regen_analytics(user_id_param := '00000000-0000-0000-0000-000000000000');
+
+-- Optimize the regen analytics view
+SELECT supabase.ai.optimize('regen_analytics_mv');
 ```
 
-### Database Health Monitoring
+### Token Transaction Analytics
+
+The `token_transaction_analytics_mv` materialized view analyzes token flows, patterns, and metrics across the platform.
 
 ```sql
--- Get recommendations for improving database health
-supabase.ai.health_recommendations()
+-- Refresh the token transaction analytics view
+REFRESH MATERIALIZED VIEW public.token_transaction_analytics_mv;
 
--- Analyze table growth patterns
-supabase.ai.analyze_table_growth('user_activity_log')
+-- Access token transaction analytics with security controls
+SELECT * FROM public.get_token_transaction_analytics(
+  token_symbol_param := 'GEN',
+  start_date_param := '2025-01-01',
+  end_date_param := '2025-04-10'
+);
+
+-- Optimize the token transaction analytics view
+SELECT supabase.ai.optimize('token_transaction_analytics_mv');
 ```
 
-## Scheduled Tasks
+## Real-Time Engagement Features
 
-The Avolve platform uses scheduled tasks to maintain database health and process user feedback. These tasks are managed through Supabase's Cron Jobs feature.
+### Real-Time Subscriptions
 
-### Health Check Cron Job
+The platform utilizes Supabase's real-time features to provide instant updates on user progression and token transactions.
 
-A daily health check runs at 3:00 AM to:
-1. Collect database metrics (row counts, query times, database size)
-2. Process user feedback into community insights
-3. Identify potential performance issues
+```javascript
+// Subscribe to user phase transitions
+const phaseTransitions = supabase
+  .channel('regen-progress')
+  .on(
+    'postgres_changes',
+    {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'user_phase_transitions',
+      filter: `user_id=eq.${userId}`
+    },
+    (payload) => {
+      console.log('User progressed from', payload.new.from_phase, 'to', payload.new.to_phase);
+      updateUserJourney(payload.new);
+    }
+  )
+  .subscribe();
 
-To manually trigger these checks:
+// Subscribe to token transactions
+const tokenUpdates = supabase
+  .channel('token-updates')
+  .on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'transactions',
+      filter: `to_user_id=eq.${userId}`
+    },
+    (payload) => {
+      console.log('Token transaction:', payload.new);
+      updateTokenBalance(payload.new);
+    }
+  )
+  .subscribe();
+```
+
+### Asynchronous Token Processing
+
+The platform uses a queue system for processing high-volume token transactions to ensure scalability for 100-1000 users.
 
 ```sql
--- Run database health checks
-SELECT update_health_metrics();
+-- Enqueue a token transaction
+SELECT public.enqueue_token_transaction(
+  from_user_id_param := auth.uid(),
+  to_user_id_param := recipient_id,
+  token_id_param := token_id,
+  amount_param := 10,
+  transaction_type_param := 'transfer',
+  reason_param := 'Community contribution reward'
+);
 
--- Process feedback into insights
-SELECT process_feedback_to_insights();
+-- Process the transaction queue (called by cron job)
+SELECT public.process_token_transaction_queue(batch_size := 200);
 ```
 
-## Best Practices
+## Scheduled Tasks and Automation
 
-1. **Regular Schema Validation**: Run `supabase.ai.validate_schema()` after any significant schema changes.
-2. **Query Optimization**: Use the AI Assistant to optimize complex queries, especially those used in high-traffic areas of the application.
-3. **Index Management**: Periodically review and optimize indexes using `supabase.ai.suggest_indexes()`.
-4. **Performance Monitoring**: Regularly check the `database_health` table for performance trends and potential issues.
+The Avolve platform uses scheduled tasks to maintain database health, process analytics, and handle token transactions.
+
+### Analytics Refresh Cron Job
+
+A daily analytics refresh runs at 3:00 AM to:
+1. Refresh the regen analytics materialized view
+2. Refresh the token transaction analytics materialized view
+3. Process pending transactions in the queue
+
+```sql
+-- Manually trigger analytics refresh
+SELECT public.refresh_analytics_views();
+```
+
+### Transaction Queue Processing
+
+A cron job runs every 5 minutes to process pending token transactions:
+
+```sql
+-- Manually process the transaction queue
+SELECT public.process_token_transaction_queue(200);
+```
+
+### Database Optimization
+
+A weekly optimization job runs every Sunday at 2:00 AM to:
+1. Vacuum analyze tables to update statistics
+2. Refresh materialized views
+3. Log optimization details
+
+```sql
+-- Manually trigger database optimization
+SELECT public.optimize_database();
+```
+
+## Performance Optimizations
+
+### Indexes
+
+The platform includes optimized indexes for all key tables to ensure fast queries:
+
+```sql
+-- User balances indexes
+CREATE INDEX idx_user_balances_user_id ON public.user_balances(user_id);
+CREATE INDEX idx_user_balances_token_id ON public.user_balances(token_id);
+
+-- Transactions indexes
+CREATE INDEX idx_transactions_from_user_id ON public.transactions(from_user_id);
+CREATE INDEX idx_transactions_to_user_id ON public.transactions(to_user_id);
+CREATE INDEX idx_transactions_token_id ON public.transactions(token_id);
+
+-- Experience phase indexes
+CREATE INDEX idx_user_phase_transitions_user_id ON public.user_phase_transitions(user_id);
+CREATE INDEX idx_user_phase_transitions_to_phase ON public.user_phase_transitions(to_phase);
+```
+
+### Row-Level Security (RLS)
+
+All tables and functions implement proper Row-Level Security policies to ensure data privacy and security:
+
+```sql
+-- Example RLS policy for token transaction queue
+CREATE POLICY "Users can view their own transactions in queue"
+  ON public.token_transaction_queue
+  FOR SELECT
+  TO authenticated
+  USING (auth.uid() = from_user_id OR auth.uid() = to_user_id);
+```
+
+## Best Practices for 2025
+
+1. **Use Materialized Views with Functions**: For analytics data, use materialized views with secure access functions rather than direct view access.
+
+2. **Implement Asynchronous Processing**: Use queue tables and cron jobs for high-volume operations to ensure system responsiveness.
+
+3. **Enable Real-Time Subscriptions**: Leverage Supabase's real-time features for instant updates on important user events.
+
+4. **Optimize Query Performance**: Regularly analyze and optimize query performance using the AI Assistant.
+
+5. **Implement Proper Security**: Use Row-Level Security (RLS) policies and security invoker functions to protect user data.
+
+6. **Monitor Database Health**: Use scheduled tasks to monitor database health and optimize performance.
+
+7. **Document AI Usage**: Keep this documentation updated with all AI Assistant usage and schema changes.
 
 ## Troubleshooting
 
-If you encounter issues with the AI Assistant:
+If you encounter issues with the AI Assistant or database performance:
 
 1. Ensure your Supabase project is on the latest version
 2. Check that you have the necessary permissions
 3. For complex queries or schema changes, break them down into smaller parts for better AI analysis
+4. Review the analytics_refresh_log and database_health tables for error details
 
 ## Security Considerations
 
@@ -93,3 +217,4 @@ When using the AI Assistant for sensitive operations:
 - [Supabase AI Documentation](https://supabase.com/docs/guides/ai)
 - [PostgreSQL Performance Tuning](https://www.postgresql.org/docs/current/performance-tips.html)
 - [Supabase Edge Functions](https://supabase.com/docs/guides/functions)
+- [Supabase Real-Time](https://supabase.com/docs/guides/realtime)

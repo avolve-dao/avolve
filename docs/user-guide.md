@@ -10,12 +10,21 @@ This guide explains how to engage with the Avolve platform's regenerative gamifi
   - [Getting Started with Invitations](#getting-started-with-invitations)
   - [Onboarding Process](#onboarding-process)
   - [Starting Your First Challenge](#starting-your-first-challenge)
+- [Your Journey](#your-journey)
+  - [Degen-to-Regen Transformation](#degen-to-regen-transformation)
+  - [Experience Phases](#experience-phases)
+  - [Personalized Recommendations](#personalized-recommendations)
 - [Maximize Your Time](#maximize-your-time)
   - [Complete SSA in Two Clicks](#complete-ssa-in-two-clicks)
   - [10-Second Feedback](#10-second-feedback)
 - [Your Value Journey](#your-value-journey)
   - [Journey Selection Guide](#journey-selection-guide)
   - [Token Optimization Strategy](#token-optimization-strategy)
+- [Tokens and Rewards](#tokens-and-rewards)
+  - [Token Types and Value](#token-types-and-value)
+  - [Earning Strategies](#earning-strategies)
+  - [Streak Bonuses](#streak-bonuses)
+  - [Token Exchange](#token-exchange)
 - [Participating with Daily Claims](#participating-with-daily-claims)
   - [Daily Claim Schedule](#daily-claim-schedule)
   - [Weekly Token Schedule](#weekly-token-schedule)
@@ -35,6 +44,129 @@ This guide explains how to engage with the Avolve platform's regenerative gamifi
   - [Managing Your Consent](#managing-your-consent)
 - [Getting Help](#getting-help)
   - [Frequently Asked Questions](#frequently-asked-questions)
+
+## Your Journey
+
+The Avolve platform guides you through a transformative Degen-to-Regen journey, helping you evolve across three key dimensions: Superachiever (personal growth), Superachievers (community collaboration), and Supercivilization (ecosystem contribution).
+
+### Degen-to-Regen Transformation
+
+Your journey on Avolve represents a shift from extractive (degen) to regenerative (regen) patterns:
+
+![Degen to Regen Journey](/assets/images/degen-to-regen-journey.png)
+
+1. **Discovery Phase**: Introduction to platform concepts and core value proposition
+   - Explore the dashboard and available features
+   - Complete your first PSP (Personal Success Puzzle) event
+   - Earn your first tokens and understand their value
+
+2. **Onboarding Phase**: Guided exploration of platform mechanics
+   - Build your first streak with daily token claims
+   - Engage with the community through SSA (Supersociety Advancements) events
+   - Unlock basic features through token accumulation
+
+3. **Scaffolding Phase**: Deeper engagement with personal and community growth
+   - Participate in weekly community events
+   - Build multiple token streaks simultaneously
+   - Contribute to community initiatives
+
+4. **Endgame Phase**: Full platform access with advanced features
+   - Access all platform features
+   - Participate in governance
+   - Mentor new members
+   - Contribute to platform development
+
+### Experience Phases
+
+Your dashboard's JourneyMap component visualizes your progress through these phases:
+
+![Journey Map Dashboard](/assets/images/journey-map-dashboard.png)
+
+The JourneyMap shows:
+- Your current phase in the Degen-to-Regen journey
+- Completed milestones and upcoming challenges
+- Personalized recommendations for next steps
+- Predicted completion dates for each phase based on your current activity patterns
+
+### Personalized Recommendations
+
+The AIInsights component on your dashboard provides personalized guidance based on your activity patterns:
+
+![AI Insights Dashboard](/assets/images/ai-insights-dashboard.png)
+
+These AI-powered insights help you:
+- Identify optimal activities based on your goals
+- Predict token earning potential from different activities
+- Receive personalized recommendations for feature exploration
+- Track your progress compared to similar users
+
+## Tokens and Rewards
+
+The Avolve platform uses a sophisticated token system to incentivize and reward participation, with different tokens representing value across personal, community, and ecosystem dimensions.
+
+### Token Types and Value
+
+The token system is organized hierarchically:
+
+1. **GEN (Genesis)**: The primary ecosystem token
+   - Represents your overall contribution to the Supercivilization
+   - Used for governance voting and feature unlocks
+   - Earned through consistent participation and special contributions
+
+2. **SAP (Superachiever)**: Personal growth tokens
+   - Represents your individual journey progress
+   - Includes PSP (Tuesday), BSP (Thursday), and SMS (Saturday) tokens
+   - Focuses on personal development and achievement
+
+3. **SCQ (Superachievers)**: Community tokens
+   - Represents your contribution to collective intelligence
+   - Includes SPD (Sunday), SHE (Monday), SSA (Wednesday), and SGB (Friday) tokens
+   - Focuses on community collaboration and advancement
+
+![Token Hierarchy](/assets/images/token-hierarchy.png)
+
+### Earning Strategies
+
+Optimize your token earnings with these strategies:
+
+1. **PSP Focus (Tuesdays)**: Complete Personal Success Puzzle events
+   - Quick daily tasks focused on personal growth
+   - Example: "Boost Health with daily tasks" - complete a 5-minute workout
+   - Rewards: 10 PSP tokens + streak bonuses
+
+2. **SSA Focus (Wednesdays)**: Join Supersociety Advancement events
+   - Community-oriented activities and discussions
+   - Example: "Join Wednesday's community call for SCQ tokens"
+   - Rewards: 15 SSA tokens + 5 SCQ tokens for participation
+
+3. **Combined Approach**: Balance personal and community activities
+   - Maintain streaks across multiple token types
+   - Participate in both individual and community events
+   - Maximize streak bonuses across token types
+
+### Streak Bonuses
+
+The platform implements Tesla's 3-6-9 pattern for streak bonuses:
+
+| Streak Length | Multiplier | Example Reward |
+|---------------|------------|----------------|
+| 1-2 days | 1.0x | 10 tokens (base) |
+| 3-5 days | 1.3x | 13 tokens (30% bonus) |
+| 6-8 days | 1.6x | 16 tokens (60% bonus) |
+| 9+ days | 1.9x | 19 tokens (90% bonus) |
+| 12+ days | 2.2x | 22 tokens (120% bonus) |
+
+![Streak Bonus System](/assets/images/streak-bonus-system.png)
+
+### Token Exchange
+
+As you accumulate tokens, you can:
+- Exchange lower-tier tokens for higher-tier tokens
+- Unlock premium features and experiences
+- Contribute to community initiatives
+- Participate in governance decisions
+
+The exchange rates between tokens are dynamic and reflect the relative value and scarcity of each token type.
 
 ## Get Started in 5 Minutes
 
@@ -602,7 +734,7 @@ In addition to daily challenges, the platform offers weekly challenges for each 
 2. **Balanced Participation**
    - Distribute your activity across all three value pillars
    - Claim tokens on different days of the week
-   - Participate in both individual and collective activities
+   - Participate in both individual and community activities
 
 3. **Metrics Optimization**
    - Focus on improving metrics that align with features you want to unlock

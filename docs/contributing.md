@@ -1098,18 +1098,17 @@ Implement real-time chat for event discussions:
 
 import { useState, useEffect } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from '@/types/supabase';
 import type { ChatMessage } from '@/types/chat';
 
 export function EventChat({ eventId, userId }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createClientComponentClient();
   
   // Load initial messages
   useEffect(() => {
     async function loadMessages() {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('event_messages')
         .select(`
           id,
@@ -1417,7 +1416,7 @@ export function FeedbackMonitor() {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'user_feedback',
+          table: 'user_feedback'
         },
         (payload) => {
           setFeedback(current => [payload.new, ...current]);

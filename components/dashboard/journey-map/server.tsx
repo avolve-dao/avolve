@@ -2,7 +2,7 @@
  * Journey Map Server Component
  * 
  * Displays user's progress through experience phases with a visual journey map
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -83,7 +83,7 @@ export async function JourneyMapServer({ userId }: { userId: string }) {
 }
 
 // AI-powered prediction function for phase completion dates
-async function calculatePredictedCompletionDates(
+export async function calculatePredictedCompletionDates(
   userId: string,
   phaseProgress: any[],
   completedMilestones: any[]

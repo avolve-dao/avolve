@@ -1,13 +1,15 @@
 import React from 'react';
 import TeamDetails from '@/components/Teams/TeamDetails';
+import { Metadata } from 'next';
 
-interface TeamPageProps {
+type TeamPageProps = {
   params: {
     id: string;
   };
-}
+  searchParams: Record<string, string | string[] | undefined>;
+};
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Team Details | Avolve',
   description: 'View team details, members, and superpuzzle contributions',
 };

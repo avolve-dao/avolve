@@ -6,6 +6,16 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+// Token related types
+export type TokenSymbol = 'GEN' | 'SAP' | 'PSP' | 'BSP' | 'SMS' | 'SCQ' | 'SPD' | 'SHE' | 'SSA' | 'SGB';
+
+// Metric related types
+export type MetricType = 'ACTIVITY' | 'ENGAGEMENT' | 'CONTRIBUTION' | 'LEARNING' | 'COMMUNITY';
+
+// Team related types
+export type TeamRole = 'OWNER' | 'ADMIN' | 'MEMBER' | 'CONTRIBUTOR' | 'OBSERVER';
+export type TeamChallengeStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+
 export interface Database {
   public: {
     Tables: {

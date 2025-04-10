@@ -15,8 +15,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useToast } from '@/components/ui/toast';
-import { Sparkles, Award, Zap, TrendingUp, Brain, Calendar, Clock, Trophy, Gift, Star } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { Sparkles, Award, Zap, TrendingUp, Brain, Calendar, Clock, Trophy, Gift, Star, Users } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 // Types
@@ -29,7 +29,7 @@ interface JourneyProgressProps {
 export function JourneyProgress({ userId }: JourneyProgressProps) {
   const supabase = createClientComponentClient<Database>();
   const { toast } = useToast();
-  const confettiCanvasRef = useRef<HTMLDivElement>(null);
+  const confettiCanvasRef = useRef<HTMLCanvasElement>(null);
   
   const [regenData, setRegenData] = useState<any>(null);
   const [streakData, setStreakData] = useState<any>(null);
@@ -155,7 +155,7 @@ export function JourneyProgress({ userId }: JourneyProgressProps) {
         toast({
           title: "Event Completed!",
           description: "Your progress has been updated.",
-          variant: "success"
+          variant: "default"
         });
         
         // Refresh regen data
@@ -182,7 +182,7 @@ export function JourneyProgress({ userId }: JourneyProgressProps) {
         toast({
           title: "Tokens Received!",
           description: `+${newToken.amount} tokens added to your wallet.`,
-          variant: "success"
+          variant: "default"
         });
       })
       .subscribe();
@@ -210,7 +210,7 @@ export function JourneyProgress({ userId }: JourneyProgressProps) {
           toast({
             title: "Streak Milestone!",
             description: `${newStreak} day streak achieved! ${getStreakBonus(newStreak)}x bonus activated.`,
-            variant: "success"
+            variant: "default"
           });
         }
       })
@@ -292,13 +292,14 @@ export function JourneyProgress({ userId }: JourneyProgressProps) {
   // Trigger confetti animation for streak milestones
   function triggerConfetti() {
     if (confettiCanvasRef.current) {
-      const canvas = confetti.create(confettiCanvasRef.current, {
+      // Use any type to bypass TypeScript errors with the confetti library
+      const myConfetti = confetti.create(confettiCanvasRef.current, {
         resize: true,
         useWorker: true
-      });
+      }) as any;
       
       // Fire confetti from left edge
-      canvas({
+      myConfetti({
         particleCount: 50,
         spread: 70,
         origin: { x: 0.1, y: 0.5 }
@@ -306,7 +307,7 @@ export function JourneyProgress({ userId }: JourneyProgressProps) {
       
       // Fire confetti from right edge
       setTimeout(() => {
-        canvas({
+        myConfetti({
           particleCount: 50,
           spread: 70,
           origin: { x: 0.9, y: 0.5 }
@@ -315,7 +316,7 @@ export function JourneyProgress({ userId }: JourneyProgressProps) {
       
       // Fire confetti from center
       setTimeout(() => {
-        canvas({
+        myConfetti({
           particleCount: 100,
           spread: 100,
           origin: { x: 0.5, y: 0.5 }
@@ -626,7 +627,7 @@ export function JourneyProgress({ userId }: JourneyProgressProps) {
       
       {/* Confetti canvas */}
       {showConfetti && (
-        <div 
+        <canvas 
           ref={confettiCanvasRef}
           className="fixed inset-0 pointer-events-none z-50"
         />

@@ -3,16 +3,12 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { Database } from '@/lib/database.types';
 
-// Define the context type for dynamic routes
-type Context = {
-  params: {
-    id: string;
-  };
-};
-
 // GET handler for retrieving a specific consent record
-export async function GET(request: NextRequest, context: Context) {
-  const id = context.params.id;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
   const supabase = createRouteHandlerClient<Database>({ cookies });
   
   try {
@@ -55,8 +51,11 @@ export async function GET(request: NextRequest, context: Context) {
 }
 
 // PATCH handler for updating a consent record
-export async function PATCH(request: NextRequest, context: Context) {
-  const id = context.params.id;
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
   const supabase = createRouteHandlerClient<Database>({ cookies });
   
   try {

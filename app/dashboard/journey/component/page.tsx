@@ -1,45 +1,51 @@
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getComponentBySlug } from '@/lib/utils/avolve-db';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { ComponentProgress } from '@/components/avolve/component-progress';
 
-// Force dynamic rendering for this page
-export const dynamic = 'force-dynamic';
-
-export default async function ComponentPage({
-  searchParams,
-}: {
-  searchParams?: { 
-    pillarSlug?: string;
-    componentSlug?: string;
-  };
-}) {
-  const cookieStore = cookies();
-  const supabase = createClient();
+export default function ComponentPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pillarSlug = searchParams.get('pillarSlug');
+  const componentSlug = searchParams.get('componentSlug');
   
-  // Get the current user
-  const { data: { user } } = await supabase.auth.getUser();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
-  if (!user) {
-    // Redirect to login if not authenticated
-    redirect('/login');
-  }
+  const supabase = createClientComponentClient();
   
-  const pillarSlug = searchParams?.pillarSlug;
-  const componentSlug = searchParams?.componentSlug;
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // Redirect to login if not authenticated
+        router.push('/login');
+        return;
+      }
+      
+      setUserId(user.id);
+      setIsLoading(false);
+    }
+    
+    checkAuth();
+  }, [router, supabase.auth]);
   
-  if (!pillarSlug || !componentSlug) {
-    // Redirect to journey page if parameters are missing
-    redirect('/dashboard/journey');
-  }
+  useEffect(() => {
+    if (!pillarSlug || !componentSlug) {
+      // Redirect to journey page if parameters are missing
+      router.push('/dashboard/journey');
+    }
+  }, [pillarSlug, componentSlug, router]);
   
-  // Get component details
-  const component = await getComponentBySlug(componentSlug);
-  
-  if (!component) {
-    // Redirect to pillar page if component not found
-    redirect(`/dashboard/journey?pillarSlug=${pillarSlug}`);
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 flex justify-center items-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
   
   return (
@@ -67,12 +73,14 @@ export default async function ComponentPage({
         </a>
       </div>
       
-      <div className="mt-4">
-        <ComponentProgress 
-          componentSlug={componentSlug} 
-          userId={user.id} 
-        />
-      </div>
+      {userId && componentSlug && (
+        <div className="mt-4">
+          <ComponentProgress 
+            componentSlug={componentSlug} 
+            userId={userId} 
+          />
+        </div>
+      )}
     </div>
   );
 }

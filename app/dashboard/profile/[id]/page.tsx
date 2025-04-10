@@ -1,31 +1,52 @@
-import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-import { UserProfile } from "@/components/user-profile"
-import { ProfileTabs } from "@/components/profile-tabs"
+'use client';
 
-interface ProfilePageProps {
-  params: {
-    id: string
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { UserProfile } from "@/components/user-profile";
+import { ProfileTabs } from "@/components/profile-tabs";
+
+export default function ProfilePage() {
+  const router = useRouter();
+  const params = useParams();
+  const userId = params.id as string;
+  
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const supabase = createClientComponentClient();
+  
+  useEffect(() => {
+    async function checkAuth() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      
+      if (error || !user) {
+        // Redirect to login if not authenticated
+        router.push('/auth/login');
+        return;
+      }
+      
+      setCurrentUserId(user.id);
+      setIsLoading(false);
+    }
+    
+    checkAuth();
+  }, [router, supabase.auth]);
+  
+  if (isLoading) {
+    return (
+      <div className="container py-6 flex justify-center items-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
   }
-}
-
-export default async function ProfilePage({ params }: ProfilePageProps) {
-  const supabase = await createClient()
-  const { data: userData, error } = await supabase.auth.getUser()
-
-  if (error || !userData?.user) {
-    redirect("/auth/login")
-  }
-
-  // In a real app, we would fetch the profile data from Supabase
-  // For now, we'll use mock data
-  const isCurrentUser = params.id === userData.user.id
+  
+  const isCurrentUser = userId === currentUserId;
 
   return (
     <div className="container py-6">
-      <UserProfile userId={params.id} isCurrentUser={isCurrentUser} />
-      <ProfileTabs userId={params.id} isCurrentUser={isCurrentUser} />
+      <UserProfile userId={userId} isCurrentUser={isCurrentUser} />
+      <ProfileTabs userId={userId} isCurrentUser={isCurrentUser} />
     </div>
-  )
+  );
 }
-

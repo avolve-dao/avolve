@@ -3,12 +3,11 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { Database } from '@/lib/database.types';
 
-// GET handler for retrieving a specific consent record
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = context.params.id;
   const supabase = createRouteHandlerClient<Database>({ cookies });
   
   try {
@@ -50,12 +49,11 @@ export async function GET(
   }
 }
 
-// PATCH handler for updating a consent record
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = context.params.id;
   const supabase = createRouteHandlerClient<Database>({ cookies });
   
   try {

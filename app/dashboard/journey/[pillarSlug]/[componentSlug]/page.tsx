@@ -7,11 +7,18 @@ import { ComponentProgress } from '@/components/avolve/component-progress';
 // Force dynamic rendering for this page
 export const dynamic = 'force-dynamic';
 
-interface ComponentPageProps {
+// Define proper Next.js 15 page props type
+type PageProps = {
+  params: { [key: string]: string | string[] };
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
+// Extend the PageProps type with our specific params
+interface ComponentPageProps extends PageProps {
   params: {
     pillarSlug: string;
     componentSlug: string;
-  }
+  };
 }
 
 export default async function ComponentPage({ params }: ComponentPageProps) {

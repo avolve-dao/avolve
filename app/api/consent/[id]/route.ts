@@ -1,15 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  return NextResponse.json({ id: params.id });
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  return NextResponse.json({ id: params.id, status: 'updated' });
-}
+// This file intentionally left empty
+// Using query parameters instead of dynamic routes for better compatibility with Next.js 15
+// See /app/api/consent/route.ts for the implementation

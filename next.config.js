@@ -30,17 +30,14 @@ const nextConfig = {
     optimizeCss: true,
     // Enable memory optimizations
     memoryBasedWorkersCount: true,
-    // Enable edge runtime for API routes
-    runtime: 'edge',
-    // Enable font optimization
-    optimizeFonts: true,
-    // Enable app directory features
-    appDir: true,
-    // Enable server components
-    serverComponents: true,
+    // These options are now default or removed in Next.js 15
+    // runtime: 'edge', - removed
+    // optimizeFonts: true, - now default
+    // appDir: true, - now default
+    // serverComponents: true, - now default
   },
-  // Enable SWC minification for faster builds
-  swcMinify: true,
+  // swcMinify is now default in Next.js 15
+  // swcMinify: true,
   // Optimize images
   images: {
     domains: ['avatars.githubusercontent.com', 'lh3.googleusercontent.com'],

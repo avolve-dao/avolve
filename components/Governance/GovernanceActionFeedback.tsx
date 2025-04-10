@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type FeedbackType = 'success' | 'error' | 'info' | 'warning';
@@ -84,7 +86,7 @@ const CustomToast: React.FC<FeedbackProps> = ({ message, type, onDismiss }) => {
 };
 
 // Function to show toast with custom styling
-export const showToast = (
+export const showFeedback = (
   type: FeedbackType,
   message: string,
   duration: number = 4000,
@@ -109,16 +111,25 @@ export const showToast = (
 export const GovernanceActionFeedback: React.FC = () => {
   const router = useRouter();
 
-  // Clear all toasts on route change
   useEffect(() => {
-    const handleRouteChange = () => {
-      toast.dismiss();
-    };
-
-    router.events.on('routeChangeStart', handleRouteChange);
-    return () => {
-      router.events.off('routeChangeStart', handleRouteChange);
-    };
+    // Check for feedback in URL parameters when component mounts
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get('feedback') as FeedbackType | null;
+    const message = urlParams.get('message');
+    
+    if (type && message) {
+      showFeedback(type, decodeURIComponent(message));
+      
+      // Remove the feedback parameters from the URL
+      urlParams.delete('feedback');
+      urlParams.delete('message');
+      
+      const newUrl = window.location.pathname + 
+        (urlParams.toString() ? `?${urlParams.toString()}` : '');
+      
+      // Update URL without the feedback parameters
+      window.history.replaceState({}, '', newUrl);
+    }
   }, [router]);
 
   return <Toaster />;
@@ -127,10 +138,10 @@ export const GovernanceActionFeedback: React.FC = () => {
 // Hook for governance action feedback
 export const useGovernanceFeedback = () => {
   return {
-    showSuccess: (message: string, duration?: number) => showToast('success', message, duration),
-    showError: (message: string, duration?: number) => showToast('error', message, duration),
-    showWarning: (message: string, duration?: number) => showToast('warning', message, duration),
-    showInfo: (message: string, duration?: number) => showToast('info', message, duration),
+    showSuccess: (message: string, duration?: number) => showFeedback('success', message, duration),
+    showError: (message: string, duration?: number) => showFeedback('error', message, duration),
+    showWarning: (message: string, duration?: number) => showFeedback('warning', message, duration),
+    showInfo: (message: string, duration?: number) => showFeedback('info', message, duration),
   };
 };
 

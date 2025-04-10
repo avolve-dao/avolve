@@ -4,8 +4,11 @@ import { Suspense } from "react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { InviteForm } from "@/components/landing/invite-form"
 
-// Enable ISR with 1 hour revalidation
-export const revalidate = 3600
+// Configure page options
+export const dynamic = 'force-static'
+export const config = {
+  revalidate: 3600 // Enable ISR with 1 hour revalidation
+}
 
 export default async function Page() {
   // Track anonymous page view happens client-side in the InviteForm component

@@ -21,6 +21,10 @@ import { MentorshipTeaser } from "@/components/dashboard/mentorship-teaser";
 import { FeedbackForm } from "@/components/feedback/feedback-form";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 
+// Import token components
+import { TokenVisualization } from "@/components/tokens/token-visualization";
+import { TokenRewards } from "@/components/tokens/token-rewards";
+
 // Import local components
 import { LeaderboardSection } from "@/app/dashboard/components/leaderboard-section";
 import { LockedFeatures } from "@/app/dashboard/components/locked-features";
@@ -164,6 +168,24 @@ export default async function DashboardPage() {
                 <Suspense fallback={<WidgetsSkeleton />}>
                   <DashboardWidgets userId={userId} />
                 </Suspense>
+              </div>
+              
+              {/* Token Ecosystem Section */}
+              <h3 className="text-xl font-semibold mt-8 mb-4">Your Token Ecosystem</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Token Visualization */}
+                <div className="md:col-span-2">
+                  <Suspense fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-xl"></div>}>
+                    <TokenVisualization userId={userId} />
+                  </Suspense>
+                </div>
+                
+                {/* Token Rewards */}
+                <div>
+                  <Suspense fallback={<div className="h-64 bg-gray-100 animate-pulse rounded-xl"></div>}>
+                    <TokenRewards userId={userId} />
+                  </Suspense>
+                </div>
               </div>
               
               {/* Feedback Form */}

@@ -10,6 +10,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { createServerComponentClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Image from "next/image";
+import { Sparkles, Zap, Award, TrendingUp, Brain } from "lucide-react";
+import { Toast } from "@/components/ui/toast";
+import { ToastProvider } from "@/components/ui/toast";
 
 // Import component files
 import { TodayEventCard } from "@/components/dashboard/today-event-card";
@@ -22,6 +25,12 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { LeaderboardSection } from "@/app/dashboard/components/leaderboard-section";
 import { LockedFeatures } from "@/app/dashboard/components/locked-features";
 import { DashboardWidgets } from "@/app/dashboard/components/dashboard-widgets";
+
+// Import AI and journey components
+import { AIInsightsServer } from "@/components/dashboard/ai-insights/server";
+import { JourneyMapServer } from "@/components/dashboard/journey-map/server";
+import { JourneyProgress } from "@/components/dashboard/journey-progress";
+import { AIRecommendations } from "@/components/dashboard/ai-recommendations";
 
 export default async function DashboardPage() {
   const supabase = createServerComponentClient();
@@ -44,130 +53,258 @@ export default async function DashboardPage() {
     
   const todayEvent = events?.[0] || null;
 
+  // Fetch user's regen analytics data
+  const { data: regenData } = await supabase
+    .rpc('get_user_regen_analytics', { user_id_param: userId });
+  
+  // Determine pillar theme based on user's journey
+  const pillarTheme = getPillarTheme(regenData?.regen_level || 1, regenData?.journey_pillar || 'superachiever');
+
   return (
     <ThemeProvider>
       <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <div className="flex items-center justify-end p-4">
-            <NotificationBell userId={userId} />
-          </div>
-          <AppNavbar />
-          <div className="container mx-auto py-6 space-y-8">
-            <h1 className="text-3xl font-bold">Welcome to Your Dashboard</h1>
-            
-            {/* SSA Banner */}
-            <section className="relative overflow-hidden rounded-lg border border-blue-800 bg-gradient-to-r from-blue-950 to-indigo-950">
-              <div className="absolute top-0 right-0 opacity-20">
-                <Image 
-                  src="/ssa-network.png" 
-                  alt="SSA Network" 
-                  width={300} 
-                  height={200}
-                  priority
-                  className="object-cover"
-                />
-              </div>
-              <div className="relative z-10 p-6 flex items-center justify-between">
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-bold text-white">Superachievers Network</h2>
-                  <p className="text-blue-200 max-w-md">Connect with like-minded individuals and contribute to our collective success.</p>
-                </div>
-                <div className="flex-shrink-0">
+        <ToastProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <div className="flex items-center justify-end p-4">
+              <NotificationBell userId={userId} />
+            </div>
+            <AppNavbar />
+            <div className="container mx-auto py-6 space-y-8">
+              {/* Journey Banner with dynamic theme based on user's pillar */}
+              <section className={`relative overflow-hidden rounded-xl border shadow-lg transform transition-all duration-300 hover:scale-[1.01] ${pillarTheme.borderColor} ${pillarTheme.bgGradient}`}>
+                <div className="absolute top-0 right-0 opacity-20 animate-pulse-slow">
                   <Image 
-                    src="/ssa-badge.png" 
-                    alt="SSA Badge" 
-                    width={80} 
-                    height={80}
+                    src={pillarTheme.backgroundImage} 
+                    alt={pillarTheme.name} 
+                    width={300} 
+                    height={200}
                     priority
-                    className="object-contain"
+                    className="object-cover"
                   />
                 </div>
-              </div>
-            </section>
-            
-            {/* Today's Event Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4">Today's Event</h2>
-              {todayEvent ? (
-                <TodayEventCard event={todayEvent} userId={userId} />
-              ) : (
-                <Card className="border-zinc-800 bg-zinc-950/50 p-6">
-                  <p className="text-center text-zinc-400">No events available today. Check back later!</p>
-                </Card>
-              )}
-            </section>
-            
-            {/* Analytics Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4">Your Analytics</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <ValueCard userId={userId} />
-                <MentorshipTeaser userId={userId} />
-                <Card className="border-zinc-800 bg-zinc-950/50 p-4">
-                  <h3 className="text-xl font-semibold mb-2">Quick Stats</h3>
+                <div className="relative z-10 p-6 flex items-center justify-between">
                   <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Active Days</span>
-                      <span className="font-medium">24</span>
+                    <div className="flex items-center">
+                      <Sparkles className={`w-5 h-5 mr-2 ${pillarTheme.iconColor}`} />
+                      <h2 className="text-2xl font-bold text-white">{pillarTheme.name}</h2>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Events Completed</span>
-                      <span className="font-medium">18</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tokens Earned</span>
-                      <span className="font-medium">240 GEN</span>
+                    <p className={`${pillarTheme.textColor} max-w-md text-balance`}>
+                      {pillarTheme.description}
+                    </p>
+                    <div className="flex items-center mt-2 text-sm">
+                      <div className={`flex items-center ${pillarTheme.statColor} mr-4`}>
+                        <TrendingUp className="w-4 h-4 mr-1" />
+                        <span>Level {regenData?.regen_level || 1}</span>
+                      </div>
+                      <div className={`flex items-center ${pillarTheme.statColor}`}>
+                        <Award className="w-4 h-4 mr-1" />
+                        <span>{regenData?.milestone_count || 0} Milestones</span>
+                      </div>
                     </div>
                   </div>
-                </Card>
+                  <div className="flex-shrink-0 relative">
+                    <div className={`absolute -inset-1 ${pillarTheme.glowEffect} blur-md opacity-75 rounded-full`}></div>
+                    <Image 
+                      src={pillarTheme.badgeImage} 
+                      alt={`${pillarTheme.name} Badge`} 
+                      width={80} 
+                      height={80}
+                      priority
+                      className="relative object-contain animate-float"
+                    />
+                  </div>
+                </div>
+              </section>
+              
+              {/* Main Dashboard Content */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Left Column: Journey Progress */}
+                <div className="md:col-span-2 space-y-6">
+                  <Suspense fallback={<JourneyProgressSkeleton />}>
+                    <JourneyProgress userId={userId} />
+                  </Suspense>
+                  
+                  <Suspense fallback={<JourneyMapSkeleton />}>
+                    <JourneyMapServer userId={userId} />
+                  </Suspense>
+                  
+                  <Suspense fallback={<AIInsightsSkeleton />}>
+                    <AIInsightsServer userId={userId} />
+                  </Suspense>
+                </div>
+                
+                {/* Right Column: AI Recommendations and Today's Event */}
+                <div className="space-y-6">
+                  <Suspense fallback={<RecommendationsSkeleton />}>
+                    <AIRecommendations userId={userId} />
+                  </Suspense>
+                  
+                  <Suspense fallback={<TodayEventSkeleton />}>
+                    {todayEvent && <TodayEventCard event={todayEvent} userId={userId} />}
+                  </Suspense>
+                  
+                  <Suspense fallback={<LeaderboardSkeleton />}>
+                    <LeaderboardSection userId={userId} />
+                  </Suspense>
+                </div>
               </div>
-            </section>
-            
-            {/* Leaderboard Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4">SSA Leaderboard</h2>
-              <Card className="border-zinc-800 bg-zinc-950/50 p-4">
-                <Suspense fallback={<LeaderboardSkeleton />}>
-                  <LeaderboardSection userId={userId} />
-                </Suspense>
-              </Card>
-            </section>
-            
-            {/* Locked Features Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4">Locked Features</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              
+              {/* Locked Features Section */}
+              <h3 className="text-xl font-semibold mt-8 mb-4">Unlock Your Potential</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Suspense fallback={<FeaturesSkeleton />}>
                   <LockedFeatures userId={userId} />
                 </Suspense>
               </div>
-            </section>
-            
-            {/* Dashboard Widgets Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4">Your Dashboard</h2>
-              <Suspense fallback={<WidgetsSkeleton />}>
-                <DashboardWidgets userId={userId} />
-              </Suspense>
-            </section>
-            
-            {/* Feedback Section */}
-            <section>
-              <h2 className="text-2xl font-bold mb-4">Your Feedback</h2>
-              <FeedbackForm userId={userId} />
-            </section>
-          </div>
-        </SidebarInset>
+              
+              {/* Value Widgets */}
+              <h3 className="text-xl font-semibold mt-8 mb-4">Maximize Your Journey</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Suspense fallback={<WidgetsSkeleton />}>
+                  <DashboardWidgets userId={userId} />
+                </Suspense>
+              </div>
+              
+              {/* Feedback Form */}
+              <div className="mt-12 border-t border-zinc-800 pt-8">
+                <FeedbackForm userId={userId} />
+              </div>
+            </div>
+          </SidebarInset>
+        </ToastProvider>
       </SidebarProvider>
     </ThemeProvider>
   );
 }
 
+// Helper function to determine pillar theme based on regen level and journey pillar
+function getPillarTheme(regenLevel: number, journeyPillar: string) {
+  let theme;
+  
+  // Determine base theme by pillar
+  if (journeyPillar === 'superachiever') {
+    theme = {
+      name: 'Superachiever Journey',
+      description: 'Your personal growth path focused on developing individual excellence and mastery.',
+      bgGradient: 'bg-gradient-to-br from-amber-400 to-yellow-600',
+      borderColor: 'border-amber-500',
+      textColor: 'text-amber-100',
+      iconColor: 'text-amber-300',
+      statColor: 'text-amber-200',
+      glowEffect: 'bg-amber-500',
+      backgroundImage: '/superachiever-bg.png',
+      badgeImage: '/superachiever-badge.png'
+    };
+  } else if (journeyPillar === 'superachievers') {
+    theme = {
+      name: 'Superachievers Journey',
+      description: 'Your collective growth path focused on community collaboration and shared advancement.',
+      bgGradient: 'bg-gradient-to-br from-emerald-400 to-green-600',
+      borderColor: 'border-emerald-500',
+      textColor: 'text-emerald-100',
+      iconColor: 'text-emerald-300',
+      statColor: 'text-emerald-200',
+      glowEffect: 'bg-emerald-500',
+      backgroundImage: '/superachievers-bg.png',
+      badgeImage: '/superachievers-badge.png'
+    };
+  } else {
+    theme = {
+      name: 'Supercivilization Journey',
+      description: 'Your ecosystem growth path focused on building regenerative systems and infrastructure.',
+      bgGradient: 'bg-gradient-to-br from-blue-400 to-indigo-600',
+      borderColor: 'border-blue-500',
+      textColor: 'text-blue-100',
+      iconColor: 'text-blue-300',
+      statColor: 'text-blue-200',
+      glowEffect: 'bg-blue-500',
+      backgroundImage: '/supercivilization-bg.png',
+      badgeImage: '/supercivilization-badge.png'
+    };
+  }
+  
+  // Enhance theme based on regen level
+  if (regenLevel >= 4) {
+    theme.bgGradient = theme.bgGradient.replace('from-', 'from-opacity-80 from-');
+    theme.bgGradient += ' bg-noise';
+    theme.glowEffect += ' animate-pulse';
+  }
+  
+  return theme;
+}
+
 // Skeleton loaders for suspense boundaries
+function JourneyProgressSkeleton() {
+  return (
+    <Card className="border-zinc-800 bg-zinc-950/50 overflow-hidden">
+      <div className="p-6 space-y-4">
+        <Skeleton className="h-6 w-48" />
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-8 w-full rounded-full" />
+        </div>
+        <div className="grid grid-cols-3 gap-4">
+          <Skeleton className="h-16 w-full rounded-md" />
+          <Skeleton className="h-16 w-full rounded-md" />
+          <Skeleton className="h-16 w-full rounded-md" />
+        </div>
+      </div>
+      <div className="animate-pulse bg-gradient-to-r from-zinc-900 to-zinc-950 h-1"></div>
+    </Card>
+  );
+}
+
+function RecommendationsSkeleton() {
+  return (
+    <Card className="border-zinc-800 bg-zinc-950/50 overflow-hidden">
+      <div className="p-6 space-y-4">
+        <Skeleton className="h-6 w-36" />
+        <div className="space-y-3">
+          {Array(3).fill(0).map((_, i) => (
+            <div key={i} className="flex items-center space-x-2">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-3 w-full" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="animate-pulse bg-gradient-to-r from-zinc-900 to-zinc-950 h-1"></div>
+    </Card>
+  );
+}
+
+function JourneyMapSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        {Array(4).fill(0).map((_, i) => (
+          <Skeleton key={i} className="h-8 w-24 rounded-full flex-shrink-0" />
+        ))}
+      </div>
+      <Skeleton className="h-40 w-full rounded-md" />
+    </div>
+  );
+}
+
+function AIInsightsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton className="h-10 w-full rounded-md" />
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton className="h-24 w-full rounded-md" />
+        <Skeleton className="h-24 w-full rounded-md" />
+      </div>
+    </div>
+  );
+}
+
 function TodayEventSkeleton() {
   return (
-    <Card className="border-zinc-800 bg-zinc-950/50">
+    <Card className="border-zinc-800 bg-zinc-950/50 overflow-hidden">
       <div className="p-6 space-y-4">
         <Skeleton className="h-6 w-48" />
         <Skeleton className="h-4 w-32" />
@@ -179,6 +316,7 @@ function TodayEventSkeleton() {
         </div>
         <Skeleton className="h-10 w-full" />
       </div>
+      <div className="animate-pulse bg-gradient-to-r from-zinc-900 to-zinc-950 h-1"></div>
     </Card>
   );
 }
@@ -207,13 +345,14 @@ function FeaturesSkeleton() {
   return (
     <>
       {Array(3).fill(0).map((_, i) => (
-        <Card key={i} className="border-zinc-800 bg-zinc-950/50">
+        <Card key={i} className="border-zinc-800 bg-zinc-950/50 overflow-hidden">
           <div className="p-6 space-y-4">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-10 w-full" />
           </div>
+          <div className="animate-pulse bg-gradient-to-r from-zinc-900 to-zinc-950 h-1"></div>
         </Card>
       ))}
     </>
@@ -224,12 +363,13 @@ function WidgetsSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {Array(3).fill(0).map((_, i) => (
-        <Card key={i} className="border-zinc-800 bg-zinc-950/50">
+        <Card key={i} className="border-zinc-800 bg-zinc-950/50 overflow-hidden">
           <div className="p-6 space-y-4">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-10 w-full" />
           </div>
+          <div className="animate-pulse bg-gradient-to-r from-zinc-900 to-zinc-950 h-1"></div>
         </Card>
       ))}
     </div>

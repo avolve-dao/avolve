@@ -3,12 +3,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { Database } from '@/lib/database.types';
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 /**
  * PATCH /api/consent/:id
  * 
@@ -16,7 +10,7 @@ type RouteContext = {
  */
 export async function PATCH(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     const supabase = createRouteHandlerClient<Database>({ cookies });
@@ -44,7 +38,7 @@ export async function PATCH(
     }
     
     // Get consent ID from URL params
-    const consentId = context.params.id;
+    const consentId = params.id;
     
     // Check if consent record exists and belongs to user
     const { data: existingConsent, error: fetchError } = await supabase

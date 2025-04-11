@@ -1,316 +1,113 @@
 'use client';
 
-/**
- * Token Balance Client Component
- * 
- * Client-side interactive component for displaying token balances with real-time updates
- * Copyright © 2025 Avolve DAO. All rights reserved.
- */
+import { useEffect, useState } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { useToast } from '@/components/ui/use-toast';
+import { TokenIcon } from '@/components/tokens/token-icon';
+import { Card, CardContent } from '@/components/ui/card';
 
-import { useState, useEffect } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Coins, ArrowUpRight, ArrowDownRight, RefreshCw, Plus, ChevronDown } from 'lucide-react';
-import Image from 'next/image';
-
-// UI components
-import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-
-// Types
-import type { Database } from '@/types/supabase';
-
-interface Token {
-  id: string;
+interface TokenBalance {
+  token_type: string;
   balance: number;
-  name: string;
-  symbol: string;
-  icon: string;
-  description?: string;
-  isPrimary: boolean;
+  last_updated: string;
 }
 
-interface TokenTransaction {
-  id: string;
-  user_id: string;
-  token_id: string;
-  amount: number;
-  transaction_type: 'earn' | 'spend' | 'transfer_in' | 'transfer_out';
-  source: string;
-  created_at: string;
-  metadata?: Record<string, any>;
-}
+export function TokenBalanceClient() {
+  const [balances, setBalances] = useState<TokenBalance[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-interface TokenBalanceClientProps {
-  tokens: Token[];
-  recentTransactions: TokenTransaction[];
-  userId: string;
-}
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-export function TokenBalanceClient({
-  tokens: initialTokens,
-  recentTransactions: initialTransactions,
-  userId
-}: TokenBalanceClientProps) {
-  const [tokens, setTokens] = useState<Token[]>(initialTokens);
-  const [recentTransactions, setRecentTransactions] = useState<TokenTransaction[]>(initialTransactions);
-  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  
-  const supabase = createClientComponentClient<Database>();
-  
-  // Subscribe to real-time updates for user tokens
   useEffect(() => {
-    const channel = supabase
-      .channel('user_tokens_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'user_tokens',
-          filter: `user_id=eq.${userId}`
-        },
-        (payload) => {
-          // Update the token balance in the state
-          setTokens(prevTokens => 
-            prevTokens.map(token => 
-              token.id === payload.new.token_id
-                ? { ...token, balance: payload.new.balance }
-                : token
-            )
-          );
-          
-          // Show update animation
-          setIsUpdating(true);
-          setTimeout(() => setIsUpdating(false), 1000);
-        }
-      )
-      .subscribe();
+    async function loadTokenBalances() {
+      const { data: { user } } = await supabase.auth.getUser();
       
-    // Subscribe to real-time updates for token transactions
-    const transactionChannel = supabase
-      .channel('token_transactions_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'token_transactions',
-          filter: `user_id=eq.${userId}`
-        },
-        (payload) => {
-          // Add the new transaction to the state
-          setRecentTransactions(prev => [payload.new as TokenTransaction, ...prev.slice(0, 4)]);
-        }
-      )
-      .subscribe();
-    
-    return () => {
-      supabase.removeChannel(channel);
-      supabase.removeChannel(transactionChannel);
-    };
-  }, [supabase, userId]);
-  
-  // Format token amount with proper decimals
-  const formatTokenAmount = (amount: number) => {
-    return amount.toLocaleString(undefined, {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2
-    });
-  };
-  
-  // Format transaction date
-  const formatTransactionDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
-  };
-  
-  // Get transaction icon based on type
-  const getTransactionIcon = (type: string) => {
-    switch (type) {
-      case 'earn':
-        return <Plus className="w-3 h-3 text-green-500" />;
-      case 'spend':
-        return <Coins className="w-3 h-3 text-amber-500" />;
-      case 'transfer_in':
-        return <ArrowDownRight className="w-3 h-3 text-green-500" />;
-      case 'transfer_out':
-        return <ArrowUpRight className="w-3 h-3 text-red-500" />;
-      default:
-        return <Coins className="w-3 h-3" />;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('user_token_balances')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load token balances",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setBalances(data);
+      setLoading(false);
+
+      // Subscribe to balance updates
+      const channel = supabase
+        .channel('balance_updates')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'user_token_balances',
+            filter: `user_id=eq.${user.id}`
+          }, 
+          () => {
+            loadTokenBalances();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
-  };
-  
-  // Get transaction color based on type
-  const getTransactionColor = (type: string) => {
-    switch (type) {
-      case 'earn':
-      case 'transfer_in':
-        return 'text-green-600';
-      case 'spend':
-      case 'transfer_out':
-        return 'text-red-600';
-      default:
-        return '';
-    }
-  };
-  
-  // Format transaction amount with sign
-  const formatTransactionAmount = (transaction: TokenTransaction) => {
-    const isPositive = ['earn', 'transfer_in'].includes(transaction.transaction_type);
-    const sign = isPositive ? '+' : '-';
-    return `${sign}${formatTokenAmount(Math.abs(transaction.amount))} ${transaction.token_id}`;
-  };
-  
-  return (
-    <div className="w-full">
-      {/* Token balances */}
-      <div className="flex items-center space-x-2">
-        {tokens
-          .filter(token => token.isPrimary || token.balance > 0)
-          .slice(0, 3)
-          .map(token => (
-            <div 
-              key={token.id}
-              className="flex items-center bg-white px-3 py-1.5 rounded-full border shadow-sm"
-            >
-              <div className="w-5 h-5 mr-1.5 relative">
-                {token.icon ? (
-                  <Image 
-                    src={`/icons/${token.icon}`} 
-                    alt={token.symbol}
-                    fill
-                    className="object-contain"
-                  />
-                ) : (
-                  <Coins className="w-full h-full text-primary" />
-                )}
-              </div>
-              <div className="flex items-baseline">
-                <span className="font-medium">
-                  {formatTokenAmount(token.balance)}
-                </span>
-                <span className="text-xs text-muted-foreground ml-1">
-                  {token.symbol}
-                </span>
-              </div>
-              
-              {/* Animation for token updates */}
-              <AnimatePresence>
-                {isUpdating && token.id === tokens.find(t => t.isPrimary)?.id && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    className="ml-1"
-                  >
-                    <RefreshCw className="w-3 h-3 text-blue-500 animate-spin" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ))}
-        
-        {/* More tokens dropdown if needed */}
-        {tokens.length > 3 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 rounded-full">
-                <span className="text-xs">+{tokens.length - 3}</span>
-                <ChevronDown className="w-3 h-3 ml-1" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {tokens
-                .filter(token => !token.isPrimary && token.balance > 0)
-                .slice(3)
-                .map(token => (
-                  <DropdownMenuItem key={token.id}>
-                    <div className="w-4 h-4 mr-2 relative">
-                      {token.icon ? (
-                        <Image 
-                          src={`/icons/${token.icon}`} 
-                          alt={token.symbol}
-                          fill
-                          className="object-contain"
-                        />
-                      ) : (
-                        <Coins className="w-full h-full text-primary" />
-                      )}
-                    </div>
-                    <span>
-                      {formatTokenAmount(token.balance)} {token.symbol}
-                    </span>
-                  </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-        
-        {/* Transaction history dialog */}
-        <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
-              <ArrowUpRight className="h-4 w-4" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Recent Token Transactions</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3 mt-4 max-h-[400px] overflow-y-auto">
-              {recentTransactions.length > 0 ? (
-                recentTransactions.map(transaction => (
-                  <div 
-                    key={transaction.id}
-                    className="flex items-center justify-between p-2 border rounded-lg"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mr-3">
-                        {getTransactionIcon(transaction.transaction_type)}
-                      </div>
-                      <div>
-                        <div className="font-medium">
-                          {transaction.source}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {formatTransactionDate(transaction.created_at)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className={getTransactionColor(transaction.transaction_type)}>
-                      {formatTransactionAmount(transaction)}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No recent transactions</p>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+
+    loadTokenBalances();
+  }, [supabase, toast]);
+
+  if (loading) {
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-12 bg-slate-200 rounded w-3/4"></div>
+        <div className="h-4 bg-slate-200 rounded w-full"></div>
       </div>
+    );
+  }
+
+  if (!balances.length) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <p className="text-gray-600">No token balances available.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      {balances.map((balance) => (
+        <Card key={balance.token_type}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <TokenIcon type={balance.token_type} />
+                <div>
+                  <p className="font-medium">{balance.token_type}</p>
+                  <p className="text-2xl font-bold">{balance.balance}</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

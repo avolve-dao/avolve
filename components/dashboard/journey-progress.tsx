@@ -1,14 +1,7 @@
 'use client';
 
-/**
- * Journey Progress Component
- * 
- * Real-time progress tracking with streak bonuses and token earnings
- * Copyright 2025 Avolve DAO. All rights reserved.
- */
-
 import { useState, useEffect, useRef } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -27,7 +20,10 @@ interface JourneyProgressProps {
 }
 
 export function JourneyProgress({ userId }: JourneyProgressProps) {
-  const supabase = createClientComponentClient<Database>();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { toast } = useToast();
   const confettiCanvasRef = useRef<HTMLCanvasElement>(null);
   

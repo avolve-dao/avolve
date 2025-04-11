@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { ChatList } from "@/components/chat/chat-list";
 import { ChatHeader } from "@/components/chat/chat-header";
 import { ChatMessages } from "@/components/chat/chat-messages";
@@ -36,7 +36,10 @@ export default function GroupChatPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  const supabase = createClientComponentClient();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   
   useEffect(() => {
     async function loadGroupData() {

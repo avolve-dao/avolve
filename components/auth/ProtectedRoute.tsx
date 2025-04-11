@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient } from '@supabase/ssr';
 import { Loader2 } from 'lucide-react';
 import { Database } from '@/lib/database.types';
 
@@ -24,15 +24,19 @@ export default function ProtectedRoute({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const supabase = createClientComponentClient<Database>();
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   useEffect(() => {
-    const checkAuth = async () => {
+    async function checkAuth() {
       try {
         // Check if user is authenticated
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { user } } = await supabase.auth.getUser();
         
-        if (sessionError || !session) {
+        if (!user) {
           router.push('/auth/login?returnUrl=' + encodeURIComponent(window.location.pathname));
           return;
         }
@@ -42,7 +46,7 @@ export default function ProtectedRoute({
           const { data: trustData, error: trustError } = await supabase
             .from('trust_scores')
             .select('level')
-            .eq('user_id', session.user.id)
+            .eq('user_id', user.id)
             .single();
 
           if (trustError || !trustData || trustData.level < requiredTrustLevel) {
@@ -56,7 +60,7 @@ export default function ProtectedRoute({
           // Use a different approach to avoid join issues
           const { data: tokenData, error: tokenError } = await supabase
             .rpc('get_user_token_balances', {
-              p_user_id: session.user.id,
+              p_user_id: user.id,
               p_symbols: requiredTokens.map(t => t.symbol)
             });
 

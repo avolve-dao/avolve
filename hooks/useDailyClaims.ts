@@ -1,132 +1,115 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
-import { claimsService } from '../src/claims';
-import { metricsService } from '../src/metrics';
-import { TokenSymbol } from '../types/supabase';
+import { useState, useEffect } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { useToast } from '@/components/ui/use-toast';
 
-/**
- * Hook for managing daily token claims
- * Handles claim availability checking, claiming, and streak tracking
- */
-export function useDailyClaims() {
-  const user = useUser();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [canClaim, setCanClaim] = useState(false);
-  const [todayToken, setTodayToken] = useState<{symbol: string; name: string} | null>(null);
-  const [claimStreak, setClaimStreak] = useState<any>(null);
-  const [recentClaims, setRecentClaims] = useState<any[]>([]);
-
-  // Check if user can claim today's token
-  const checkClaimAvailability = useCallback(async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const result = await claimsService.canClaimToday(user.id);
-      
-      if (result.success && result.data) {
-        setCanClaim(result.data.canClaim);
-        setTodayToken({
-          symbol: result.data.tokenSymbol,
-          name: result.data.tokenName
-        });
-      }
-      
-      // Get streak information
-      const streakResult = await claimsService.getClaimStreak(user.id);
-      
-      if (streakResult.success && streakResult.data) {
-        setClaimStreak(streakResult.data);
-      }
-      
-      // Get recent claims
-      const recentResult = await claimsService.getRecentClaims(user.id);
-      
-      if (recentResult.success && recentResult.data) {
-        setRecentClaims(recentResult.data || []);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to check claim availability');
-      console.error('Check claim availability error:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  // Claim daily token
-  const claimDailyToken = useCallback(async () => {
-    if (!user || !canClaim) return { success: false, error: 'Cannot claim token now' };
-    
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const result = await claimsService.claimDailyReward(user.id);
-      
-      if (result.success) {
-        // Record time spent (5 minutes for claiming)
-        await metricsService.recordTimeSpent(user.id, 5, 'daily_claim');
-        
-        // Refresh claim data
-        await checkClaimAvailability();
-        
-        return { success: true, data: result.data };
-      } else {
-        setError(result.error || 'Claim failed');
-        return { success: false, error: result.error };
-      }
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Claim failed';
-      setError(errorMsg);
-      console.error('Claim error:', err);
-      return { success: false, error: errorMsg };
-    } finally {
-      setLoading(false);
-    }
-  }, [user, canClaim, checkClaimAvailability]);
-
-  // Get day name for a token symbol
-  const getDayForToken = useCallback((tokenSymbol: TokenSymbol): string => {
-    switch (tokenSymbol) {
-      case TokenSymbol.SPD: return 'Sunday';
-      case TokenSymbol.SHE: return 'Monday';
-      case TokenSymbol.PSP: return 'Tuesday';
-      case TokenSymbol.SSA: return 'Wednesday';
-      case TokenSymbol.BSP: return 'Thursday';
-      case TokenSymbol.SGB: return 'Friday';
-      case TokenSymbol.SMS: return 'Saturday';
-      default: return '';
-    }
-  }, []);
-
-  // Check claim availability on mount and when user changes
-  useEffect(() => {
-    if (user) {
-      checkClaimAvailability();
-    } else {
-      setCanClaim(false);
-      setTodayToken(null);
-      setClaimStreak(null);
-      setRecentClaims([]);
-    }
-  }, [user, checkClaimAvailability]);
-
-  return {
-    loading,
-    error,
-    canClaim,
-    todayToken,
-    claimStreak,
-    recentClaims,
-    claimDailyToken,
-    refreshClaimData: checkClaimAvailability,
-    getDayForToken
-  };
+interface DailyClaim {
+  id: string;
+  token_type: string;
+  amount: number;
+  claimed: boolean;
+  expires_at: string;
 }
 
-export default useDailyClaims;
+export function useDailyClaims() {
+  const [claims, setClaims] = useState<DailyClaim[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  useEffect(() => {
+    async function loadDailyClaims() {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('daily_claims')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('expires_at', new Date().toISOString());
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load daily claims",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setClaims(data);
+      setLoading(false);
+
+      // Subscribe to claim updates
+      const channel = supabase
+        .channel('claim_updates')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'daily_claims',
+            filter: `user_id=eq.${user.id}`
+          }, 
+          () => {
+            loadDailyClaims();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+
+    loadDailyClaims();
+  }, [supabase, toast]);
+
+  const claimDaily = async (claimId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+      
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to claim rewards",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('daily_claims')
+      .update({ claimed: true })
+      .eq('id', claimId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to claim daily reward",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Daily reward claimed successfully!",
+    });
+  };
+
+  return {
+    claims,
+    loading,
+    claimDaily
+  };
+}

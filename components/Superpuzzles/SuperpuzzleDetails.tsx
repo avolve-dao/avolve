@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
+import { createBrowserClient } from '@supabase/ssr';
 import { useSuperpuzzles } from '@/hooks/useSuperpuzzles';
 import { useTeams } from '@/hooks/useTeams';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from '@/hooks/useToast';
+import { useToast } from '@/components/ui/use-toast';
 
 interface SuperpuzzleDetailsProps {
   superpuzzleId: string;
@@ -27,8 +27,11 @@ interface SuperpuzzleDetailsProps {
 
 export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuzzleId }) => {
   const router = useRouter();
-  const user = useUser();
-  const { showToast } = useToast();
+  const { toast } = useToast();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
   const { 
     loading: superpuzzleLoading, 
     selectedSuperpuzzle, 
@@ -41,14 +44,20 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
     loadUserTeams
   } = useTeams();
   
+  const [user, setUser] = useState<any>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string>('');
   
   useEffect(() => {
-    loadSuperpuzzleDetails(superpuzzleId);
-    if (user) {
-      loadUserTeams();
+    async function loadData() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      if (user) {
+        loadUserTeams();
+      }
     }
-  }, [superpuzzleId, user]);
+    loadSuperpuzzleDetails(superpuzzleId);
+    loadData();
+  }, [superpuzzleId, supabase]);
 
   useEffect(() => {
     // Set the first team as default if user has teams
@@ -81,14 +90,22 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
     }
   };
 
-  const handleContribute = () => {
+  const handleContribute = async () => {
     if (!user) {
-      showToast('error', 'You must be logged in to contribute');
+      toast({
+        title: "Error",
+        description: "You must be logged in to contribute",
+        variant: "destructive"
+      });
       return;
     }
     
     if (!selectedTeamId) {
-      showToast('error', 'Please select a team to contribute with');
+      toast({
+        title: "Error",
+        description: "Please select a team to contribute with",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -161,25 +178,22 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
             <div className="bg-slate-50 p-4 rounded-lg mb-6">
               <h3 className="text-lg font-medium mb-2">Contribute to this Superpuzzle</h3>
               <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-grow">
-                  <Select value={selectedTeamId} onValueChange={setSelectedTeamId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a team" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userTeams.map((team) => (
-                        <SelectItem key={team.teamId} value={team.teamId}>
-                          {team.team.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button 
-                  onClick={handleContribute}
-                  className={`bg-gradient-to-r ${gradientClass} text-white`}
-                  disabled={!selectedTeamId}
+                <Select
+                  value={selectedTeamId}
+                  onValueChange={setSelectedTeamId}
                 >
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Select team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userTeams.map((team) => (
+                      <SelectItem key={team.id} value={team.id}>
+                        {team.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleContribute}>
                   Contribute with Team
                 </Button>
               </div>
@@ -187,28 +201,21 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
           )}
           
           {!user && (
-            <Alert className="mb-6">
+            <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Login Required</AlertTitle>
               <AlertDescription>
-                You need to be logged in to contribute to superpuzzles.
+                You must be logged in to contribute to this superpuzzle.
               </AlertDescription>
             </Alert>
           )}
           
           {user && userTeams.length === 0 && (
-            <Alert className="mb-6">
+            <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>No Teams</AlertTitle>
               <AlertDescription>
-                You need to be part of a team to contribute to superpuzzles.
-                <Button 
-                  variant="link" 
-                  onClick={() => router.push('/teams')}
-                  className="p-0 h-auto text-blue-600"
-                >
-                  Join or create a team
-                </Button>
+                You need to be part of a team to contribute to this superpuzzle.
               </AlertDescription>
             </Alert>
           )}

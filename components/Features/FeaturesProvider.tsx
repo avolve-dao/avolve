@@ -1,64 +1,60 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
-import { useFeatures } from '@/hooks/useFeatures';
+import { createBrowserClient } from '@supabase/ssr';
 
 // Create context for features
 interface FeaturesContextType {
-  isFeatureUnlocked: (featureName: string) => boolean;
-  getFeatureUnlockReason: (featureName: string) => string;
-  isDayTokenUnlocked: (dayName: string) => boolean;
-  refreshFeatures: () => Promise<void>;
-  isLoading: boolean;
+  features: any;
+  loading: boolean;
 }
 
 const FeaturesContext = createContext<FeaturesContextType>({
-  isFeatureUnlocked: () => false,
-  getFeatureUnlockReason: () => '',
-  isDayTokenUnlocked: () => false,
-  refreshFeatures: async () => {},
-  isLoading: false
+  features: null,
+  loading: true
 });
 
 // Hook to use features context
-export const useFeaturesContext = () => useContext(FeaturesContext);
+export const useFeatures = () => useContext(FeaturesContext);
 
 // Features provider component
 export const FeaturesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const user = useUser();
-  const { 
-    loading, 
-    checkAllFeatures, 
-    isFeatureUnlocked, 
-    getFeatureUnlockReason, 
-    isDayTokenUnlocked 
-  } = useFeatures();
+  const [features, setFeatures] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Load features when user changes
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   useEffect(() => {
-    if (user) {
-      checkAllFeatures();
-    }
-  }, [user]);
+    async function loadFeatures() {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
-  // Function to refresh features
-  const refreshFeatures = async () => {
-    if (user) {
-      await checkAllFeatures();
+      const { data: features } = await supabase
+        .from('user_features')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      setFeatures(features);
+      setLoading(false);
     }
-  };
+
+    loadFeatures();
+  }, [supabase]);
+
+  if (loading) {
+    return null;
+  }
 
   return (
-    <FeaturesContext.Provider 
-      value={{ 
-        isFeatureUnlocked, 
-        getFeatureUnlockReason, 
-        isDayTokenUnlocked,
-        refreshFeatures,
-        isLoading: loading
-      }}
-    >
+    <FeaturesContext.Provider value={{ features, loading }}>
       {children}
     </FeaturesContext.Provider>
   );

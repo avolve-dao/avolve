@@ -1,255 +1,258 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
-import { teamsService } from '../src/teams';
-import { useToast } from './useToast';
+import { createBrowserClient } from '@supabase/ssr';
+import { useToast } from '@/components/ui/use-toast';
 
-/**
- * Hook for managing teams functionality
- * Provides methods for creating, joining, and managing teams
- */
-export const useTeams = () => {
-  const user = useUser();
-  const { showToast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [eligibilityLoading, setEligibilityLoading] = useState(false);
-  const [eligibility, setEligibility] = useState<{
-    isEligible: boolean;
-    completedChallenges: number;
-    requiredChallenges: number;
-    reason?: string;
-  } | null>(null);
-  const [userTeams, setUserTeams] = useState<any[]>([]);
-  const [allTeams, setAllTeams] = useState<any[]>([]);
-  const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
+interface Team {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  owner_id: string;
+  members: number;
+  total_points: number;
+}
 
-  // Check team creation eligibility
-  const checkEligibility = async () => {
-    if (!user) return;
-    
-    setEligibilityLoading(true);
-    try {
-      const result = await teamsService.checkTeamEligibility(user.id);
-      if (result.success && result.data) {
-        setEligibility(result.data);
-      } else {
-        showToast('error', result.error || 'Failed to check eligibility');
-      }
-    } catch (error) {
-      console.error('Error checking eligibility:', error);
-      showToast('error', 'An error occurred while checking eligibility');
-    } finally {
-      setEligibilityLoading(false);
-    }
-  };
+interface TeamMember {
+  id: string;
+  team_id: string;
+  user_id: string;
+  role: 'owner' | 'admin' | 'member';
+  joined_at: string;
+  contribution_points: number;
+}
 
-  // Create a new team
-  const createTeam = async (name: string, description?: string) => {
-    if (!user) {
-      showToast('error', 'You must be logged in to create a team');
-      return { success: false };
-    }
-    
-    setLoading(true);
-    try {
-      const result = await teamsService.createTeam(user.id, name, description);
-      if (result.success && result.data) {
-        showToast('success', 'Team created successfully!');
-        await loadUserTeams();
-        return { success: true, teamId: result.data.teamId };
-      } else {
-        showToast('error', result.error || 'Failed to create team');
-        return { success: false, error: result.error };
-      }
-    } catch (error) {
-      console.error('Error creating team:', error);
-      showToast('error', 'An error occurred while creating the team');
-      return { success: false, error: 'An unexpected error occurred' };
-    } finally {
-      setLoading(false);
-    }
-  };
+export function useTeams() {
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Join an existing team
-  const joinTeam = async (teamId: string) => {
-    if (!user) {
-      showToast('error', 'You must be logged in to join a team');
-      return { success: false };
-    }
-    
-    setLoading(true);
-    try {
-      const result = await teamsService.joinTeam(user.id, teamId);
-      if (result.success) {
-        showToast('success', result.message || 'Joined team successfully!');
-        await loadUserTeams();
-        return { success: true };
-      } else {
-        showToast('error', result.error || 'Failed to join team');
-        return { success: false, error: result.error };
-      }
-    } catch (error) {
-      console.error('Error joining team:', error);
-      showToast('error', 'An error occurred while joining the team');
-      return { success: false, error: 'An unexpected error occurred' };
-    } finally {
-      setLoading(false);
-    }
-  };
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-  // Leave a team
-  const leaveTeam = async (teamId: string) => {
-    if (!user) {
-      showToast('error', 'You must be logged in to leave a team');
-      return { success: false };
-    }
-    
-    setLoading(true);
-    try {
-      const result = await teamsService.leaveTeam(user.id, teamId);
-      if (result.success) {
-        showToast('success', result.message || 'Left team successfully!');
-        await loadUserTeams();
-        return { success: true };
-      } else {
-        showToast('error', result.error || 'Failed to leave team');
-        return { success: false, error: result.error };
-      }
-    } catch (error) {
-      console.error('Error leaving team:', error);
-      showToast('error', 'An error occurred while leaving the team');
-      return { success: false, error: 'An unexpected error occurred' };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Transfer team leadership
-  const transferLeadership = async (teamId: string, newLeaderId: string) => {
-    if (!user) {
-      showToast('error', 'You must be logged in to transfer leadership');
-      return { success: false };
-    }
-    
-    setLoading(true);
-    try {
-      const result = await teamsService.transferLeadership(user.id, teamId, newLeaderId);
-      if (result.success) {
-        showToast('success', result.message || 'Leadership transferred successfully!');
-        await loadTeamDetails(teamId);
-        await loadUserTeams();
-        return { success: true };
-      } else {
-        showToast('error', result.error || 'Failed to transfer leadership');
-        return { success: false, error: result.error };
-      }
-    } catch (error) {
-      console.error('Error transferring leadership:', error);
-      showToast('error', 'An error occurred while transferring leadership');
-      return { success: false, error: 'An unexpected error occurred' };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load all teams
-  const loadAllTeams = async () => {
-    setLoading(true);
-    try {
-      const result = await teamsService.getAllTeams();
-      if (result.success && result.data) {
-        setAllTeams(result.data);
-      } else {
-        console.error('Failed to load teams:', result.error);
-      }
-    } catch (error) {
-      console.error('Error loading teams:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load teams the user is a member of
-  const loadUserTeams = async () => {
-    if (!user) return;
-    
-    setLoading(true);
-    try {
-      const result = await teamsService.getUserTeams(user.id);
-      if (result.success && result.data) {
-        setUserTeams(result.data);
-      } else {
-        console.error('Failed to load user teams:', result.error);
-      }
-    } catch (error) {
-      console.error('Error loading user teams:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load team details
-  const loadTeamDetails = async (teamId: string) => {
-    setLoading(true);
-    try {
-      const result = await teamsService.getTeamDetails(teamId);
-      if (result.success && result.data) {
-        setSelectedTeam(result.data);
-        return result.data;
-      } else {
-        console.error('Failed to load team details:', result.error);
-        return null;
-      }
-    } catch (error) {
-      console.error('Error loading team details:', error);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Check if user is a member of a team
-  const isTeamMember = (teamId: string) => {
-    return userTeams.some(team => team.teamId === teamId);
-  };
-
-  // Check if user is the leader of a team
-  const isTeamLeader = (teamId: string) => {
-    const team = userTeams.find(t => t.teamId === teamId);
-    return team?.team?.leader_id === user?.id;
-  };
-
-  // Load initial data when user changes
   useEffect(() => {
-    if (user) {
-      loadUserTeams();
-      checkEligibility();
-    } else {
-      setUserTeams([]);
-      setEligibility(null);
+    async function loadTeams() {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      const { data: teamData, error: teamError } = await supabase
+        .from('teams')
+        .select('*')
+        .or(`owner_id.eq.${user.id},id.in.(${
+          supabase
+            .from('team_members')
+            .select('team_id')
+            .eq('user_id', user.id)
+            .then(({ data }) => data?.map(d => d.team_id).join(','))
+        })`);
+
+      if (teamError) {
+        toast({
+          title: "Error",
+          description: "Failed to load teams",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setTeams(teamData || []);
+
+      // Get team members for all teams
+      const memberPromises = teamData?.map(team => 
+        supabase
+          .from('team_members')
+          .select('*')
+          .eq('team_id', team.id)
+      );
+
+      if (memberPromises) {
+        const memberResults = await Promise.all(memberPromises);
+        const allMembers = memberResults.flatMap(result => result.data || []);
+        setTeamMembers(allMembers);
+      }
+
+      setLoading(false);
+
+      // Subscribe to team updates
+      const teamChannel = supabase
+        .channel('team_updates')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'teams',
+            filter: `owner_id=eq.${user.id}`
+          }, 
+          () => {
+            loadTeams();
+          }
+        )
+        .subscribe();
+
+      // Subscribe to team member updates
+      const memberChannel = supabase
+        .channel('member_updates')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'team_members',
+            filter: `user_id=eq.${user.id}`
+          }, 
+          () => {
+            loadTeams();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(teamChannel);
+        supabase.removeChannel(memberChannel);
+      };
     }
-  }, [user]);
+
+    loadTeams();
+  }, [supabase, toast]);
+
+  const createTeam = async (name: string, description: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+      
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create a team",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { data: team, error: teamError } = await supabase
+      .from('teams')
+      .insert({
+        name,
+        description,
+        owner_id: user.id
+      })
+      .select()
+      .single();
+
+    if (teamError) {
+      toast({
+        title: "Error",
+        description: "Failed to create team",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Add creator as team member with owner role
+    const { error: memberError } = await supabase
+      .from('team_members')
+      .insert({
+        team_id: team.id,
+        user_id: user.id,
+        role: 'owner'
+      });
+
+    if (memberError) {
+      toast({
+        title: "Error",
+        description: "Failed to add you as team owner",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Team created successfully!"
+    });
+
+    return team;
+  };
+
+  const joinTeam = async (teamId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+      
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to join a team",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('team_members')
+      .insert({
+        team_id: teamId,
+        user_id: user.id,
+        role: 'member'
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to join team",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Successfully joined the team!"
+    });
+  };
+
+  const leaveTeam = async (teamId: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+      
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to leave a team",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('team_members')
+      .delete()
+      .eq('team_id', teamId)
+      .eq('user_id', user.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to leave team",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Successfully left the team"
+    });
+  };
 
   return {
+    teams,
+    teamMembers,
     loading,
-    eligibilityLoading,
-    eligibility,
-    userTeams,
-    allTeams,
-    selectedTeam,
-    checkEligibility,
     createTeam,
     joinTeam,
-    leaveTeam,
-    transferLeadership,
-    loadAllTeams,
-    loadUserTeams,
-    loadTeamDetails,
-    isTeamMember,
-    isTeamLeader,
-    setSelectedTeam
+    leaveTeam
   };
-};
-
-export default useTeams;
+}

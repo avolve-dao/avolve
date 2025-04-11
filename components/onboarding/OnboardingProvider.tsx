@@ -1,73 +1,152 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
-import { useOnboarding } from '@/hooks/useOnboarding';
-import OnboardingModal from './OnboardingModal';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { useToast } from '@/components/ui/use-toast';
 
-// Create context for onboarding
-interface OnboardingContextType {
-  showOnboarding: () => void;
-  isOnboardingComplete: boolean;
+interface OnboardingState {
+  currentStep: number;
+  totalSteps: number;
+  isComplete: boolean;
 }
 
-const OnboardingContext = createContext<OnboardingContextType>({
-  showOnboarding: () => {},
-  isOnboardingComplete: false
+const OnboardingContext = createContext<{
+  state: OnboardingState;
+  nextStep: () => Promise<void>;
+  completeOnboarding: () => Promise<void>;
+}>({
+  state: {
+    currentStep: 1,
+    totalSteps: 5,
+    isComplete: false
+  },
+  nextStep: async () => {},
+  completeOnboarding: async () => {}
 });
 
-// Hook to use onboarding context
-export const useOnboardingContext = () => useContext(OnboardingContext);
+export function OnboardingProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<OnboardingState>({
+    currentStep: 1,
+    totalSteps: 5,
+    isComplete: false
+  });
 
-// Onboarding provider component
-export const OnboardingProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const user = useUser();
-  const { onboardingStatus, loadOnboardingStatus } = useOnboarding();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const { toast } = useToast();
 
-  // Load onboarding status when user changes
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   useEffect(() => {
-    if (user) {
-      loadOnboardingStatus().then(status => {
-        if (status) {
-          setIsOnboardingComplete(!!status.completedAt);
-          
-          // Show onboarding modal automatically for new users
-          if (status.step === 0 && !isInitialized) {
-            setIsModalOpen(true);
-          }
-        }
-        setIsInitialized(true);
+    async function loadOnboardingState() {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('user_onboarding')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (data) {
+        setState({
+          currentStep: data.current_step,
+          totalSteps: data.total_steps,
+          isComplete: data.is_complete
+        });
+      }
+    }
+
+    loadOnboardingState();
+  }, [supabase]);
+
+  const nextStep = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to continue",
+        variant: "destructive"
       });
-    } else {
-      setIsOnboardingComplete(false);
-      setIsInitialized(true);
+      return;
     }
-  }, [user]);
 
-  // Update onboarding complete status when onboardingStatus changes
-  useEffect(() => {
-    if (onboardingStatus) {
-      setIsOnboardingComplete(!!onboardingStatus.completedAt);
+    if (state.currentStep >= state.totalSteps) {
+      return;
     }
-  }, [onboardingStatus]);
 
-  // Function to show onboarding modal
-  const showOnboarding = () => {
-    setIsModalOpen(true);
+    const newStep = state.currentStep + 1;
+    
+    const { error } = await supabase
+      .from('user_onboarding')
+      .upsert({
+        user_id: user.id,
+        current_step: newStep,
+        total_steps: state.totalSteps,
+        is_complete: newStep === state.totalSteps
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update onboarding progress",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setState(prev => ({
+      ...prev,
+      currentStep: newStep,
+      isComplete: newStep === state.totalSteps
+    }));
+  };
+
+  const completeOnboarding = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to continue",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('user_onboarding')
+      .upsert({
+        user_id: user.id,
+        current_step: state.totalSteps,
+        total_steps: state.totalSteps,
+        is_complete: true
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to complete onboarding",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setState(prev => ({
+      ...prev,
+      currentStep: state.totalSteps,
+      isComplete: true
+    }));
   };
 
   return (
-    <OnboardingContext.Provider value={{ showOnboarding, isOnboardingComplete }}>
+    <OnboardingContext.Provider value={{ state, nextStep, completeOnboarding }}>
       {children}
-      <OnboardingModal 
-        open={isModalOpen} 
-        onOpenChange={setIsModalOpen} 
-      />
     </OnboardingContext.Provider>
   );
-};
+}
 
-export default OnboardingProvider;
+export const useOnboarding = () => useContext(OnboardingContext);

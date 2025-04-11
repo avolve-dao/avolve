@@ -1,9 +1,7 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
-import { useTeams } from '@/hooks/useTeams';
-import { useSuperpuzzles } from '@/hooks/useSuperpuzzles';
+import { useEffect, useState } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,69 +20,102 @@ interface TeamDetailsProps {
 
 export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
   const router = useRouter();
-  const user = useUser();
-  const { showToast } = useToast();
-  const { 
-    loading: teamLoading, 
-    selectedTeam, 
-    loadTeamDetails, 
-    isTeamMember,
-    isTeamLeader,
-    joinTeam,
-    leaveTeam
-  } = useTeams();
-  
-  const { 
-    loading: superpuzzlesLoading, 
-    teamContributions, 
-    loadTeamContributions 
-  } = useSuperpuzzles();
-  
-  const [activeTab, setActiveTab] = useState('overview');
+  const { toast } = useToast();
+  const [team, setTeam] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const loadTeamAndUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setCurrentUser(user);
+    
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    const { data: team } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', teamId)
+      .single();
+
+    setTeam(team);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    loadTeamDetails(teamId);
-    loadTeamContributions(teamId);
-  }, [teamId]);
+    loadTeamAndUser();
+  }, [teamId, supabase]);
 
   const handleJoinTeam = async () => {
-    if (!user) {
-      showToast('error', 'You must be logged in to join a team');
+    if (!currentUser) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to join a team",
+        variant: "destructive"
+      });
       return;
     }
     
     setJoining(true);
     try {
-      const result = await joinTeam(teamId);
-      if (result.success) {
-        await loadTeamDetails(teamId);
+      const { error } = await supabase
+        .from('team_members')
+        .insert({
+          team_id: teamId,
+          user_id: currentUser.id
+        });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
       }
+
+      await loadTeamAndUser();
     } finally {
       setJoining(false);
     }
   };
 
   const handleLeaveTeam = async () => {
-    if (!user) return;
+    if (!currentUser) return;
     
     setLeaving(true);
     try {
-      const result = await leaveTeam(teamId);
-      if (result.success) {
-        router.push('/teams');
+      const { error } = await supabase
+        .from('team_members')
+        .delete()
+        .eq('team_id', teamId)
+        .eq('user_id', currentUser.id);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+        return;
       }
+
+      router.push('/teams');
     } finally {
       setLeaving(false);
     }
   };
 
-  const loading = teamLoading || superpuzzlesLoading;
-  const isMember = user && isTeamMember(teamId);
-  const isLeader = user && isTeamLeader(teamId);
-
-  if (loading && !selectedTeam) {
+  if (loading) {
     return (
       <div className="animate-pulse space-y-4">
         <div className="h-12 bg-slate-200 rounded w-3/4"></div>
@@ -94,7 +125,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
     );
   }
 
-  if (!selectedTeam) {
+  if (!team) {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
@@ -104,21 +135,24 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
     );
   }
 
+  const isMember = team.members?.some((member: any) => member.user_id === currentUser?.id);
+  const isLeader = team.leader_id === currentUser?.id;
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-900 text-white">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-2xl">{selectedTeam.name}</CardTitle>
+              <CardTitle className="text-2xl">{team.name}</CardTitle>
               <CardDescription className="text-slate-300">
-                Created {formatDistanceToNow(new Date(selectedTeam.created_at), { addSuffix: true })}
+                Created {formatDistanceToNow(new Date(team.created_at), { addSuffix: true })}
               </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Badge variant="secondary" className="flex items-center">
                 <Users className="mr-1 h-3 w-3" />
-                {selectedTeam.members?.length || 0} Members
+                {team.members?.length || 0} Members
               </Badge>
               
               {isLeader && (
@@ -131,7 +165,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
         </CardHeader>
         <CardContent className="pt-6">
           <p className="text-slate-600 mb-6">
-            {selectedTeam.description || "No description provided."}
+            {team.description || "No description provided."}
           </p>
           
           {!isMember && (
@@ -159,7 +193,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
             </div>
           )}
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+          <Tabs value="overview" onValueChange={() => {}} className="mt-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="members">Members</TabsTrigger>
@@ -176,7 +210,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-3xl font-bold">{selectedTeam.members?.length || 0}</p>
+                    <p className="text-3xl font-bold">{team.members?.length || 0}</p>
                     <p className="text-sm text-slate-500">members</p>
                   </CardContent>
                 </Card>
@@ -189,9 +223,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-3xl font-bold">
-                      {teamContributions.filter(c => !c.isCompleted).length}
-                    </p>
+                    <p className="text-3xl font-bold">0</p>
                     <p className="text-sm text-slate-500">in progress</p>
                   </CardContent>
                 </Card>
@@ -205,7 +237,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-3xl font-bold">
-                      {Math.ceil((Date.now() - new Date(selectedTeam.created_at).getTime()) / (1000 * 60 * 60 * 24))}
+                      {Math.ceil((Date.now() - new Date(team.created_at).getTime()) / (1000 * 60 * 60 * 24))}
                     </p>
                     <p className="text-sm text-slate-500">days</p>
                   </CardContent>
@@ -228,7 +260,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
             
             <TabsContent value="members" className="mt-6">
               <div className="space-y-4">
-                {selectedTeam.members?.map((member: any) => (
+                {team.members?.map((member: any) => (
                   <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center">
                       <Avatar className="h-10 w-10">
@@ -248,7 +280,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                     </div>
                     
                     <div>
-                      {selectedTeam.leader_id === member.userId && (
+                      {team.leader_id === member.userId && (
                         <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500">
                           Team Leader
                         </Badge>
@@ -260,30 +292,22 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
             </TabsContent>
             
             <TabsContent value="superpuzzles" className="mt-6">
-              {teamContributions.length > 0 ? (
-                <SuperpuzzlesList 
-                  teamId={teamId} 
-                  contributions={teamContributions}
-                  showContributeButton={isMember}
-                />
-              ) : (
-                <div className="text-center py-12 border rounded-lg bg-slate-50">
-                  <Trophy className="mx-auto h-12 w-12 text-slate-400" />
-                  <h3 className="mt-4 text-lg font-medium">No superpuzzles yet</h3>
-                  <p className="mt-2 text-sm text-slate-500">
-                    This team hasn't contributed to any superpuzzles yet.
-                  </p>
-                  {isMember && (
-                    <Button
-                      onClick={() => router.push('/superpuzzles')}
-                      variant="outline"
-                      className="mt-4"
-                    >
-                      Browse Superpuzzles
-                    </Button>
-                  )}
-                </div>
-              )}
+              <div className="text-center py-12 border rounded-lg bg-slate-50">
+                <Trophy className="mx-auto h-12 w-12 text-slate-400" />
+                <h3 className="mt-4 text-lg font-medium">No superpuzzles yet</h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  This team hasn't contributed to any superpuzzles yet.
+                </p>
+                {isMember && (
+                  <Button
+                    onClick={() => router.push('/superpuzzles')}
+                    variant="outline"
+                    className="mt-4"
+                  >
+                    Browse Superpuzzles
+                  </Button>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>

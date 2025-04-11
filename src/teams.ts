@@ -1,19 +1,22 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database, Tables, TeamRole, TeamChallengeStatus, MetricType } from '../types/supabase';
+import { Database } from '../types/supabase';
+import { TeamRoles, TeamChallengeStatuses, type TeamRole, type TeamChallengeStatus } from '@/types/platform';
+import { MetricTypes, type MetricType } from '@/types/platform';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
 /**
  * TeamsService - Manages team creation, membership, and collaboration
  * Handles team operations and growth metrics tracking
  */
 export class TeamsService {
-  private supabase: SupabaseClient<Database>;
+  private client: SupabaseClient<Database>;
 
-  constructor(clientUrl: string = supabaseUrl, clientKey: string = supabaseAnonKey) {
-    this.supabase = createClient<Database>(clientUrl, clientKey);
+  constructor(client?: SupabaseClient<Database>) {
+    this.client = client || supabase;
   }
 
   /**
@@ -37,7 +40,7 @@ export class TeamsService {
   }> {
     try {
       // Check completed challenges
-      const { data: challengeData, error: challengeError } = await this.supabase
+      const { data: challengeData, error: challengeError } = await this.client
         .from('completed_challenges')
         .select('id')
         .eq('user_id', userId);
@@ -45,7 +48,7 @@ export class TeamsService {
       if (challengeError) throw challengeError;
 
       // Check day token claims
-      const { data: tokenData, error: tokenError } = await this.supabase
+      const { data: tokenData, error: tokenError } = await this.client
         .from('daily_claims')
         .select('token_id')
         .eq('user_id', userId);
@@ -95,7 +98,7 @@ export class TeamsService {
    * @param description Optional team description
    * @returns Result of team creation
    */
-  async createTeam(userId: string, name: string, description?: string): Promise<{
+  async createTeam(name: string, description: string, ownerId: string): Promise<{
     success: boolean;
     data?: {
       teamId: string;
@@ -105,7 +108,7 @@ export class TeamsService {
   }> {
     try {
       // First check eligibility
-      const eligibility = await this.checkTeamEligibility(userId);
+      const eligibility = await this.checkTeamEligibility(ownerId);
       
       if (!eligibility.success || !eligibility.data?.isEligible) {
         return {
@@ -115,12 +118,13 @@ export class TeamsService {
       }
       
       // Create the team
-      const { data: teamData, error: teamError } = await this.supabase
+      const { data: teamData, error: teamError } = await this.client
         .from('teams')
         .insert({
           name,
           description: description || '',
-          leader_id: userId
+          leader_id: ownerId,
+          role: TeamRoles.OWNER,
         })
         .select('id')
         .single();
@@ -130,12 +134,12 @@ export class TeamsService {
       const teamId = teamData.id;
       
       // Add creator as team leader
-      const { error: memberError } = await this.supabase
+      const { error: memberError } = await this.client
         .from('team_members')
         .insert({
           team_id: teamId,
-          user_id: userId,
-          role: TeamRole.LEADER
+          user_id: ownerId,
+          role: TeamRoles.OWNER
         });
         
       if (memberError) throw memberError;
@@ -145,7 +149,7 @@ export class TeamsService {
         teamId,
         'growth',
         1,
-        { action: 'team_created', creator_id: userId }
+        { action: 'team_created', creator_id: ownerId }
       );
 
       return {
@@ -178,7 +182,7 @@ export class TeamsService {
   }> {
     try {
       // Check if user is already in the team
-      const { data: existingMember, error: checkError } = await this.supabase
+      const { data: existingMember, error: checkError } = await this.client
         .from('team_members')
         .select('id')
         .eq('user_id', userId)
@@ -195,7 +199,7 @@ export class TeamsService {
       }
       
       // Check team member count
-      const { count, error: countError } = await this.supabase
+      const { count, error: countError } = await this.client
         .from('team_members')
         .select('*', { count: 'exact', head: true })
         .eq('team_id', teamId);
@@ -210,12 +214,12 @@ export class TeamsService {
       }
       
       // Join the team
-      const { error: joinError } = await this.supabase
+      const { error: joinError } = await this.client
         .from('team_members')
         .insert({
           team_id: teamId,
           user_id: userId,
-          role: TeamRole.MEMBER
+          role: TeamRoles.MEMBER
         });
         
       if (joinError) throw joinError;
@@ -255,7 +259,7 @@ export class TeamsService {
   }> {
     try {
       // Check if user is the team leader
-      const { data: teamData, error: teamError } = await this.supabase
+      const { data: teamData, error: teamError } = await this.client
         .from('teams')
         .select('leader_id')
         .eq('id', teamId)
@@ -271,7 +275,7 @@ export class TeamsService {
       }
       
       // Leave the team
-      const { error: leaveError } = await this.supabase
+      const { error: leaveError } = await this.client
         .from('team_members')
         .delete()
         .eq('user_id', userId)
@@ -315,7 +319,7 @@ export class TeamsService {
   }> {
     try {
       // Verify current leader
-      const { data: teamData, error: teamError } = await this.supabase
+      const { data: teamData, error: teamError } = await this.client
         .from('teams')
         .select('leader_id')
         .eq('id', teamId)
@@ -331,7 +335,7 @@ export class TeamsService {
       }
       
       // Verify new leader is a team member
-      const { data: memberData, error: memberError } = await this.supabase
+      const { data: memberData, error: memberError } = await this.client
         .from('team_members')
         .select('id')
         .eq('user_id', newLeaderId)
@@ -348,7 +352,7 @@ export class TeamsService {
       }
       
       // Update team leader
-      const { error: updateTeamError } = await this.supabase
+      const { error: updateTeamError } = await this.client
         .from('teams')
         .update({ leader_id: newLeaderId })
         .eq('id', teamId);
@@ -356,17 +360,17 @@ export class TeamsService {
       if (updateTeamError) throw updateTeamError;
       
       // Update member roles
-      const { error: updateOldLeaderError } = await this.supabase
+      const { error: updateOldLeaderError } = await this.client
         .from('team_members')
-        .update({ role: TeamRole.MEMBER })
+        .update({ role: TeamRoles.MEMBER })
         .eq('user_id', leaderId)
         .eq('team_id', teamId);
         
       if (updateOldLeaderError) throw updateOldLeaderError;
       
-      const { error: updateNewLeaderError } = await this.supabase
+      const { error: updateNewLeaderError } = await this.client
         .from('team_members')
-        .update({ role: TeamRole.LEADER })
+        .update({ role: TeamRoles.OWNER })
         .eq('user_id', newLeaderId)
         .eq('team_id', teamId);
         
@@ -415,7 +419,7 @@ export class TeamsService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase
+      const { data, error } = await this.client
         .from('teams')
         .select(`
           id,
@@ -435,7 +439,7 @@ export class TeamsService {
       
       // For each team, get the count of members
       for (const teamId of teamIds) {
-        const { count, error: countError } = await this.supabase
+        const { count, error: countError } = await this.client
           .from('team_members')
           .select('*', { count: 'exact', head: true })
           .eq('team_id', teamId);
@@ -492,7 +496,7 @@ export class TeamsService {
   }> {
     try {
       // Get team memberships for the user
-      const { data: memberships, error: membershipError } = await this.supabase
+      const { data: memberships, error: membershipError } = await this.client
         .from('team_members')
         .select(`
           team_id,
@@ -512,7 +516,7 @@ export class TeamsService {
 
       // Get team details
       const teamIds = memberships.map(m => m.team_id);
-      const { data: teams, error: teamsError } = await this.supabase
+      const { data: teams, error: teamsError } = await this.client
         .from('teams')
         .select(`
           id,
@@ -530,7 +534,7 @@ export class TeamsService {
       
       // For each team, get the count of members
       for (const teamId of teamIds) {
-        const { count, error: countError } = await this.supabase
+        const { count, error: countError } = await this.client
           .from('team_members')
           .select('*', { count: 'exact', head: true })
           .eq('team_id', teamId);
@@ -612,7 +616,7 @@ export class TeamsService {
   }> {
     try {
       // Get team details
-      const { data: teamData, error: teamError } = await this.supabase
+      const { data: teamData, error: teamError } = await this.client
         .from('teams')
         .select('*')
         .eq('id', teamId)
@@ -621,7 +625,7 @@ export class TeamsService {
       if (teamError) throw teamError;
 
       // Get team members
-      const { data: membersData, error: membersError } = await this.supabase
+      const { data: membersData, error: membersError } = await this.client
         .from('team_members')
         .select(`
           id,
@@ -719,7 +723,7 @@ export class TeamsService {
     metadata: Record<string, any> = {}
   ): Promise<boolean> {
     try {
-      const { error } = await this.supabase
+      const { error } = await this.client
         .from('team_metrics')
         .insert({
           team_id: teamId,
@@ -750,7 +754,7 @@ export class TeamsService {
   }> {
     try {
       // Check if the team is already working on this challenge
-      const { data: existingChallenge, error: checkError } = await this.supabase
+      const { data: existingChallenge, error: checkError } = await this.client
         .from('team_challenges')
         .select('id, status')
         .eq('team_id', teamId)
@@ -760,12 +764,12 @@ export class TeamsService {
       if (checkError) throw checkError;
       
       if (existingChallenge) {
-        if (existingChallenge.status === TeamChallengeStatus.COMPLETED) {
+        if (existingChallenge.status === TeamChallengeStatuses.COMPLETED) {
           return {
             success: false,
             message: 'This challenge has already been completed by your team'
           };
-        } else if (existingChallenge.status === TeamChallengeStatus.IN_PROGRESS) {
+        } else if (existingChallenge.status === TeamChallengeStatuses.IN_PROGRESS) {
           return {
             success: false,
             message: 'Your team is already working on this challenge'
@@ -774,12 +778,12 @@ export class TeamsService {
       }
       
       // Start the challenge
-      const { error: startError } = await this.supabase
+      const { error: startError } = await this.client
         .from('team_challenges')
         .insert({
           team_id: teamId,
           challenge_id: challengeId,
-          status: TeamChallengeStatus.IN_PROGRESS,
+          status: TeamChallengeStatuses.IN_PROGRESS,
           started_at: new Date().toISOString()
         });
         
@@ -820,7 +824,7 @@ export class TeamsService {
   }> {
     try {
       // Check if the team is working on this challenge
-      const { data: existingChallenge, error: checkError } = await this.supabase
+      const { data: existingChallenge, error: checkError } = await this.client
         .from('team_challenges')
         .select('id, status')
         .eq('team_id', teamId)
@@ -836,7 +840,7 @@ export class TeamsService {
         };
       }
       
-      if (existingChallenge.status === TeamChallengeStatus.COMPLETED) {
+      if (existingChallenge.status === TeamChallengeStatuses.COMPLETED) {
         return {
           success: false,
           message: 'This challenge has already been completed'
@@ -844,10 +848,10 @@ export class TeamsService {
       }
       
       // Complete the challenge
-      const { error: completeError } = await this.supabase
+      const { error: completeError } = await this.client
         .from('team_challenges')
         .update({
-          status: TeamChallengeStatus.COMPLETED,
+          status: TeamChallengeStatuses.COMPLETED,
           completed_at: new Date().toISOString()
         })
         .eq('id', existingChallenge.id);
@@ -872,6 +876,70 @@ export class TeamsService {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error completing team challenge'
       };
+    }
+  }
+
+  async addTeamMember(teamId: string, userId: string): Promise<void> {
+    const { error: memberError } = await this.client
+      .from('team_members')
+      .insert({
+        team_id: teamId,
+        user_id: userId,
+        role: TeamRoles.MEMBER
+      });
+      
+    if (memberError) throw memberError;
+  }
+
+  async updateTeamLeader(teamId: string, oldLeaderId: string, newLeaderId: string): Promise<void> {
+    // Update old leader to member
+    const { error: oldLeaderError } = await this.client
+      .from('team_members')
+      .update({ role: TeamRoles.MEMBER })
+      .eq('user_id', oldLeaderId)
+      .eq('team_id', teamId);
+      
+    if (oldLeaderError) throw oldLeaderError;
+    
+    // Update new leader
+    const { error: newLeaderError } = await this.client
+      .from('team_members')
+      .update({ role: TeamRoles.OWNER })
+      .eq('user_id', newLeaderId)
+      .eq('team_id', teamId);
+      
+    if (newLeaderError) throw newLeaderError;
+  }
+
+  async updateTeamMemberRole(teamId: string, userId: string, role: TeamRole): Promise<void> {
+    const { error } = await this.client
+      .from('team_members')
+      .update({
+        role: role,
+      })
+      .match({
+        team_id: teamId,
+        user_id: userId,
+      });
+
+    if (error) {
+      throw new Error(`Failed to update team member role: ${error.message}`);
+    }
+  }
+
+  async updateChallengeStatus(teamId: string, challengeId: string, status: TeamChallengeStatus): Promise<void> {
+    const { error } = await this.client
+      .from('team_challenges')
+      .update({
+        status: status,
+      })
+      .match({
+        team_id: teamId,
+        challenge_id: challengeId,
+      });
+
+    if (error) {
+      throw new Error(`Failed to update challenge status: ${error.message}`);
     }
   }
 }

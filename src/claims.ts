@@ -1,10 +1,11 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
-import { TokenSymbol } from '../types/supabase';
+import { TokenSymbols, type TokenSymbol } from '@/types/platform';
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient<Database>(supabaseUrl || '', supabaseKey || '');
 
 /**
  * ClaimsService - Handles daily token claims and streak management
@@ -27,8 +28,32 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export class ClaimsService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
-    this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
+  constructor(url: string = supabaseUrl || '', key: string = supabaseKey || '') {
+    this.supabase = createClient<Database>(url, key);
+  }
+
+  /**
+   * Daily claim schedule
+   */
+  private dailyClaimSchedule: Record<number, TokenSymbol[]> = {
+    0: [TokenSymbols.SPD, TokenSymbols.SHE, TokenSymbols.PSP],
+    1: [TokenSymbols.SSA, TokenSymbols.BSP, TokenSymbols.SGB],
+    2: [TokenSymbols.SMS, TokenSymbols.SAP, TokenSymbols.SCQ],
+    3: [TokenSymbols.GEN],
+  };
+
+  /**
+   * Get available tokens for a given day
+   */
+  private getAvailableTokensForDay(dayNumber: number): TokenSymbol[] {
+    return this.dailyClaimSchedule[dayNumber] || [];
+  }
+
+  /**
+   * Get all available tokens
+   */
+  private getAllAvailableTokens(): TokenSymbol[] {
+    return Object.values(this.dailyClaimSchedule).flat();
   }
 
   /**
@@ -38,18 +63,9 @@ export class ClaimsService {
    * @returns The token symbol corresponding to the current day
    */
   getDayToken(): TokenSymbol {
-    const dayOfWeek = new Date().toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
-    
-    switch (dayOfWeek) {
-      case 'SUN': return TokenSymbol.SPD; // Sunday: Superpuzzle Developments (Red-Green-Blue gradient)
-      case 'MON': return TokenSymbol.SHE; // Monday: Superhuman Enhancements (Rose-Red-Orange gradient)
-      case 'TUE': return TokenSymbol.PSP; // Tuesday: Personal Success Puzzle (Amber-Yellow gradient)
-      case 'WED': return TokenSymbol.SSA; // Wednesday: Supersociety Advancements (Lime-Green-Emerald gradient)
-      case 'THU': return TokenSymbol.BSP; // Thursday: Business Success Puzzle (Teal-Cyan gradient)
-      case 'FRI': return TokenSymbol.SGB; // Friday: Supergenius Breakthroughs (Sky-Blue-Indigo gradient)
-      case 'SAT': return TokenSymbol.SMS; // Saturday: Supermind Superpowers (Violet-Purple-Fuchsia-Pink gradient)
-      default: return TokenSymbol.SAP; // Fallback to SAP (Superachiever)
-    }
+    const dayOfWeek = new Date().getDay();
+    const availableTokens = this.getAvailableTokensForDay(dayOfWeek);
+    return availableTokens[0];
   }
 
   /**
@@ -64,12 +80,14 @@ export class ClaimsService {
    */
   getParentToken(tokenSymbol: TokenSymbol): TokenSymbol {
     // SAP sub-tokens (individual journey)
-    if ([TokenSymbol.PSP, TokenSymbol.BSP, TokenSymbol.SMS].includes(tokenSymbol)) {
-      return TokenSymbol.SAP;
+    const sapSubTokens = [TokenSymbols.PSP, TokenSymbols.BSP, TokenSymbols.SMS] as const;
+    if (sapSubTokens.includes(tokenSymbol as typeof sapSubTokens[number])) {
+      return TokenSymbols.SAP;
     }
     // SCQ sub-tokens (collective journey)
-    if ([TokenSymbol.SPD, TokenSymbol.SHE, TokenSymbol.SSA, TokenSymbol.SGB].includes(tokenSymbol)) {
-      return TokenSymbol.SCQ;
+    const scqSubTokens = [TokenSymbols.SPD, TokenSymbols.SHE, TokenSymbols.SSA, TokenSymbols.SGB] as const;
+    if (scqSubTokens.includes(tokenSymbol as typeof scqSubTokens[number])) {
+      return TokenSymbols.SCQ;
     }
     // Return the token itself if it's already a parent token
     return tokenSymbol;

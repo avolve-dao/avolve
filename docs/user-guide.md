@@ -14,17 +14,17 @@ This guide explains how to engage with the Avolve platform's regenerative gamifi
   - [Degen-to-Regen Transformation](#degen-to-regen-transformation)
   - [Experience Phases](#experience-phases)
   - [Personalized Recommendations](#personalized-recommendations)
+- [Transformation Journeys](#transformation-journeys)
+  - [Superachiever Journey](#superachiever-journey)
+  - [Superachievers Journey](#superachievers-journey)
+  - [Supercivilization Journey](#supercivilization-journey)
+  - [Journey Integration](#journey-integration)
 - [Maximize Your Time](#maximize-your-time)
   - [Complete SSA in Two Clicks](#complete-ssa-in-two-clicks)
   - [10-Second Feedback](#10-second-feedback)
 - [Your Value Journey](#your-value-journey)
   - [Journey Selection Guide](#journey-selection-guide)
   - [Token Optimization Strategy](#token-optimization-strategy)
-- [Tokens and Rewards](#tokens-and-rewards)
-  - [Token Types and Value](#token-types-and-value)
-  - [Earning Strategies](#earning-strategies)
-  - [Streak Bonuses](#streak-bonuses)
-  - [Token Exchange](#token-exchange)
 - [Participating with Daily Claims](#participating-with-daily-claims)
   - [Daily Claim Schedule](#daily-claim-schedule)
   - [Weekly Token Schedule](#weekly-token-schedule)
@@ -99,6 +99,101 @@ These AI-powered insights help you:
 - Predict token earning potential from different activities
 - Receive personalized recommendations for feature exploration
 - Track your progress compared to similar users
+
+## Transformation Journeys
+
+### Superachiever Journey
+
+The Superachiever journey focuses on personal transformation and growth. Here's how to maximize your experience:
+
+#### Posting and Rewards
+1. **Create Posts**
+   - Share transformation wins, breakthroughs, and learnings
+   - Choose token fee (1-5 GEN) - higher fees increase visibility
+   - Add relevant tags for better discovery
+   - Include media to enhance engagement
+
+2. **Earn Rewards**
+   - Base reward: 10 SAP tokens at 50% engagement
+   - Engagement bonuses:
+     - Likes: +1 engagement point
+     - Comments: +2 engagement points
+     - Shares: +3 engagement points
+   - GEN refund: 75% of post fee at high engagement
+
+3. **AI-Driven Prompts**
+   - Get personalized prompts based on your journey
+   - Unlock new prompt types with consistent participation
+   - Earn bonus tokens for prompt-inspired posts
+   - Build streaks with daily sharing
+
+### Superachievers Journey
+
+The Superachievers journey amplifies collective transformation through collaboration:
+
+#### Regen Circles
+1. **Join or Create Circles**
+   - Find circles aligned with your interests
+   - Create new circles (requires 50 GEN)
+   - Set circle goals and metrics
+   - Invite collaborators
+
+2. **Real-Time Chat**
+   - Engage in focused discussions
+   - Share resources and insights
+   - Coordinate group activities
+   - Build collective knowledge
+
+3. **Group Achievements**
+   - Complete collective challenges
+   - Earn group rewards (10 GEN per win)
+   - Track circle progress
+   - Celebrate milestones
+
+### Supercivilization Journey
+
+The Supercivilization journey contributes to global transformation:
+
+#### Ecosystem Impact
+1. **Track Metrics**
+   - View real-time ecosystem stats
+   - Monitor token circulation
+   - Track global engagement
+   - Measure collective impact
+
+2. **Governance**
+   - Participate in proposals (requires 100 GEN)
+   - Vote on initiatives
+   - Suggest improvements
+   - Shape platform evolution
+
+3. **Regenerative Economy**
+   - View economic health metrics
+   - Track value creation
+   - Monitor token velocity
+   - Analyze network effects
+
+### Journey Integration
+
+Your three journeys are interconnected for maximum impact:
+
+1. **Token Synergy**
+   - Personal posts earn SAP
+   - Group wins earn GEN
+   - Ecosystem contributions earn multiple tokens
+   - Cross-journey bonuses available
+
+2. **Progressive Features**
+   - Unlock new features with participation
+   - Access advanced tools with token holdings
+   - Earn special roles through contribution
+   - Join exclusive events
+
+3. **Metrics Dashboard**
+   - Track all journey progress
+   - View combined rewards
+   - Monitor engagement across paths
+   - Set multi-journey goals
 
 ## Tokens and Rewards
 
@@ -611,10 +706,10 @@ The Avolve platform implements Nikola Tesla's sacred geometry pattern of 3-6-9 t
 | 1-2 days | 1.0x (no bonus) | 10 tokens |
 | 3-5 days | 1.3x bonus | 13 tokens |
 | 6-8 days | 1.6x bonus | 16 tokens |
-| 9-11 days | 1.9x bonus | 19 tokens |
-| 12-14 days | 2.3x bonus | 23 tokens |
-| 15-17 days | 2.6x bonus | 26 tokens |
-| 18-20 days | 2.9x bonus | 29 tokens |
+| 9+ days | 1.9x bonus | 19 tokens |
+| 12+ days | 2.3x bonus | 23 tokens |
+| 15+ days | 2.6x bonus | 26 tokens |
+| 18+ days | 2.9x bonus | 29 tokens |
 | 21+ days | 3.3x bonus and higher | 33+ tokens |
 
 The pattern continues with a 0.3x increase for each additional 3 days in your streak.
@@ -746,8 +841,12 @@ In addition to daily challenges, the platform offers weekly challenges for each 
 **Q: What happens if I miss a daily challenge?**
 A: If you miss a daily challenge, your streak for that specific token will reset. However, your streaks for other tokens remain unaffected. Your longest streak is still recorded in your profile statistics.
 
-**Q: How do I check my streaks?**
-A: Your streaks are displayed on your dashboard under the "Challenge Progress" section. You can view detailed breakdowns for each token type.
+**Q: How exactly does the Tesla 3-6-9 bonus system work?**
+A: The Tesla 3-6-9 system provides increasing rewards as your streak grows:
+- Streaks of 1-2 days: Standard reward (1.0x multiplier)
+- Streaks of 3-5 days: 1.3x reward multiplier
+- Streaks of 6-8 days: 1.6x reward multiplier
+- Streaks of 9+ days: 1.9x reward multiplier, plus an additional 0.3x for every 3 days beyond 9
 
 **Q: Can I participate in multiple challenges on the same day?**
 A: Yes! While each day has a featured token challenge, you can participate in any available challenges. However, you'll only increase your streak for the token associated with the current day.

@@ -1,20 +1,21 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
-import { MetricType } from '../types/supabase';
+import { MetricTypes, type MetricType } from '@/types/platform';
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient<Database>(supabaseUrl || '', supabaseKey || '');
 
 /**
  * MetricsService - Tracks and analyzes platform metrics
  * Handles DAU, MAU, retention, interaction, NPS, growth, ARPU, health, time spent
  */
 export class MetricsService {
-  private supabase: SupabaseClient<Database>;
+  private client: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
-    this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
+  constructor(url: string = supabaseUrl || '', key: string = supabaseKey || '') {
+    this.client = createClient<Database>(url, key);
   }
 
   /**
@@ -31,7 +32,7 @@ export class MetricsService {
   }> {
     try {
       // Call the database function to update user metrics
-      const { data, error } = await this.supabase.rpc('update_user_metrics', {
+      const { data, error } = await this.client.rpc('update_user_metrics', {
         p_user_id: userId
       });
 
@@ -71,7 +72,7 @@ export class MetricsService {
   }> {
     try {
       // Call the database function to record a metric
-      const { data, error } = await this.supabase.rpc('record_metric', {
+      const { data, error } = await this.client.rpc('record_metric', {
         p_user_id: userId || null,
         p_metric_type: metricType,
         p_value: value,
@@ -120,7 +121,7 @@ export class MetricsService {
 
     // Record the NPS metric
     return this.recordMetric(
-      MetricType.NPS,
+      MetricTypes.NPS,
       score,
       userId,
       { feedback }
@@ -145,7 +146,7 @@ export class MetricsService {
     error?: string;
   }> {
     return this.recordMetric(
-      MetricType.TIME_SPENT,
+      MetricTypes.TIME_SPENT,
       minutes,
       userId,
       { activity_type: activityType }
@@ -170,7 +171,7 @@ export class MetricsService {
     error?: string;
   }> {
     return this.recordMetric(
-      MetricType.INTERACTION,
+      MetricTypes.INTERACTION,
       1, // Count as 1 interaction
       userId,
       {
@@ -193,7 +194,7 @@ export class MetricsService {
   }> {
     try {
       // Get DAU/MAU ratio (stickiness)
-      const { data: dauMauData, error: dauMauError } = await this.supabase
+      const { data: dauMauData, error: dauMauError } = await this.client
         .from('metrics')
         .select('metric_type, value, recorded_at')
         .in('metric_type', ['dau', 'mau'])
@@ -203,7 +204,7 @@ export class MetricsService {
       if (dauMauError) throw dauMauError;
 
       // Get retention rate
-      const { data: retentionData, error: retentionError } = await this.supabase
+      const { data: retentionData, error: retentionError } = await this.client
         .from('metrics')
         .select('value, recorded_at')
         .eq('metric_type', 'retention')
@@ -213,7 +214,7 @@ export class MetricsService {
       if (retentionError) throw retentionError;
 
       // Get ARPU
-      const { data: arpuData, error: arpuError } = await this.supabase
+      const { data: arpuData, error: arpuError } = await this.client
         .from('metrics')
         .select('value, recorded_at')
         .eq('metric_type', 'arpu')
@@ -223,7 +224,7 @@ export class MetricsService {
       if (arpuError) throw arpuError;
 
       // Get NPS average
-      const { data: npsData, error: npsError } = await this.supabase
+      const { data: npsData, error: npsError } = await this.client
         .from('metrics')
         .select('avg(value)')
         .eq('metric_type', 'nps')
@@ -258,6 +259,49 @@ export class MetricsService {
         error: error instanceof Error ? error.message : 'Unknown error getting metrics summary'
       };
     }
+  }
+
+  async trackActivity(userId: string, type: MetricType, value: number): Promise<void> {
+    const { error } = await this.client.from('user_metrics').insert({
+      user_id: userId,
+      type: type,
+      value: value,
+    });
+
+    if (error) {
+      throw new Error(`Failed to track activity: ${error.message}`);
+    }
+  }
+
+  async getActivityMetrics(userId: string): Promise<{
+    [key in MetricType]: number;
+  }> {
+    const { data, error } = await this.client
+      .from('user_metrics')
+      .select('type, value')
+      .eq('user_id', userId);
+
+    if (error) {
+      throw new Error(`Failed to get activity metrics: ${error.message}`);
+    }
+
+    const metrics = {
+      [MetricTypes.ACTIVITY]: 0,
+      [MetricTypes.ENGAGEMENT]: 0,
+      [MetricTypes.CONTRIBUTION]: 0,
+      [MetricTypes.LEARNING]: 0,
+      [MetricTypes.COMMUNITY]: 0,
+      [MetricTypes.NPS]: 0,
+      [MetricTypes.TIME_SPENT]: 0,
+      [MetricTypes.INTERACTION]: 0
+    };
+
+    data?.forEach((metric) => {
+      const type = metric.type as MetricType;
+      metrics[type] = (metrics[type] || 0) + metric.value;
+    });
+
+    return metrics;
   }
 }
 

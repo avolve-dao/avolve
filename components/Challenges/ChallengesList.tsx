@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useChallenges } from '../../hooks/useChallenges';
-import { TokenSymbol } from '../../types/supabase';
+import { TokenSymbols, type TokenSymbol } from '@/types/platform';
 
 /**
  * ChallengesList Component
@@ -65,16 +65,16 @@ const ChallengesList: React.FC = () => {
   // Get token color based on symbol
   const getTokenColor = (symbol?: string): string => {
     switch (symbol) {
-      case TokenSymbol.SPD: return 'bg-gradient-to-r from-red-500 to-blue-500'; // Red-Green-Blue
-      case TokenSymbol.SHE: return 'bg-gradient-to-r from-rose-500 to-orange-500'; // Rose-Red-Orange
-      case TokenSymbol.PSP: return 'bg-gradient-to-r from-amber-500 to-yellow-500'; // Amber-Yellow
-      case TokenSymbol.SSA: return 'bg-gradient-to-r from-lime-500 to-emerald-500'; // Lime-Green-Emerald
-      case TokenSymbol.BSP: return 'bg-gradient-to-r from-teal-500 to-cyan-500'; // Teal-Cyan
-      case TokenSymbol.SGB: return 'bg-gradient-to-r from-sky-500 to-indigo-500'; // Sky-Blue-Indigo
-      case TokenSymbol.SMS: return 'bg-gradient-to-r from-violet-500 to-fuchsia-500'; // Violet-Purple-Fuchsia-Pink
-      case TokenSymbol.SAP: return 'bg-gradient-to-r from-slate-500 to-slate-700'; // Stone gradient
-      case TokenSymbol.SCQ: return 'bg-gradient-to-r from-slate-400 to-slate-600'; // Slate gradient
-      case TokenSymbol.GEN: return 'bg-gradient-to-r from-zinc-400 to-zinc-600'; // Zinc gradient
+      case TokenSymbols.SPD: return 'bg-gradient-to-r from-red-500 to-blue-500'; // Red-Green-Blue
+      case TokenSymbols.SHE: return 'bg-gradient-to-r from-rose-500 to-orange-500'; // Rose-Red-Orange
+      case TokenSymbols.PSP: return 'bg-gradient-to-r from-amber-500 to-yellow-500'; // Amber-Yellow
+      case TokenSymbols.SSA: return 'bg-gradient-to-r from-lime-500 to-emerald-500'; // Lime-Green-Emerald
+      case TokenSymbols.BSP: return 'bg-gradient-to-r from-teal-500 to-cyan-500'; // Teal-Cyan
+      case TokenSymbols.SGB: return 'bg-gradient-to-r from-sky-500 to-indigo-500'; // Sky-Blue-Indigo
+      case TokenSymbols.SMS: return 'bg-gradient-to-r from-violet-500 to-fuchsia-500'; // Violet-Purple-Fuchsia-Pink
+      case TokenSymbols.SAP: return 'bg-gradient-to-r from-slate-500 to-slate-700'; // Stone gradient
+      case TokenSymbols.SCQ: return 'bg-gradient-to-r from-slate-400 to-slate-600'; // Slate gradient
+      case TokenSymbols.GEN: return 'bg-gradient-to-r from-zinc-400 to-zinc-600'; // Zinc gradient
       default: return 'bg-gray-500';
     }
   };
@@ -82,13 +82,13 @@ const ChallengesList: React.FC = () => {
   // Get day name for a token symbol
   const getDayForToken = (tokenSymbol: string): string => {
     switch (tokenSymbol) {
-      case TokenSymbol.SPD: return 'Sunday';
-      case TokenSymbol.SHE: return 'Monday';
-      case TokenSymbol.PSP: return 'Tuesday';
-      case TokenSymbol.SSA: return 'Wednesday';
-      case TokenSymbol.BSP: return 'Thursday';
-      case TokenSymbol.SGB: return 'Friday';
-      case TokenSymbol.SMS: return 'Saturday';
+      case TokenSymbols.SPD: return 'Sunday';
+      case TokenSymbols.SHE: return 'Monday';
+      case TokenSymbols.PSP: return 'Tuesday';
+      case TokenSymbols.SSA: return 'Wednesday';
+      case TokenSymbols.BSP: return 'Thursday';
+      case TokenSymbols.SGB: return 'Friday';
+      case TokenSymbols.SMS: return 'Saturday';
       default: return '';
     }
   };

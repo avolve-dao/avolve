@@ -4,6 +4,8 @@ import { PageGrid } from "@/components/page-container"
 import { RouteLayout } from "@/components/layouts/route-layout"
 import { RouteCard } from "@/components/layouts/route-card"
 import { TokenStats } from "@/components/token/token-stats"
+import { TransformationWall } from "@/components/transformation/transformation-wall"
+import { Separator } from "@/components/ui/separator"
 import { Home, Briefcase, Zap } from "lucide-react"
 
 export default function SuperachieverPage() {
@@ -63,6 +65,17 @@ export default function SuperachieverPage() {
           delay={2}
         />
       </PageGrid>
+
+      <Separator className="my-8" />
+
+      {/* Transformation Wall */}
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold tracking-tight">Transformation Wall</h2>
+        <p className="text-muted-foreground">
+          Share your journey, celebrate wins, and inspire others. Earn SAP tokens for meaningful contributions.
+        </p>
+        <TransformationWall journeyType="superachiever" />
+      </section>
     </RouteLayout>
   )
 }

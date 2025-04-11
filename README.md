@@ -14,6 +14,38 @@ Avolve is built around three main value pillars:
 
 Our platform provides tools, resources, and community support to help users evolve in all aspects of their lives, from personal success to business growth and beyond.
 
+## 🌟 2025 Transformation Features
+
+Avolve's platform empowers personal and collective transformation through three key journeys:
+
+### 🏆 Superachiever Journey (`/superachiever`)
+Transform your personal journey through:
+- Real-time posts with token rewards (1-5 GEN per post)
+- AI-driven prompts for meaningful sharing
+- Engagement tracking with milestone rewards (10 SAP at 50% engagement)
+- Progressive unlocking based on participation
+
+### 👥 Superachievers Journey (`/superachievers`)
+Amplify collective transformation through:
+- Real-time chat in Regen Circles
+- Group achievements with token rewards (10 GEN for collective wins)
+- Community reputation system
+- Collaborative goal tracking
+
+### 🌍 Supercivilization Journey (`/supercivilization`)
+Contribute to ecosystem transformation through:
+- Impact metrics and visualizations
+- Token-based governance participation
+- Regenerative economy dashboard
+- Global transformation tracking
+
+Each journey features:
+- WCAG 2.2 AA compliant design
+- Dark mode with journey-themed gradients
+- Real-time engagement tracking
+- Token-gated progressive features
+- AI-enhanced interaction prompts
+
 ### 🪙 Token System
 
 GEN is the primary token of the Avolve ecosystem, representing the Supercivilization pillar. When users contribute financially, their fiat is allocated as follows:

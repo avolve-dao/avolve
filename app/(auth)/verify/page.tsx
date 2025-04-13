@@ -21,9 +21,7 @@ export default function Verify() {
                 email_input_label: 'Email',
                 token_input_label: 'Verification code',
                 button_label: 'Verify',
-                loading_button_label: 'Verifying...',
-                confirmation_text: 'Your email has been verified',
-                link_text: 'Back to sign in'
+                loading_button_label: 'Verifying...'
               }
             }
           }}

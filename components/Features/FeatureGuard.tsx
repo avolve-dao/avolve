@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFeatures } from '@/hooks/useFeatures';
-import { useUser } from '@supabase/auth-helpers-react';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,32 +21,49 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
   children 
 }) => {
   const router = useRouter();
-  const user = useUser();
+  const supabase = createClientComponentClient();
+  const [user, setUser] = useState(null);
   const { checkFeatureUnlock } = useFeatures();
   const [loading, setLoading] = useState(true);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [unlockReason, setUnlockReason] = useState('');
 
   useEffect(() => {
-    const checkAccess = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+    const getUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      
+      const checkAccess = async () => {
+        if (!session?.user) {
+          setLoading(false);
+          return;
+        }
 
-      try {
-        const result = await checkFeatureUnlock(featureName);
-        setIsUnlocked(result.isUnlocked);
-        setUnlockReason(result.unlockReason);
-      } catch (error) {
-        console.error(`Error checking ${featureName} access:`, error);
-      } finally {
-        setLoading(false);
-      }
+        try {
+          const result = await checkFeatureUnlock(featureName);
+          setIsUnlocked(result.isUnlocked);
+          setUnlockReason(result.unlockReason);
+        } catch (error) {
+          console.error(`Error checking ${featureName} access:`, error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      checkAccess();
     };
 
-    checkAccess();
-  }, [user, featureName]);
+    getUser();
+
+    // Set up auth state change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [featureName, supabase]);
 
   if (loading) {
     return (

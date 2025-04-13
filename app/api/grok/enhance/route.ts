@@ -1,5 +1,5 @@
 import { getContextualGrokModel } from "@/lib/grok-context"
-import { generateText } from "@/lib/ai-sdk-setup"
+import { streamText } from "@/lib/ai-sdk-setup"
 import { createClient } from "@/lib/supabase/server"
 
 export async function POST(req: Request) {
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     ]
 
     for (const type of enhancementTypes) {
-      const { text } = await generateText({
+      const response = await streamText({
         model,
         prompt: `Enhance this social media post: "${content}"
  
@@ -56,6 +56,15 @@ export async function POST(req: Request) {
  
  Provide only the enhanced post text without any additional explanations or formatting.`,
       })
+
+      // Read the stream content manually
+      let text = '';
+      const reader = response.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        text += value;
+      }
 
       enhancements.push(text)
     }

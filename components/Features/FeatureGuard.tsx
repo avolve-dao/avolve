@@ -8,6 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
 
 interface FeatureGuardProps {
   featureName: string;
@@ -22,7 +23,7 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
 }) => {
   const router = useRouter();
   const supabase = createClientComponentClient();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const { checkFeatureUnlock } = useFeatures();
   const [loading, setLoading] = useState(true);
   const [isUnlocked, setIsUnlocked] = useState(false);

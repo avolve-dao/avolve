@@ -182,7 +182,7 @@ function ProfilePage() {
   // Generate avatar fallback from user's name or email
   const getAvatarFallback = () => {
     if (user?.fullName) {
-      return user.fullName.split(" ").map(n => n[0]).join("").toUpperCase()
+      return user.fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase()
     }
     
     if (user?.username) {
@@ -193,7 +193,7 @@ function ProfilePage() {
       return user.email.substring(0, 2).toUpperCase()
     }
     
-    return "U"
+    return "??"
   }
   
   if (isLoading) {

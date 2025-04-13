@@ -102,7 +102,7 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
         toast({
           title: "Token claimed!",
           description: `You received ${result.amount || 1} ${dayStatus.tokenInfo.symbol} tokens. This contributes to your progress in the regenerative system.`,
-          variant: "success"
+          variant: "default"
         });
       } else {
         toast({

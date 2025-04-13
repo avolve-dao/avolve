@@ -1,0 +1,284 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import sacred geometry styles */
+@import '../styles/sacred-geometry.css';
+
+@layer base {
+  :root {
+    --background: 240 5% 96%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.75rem;
+
+    /* Sidebar specific variables - zinc palette for light mode */
+    --sidebar-background: 240 5% 98%;
+    --sidebar-foreground: 240 5% 25%;
+    --sidebar-primary: 240 5% 34%;
+    --sidebar-primary-foreground: 240 5% 98%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 5% 25%;
+    --sidebar-border: 240 5% 90%;
+    --sidebar-ring: 240 5% 65%;
+    
+    /* Layout variables */
+    --sidebar-width: 16rem;
+    --sidebar-width-collapsed: 3rem;
+    --sidebar-transition-duration: 200ms;
+    --sidebar-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
+    /* Sidebar specific variables - zinc palette for dark mode */
+    --sidebar-background: 240 5% 12%;
+    --sidebar-foreground: 240 5% 84%;
+    --sidebar-primary: 240 5% 84%;
+    --sidebar-primary-foreground: 240 5% 12%;
+    --sidebar-accent: 240 5% 16%;
+    --sidebar-accent-foreground: 240 5% 84%;
+    --sidebar-border: 240 5% 20%;
+    --sidebar-ring: 240 5% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Apple-inspired styles */
+.apple-blur {
+  @apply backdrop-blur-md bg-zinc-50/80 dark:bg-zinc-900/80 border-b border-zinc-200/50 dark:border-zinc-800/50;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.apple-button {
+  @apply transition-all duration-200 ease-out active:scale-95 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50;
+}
+
+.apple-icon {
+  @apply text-zinc-500 dark:text-zinc-400;
+}
+
+.apple-menu-item {
+  @apply transition-all duration-200 ease-out hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80;
+}
+
+.apple-card {
+  @apply bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm;
+}
+
+/* Layout transitions */
+.sidebar-transition {
+  transition: margin-left var(--sidebar-transition-duration) var(--sidebar-transition-timing),
+              width var(--sidebar-transition-duration) var(--sidebar-transition-timing);
+}
+
+.content-transition {
+  transition: margin-left var(--sidebar-transition-duration) var(--sidebar-transition-timing),
+              width var(--sidebar-transition-duration) var(--sidebar-transition-timing);
+}
+
+/* Gradient text animations */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r animate-gradient-x;
+  background-size: 200% 200%;
+}
+
+/* Avolve gradient classes */
+.gradient-superachiever {
+  @apply bg-gradient-to-r from-stone-500 to-stone-700;
+}
+
+.gradient-personal {
+  @apply bg-gradient-to-r from-amber-500 to-yellow-500;
+}
+
+.gradient-business {
+  @apply bg-gradient-to-r from-teal-500 to-cyan-500;
+}
+
+.gradient-supermind {
+  @apply bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500;
+}
+
+.gradient-superachievers {
+  @apply bg-gradient-to-r from-slate-500 to-slate-700;
+}
+
+.gradient-superhuman {
+  @apply bg-gradient-to-r from-rose-500 via-red-500 to-orange-500;
+}
+
+.gradient-supersociety {
+  @apply bg-gradient-to-r from-lime-500 via-green-500 to-emerald-500;
+}
+
+.gradient-supergenius {
+  @apply bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500;
+}
+
+.gradient-supercivilization {
+  @apply bg-gradient-to-r from-zinc-500 to-zinc-700;
+}
+
+/* Animations */
+@keyframes gradient-x {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: gradient-x 10s ease infinite;
+}
+
+/* Fade-in animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Tesla 3-6-9 Pattern Animations */
+@keyframes tesla-3 {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  33.33% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
+@keyframes tesla-6 {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  33.33% {
+    transform: rotate(60deg);
+  }
+  66.66% {
+    transform: rotate(120deg);
+  }
+}
+
+@keyframes tesla-9 {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  33.33% {
+    transform: scale(1.09) rotate(120deg);
+  }
+  66.66% {
+    transform: scale(1) rotate(240deg);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+.animate-tesla-3 {
+  animation: tesla-3 3s ease-in-out infinite;
+}
+
+.animate-tesla-6 {
+  animation: tesla-6 6s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+}
+
+.animate-tesla-9 {
+  animation: tesla-9 9s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Staggered animations for list items */
+.stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.stagger-item:nth-child(6) { animation-delay: 0.3s; }
+.stagger-item:nth-child(7) { animation-delay: 0.35s; }
+.stagger-item:nth-child(8) { animation-delay: 0.4s; }
+.stagger-item:nth-child(9) { animation-delay: 0.45s; }
+.stagger-item:nth-child(10) { animation-delay: 0.5s; }
+
+/* Tesla 3-6-9 based staggered animations */
+.tesla-stagger-3:nth-child(3n+1) { animation-delay: 0.3s; }
+.tesla-stagger-3:nth-child(3n+2) { animation-delay: 0.6s; }
+.tesla-stagger-3:nth-child(3n+3) { animation-delay: 0.9s; }
+
+.tesla-stagger-6:nth-child(6n+1) { animation-delay: 0.3s; }
+.tesla-stagger-6:nth-child(6n+2) { animation-delay: 0.6s; }
+.tesla-stagger-6:nth-child(6n+3) { animation-delay: 0.9s; }
+.tesla-stagger-6:nth-child(6n+4) { animation-delay: 1.2s; }
+.tesla-stagger-6:nth-child(6n+5) { animation-delay: 1.5s; }
+.tesla-stagger-6:nth-child(6n+6) { animation-delay: 1.8s; }
+
+.tesla-stagger-9:nth-child(9n+1) { animation-delay: 0.3s; }
+.tesla-stagger-9:nth-child(9n+2) { animation-delay: 0.6s; }
+.tesla-stagger-9:nth-child(9n+3) { animation-delay: 0.9s; }
+.tesla-stagger-9:nth-child(9n+4) { animation-delay: 1.2s; }
+.tesla-stagger-9:nth-child(9n+5) { animation-delay: 1.5s; }
+.tesla-stagger-9:nth-child(9n+6) { animation-delay: 1.8s; }
+.tesla-stagger-9:nth-child(9n+7) { animation-delay: 2.1s; }
+.tesla-stagger-9:nth-child(9n+8) { animation-delay: 2.4s; }
+.tesla-stagger-9:nth-child(9n+9) { animation-delay: 2.7s; }

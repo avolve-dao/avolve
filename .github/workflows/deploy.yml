@@ -1,0 +1,275 @@
+name: Avolve CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test and Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Type checking
+        run: pnpm run typecheck
+        
+      - name: Lint
+        run: pnpm run lint
+        
+      - name: Run tests with coverage
+        run: pnpm run test -- --coverage
+        
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+  
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      
+      - name: Build the app
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      
+      - name: Run Playwright tests
+        run: npx playwright test
+      
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
+          
+  deploy-preview:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    needs: [test, e2e-tests]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Deploy to Vercel (Preview)
+        id: deploy-preview
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          DEPLOYMENT_URL=$(npx vercel --token ${VERCEL_TOKEN} --build-env NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} --build-env NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }})
+          echo "VERCEL_PREVIEW_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+          echo "::set-output name=preview_url::$DEPLOYMENT_URL"
+      
+      - name: Run Lighthouse Audit
+        id: lighthouse-audit
+        uses: treosh/lighthouse-ci-action@v9
+        with:
+          urls: |
+            ${{ env.VERCEL_PREVIEW_URL }}
+            ${{ env.VERCEL_PREVIEW_URL }}/dashboard
+            ${{ env.VERCEL_PREVIEW_URL }}/onboarding
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          configPath: './.github/lighthouse-config.json'
+          
+      - name: Comment Preview URL
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const previewUrl = process.env.VERCEL_PREVIEW_URL || 'Deployment URL not available';
+            const lighthouseResults = ${{ steps.lighthouse-audit.outputs.manifest }};
+            
+            let performanceScores = '';
+            if (lighthouseResults) {
+              const results = JSON.parse(lighthouseResults);
+              performanceScores = results.map(result => {
+                const url = result.url.replace(previewUrl, '');
+                const urlPath = url === '' ? 'Home' : url;
+                return `- ${urlPath}: Performance ${result.summary.performance * 100}/100, Accessibility ${result.summary.accessibility * 100}/100`;
+              }).join('\n');
+            }
+            
+            const commentBody = `## 🚀 Vercel Preview Deployment
+            Preview: ${previewUrl}
+            
+            Changes were deployed to the Preview Environment. Use this environment to test your changes before merging.
+            
+            ### E2E Test Results
+            ✅ All end-to-end tests passed in the CI environment.
+            
+            ### Lighthouse Performance Audit
+            ${performanceScores || 'Performance data not available'}
+            
+            ### Preview this PR
+            - Dashboard: ${previewUrl}/dashboard
+            - Onboarding: ${previewUrl}/onboarding
+            - Feedback: ${previewUrl}/feedback
+            `;
+            
+            const deployComment = comments.find(comment => comment.body.includes('Vercel Preview Deployment'));
+            
+            if (deployComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: deployComment.id,
+                body: commentBody,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody,
+              });
+            }
+          
+  deploy-production:
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    needs: [test, e2e-tests]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Build
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        
+      - name: Deploy to Vercel (Production)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          DEPLOYMENT_URL=$(npx vercel --token ${VERCEL_TOKEN} --prod --build-env NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }} --build-env NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }})
+          echo "VERCEL_PRODUCTION_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+      
+      - name: Run Production Lighthouse Audit
+        id: lighthouse-prod-audit
+        uses: treosh/lighthouse-ci-action@v9
+        with:
+          urls: |
+            ${{ env.VERCEL_PRODUCTION_URL }}
+            ${{ env.VERCEL_PRODUCTION_URL }}/dashboard
+            ${{ env.VERCEL_PRODUCTION_URL }}/onboarding
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+          configPath: './.github/lighthouse-config.json'
+      
+      - name: Create Deployment Tag
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tagName = `deploy-${new Date().toISOString().split('T')[0]}-${context.sha.substring(0, 7)}`;
+            const lighthouseResults = ${{ steps.lighthouse-prod-audit.outputs.manifest }};
+            
+            let performanceScores = '';
+            if (lighthouseResults) {
+              const results = JSON.parse(lighthouseResults);
+              performanceScores = results.map(result => {
+                const url = result.url.replace(process.env.VERCEL_PRODUCTION_URL, '');
+                const urlPath = url === '' ? 'Home' : url;
+                return `- ${urlPath}: Performance ${result.summary.performance * 100}/100, Accessibility ${result.summary.accessibility * 100}/100`;
+              }).join('\n');
+            }
+            
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/tags/${tagName}`,
+              sha: context.sha
+            });
+            
+            const releaseBody = `Deployed commit ${context.sha} to production.\n\nDeployment URL: ${process.env.VERCEL_PRODUCTION_URL || 'Not available'}\n\n### Lighthouse Performance Audit\n${performanceScores || 'Performance data not available'}`;
+            
+            await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: tagName,
+              name: `Production Deployment ${new Date().toISOString().split('T')[0]}`,
+              body: releaseBody,
+              draft: false,
+              prerelease: false
+            });

@@ -1,0 +1,365 @@
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "avolve": "https://avolve.io/ontology#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#"
+  },
+  "@graph": [
+    {
+      "@id": "avolve:TokenSystem",
+      "@type": "avolve:System",
+      "schema:name": "Token System",
+      "schema:description": "Core token system for the Avolve platform",
+      "avolve:implements": [
+        { "@id": "avolve:SacredGeometry" },
+        { "@id": "avolve:Tesla369Pattern" }
+      ],
+      "avolve:hasPart": [
+        { "@id": "avolve:TokenHierarchy" },
+        { "@id": "avolve:TokenAccess" },
+        { "@id": "avolve:TokenClaim" },
+        { "@id": "avolve:TokenExchange" }
+      ],
+      "avolve:codeLocation": "/lib/token"
+    },
+    {
+      "@id": "avolve:TokenHierarchy",
+      "@type": "avolve:Concept",
+      "schema:name": "Token Hierarchy",
+      "schema:description": "Hierarchical structure of tokens in the Avolve platform",
+      "avolve:hasToken": [
+        { "@id": "avolve:GENToken" },
+        { "@id": "avolve:SAPToken" },
+        { "@id": "avolve:SCQToken" }
+      ],
+      "avolve:codeLocation": "/lib/token/token-types.ts"
+    },
+    {
+      "@id": "avolve:GENToken",
+      "@type": "avolve:Token",
+      "schema:name": "GEN Token",
+      "schema:description": "Genesis token for the Supercivilization pillar",
+      "avolve:tokenLevel": 9,
+      "avolve:digitalRoot": 9,
+      "avolve:isTesla369": true,
+      "avolve:hasSubToken": [
+        { "@id": "avolve:SAPToken" },
+        { "@id": "avolve:SCQToken" }
+      ],
+      "avolve:gradient": "from-zinc-500 to-zinc-700"
+    },
+    {
+      "@id": "avolve:SAPToken",
+      "@type": "avolve:Token",
+      "schema:name": "SAP Token",
+      "schema:description": "Superachiever token for the individual journey",
+      "avolve:tokenLevel": 6,
+      "avolve:digitalRoot": 6,
+      "avolve:isTesla369": true,
+      "avolve:hasSubToken": [
+        { "@id": "avolve:PSPToken" },
+        { "@id": "avolve:BSPToken" },
+        { "@id": "avolve:SMSToken" }
+      ],
+      "avolve:gradient": "from-stone-500 to-stone-700"
+    },
+    {
+      "@id": "avolve:SCQToken",
+      "@type": "avolve:Token",
+      "schema:name": "SCQ Token",
+      "schema:description": "Superachievers token for the collective journey",
+      "avolve:tokenLevel": 6,
+      "avolve:digitalRoot": 6,
+      "avolve:isTesla369": true,
+      "avolve:hasSubToken": [
+        { "@id": "avolve:SPDToken" },
+        { "@id": "avolve:SHEToken" },
+        { "@id": "avolve:SSAToken" },
+        { "@id": "avolve:SGBToken" }
+      ],
+      "avolve:gradient": "from-slate-500 to-slate-700"
+    },
+    {
+      "@id": "avolve:PSPToken",
+      "@type": "avolve:Token",
+      "schema:name": "PSP Token",
+      "schema:description": "Personal Success Puzzle token",
+      "avolve:tokenLevel": 3,
+      "avolve:digitalRoot": 3,
+      "avolve:isTesla369": true,
+      "avolve:parentToken": { "@id": "avolve:SAPToken" },
+      "avolve:gradient": "from-amber-500 to-yellow-500",
+      "avolve:claimDay": "Tuesday"
+    },
+    {
+      "@id": "avolve:BSPToken",
+      "@type": "avolve:Token",
+      "schema:name": "BSP Token",
+      "schema:description": "Business Success Puzzle token",
+      "avolve:tokenLevel": 3,
+      "avolve:digitalRoot": 3,
+      "avolve:isTesla369": true,
+      "avolve:parentToken": { "@id": "avolve:SAPToken" },
+      "avolve:gradient": "from-teal-500 to-cyan-500",
+      "avolve:claimDay": "Thursday"
+    },
+    {
+      "@id": "avolve:SMSToken",
+      "@type": "avolve:Token",
+      "schema:name": "SMS Token",
+      "schema:description": "Supermind Superpowers token",
+      "avolve:tokenLevel": 3,
+      "avolve:digitalRoot": 3,
+      "avolve:isTesla369": true,
+      "avolve:parentToken": { "@id": "avolve:SAPToken" },
+      "avolve:gradient": "from-violet-500 via-purple-500 to-fuchsia-500",
+      "avolve:claimDay": "Saturday"
+    },
+    {
+      "@id": "avolve:SPDToken",
+      "@type": "avolve:Token",
+      "schema:name": "SPD Token",
+      "schema:description": "Superpuzzle Developments token",
+      "avolve:tokenLevel": 3,
+      "avolve:digitalRoot": 3,
+      "avolve:isTesla369": true,
+      "avolve:parentToken": { "@id": "avolve:SCQToken" },
+      "avolve:gradient": "from-red-500 via-green-500 to-blue-500",
+      "avolve:claimDay": "Sunday"
+    },
+    {
+      "@id": "avolve:SHEToken",
+      "@type": "avolve:Token",
+      "schema:name": "SHE Token",
+      "schema:description": "Superhuman Enhancements token",
+      "avolve:tokenLevel": 3,
+      "avolve:digitalRoot": 3,
+      "avolve:isTesla369": true,
+      "avolve:parentToken": { "@id": "avolve:SCQToken" },
+      "avolve:gradient": "from-rose-500 via-red-500 to-orange-500",
+      "avolve:claimDay": "Monday"
+    },
+    {
+      "@id": "avolve:SSAToken",
+      "@type": "avolve:Token",
+      "schema:name": "SSA Token",
+      "schema:description": "Supersociety Advancements token",
+      "avolve:tokenLevel": 3,
+      "avolve:digitalRoot": 3,
+      "avolve:isTesla369": true,
+      "avolve:parentToken": { "@id": "avolve:SCQToken" },
+      "avolve:gradient": "from-lime-500 via-green-500 to-emerald-500",
+      "avolve:claimDay": "Wednesday"
+    },
+    {
+      "@id": "avolve:SGBToken",
+      "@type": "avolve:Token",
+      "schema:name": "SGB Token",
+      "schema:description": "Supergenius Breakthroughs token",
+      "avolve:tokenLevel": 3,
+      "avolve:digitalRoot": 3,
+      "avolve:isTesla369": true,
+      "avolve:parentToken": { "@id": "avolve:SCQToken" },
+      "avolve:gradient": "from-sky-500 via-blue-500 to-indigo-500",
+      "avolve:claimDay": "Friday"
+    },
+    {
+      "@id": "avolve:SacredGeometry",
+      "@type": "avolve:Concept",
+      "schema:name": "Sacred Geometry",
+      "schema:description": "Mathematical principles based on sacred geometry",
+      "avolve:hasPart": [
+        { "@id": "avolve:GoldenRatio" },
+        { "@id": "avolve:FibonacciSequence" },
+        { "@id": "avolve:Tesla369Pattern" },
+        { "@id": "avolve:VortexMathematics" }
+      ],
+      "avolve:codeLocation": "/lib/sacred-geometry"
+    },
+    {
+      "@id": "avolve:GoldenRatio",
+      "@type": "avolve:Concept",
+      "schema:name": "Golden Ratio",
+      "schema:description": "The golden ratio (1.618) used for natural proportions",
+      "avolve:value": 1.618,
+      "avolve:codeLocation": "/lib/sacred-geometry/golden-ratio.ts"
+    },
+    {
+      "@id": "avolve:FibonacciSequence",
+      "@type": "avolve:Concept",
+      "schema:name": "Fibonacci Sequence",
+      "schema:description": "The Fibonacci sequence used for natural progression",
+      "avolve:sequence": [1, 1, 2, 3, 5, 8, 13, 21, 34, 55],
+      "avolve:codeLocation": "/lib/sacred-geometry/fibonacci.ts"
+    },
+    {
+      "@id": "avolve:Tesla369Pattern",
+      "@type": "avolve:Concept",
+      "schema:name": "Tesla's 3-6-9 Pattern",
+      "schema:description": "Nikola Tesla's 3-6-9 pattern for energy flow",
+      "avolve:pattern": [3, 6, 9],
+      "avolve:codeLocation": "/lib/sacred-geometry/tesla-369.ts"
+    },
+    {
+      "@id": "avolve:VortexMathematics",
+      "@type": "avolve:Concept",
+      "schema:name": "Vortex Mathematics",
+      "schema:description": "Digital root calculations using vortex mathematics",
+      "avolve:codeLocation": "/lib/sacred-geometry/vortex-math.ts"
+    },
+    {
+      "@id": "avolve:JourneySystem",
+      "@type": "avolve:System",
+      "schema:name": "Journey System",
+      "schema:description": "System for tracking user progress through pillars, sections, and components",
+      "avolve:hasPart": [
+        { "@id": "avolve:Pillars" },
+        { "@id": "avolve:Sections" },
+        { "@id": "avolve:Components" },
+        { "@id": "avolve:UserProgress" }
+      ],
+      "avolve:codeLocation": "/lib/journey"
+    },
+    {
+      "@id": "avolve:Pillars",
+      "@type": "avolve:Concept",
+      "schema:name": "Pillars",
+      "schema:description": "Main categories in the Avolve platform",
+      "avolve:hasPillar": [
+        { "@id": "avolve:SuperachieverPillar" },
+        { "@id": "avolve:SuperachieversPillar" },
+        { "@id": "avolve:SupercivilizationPillar" }
+      ],
+      "avolve:codeLocation": "/lib/journey/pillars.ts"
+    },
+    {
+      "@id": "avolve:SuperachieverPillar",
+      "@type": "avolve:Pillar",
+      "schema:name": "Superachiever",
+      "schema:description": "Individual journey of transformation",
+      "avolve:token": { "@id": "avolve:SAPToken" },
+      "avolve:hasSection": [
+        { "@id": "avolve:PersonalSuccessPuzzleSection" },
+        { "@id": "avolve:BusinessSuccessPuzzleSection" },
+        { "@id": "avolve:SupermindSuperpowersSection" }
+      ]
+    },
+    {
+      "@id": "avolve:SuperachieversPillar",
+      "@type": "avolve:Pillar",
+      "schema:name": "Superachievers",
+      "schema:description": "Collective journey of transformation",
+      "avolve:token": { "@id": "avolve:SCQToken" },
+      "avolve:hasSection": [
+        { "@id": "avolve:SuperpuzzleDevelopmentsSection" },
+        { "@id": "avolve:SuperhumanEnhancementsSection" },
+        { "@id": "avolve:SupersocietyAdvancementsSection" },
+        { "@id": "avolve:SupergeniusBreakthroughsSection" }
+      ]
+    },
+    {
+      "@id": "avolve:SupercivilizationPillar",
+      "@type": "avolve:Pillar",
+      "schema:name": "Supercivilization",
+      "schema:description": "Ecosystem journey of transformation",
+      "avolve:token": { "@id": "avolve:GENToken" }
+    },
+    {
+      "@id": "avolve:DatabaseSchema",
+      "@type": "avolve:System",
+      "schema:name": "Database Schema",
+      "schema:description": "PostgreSQL database schema for the Avolve platform",
+      "avolve:hasTable": [
+        { "@id": "avolve:TokensTable" },
+        { "@id": "avolve:UserTokensTable" },
+        { "@id": "avolve:TokenTransactionsTable" },
+        { "@id": "avolve:PillarsTable" },
+        { "@id": "avolve:SectionsTable" },
+        { "@id": "avolve:ComponentsTable" },
+        { "@id": "avolve:UserJourneysTable" },
+        { "@id": "avolve:UserSectionProgressTable" },
+        { "@id": "avolve:UserComponentProgressTable" },
+        { "@id": "avolve:RolesTable" },
+        { "@id": "avolve:UserRolesTable" }
+      ],
+      "avolve:hasFunction": [
+        { "@id": "avolve:HasTokenAccessFunction" },
+        { "@id": "avolve:ClaimDailyTokenFunction" },
+        { "@id": "avolve:GetDigitalRootFunction" },
+        { "@id": "avolve:UpdateComponentProgressFunction" },
+        { "@id": "avolve:GetUserProgressSummaryFunction" }
+      ],
+      "avolve:codeLocation": "/supabase/migrations"
+    },
+    {
+      "@id": "avolve:TokensTable",
+      "@type": "avolve:DatabaseTable",
+      "schema:name": "tokens",
+      "schema:description": "Defines all token types with sacred geometry attributes",
+      "avolve:hasColumn": [
+        "id", "symbol", "name", "description", "token_level", "digital_root",
+        "is_tesla_369", "fibonacci_weight", "golden_ratio_multiplier", "token_family"
+      ],
+      "avolve:codeLocation": "/supabase/migrations/20240906123046_create_tokens.sql"
+    },
+    {
+      "@id": "avolve:UserTokensTable",
+      "@type": "avolve:DatabaseTable",
+      "schema:name": "user_tokens",
+      "schema:description": "Tracks token ownership for each user",
+      "avolve:hasColumn": ["id", "user_id", "token_id", "balance", "created_at", "updated_at"],
+      "avolve:codeLocation": "/supabase/migrations/20240906123046_create_tokens.sql"
+    },
+    {
+      "@id": "avolve:HasTokenAccessFunction",
+      "@type": "avolve:DatabaseFunction",
+      "schema:name": "has_token_access",
+      "schema:description": "Checks if a user has access to content requiring a specific token",
+      "avolve:parameters": ["token_symbol text", "user_id uuid"],
+      "avolve:returns": "boolean",
+      "avolve:codeLocation": "/supabase/migrations/20240906123047_create_token_utility_functions.sql"
+    },
+    {
+      "@id": "avolve:UIComponents",
+      "@type": "avolve:System",
+      "schema:name": "UI Components",
+      "schema:description": "React components for the Avolve platform",
+      "avolve:hasComponent": [
+        { "@id": "avolve:TokenBadgeComponent" },
+        { "@id": "avolve:DailyClaimCardComponent" },
+        { "@id": "avolve:TokenProtectedRouteComponent" },
+        { "@id": "avolve:JourneyDashboardComponent" },
+        { "@id": "avolve:ComponentProgressComponent" }
+      ],
+      "avolve:codeLocation": "/components"
+    },
+    {
+      "@id": "avolve:TokenBadgeComponent",
+      "@type": "avolve:UIComponent",
+      "schema:name": "TokenBadge",
+      "schema:description": "Displays a visual representation of a token with optional balance and tooltip",
+      "avolve:implements": [
+        { "@id": "avolve:SacredGeometry" },
+        { "@id": "avolve:TokenSystem" }
+      ],
+      "avolve:uses": [
+        { "@id": "avolve:UseTokenHook" },
+        { "@id": "avolve:UseTokenRBACHook" }
+      ],
+      "avolve:codeLocation": "/components/token/token-badge.tsx"
+    },
+    {
+      "@id": "avolve:UseTokenHook",
+      "@type": "avolve:Hook",
+      "schema:name": "useToken",
+      "schema:description": "React hook for token operations",
+      "avolve:provides": [
+        "getUserTokenBalance",
+        "claimDailyToken",
+        "getTokenHierarchy"
+      ],
+      "avolve:codeLocation": "/lib/token/use-token.ts"
+    }
+  ]
+}

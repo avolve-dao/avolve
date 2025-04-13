@@ -1,5 +1,5 @@
 import { getContextualGrokModel } from "@/lib/grok-context"
-import { generateText } from "@/lib/ai-sdk-setup"
+import { streamText } from "@/lib/ai-sdk-setup"
 import { createClient } from "@/lib/supabase/server"
 
 export async function GET(req: Request) {
@@ -86,13 +86,22 @@ export async function GET(req: Request) {
     if (interests.length > 0) {
       const randomInterest = interests[Math.floor(Math.random() * interests.length)]
 
-      const { text } = await generateText({
+      const response = await streamText({
         model,
         prompt: `Generate a personalized insight about "${randomInterest}" that would be valuable to the user.
         
         Make it specific, actionable, and interesting. Keep it under 100 characters.
         Just provide the insight text without any additional formatting or explanation.`,
       })
+
+      // Read the stream content manually
+      let text = '';
+      const reader = response.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        text += value;
+      }
 
       // Update one of the items with the generated insight
       insightCategories[1].items[0].content = text

@@ -11,6 +11,19 @@ import { TeamFilters } from '@/components/Teams/team-filters'
 import { LoadingCard } from '@/components/ui/loading-card'
 import { EmptyState } from '@/components/ui/empty-state'
 
+// Define the type for team objects
+interface Team {
+  id: string;
+  name?: string;
+  description?: string;
+  avatar_url?: string;
+  members?: { count: number };
+  owner?: { username?: string; full_name?: string; avatar_url?: string };
+  featured?: boolean;
+  featured_order?: number;
+  [key: string]: any;
+}
+
 export const metadata: Metadata = {
   title: 'Discover Teams | Avolve',
   description: 'Find and join teams that align with your interests and goals.',
@@ -101,7 +114,7 @@ export default async function TeamsDiscoverPage() {
         <h2 className="text-2xl font-bold mb-4">Featured Teams</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Suspense fallback={<LoadingCard count={3} />}>
-            {featuredTeams?.map((team) => (
+            {featuredTeams?.map((team: Team) => (
               <TeamCard
                 key={team.id}
                 team={team}
@@ -118,7 +131,7 @@ export default async function TeamsDiscoverPage() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Suspense fallback={<LoadingCard count={3} />}>
             {recommendedTeams?.length ? (
-              recommendedTeams.map((team) => (
+              recommendedTeams.map((team: Team) => (
                 <TeamCard
                   key={team.id}
                   team={team}
@@ -144,7 +157,7 @@ export default async function TeamsDiscoverPage() {
         <h2 className="text-2xl font-bold mb-4">Trending This Week</h2>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Suspense fallback={<LoadingCard count={3} />}>
-            {trendingTeams?.map((team) => (
+            {trendingTeams?.map((team: Team) => (
               <TeamCard
                 key={team.id}
                 team={team}

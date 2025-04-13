@@ -160,15 +160,27 @@ export async function POST(request: NextRequest) {
       interactionData || []
     );
     
-    // Log this recommendation generation for analytics
-    await supabase.from('ai_recommendation_logs').insert({
-      user_id: userId,
-      recommendation_count: recommendations.length,
-      regen_level: regenData?.regen_level || 1,
-      journey_phase: journeyProgress?.current_phase || 'discovery',
-      timestamp: new Date().toISOString()
-    }).catch(err => console.error('Error logging recommendation generation:', err));
+    // Log the recommendation generation without blocking response
+    const { error } = await supabase
+      .from('ai_recommendation_logs')
+      .insert({
+        user_id: userId,
+        recommendation_type: 'journey',
+        input_data: JSON.stringify({
+          regen_level: regenData?.regen_level || 0,
+          journey_phase: journeyProgress?.current_phase || 'discovery',
+          token_count: tokenBalances?.length || 0,
+          event_count: upcomingEvents?.length || 0
+        }),
+        output_data: JSON.stringify(recommendations),
+        journey_phase: journeyProgress?.current_phase || 'discovery',
+        timestamp: new Date().toISOString()
+      });
     
+    if (error) {
+      console.error('Error logging recommendation generation:', error);
+    }
+
     return NextResponse.json({ recommendations });
   } catch (error) {
     console.error('Unexpected error in journey-ai route:', error);

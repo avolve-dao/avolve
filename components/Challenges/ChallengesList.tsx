@@ -10,14 +10,9 @@ import { TokenSymbols, type TokenSymbol } from '@/types/platform';
  */
 const ChallengesList: React.FC = () => {
   const {
+    challenges,
     loading,
-    error,
-    todayChallenges,
-    userProgress,
-    completeChallenge,
-    isChallengeCompletedToday,
-    getProgressForToken,
-    refreshChallengeData
+    claimReward
   } = useChallenges();
 
   const [completing, setCompleting] = useState<string | null>(null);
@@ -33,29 +28,16 @@ const ChallengesList: React.FC = () => {
     setCompletionResult(null);
     
     try {
-      const result = await completeChallenge(challengeId);
-      
-      if (result.success) {
-        setCompletionResult({
-          success: true,
-          message: `Challenge completed! Earned ${result.data?.points} points for ${result.data?.tokenSymbol}.`,
-          data: result.data
-        });
-        
-        // Refresh challenge data after a short delay
-        setTimeout(() => {
-          refreshChallengeData();
-        }, 1500);
-      } else {
-        setCompletionResult({
-          success: false,
-          message: result.error || 'Failed to complete challenge'
-        });
-      }
+      await claimReward(challengeId);
+      setCompletionResult({
+        success: true,
+        message: `Challenge reward claimed successfully!`
+      });
+      // No further action needed since toast is handled in the hook
     } catch (err) {
       setCompletionResult({
         success: false,
-        message: err instanceof Error ? err.message : 'An error occurred'
+        message: err instanceof Error ? err.message : 'An error occurred claiming the reward'
       });
     } finally {
       setCompleting(null);
@@ -104,22 +86,22 @@ const ChallengesList: React.FC = () => {
       ) : (
         <>
           {/* Today's Token */}
-          {todayChallenges && (
+          {challenges && challenges.length > 0 && (
             <div className="mb-6">
-              <div className={`p-4 rounded-lg text-white ${getTokenColor(todayChallenges.dayToken)}`}>
+              <div className={`p-4 rounded-lg text-white ${getTokenColor(challenges[0].reward_token)}`}>
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xl font-bold">{todayChallenges.dayToken}</p>
+                    <p className="text-xl font-bold">{challenges[0].reward_token}</p>
                     <p className="text-xs mt-1 opacity-80">
-                      {getDayForToken(todayChallenges.dayToken)}
+                      {getDayForToken(challenges[0].reward_token)}
                     </p>
                   </div>
                   <div>
-                    {todayChallenges.dayToken && (
+                    {challenges[0].reward_token && (
                       <div className="text-right">
                         <p className="text-sm">Progress</p>
                         <p className="text-xl font-bold">
-                          {getProgressForToken(todayChallenges.dayToken as TokenSymbol).points} pts
+                          {challenges[0].progress} pts
                         </p>
                       </div>
                     )}
@@ -130,35 +112,36 @@ const ChallengesList: React.FC = () => {
           )}
 
           {/* Challenge List */}
-          {todayChallenges?.challenges && todayChallenges.challenges.length > 0 ? (
+          {challenges && challenges.length > 0 ? (
             <div className="space-y-4">
-              {todayChallenges.challenges.map((challenge) => {
-                const isCompleted = isChallengeCompletedToday(challenge.id);
+              {challenges.map((challenge) => {
+                const isCompleted = challenge.completed;
                 
                 return (
                   <div 
                     key={challenge.id} 
-                    className={`p-4 border rounded-lg ${
-                      isCompleted ? 'bg-gray-50 border-gray-200' : 'border-gray-200 hover:border-indigo-300'
-                    }`}
+                    className={`p-4 border rounded-lg ${isCompleted ? 'bg-gray-50 border-gray-200' : 'border-gray-200'}`}
                   >
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-semibold text-lg">{challenge.name}</h3>
-                        <p className="text-gray-600 text-sm mt-1">{challenge.description}</p>
-                        <div className="flex items-center mt-2">
-                          <div className={`w-4 h-4 rounded-full mr-2 ${getTokenColor(challenge.tokens?.symbol)}`}></div>
-                          <span className="text-sm text-gray-500">{challenge.tokens?.symbol}</span>
-                          <span className="mx-2 text-gray-400">•</span>
-                          <span className="text-sm font-medium">{challenge.points} points</span>
-                        </div>
+                        <h3 className={`font-semibold ${isCompleted ? 'text-gray-500' : ''}`}>{challenge.title}</h3>
+                        <p className="text-sm text-gray-500 mt-1">{challenge.description}</p>
                       </div>
-                      <div>
+                      <div className="flex items-center">
+                        <div className={`w-4 h-4 rounded-full mr-2 ${getTokenColor(challenge.reward_token)}`}></div>
+                        <span className="text-sm font-medium">+{challenge.reward_amount}</span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div className="w-full bg-gray-200 rounded-full h-2 mr-4">
+                        <div 
+                          className="bg-indigo-600 h-2 rounded-full" 
+                          style={{ width: `${Math.min(100, (challenge.progress / challenge.total_required) * 100)}%` }} 
+                        ></div>
+                      </div>
+                      <div className="flex items-center">
                         {isCompleted ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
+                          <span className="text-sm text-green-600 font-medium mr-2">
                             Completed
                           </span>
                         ) : (
@@ -179,54 +162,11 @@ const ChallengesList: React.FC = () => {
           ) : (
             <div className="p-6 text-center bg-gray-50 rounded-lg">
               <p className="text-gray-500">
-                {todayChallenges?.challenges?.length === 0
+                {challenges?.length === 0
                   ? "No challenges available for today's token."
                   : "No challenges available."
                 }
               </p>
-            </div>
-          )}
-
-          {/* Token Progress */}
-          {userProgress.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-3">Your Token Progress</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {userProgress.map((progress) => (
-                  <div key={progress.id} className="p-3 border rounded-lg">
-                    <div className="flex items-center mb-2">
-                      <div className={`w-6 h-6 rounded-full mr-2 ${getTokenColor(progress.tokens?.symbol)}`}></div>
-                      <span className="font-medium">{progress.tokens?.symbol}</span>
-                      {!progress.tokens?.is_locked && (
-                        <span className="ml-2 px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded-full">
-                          Unlocked
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Points:</span>
-                      <span className="font-bold">{progress.points}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Level:</span>
-                      <span className="font-bold">{progress.level}</span>
-                    </div>
-                    {progress.tokens?.is_locked && (
-                      <div className="mt-2">
-                        <div className="text-xs text-gray-500 mb-1">
-                          {progress.points}/50 points to unlock
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5">
-                          <div
-                            className="bg-indigo-600 h-1.5 rounded-full"
-                            style={{ width: `${Math.min(100, (progress.points / 50) * 100)}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
@@ -236,18 +176,6 @@ const ChallengesList: React.FC = () => {
               completionResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
             }`}>
               <p>{completionResult.message}</p>
-              {completionResult.success && completionResult.data?.unlocked && (
-                <p className="mt-1 font-semibold">
-                  🎉 You've unlocked {completionResult.data.tokenSymbol}!
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="mt-4 p-3 rounded bg-red-100 text-red-800">
-              {error}
             </div>
           )}
         </>

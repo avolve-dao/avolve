@@ -1,5 +1,5 @@
 import { getContextualGrokModel } from "@/lib/grok-context"
-import { generateText } from "@/lib/ai-sdk-setup"
+import { streamText } from "@/lib/ai-sdk-setup"
 
 export async function POST(req: Request) {
   try {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { model } = await getContextualGrokModel(userId)
 
     // Generate content
-    const { text } = await generateText({
+    const response = await streamText({
       model,
       prompt: `Create engaging social media content based on this request: "${prompt}"
       
@@ -18,6 +18,15 @@ export async function POST(req: Request) {
       
       Output just the content itself without any additional explanations or formatting.`,
     })
+
+    // Read the stream content manually
+    let text = '';
+    const reader = response.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      text += value;
+    }
 
     return new Response(
       JSON.stringify({

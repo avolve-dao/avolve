@@ -1,83 +1,86 @@
-"use client"
+"use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useDailyClaims } from '../../hooks/useDailyClaims';
-import { TokenSymbol } from '../../types/supabase';
+import { TokenSymbols, type TokenSymbol } from '@/types/platform';
 
 /**
  * DailyClaimCard Component
- * Displays the daily token claim card with streak information and claim button
+ * Displays today's token and allows users to claim it
  */
 const DailyClaimCard: React.FC = () => {
   const {
+    claims,
     loading,
-    error,
-    canClaim,
-    todayToken,
-    claimStreak,
-    recentClaims,
-    claimDailyToken,
-    getDayForToken
+    claimDaily
   } = useDailyClaims();
 
-  const [claiming, setClaiming] = React.useState(false);
-  const [claimResult, setClaimResult] = React.useState<{
+  const [claiming, setClaiming] = useState<string | null>(null);
+  const [claimResult, setClaimResult] = useState<{
     success: boolean;
     message: string;
-    data?: any;
   } | null>(null);
 
-  // Handle claim button click
-  const handleClaim = async () => {
-    if (!canClaim) return;
-    
-    setClaiming(true);
+  // Handle claim action
+  const handleClaim = async (claimId: string) => {
+    setClaiming(claimId);
     setClaimResult(null);
     
     try {
-      const result = await claimDailyToken();
-      
-      if (result.success) {
-        setClaimResult({
-          success: true,
-          message: `Successfully claimed ${result.data?.amount} ${result.data?.tokenSymbol} tokens!`,
-          data: result.data
-        });
-      } else {
-        setClaimResult({
-          success: false,
-          message: result.error || 'Failed to claim token'
-        });
-      }
+      await claimDaily(claimId);
+      setClaimResult({
+        success: true,
+        message: 'Daily token claimed successfully!'
+      });
     } catch (err) {
       setClaimResult({
         success: false,
         message: err instanceof Error ? err.message : 'An error occurred'
       });
     } finally {
-      setClaiming(false);
+      setClaiming(null);
     }
   };
 
   // Get token color based on symbol
-  const getTokenColor = (symbol?: string): string => {
+  const getTokenColor = (symbol: string): string => {
     switch (symbol) {
-      case TokenSymbol.SPD: return 'bg-gradient-to-r from-red-500 to-blue-500'; // Red-Green-Blue
-      case TokenSymbol.SHE: return 'bg-gradient-to-r from-rose-500 to-orange-500'; // Rose-Red-Orange
-      case TokenSymbol.PSP: return 'bg-gradient-to-r from-amber-500 to-yellow-500'; // Amber-Yellow
-      case TokenSymbol.SSA: return 'bg-gradient-to-r from-lime-500 to-emerald-500'; // Lime-Green-Emerald
-      case TokenSymbol.BSP: return 'bg-gradient-to-r from-teal-500 to-cyan-500'; // Teal-Cyan
-      case TokenSymbol.SGB: return 'bg-gradient-to-r from-sky-500 to-indigo-500'; // Sky-Blue-Indigo
-      case TokenSymbol.SMS: return 'bg-gradient-to-r from-violet-500 to-fuchsia-500'; // Violet-Purple-Fuchsia-Pink
-      case TokenSymbol.SAP: return 'bg-gradient-to-r from-slate-500 to-slate-700'; // Stone gradient
-      case TokenSymbol.SCQ: return 'bg-gradient-to-r from-slate-400 to-slate-600'; // Slate gradient
-      case TokenSymbol.GEN: return 'bg-gradient-to-r from-zinc-400 to-zinc-600'; // Zinc gradient
+      case TokenSymbols.SPD: return 'bg-gradient-to-r from-red-500 to-blue-500'; // Red-Green-Blue
+      case TokenSymbols.SHE: return 'bg-gradient-to-r from-rose-500 to-orange-500'; // Rose-Red-Orange
+      case TokenSymbols.PSP: return 'bg-gradient-to-r from-amber-500 to-yellow-500'; // Amber-Yellow
+      case TokenSymbols.SSA: return 'bg-gradient-to-r from-lime-500 to-emerald-500'; // Lime-Green-Emerald
+      case TokenSymbols.BSP: return 'bg-gradient-to-r from-teal-500 to-cyan-500'; // Teal-Cyan
+      case TokenSymbols.SGB: return 'bg-gradient-to-r from-sky-500 to-indigo-500'; // Sky-Blue-Indigo
+      case TokenSymbols.SMS: return 'bg-gradient-to-r from-violet-500 to-fuchsia-500'; // Violet-Purple-Fuchsia-Pink
+      case TokenSymbols.SAP: return 'bg-gradient-to-r from-slate-500 to-slate-700'; // Stone gradient
+      case TokenSymbols.SCQ: return 'bg-gradient-to-r from-slate-400 to-slate-600'; // Slate gradient
+      case TokenSymbols.GEN: return 'bg-gradient-to-r from-zinc-400 to-zinc-600'; // Zinc gradient
       default: return 'bg-gray-500';
     }
   };
 
+  // Get day for token
+  const getDayForToken = (symbol: string): string => {
+    switch (symbol) {
+      case TokenSymbols.SPD: return 'Sunday';
+      case TokenSymbols.SHE: return 'Monday';
+      case TokenSymbols.PSP: return 'Tuesday';
+      case TokenSymbols.SSA: return 'Wednesday';
+      case TokenSymbols.BSP: return 'Thursday';
+      case TokenSymbols.SGB: return 'Friday';
+      case TokenSymbols.SMS: return 'Saturday';
+      case TokenSymbols.SAP: return 'Any Day';
+      case TokenSymbols.SCQ: return 'Any Day';
+      case TokenSymbols.GEN: return 'Any Day';
+      default: return 'Unknown';
+    }
+  };
+
+  // Find today's token from claims
+  const todayToken = claims && claims.length > 0 ? claims[0] : null;
+  
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
+    <div className="p-6 bg-white rounded-lg shadow-md max-w-md w-full">
       <h2 className="text-2xl font-bold mb-4">Daily Token Claim</h2>
       
       {loading ? (
@@ -86,147 +89,88 @@ const DailyClaimCard: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Today's Token */}
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Today's Token</h3>
-            {todayToken ? (
-              <div className={`p-4 rounded-lg text-white ${getTokenColor(todayToken.symbol)}`}>
+          {todayToken ? (
+            <div className="mb-4">
+              <div className={`p-4 rounded-lg text-white ${getTokenColor(todayToken.token_type)}`}>
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xl font-bold">{todayToken.symbol}</p>
-                    <p className="text-sm opacity-90">{todayToken.name}</p>
+                    <p className="text-xl font-bold">{todayToken.token_type}</p>
                     <p className="text-xs mt-1 opacity-80">
-                      {getDayForToken(todayToken.symbol as TokenSymbol)}
+                      {getDayForToken(todayToken.token_type)}
                     </p>
                   </div>
-                  {canClaim ? (
-                    <button
-                      onClick={handleClaim}
-                      disabled={claiming}
-                      className="px-4 py-2 bg-white text-gray-800 rounded hover:bg-gray-100 disabled:opacity-50 transition-colors"
-                    >
-                      {claiming ? 'Claiming...' : 'Claim Now'}
-                    </button>
-                  ) : (
-                    <span className="px-4 py-2 bg-gray-200 text-gray-600 rounded">
-                      Already Claimed
-                    </span>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-500">No token available for today</p>
-            )}
-          </div>
-
-          {/* Streak Information */}
-          {claimStreak && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Your Streak</h3>
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Current Streak:</span>
-                  <span className="text-xl font-bold">{claimStreak.currentStreak} days</span>
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="font-medium">Current Multiplier:</span>
-                  <span className="text-lg font-semibold">{claimStreak.currentMultiplier}x</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="font-medium">Next Multiplier:</span>
-                  <span>
-                    {claimStreak.nextMultiplierAt > 0 ? (
-                      <span>in {claimStreak.nextMultiplierAt} days</span>
-                    ) : (
-                      <span className="text-green-600">Active!</span>
-                    )}
-                  </span>
-                </div>
-                
-                {/* Streak Progress Bar */}
-                <div className="mt-4">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>1 day</span>
-                    <span>3 days (1.2x)</span>
-                    <span>5 days (1.5x)</span>
-                    <span>7 days (1.7x)</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="bg-indigo-600 h-2.5 rounded-full"
-                      style={{ width: `${Math.min(100, (claimStreak.currentStreak / 7) * 100)}%` }}
-                    ></div>
+                  <div>
+                    <p className="text-sm">Reward</p>
+                    <p className="text-xl font-bold">{todayToken.amount} pts</p>
                   </div>
                 </div>
               </div>
+              
+              {todayToken.claimed ? (
+                <div className="mt-4 p-3 bg-green-100 text-green-700 rounded flex items-center">
+                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Already claimed today
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleClaim(todayToken.id)}
+                  disabled={!!claiming}
+                  className="mt-4 w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                >
+                  {claiming === todayToken.id ? 'Claiming...' : 'Claim Now'}
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="p-4 bg-gray-50 rounded-lg mb-4 text-center">
+              <p className="text-gray-500">No daily token available to claim.</p>
             </div>
           )}
 
+          {/* Claim Streak Info */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <h3 className="text-lg font-semibold mb-3">Claim Streak</h3>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-500">Current Streak</span>
+              <span className="font-bold">0 days</span>
+            </div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-500">Longest Streak</span>
+              <span className="font-bold">0 days</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+              <div className="bg-indigo-600 h-2.5 rounded-full" style={{ width: '0%' }}></div>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Claim daily to build your streak!</p>
+          </div>
+
           {/* Recent Claims */}
-          {recentClaims.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Recent Claims</h3>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Token
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Date
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {recentClaims.map((claim) => (
-                      <tr key={claim.id}>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className={`w-6 h-6 rounded-full mr-2 ${getTokenColor(claim.tokens?.symbol)}`}></div>
-                            <span>{claim.tokens?.symbol}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {claim.amount}
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          {new Date(claim.claimed_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          {claims && claims.length > 1 && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-semibold mb-3">Recent Claims</h3>
+              <div className="space-y-2">
+                {claims.slice(1).map((claim) => (
+                  <div key={claim.id} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <div className="flex items-center">
+                      <div className={`w-4 h-4 rounded-full mr-2 ${getTokenColor(claim.token_type)}`}></div>
+                      <span className="font-medium">{claim.token_type}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-green-600 font-medium">+{claim.amount}</span>
+                      <span className="text-xs text-gray-500 block">Claimed</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
           {/* Claim Result */}
           {claimResult && (
-            <div className={`p-3 rounded ${
-              claimResult.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-            }`}>
+            <div className={`mt-4 p-3 rounded ${claimResult.success ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
               <p>{claimResult.message}</p>
-              {claimResult.success && claimResult.data && (
-                <div className="mt-2 text-sm">
-                  <p>
-                    <span className="font-medium">Streak:</span> {claimResult.data.streakDays} days
-                  </p>
-                  <p>
-                    <span className="font-medium">Multiplier:</span> {claimResult.data.multiplier}x
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Error Message */}
-          {error && (
-            <div className="p-3 rounded bg-red-100 text-red-800">
-              {error}
             </div>
           )}
         </>

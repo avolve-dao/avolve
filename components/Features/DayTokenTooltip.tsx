@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +14,15 @@ interface DayTokenTooltipProps {
   children: React.ReactNode;
 }
 
+interface TokenInfo {
+  symbol: string;
+  name: string;
+  description: string;
+  day: string;
+  dayOfWeek: number;
+  gradient: string;
+}
+
 export const DayTokenTooltip: React.FC<DayTokenTooltipProps> = ({ 
   dayName, 
   dayOfWeek,
@@ -21,9 +30,43 @@ export const DayTokenTooltip: React.FC<DayTokenTooltipProps> = ({
 }) => {
   const { isDayTokenUnlocked, featureStatus, getDayTokenInfo } = useFeatures();
   
+  const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTokenInfo = async () => {
+      try {
+        setLoading(true);
+        const info = await getDayTokenInfo(dayOfWeek);
+        setTokenInfo(info);
+      } catch (error) {
+        console.error('Failed to fetch token info', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTokenInfo();
+  }, [dayOfWeek, getDayTokenInfo]);
+  
   const isUnlocked = isDayTokenUnlocked(dayName.toLowerCase());
   const unlockReason = featureStatus?.dayTokens[dayName.toLowerCase()]?.unlockReason || '';
-  const tokenInfo = getDayTokenInfo(dayOfWeek);
+
+  if (loading) {
+    return (
+      <div className="relative cursor-pointer">
+        {children}
+      </div>
+    );
+  }
+
+  if (!tokenInfo) {
+    return (
+      <div className="relative cursor-pointer">
+        {children}
+      </div>
+    );
+  }
 
   return (
     <TooltipProvider>

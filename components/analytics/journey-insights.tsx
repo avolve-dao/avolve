@@ -60,7 +60,7 @@ export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyTyp
   })) || []
 
   // Format focus area data for pie chart
-  const focusAreaData = journeyAnalytics?.[0]?.popular_focus_areas?.map(area => ({
+  const focusAreaData = journeyAnalytics?.[0]?.popular_focus_areas?.map((area: { focus_area: string; user_count: number }) => ({
     name: area.focus_area,
     value: area.user_count
   })) || []
@@ -162,7 +162,7 @@ export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyTyp
                             fill="#8884d8"
                             dataKey="value"
                           >
-                            {focusAreaData.map((entry, index) => (
+                            {focusAreaData.map((entry: { name: string; value: number }, index: number) => (
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>

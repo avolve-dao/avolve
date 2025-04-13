@@ -4,7 +4,7 @@
  * Accessibility Controls Component
  * 
  * Provides UI controls for adjusting accessibility settings
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { useState } from 'react';
@@ -31,31 +31,31 @@ import { Label } from '@/components/ui/label';
 export function A11yControls() {
   const [open, setOpen] = useState(false);
   const { 
-    highContrast, 
-    toggleHighContrast, 
-    fontSize, 
-    setFontSize,
-    reduceMotion,
-    toggleReduceMotion,
-    screenReaderAnnounce
+    preferences, 
+    updatePreferences 
   } = useA11y();
   
   // Handle font size change
   const handleFontSizeChange = (size: 'normal' | 'large' | 'x-large') => {
-    setFontSize(size);
+    updatePreferences({ largeText: size !== 'normal' });
     screenReaderAnnounce(`Font size set to ${size}`);
   };
   
   // Handle high contrast toggle
   const handleContrastToggle = () => {
-    toggleHighContrast();
-    screenReaderAnnounce(`High contrast mode ${!highContrast ? 'enabled' : 'disabled'}`);
+    updatePreferences({ highContrast: !preferences.highContrast });
+    screenReaderAnnounce(`High contrast mode ${!preferences.highContrast ? 'enabled' : 'disabled'}`);
   };
   
   // Handle reduce motion toggle
   const handleMotionToggle = () => {
-    toggleReduceMotion();
-    screenReaderAnnounce(`Reduced motion ${!reduceMotion ? 'enabled' : 'disabled'}`);
+    updatePreferences({ reducedMotion: !preferences.reducedMotion });
+    screenReaderAnnounce(`Reduced motion ${!preferences.reducedMotion ? 'enabled' : 'disabled'}`);
+  };
+
+  const screenReaderAnnounce = (message: string) => {
+    // Placeholder for screen reader announcement
+    console.log(message);
   };
   
   return (
@@ -81,37 +81,37 @@ export function A11yControls() {
                 Font Size
               </Label>
               <span className="text-xs text-muted-foreground">
-                {fontSize === 'normal' ? 'Normal' : 
-                 fontSize === 'large' ? 'Large' : 'Extra Large'}
+                {preferences.largeText === false ? 'Normal' : 
+                 preferences.largeText === true ? 'Large' : 'Extra Large'}
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <ZoomOut className="h-4 w-4 text-muted-foreground" />
               <div className="flex space-x-1">
                 <Button 
-                  variant={fontSize === 'normal' ? "default" : "outline"}
+                  variant={!preferences.largeText ? "default" : "outline"}
                   size="sm"
                   className="h-8 px-2"
                   onClick={() => handleFontSizeChange('normal')}
-                  aria-pressed={fontSize === 'normal'}
+                  aria-pressed={!preferences.largeText}
                 >
                   A
                 </Button>
                 <Button 
-                  variant={fontSize === 'large' ? "default" : "outline"}
+                  variant={preferences.largeText === true ? "default" : "outline"}
                   size="sm"
                   className="h-8 px-2"
                   onClick={() => handleFontSizeChange('large')}
-                  aria-pressed={fontSize === 'large'}
+                  aria-pressed={preferences.largeText === true}
                 >
                   <span className="text-lg">A</span>
                 </Button>
                 <Button 
-                  variant={fontSize === 'x-large' ? "default" : "outline"}
+                  variant={preferences.largeText === false ? "outline" : "default"}
                   size="sm"
                   className="h-8 px-2"
                   onClick={() => handleFontSizeChange('x-large')}
-                  aria-pressed={fontSize === 'x-large'}
+                  aria-pressed={preferences.largeText === false}
                 >
                   <span className="text-xl">A</span>
                 </Button>
@@ -135,7 +135,7 @@ export function A11yControls() {
             </div>
             <Switch
               id="high-contrast"
-              checked={highContrast}
+              checked={preferences.highContrast}
               onCheckedChange={handleContrastToggle}
               aria-labelledby="high-contrast-label"
             />
@@ -156,7 +156,7 @@ export function A11yControls() {
             </div>
             <Switch
               id="reduce-motion"
-              checked={reduceMotion}
+              checked={preferences.reducedMotion}
               onCheckedChange={handleMotionToggle}
               aria-labelledby="reduce-motion-label"
             />

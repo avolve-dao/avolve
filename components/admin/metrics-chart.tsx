@@ -123,18 +123,20 @@ export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartPr
                 marginBottom: '0.25rem',
               }}
             />
-            <ChartComponent
-              type="monotone"
-              dataKey="value"
-              stroke="#3B82F6"
-              strokeWidth={2}
-              fill="url(#colorValue)"
-              dot={false}
-              activeDot={{
-                r: 4,
-                strokeWidth: 2,
-              }}
-            />
+            {ChartComponent && (
+              <ChartComponent
+                type="monotone"
+                dataKey="value"
+                stroke="#3B82F6"
+                strokeWidth={2}
+                fill="url(#colorValue)"
+                dot={false}
+                activeDot={{
+                  r: 4,
+                  strokeWidth: 2,
+                }}
+              />
+            )}
           </ComposedChart>
         </ResponsiveContainer>
       </div>

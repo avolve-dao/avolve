@@ -33,8 +33,8 @@ import { cn } from "@/lib/utils"; // Import the cn function
 interface NavItem {
   id: string;
   title: string;
-  url: string;
-  icon?: React.ElementType;
+  label: string;
+  href: string;
   items?: NavItem[];
   category?: string;
   gradientClass?: string;
@@ -54,8 +54,8 @@ const avolveData = {
     {
       id: "superachiever",
       title: "Dashboard",
-      url: "/superachiever",
-      icon: Target,
+      label: "Dashboard",
+      href: "/superachiever",
       category: "main",
       gradientClass: "from-stone-500 to-stone-700",
       isDashboard: true
@@ -64,25 +64,28 @@ const avolveData = {
     {
       id: "personal-success-puzzle",
       title: "Personal Success Puzzle",
-      url: "/personal",
-      icon: Home,
+      label: "Personal Success Puzzle",
+      href: "/personal",
       category: "superachiever",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
         {
           id: "personal-health-link",
           title: "Health & Energy",
-          url: "/personal/health"
+          label: "Health & Energy",
+          href: "/personal/health"
         },
         {
           id: "personal-wealth-link",
           title: "Wealth & Career",
-          url: "/personal/wealth"
+          label: "Wealth & Career",
+          href: "/personal/wealth"
         },
         {
           id: "personal-peace-link",
           title: "Peace & People",
-          url: "/personal/peace"
+          label: "Peace & People",
+          href: "/personal/peace"
         }
       ]
     },
@@ -90,25 +93,28 @@ const avolveData = {
     {
       id: "business-success-puzzle",
       title: "Business Success Puzzle",
-      url: "/business",
-      icon: Briefcase,
+      label: "Business Success Puzzle",
+      href: "/business",
       category: "superachiever",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
         {
           id: "business-users-link",
           title: "Front-Stage Users",
-          url: "/business/users"
+          label: "Front-Stage Users",
+          href: "/business/users"
         },
         {
           id: "business-admin-link",
           title: "Back-Stage Admin",
-          url: "/business/admin"
+          label: "Back-Stage Admin",
+          href: "/business/admin"
         },
         {
           id: "business-profit-link",
           title: "Bottom-Line Profit",
-          url: "/business/profit"
+          label: "Bottom-Line Profit",
+          href: "/business/profit"
         }
       ]
     },
@@ -116,25 +122,28 @@ const avolveData = {
     {
       id: "supermind-superpowers",
       title: "Supermind Superpowers",
-      url: "/supermind",
-      icon: Zap,
+      label: "Supermind Superpowers",
+      href: "/supermind",
       category: "superachiever",
       gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
       items: [
         {
           id: "supermind-current-link",
           title: "Current → Desired",
-          url: "/supermind/desired"
+          label: "Current → Desired",
+          href: "/supermind/desired"
         },
         {
           id: "supermind-desired-link",
           title: "Desired → Actions",
-          url: "/supermind/actions"
+          label: "Desired → Actions",
+          href: "/supermind/actions"
         },
         {
           id: "supermind-actions-link",
           title: "Actions → Results",
-          url: "/supermind/results"
+          label: "Actions → Results",
+          href: "/supermind/results"
         }
       ]
     },
@@ -143,8 +152,8 @@ const avolveData = {
     {
       id: "superachievers",
       title: "Dashboard",
-      url: "/superachievers",
-      icon: Users,
+      label: "Dashboard",
+      href: "/superachievers",
       category: "main",
       gradientClass: "from-slate-500 to-slate-700",
       isDashboard: true
@@ -153,25 +162,28 @@ const avolveData = {
     {
       id: "superpuzzle-developments",
       title: "Superpuzzle Developments",
-      url: "/superpuzzle",
-      icon: BookOpen,
+      label: "Superpuzzle Developments",
+      href: "/superpuzzle",
       category: "superachievers",
       gradientClass: "from-red-500 via-green-500 to-blue-500",
       items: [
         {
           id: "superpuzzle-individuals-link",
           title: "Enhanced Individuals",
-          url: "/superpuzzle/individuals"
+          label: "Enhanced Individuals",
+          href: "/superpuzzle/individuals"
         },
         {
           id: "superpuzzle-collectives-link",
           title: "Advanced Collectives",
-          url: "/superpuzzle/collectives"
+          label: "Advanced Collectives",
+          href: "/superpuzzle/collectives"
         },
         {
           id: "superpuzzle-ecosystems-link",
           title: "Balanced Ecosystems",
-          url: "/superpuzzle/ecosystem"
+          label: "Balanced Ecosystems",
+          href: "/superpuzzle/ecosystem"
         }
       ]
     },
@@ -179,25 +191,28 @@ const avolveData = {
     {
       id: "superhuman-enhancements",
       title: "Superhuman Enhancements",
-      url: "/superhuman",
-      icon: GraduationCap,
+      label: "Superhuman Enhancements",
+      href: "/superhuman",
       category: "superachievers",
       gradientClass: "from-rose-500 via-red-500 to-orange-500",
       items: [
         {
           id: "superhuman-academy-link",
           title: "Academy",
-          url: "/superhuman/academy"
+          label: "Academy",
+          href: "/superhuman/academy"
         },
         {
           id: "superhuman-university-link",
           title: "University",
-          url: "/superhuman/university"
+          label: "University",
+          href: "/superhuman/university"
         },
         {
           id: "superhuman-institute-link",
           title: "Institute",
-          url: "/superhuman/institute"
+          label: "Institute",
+          href: "/superhuman/institute"
         }
       ]
     },
@@ -205,25 +220,28 @@ const avolveData = {
     {
       id: "supersociety-advancements",
       title: "Supersociety Advancements",
-      url: "/supersociety",
-      icon: Users,
+      label: "Supersociety Advancements",
+      href: "/supersociety",
       category: "superachievers",
       gradientClass: "from-lime-500 via-green-500 to-emerald-500",
       items: [
         {
           id: "supersociety-company-link",
           title: "Company",
-          url: "/supersociety/company"
+          label: "Company",
+          href: "/supersociety/company"
         },
         {
           id: "supersociety-community-link",
           title: "Community",
-          url: "/supersociety/community"
+          label: "Community",
+          href: "/supersociety/community"
         },
         {
           id: "supersociety-country-link",
           title: "Country",
-          url: "/supersociety/country"
+          label: "Country",
+          href: "/supersociety/country"
         }
       ]
     },
@@ -231,25 +249,28 @@ const avolveData = {
     {
       id: "supergenius-breakthroughs",
       title: "Supergenius Breakthroughs",
-      url: "/supergenius",
-      icon: Lightbulb,
+      label: "Supergenius Breakthroughs",
+      href: "/supergenius",
       category: "superachievers",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
       items: [
         {
           id: "supergenius-ventures-link",
           title: "Ventures",
-          url: "/supergenius/ventures"
+          label: "Ventures",
+          href: "/supergenius/ventures"
         },
         {
           id: "supergenius-enterprises-link",
           title: "Enterprises",
-          url: "/supergenius/enterprises"
+          label: "Enterprises",
+          href: "/supergenius/enterprises"
         },
         {
           id: "supergenius-industries-link",
           title: "Industries",
-          url: "/supergenius/industries"
+          label: "Industries",
+          href: "/supergenius/industries"
         }
       ]
     },
@@ -258,8 +279,8 @@ const avolveData = {
     {
       id: "supercivilization",
       title: "Dashboard",
-      url: "/supercivilization",
-      icon: Wind,
+      label: "Dashboard",
+      href: "/supercivilization",
       category: "main",
       gradientClass: "from-zinc-500 to-zinc-700",
       isDashboard: true
@@ -268,30 +289,34 @@ const avolveData = {
     {
       id: "avolve-degen-regen",
       title: "Avolve from Degen to Regen",
-      url: "/avolve",
-      icon: TrendingUp,
+      label: "Avolve from Degen to Regen",
+      href: "/avolve",
       category: "supercivilization",
       gradientClass: "from-zinc-500 to-zinc-700",
       items: [
         {
           id: "avolve-avolve-link",
           title: "Avolve",
-          url: "/avolve/avolve"
+          label: "Avolve",
+          href: "/avolve/avolve"
         },
         {
           id: "avolve-avalue-link",
           title: "Avalue",
-          url: "/avolve/avalue"
+          label: "Avalue",
+          href: "/avolve/avalue"
         },
         {
           id: "avolve-avault-link",
           title: "Avault",
-          url: "/avolve/avault"
+          label: "Avault",
+          href: "/avolve/avault"
         },
         {
           id: "avolve-avoice-link",
           title: "Avoice",
-          url: "/avolve/avoice"
+          label: "Avoice",
+          href: "/avolve/avoice"
         },
       ]
     },
@@ -299,30 +324,34 @@ const avolveData = {
     {
       id: "create-success-puzzle",
       title: "Create Your Success Puzzle",
-      url: "/create-success",
-      icon: Target,
+      label: "Create Your Success Puzzle",
+      href: "/create-success",
       category: "supercivilization",
       gradientClass: "from-stone-500 to-stone-700",
       items: [
         {
           id: "create-success-playbook-link",
           title: "Superachiever Playbook",
-          url: "/create-success/playbook"
+          label: "Superachiever Playbook",
+          href: "/create-success/playbook"
         },
         {
           id: "create-success-personal-link",
           title: "Personal Success Puzzle",
-          url: "/create-success/personal"
+          label: "Personal Success Puzzle",
+          href: "/create-success/personal"
         },
         {
           id: "create-success-business-link",
           title: "Business Success Puzzle",
-          url: "/create-success/business"
+          label: "Business Success Puzzle",
+          href: "/create-success/business"
         },
         {
           id: "create-success-supermind-link",
           title: "Supermind Superpowers",
-          url: "/create-success/supermind"
+          label: "Supermind Superpowers",
+          href: "/create-success/supermind"
         },
       ]
     },
@@ -330,35 +359,40 @@ const avolveData = {
     {
       id: "co-create-superpuzzle",
       title: "Co-Create Our Superpuzzle",
-      url: "/co-create",
-      icon: Users,
+      label: "Co-Create Our Superpuzzle",
+      href: "/co-create",
       category: "supercivilization",
       gradientClass: "from-slate-500 to-slate-700",
       items: [
         {
           id: "co-create-quests-link",
           title: "Supercivilization Quests",
-          url: "/co-create/quests"
+          label: "Supercivilization Quests",
+          href: "/co-create/quests"
         },
         {
           id: "co-create-superpuzzle-link",
           title: "Superpuzzle Developments",
-          url: "/co-create/superpuzzle"
+          label: "Superpuzzle Developments",
+          href: "/co-create/superpuzzle"
         },
         {
           id: "co-create-superhuman-link",
           title: "Superhuman Enhancements",
-          url: "/co-create/superhuman"
+          label: "Superhuman Enhancements",
+          href: "/co-create/superhuman"
         },
         {
           id: "co-create-supersociety-link",
           title: "Supersociety Advancements",
-          url: "/co-create/supersociety"
+          label: "Supersociety Advancements",
+          href: "/co-create/supersociety"
         },
         {
           id: "co-create-supergenius-link",
           title: "Supergenius Breakthroughs",
-          url: "/co-create/supergenius"
+          label: "Supergenius Breakthroughs",
+          href: "/co-create/supergenius"
         },
       ]
     },
@@ -367,8 +401,8 @@ const avolveData = {
     {
       id: "personal-dashboard",
       title: "Dashboard",
-      url: "/personal",
-      icon: Home,
+      label: "Dashboard",
+      href: "/personal",
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
       isDashboard: true
@@ -376,90 +410,102 @@ const avolveData = {
     {
       id: "personal-health",
       title: "Health & Energy",
-      url: "/personal/health",
-      icon: Target,
+      label: "Health & Energy",
+      href: "/personal/health",
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
         {
           id: "personal-health-current",
           title: "Current",
-          url: "/personal/health/current"
+          label: "Current",
+          href: "/personal/health/current"
         },
         {
           id: "personal-health-desired",
           title: "Desired",
-          url: "/personal/health/desired"
+          label: "Desired",
+          href: "/personal/health/desired"
         },
         {
           id: "personal-health-actions",
           title: "Actions",
-          url: "/personal/health/actions"
+          label: "Actions",
+          href: "/personal/health/actions"
         },
         {
           id: "personal-health-results",
           title: "Results",
-          url: "/personal/health/results"
+          label: "Results",
+          href: "/personal/health/results"
         }
       ]
     },
     {
       id: "personal-wealth",
       title: "Wealth & Career",
-      url: "/personal/wealth",
-      icon: DollarSign,
+      label: "Wealth & Career",
+      href: "/personal/wealth",
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
         {
           id: "personal-wealth-current",
           title: "Current",
-          url: "/personal/wealth/current"
+          label: "Current",
+          href: "/personal/wealth/current"
         },
         {
           id: "personal-wealth-desired",
           title: "Desired",
-          url: "/personal/wealth/desired"
+          label: "Desired",
+          href: "/personal/wealth/desired"
         },
         {
           id: "personal-wealth-actions",
           title: "Actions",
-          url: "/personal/wealth/actions"
+          label: "Actions",
+          href: "/personal/wealth/actions"
         },
         {
           id: "personal-wealth-results",
           title: "Results",
-          url: "/personal/wealth/results"
+          label: "Results",
+          href: "/personal/wealth/results"
         }
       ]
     },
     {
       id: "personal-peace",
       title: "Peace & People",
-      url: "/personal/peace",
-      icon: Users,
+      label: "Peace & People",
+      href: "/personal/peace",
       category: "personal",
       gradientClass: "from-amber-500 to-yellow-500",
       items: [
         {
           id: "personal-peace-current",
           title: "Current",
-          url: "/personal/peace/current"
+          label: "Current",
+          href: "/personal/peace/current"
         },
         {
           id: "personal-peace-desired",
           title: "Desired",
-          url: "/personal/peace/desired"
+          label: "Desired",
+          href: "/personal/peace/desired"
         },
         {
           id: "personal-peace-actions",
           title: "Actions",
-          url: "/personal/peace/actions"
+          label: "Actions",
+          href: "/personal/peace/actions"
         },
         {
           id: "personal-peace-results",
           title: "Results",
-          url: "/personal/peace/results"
+          label: "Results",
+          href: "/personal/peace/results"
         }
       ]
     },
@@ -468,8 +514,8 @@ const avolveData = {
     {
       id: "business-dashboard",
       title: "Dashboard",
-      url: "/business",
-      icon: Briefcase,
+      label: "Dashboard",
+      href: "/business",
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
       isDashboard: true
@@ -477,90 +523,102 @@ const avolveData = {
     {
       id: "business-users",
       title: "Front-Stage Users",
-      url: "/business/users",
-      icon: Users,
+      label: "Front-Stage Users",
+      href: "/business/users",
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
         {
           id: "business-users-current",
           title: "Current",
-          url: "/business/users/current"
+          label: "Current",
+          href: "/business/users/current"
         },
         {
           id: "business-users-desired",
           title: "Desired",
-          url: "/business/users/desired"
+          label: "Desired",
+          href: "/business/users/desired"
         },
         {
           id: "business-users-actions",
           title: "Actions",
-          url: "/business/users/actions"
+          label: "Actions",
+          href: "/business/users/actions"
         },
         {
           id: "business-users-results",
           title: "Results",
-          url: "/business/users/results"
+          label: "Results",
+          href: "/business/users/results"
         }
       ]
     },
     {
       id: "business-admin",
       title: "Back-Stage Admin",
-      url: "/business/admin",
-      icon: Settings,
+      label: "Back-Stage Admin",
+      href: "/business/admin",
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
         {
           id: "business-admin-current",
           title: "Current",
-          url: "/business/admin/current"
+          label: "Current",
+          href: "/business/admin/current"
         },
         {
           id: "business-admin-desired",
           title: "Desired",
-          url: "/business/admin/desired"
+          label: "Desired",
+          href: "/business/admin/desired"
         },
         {
           id: "business-admin-actions",
           title: "Actions",
-          url: "/business/admin/actions"
+          label: "Actions",
+          href: "/business/admin/actions"
         },
         {
           id: "business-admin-results",
           title: "Results",
-          url: "/business/admin/results"
+          label: "Results",
+          href: "/business/admin/results"
         }
       ]
     },
     {
       id: "business-profit",
       title: "Bottom-Line Profit",
-      url: "/business/profit",
-      icon: DollarSign,
+      label: "Bottom-Line Profit",
+      href: "/business/profit",
       category: "business",
       gradientClass: "from-teal-500 to-cyan-500",
       items: [
         {
           id: "business-profit-current",
           title: "Current",
-          url: "/business/profit/current"
+          label: "Current",
+          href: "/business/profit/current"
         },
         {
           id: "business-profit-desired",
           title: "Desired",
-          url: "/business/profit/desired"
+          label: "Desired",
+          href: "/business/profit/desired"
         },
         {
           id: "business-profit-actions",
           title: "Actions",
-          url: "/business/profit/actions"
+          label: "Actions",
+          href: "/business/profit/actions"
         },
         {
           id: "business-profit-results",
           title: "Results",
-          url: "/business/profit/results"
+          label: "Results",
+          href: "/business/profit/results"
         }
       ]
     },
@@ -569,8 +627,8 @@ const avolveData = {
     {
       id: "supermind-dashboard",
       title: "Dashboard",
-      url: "/supermind",
-      icon: Zap,
+      label: "Dashboard",
+      href: "/supermind",
       category: "supermind",
       gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
       isDashboard: true
@@ -578,24 +636,24 @@ const avolveData = {
     {
       id: "supermind-desired",
       title: "Current → Desired",
-      url: "/supermind/desired",
-      icon: Target,
+      label: "Current → Desired",
+      href: "/supermind/desired",
       category: "supermind",
       gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
     },
     {
       id: "supermind-actions",
       title: "Desired → Actions",
-      url: "/supermind/actions",
-      icon: Calendar,
+      label: "Desired → Actions",
+      href: "/supermind/actions",
       category: "supermind",
       gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
     },
     {
       id: "supermind-results",
       title: "Actions → Results",
-      url: "/supermind/results",
-      icon: TrendingUp,
+      label: "Actions → Results",
+      href: "/supermind/results",
       category: "supermind",
       gradientClass: "from-violet-500 via-purple-500 to-fuchsia-500",
     },
@@ -604,8 +662,8 @@ const avolveData = {
     {
       id: "superpuzzle-dashboard",
       title: "Dashboard",
-      url: "/superpuzzle",
-      icon: BookOpen,
+      label: "Dashboard",
+      href: "/superpuzzle",
       category: "superpuzzle",
       gradientClass: "from-red-500 via-green-500 to-blue-500",
       isDashboard: true
@@ -613,24 +671,24 @@ const avolveData = {
     {
       id: "superpuzzle-individuals",
       title: "Enhanced Individuals",
-      url: "/superpuzzle/individuals",
-      icon: Users,
+      label: "Enhanced Individuals",
+      href: "/superpuzzle/individuals",
       category: "superpuzzle",
       gradientClass: "from-red-500 via-green-500 to-blue-500",
     },
     {
       id: "superpuzzle-collectives",
       title: "Advanced Collectives",
-      url: "/superpuzzle/collectives",
-      icon: Users,
+      label: "Advanced Collectives",
+      href: "/superpuzzle/collectives",
       category: "superpuzzle",
       gradientClass: "from-red-500 via-green-500 to-blue-500",
     },
     {
       id: "superpuzzle-ecosystem",
       title: "Balanced Ecosystems",
-      url: "/superpuzzle/ecosystem",
-      icon: Wind,
+      label: "Balanced Ecosystems",
+      href: "/superpuzzle/ecosystem",
       category: "superpuzzle",
       gradientClass: "from-red-500 via-green-500 to-blue-500",
     },
@@ -639,8 +697,8 @@ const avolveData = {
     {
       id: "superhuman-dashboard",
       title: "Dashboard",
-      url: "/superhuman",
-      icon: GraduationCap,
+      label: "Dashboard",
+      href: "/superhuman",
       category: "superhuman",
       gradientClass: "from-rose-500 via-red-500 to-orange-500",
       isDashboard: true
@@ -648,24 +706,24 @@ const avolveData = {
     {
       id: "superhuman-academy",
       title: "Academy",
-      url: "/superhuman/academy",
-      icon: BookOpen,
+      label: "Academy",
+      href: "/superhuman/academy",
       category: "superhuman",
       gradientClass: "from-rose-500 via-red-500 to-orange-500",
     },
     {
       id: "superhuman-university",
       title: "University",
-      url: "/superhuman/university",
-      icon: GraduationCap,
+      label: "University",
+      href: "/superhuman/university",
       category: "superhuman",
       gradientClass: "from-rose-500 via-red-500 to-orange-500",
     },
     {
       id: "superhuman-institute",
       title: "Institute",
-      url: "/superhuman/institute",
-      icon: BookOpen,
+      label: "Institute",
+      href: "/superhuman/institute",
       category: "superhuman",
       gradientClass: "from-rose-500 via-red-500 to-orange-500",
     },
@@ -674,8 +732,8 @@ const avolveData = {
     {
       id: "supersociety-dashboard",
       title: "Dashboard",
-      url: "/supersociety",
-      icon: Users,
+      label: "Dashboard",
+      href: "/supersociety",
       category: "supersociety",
       gradientClass: "from-lime-500 via-green-500 to-emerald-500",
       isDashboard: true
@@ -683,24 +741,24 @@ const avolveData = {
     {
       id: "supersociety-company",
       title: "Company",
-      url: "/supersociety/company",
-      icon: Briefcase,
+      label: "Company",
+      href: "/supersociety/company",
       category: "supersociety",
       gradientClass: "from-lime-500 via-green-500 to-emerald-500",
     },
     {
       id: "supersociety-community",
       title: "Community",
-      url: "/supersociety/community",
-      icon: Users,
+      label: "Community",
+      href: "/supersociety/community",
       category: "supersociety",
       gradientClass: "from-lime-500 via-green-500 to-emerald-500",
     },
     {
       id: "supersociety-country",
       title: "Country",
-      url: "/supersociety/country",
-      icon: Wind,
+      label: "Country",
+      href: "/supersociety/country",
       category: "supersociety",
       gradientClass: "from-lime-500 via-green-500 to-emerald-500",
     },
@@ -709,8 +767,8 @@ const avolveData = {
     {
       id: "supergenius-dashboard",
       title: "Dashboard",
-      url: "/supergenius",
-      icon: Lightbulb,
+      label: "Dashboard",
+      href: "/supergenius",
       category: "supergenius",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
       isDashboard: true
@@ -718,28 +776,28 @@ const avolveData = {
     {
       id: "supergenius-ventures",
       title: "Ventures",
-      url: "/supergenius/ventures",
-      icon: TrendingUp,
+      label: "Ventures",
+      href: "/supergenius/ventures",
       category: "supergenius",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
     },
     {
       id: "supergenius-enterprises",
       title: "Enterprises",
-      url: "/supergenius/enterprises",
-      icon: Briefcase,
+      label: "Enterprises",
+      href: "/supergenius/enterprises",
       category: "supergenius",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
     },
     {
       id: "supergenius-industries",
       title: "Industries",
-      url: "/supergenius/industries",
-      icon: Briefcase,
+      label: "Industries",
+      href: "/supergenius/industries",
       category: "supergenius",
       gradientClass: "from-sky-500 via-blue-500 to-indigo-500",
     },
-  ],
+  ]
 }
 
 // Helper function to determine active team based on pathname

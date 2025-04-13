@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert } from '@/components/ui/alert';
-import { Select } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table } from '@/components/ui/table';
 import { RoleService, Role, RoleHierarchy } from '@/lib/auth/role-service';
+import { ChevronUp, ChevronDown, Trash2, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 /**
  * RoleHierarchyManager Component
@@ -15,7 +17,7 @@ import { RoleService, Role, RoleHierarchy } from '@/lib/auth/role-service';
  * - Create new role hierarchies
  * - Delete existing role hierarchies
  */
-export const RoleHierarchyManager: React.FC = () => {
+export default function RoleHierarchyManager() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [hierarchies, setHierarchies] = useState<RoleHierarchy[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,8 +25,8 @@ export const RoleHierarchyManager: React.FC = () => {
   const [success, setSuccess] = useState<string | null>(null);
   
   // Form state
-  const [parentRoleName, setParentRoleName] = useState<string>('');
-  const [childRoleName, setChildRoleName] = useState<string>('');
+  const [selectedRoleId, setSelectedRoleId] = useState<string>('');
+  const [selectedChildRoleId, setSelectedChildRoleId] = useState<string>('');
   
   const roleService = RoleService.getBrowserInstance();
   
@@ -57,16 +59,9 @@ export const RoleHierarchyManager: React.FC = () => {
   }, []);
   
   // Handle form submission to create a new hierarchy
-  const handleCreateHierarchy = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    
-    if (!parentRoleName || !childRoleName) {
+  const handleAddRoleHierarchy = async () => {
+    if (!selectedRoleId || !selectedChildRoleId || selectedRoleId === selectedChildRoleId) {
       setError('Please select both parent and child roles');
-      return;
-    }
-    
-    if (parentRoleName === childRoleName) {
-      setError('Parent and child roles cannot be the same');
       return;
     }
     
@@ -75,7 +70,7 @@ export const RoleHierarchyManager: React.FC = () => {
     setSuccess(null);
     
     try {
-      const result = await roleService.createRoleHierarchy(parentRoleName, childRoleName);
+      const result = await roleService.createRoleHierarchy(selectedRoleId, selectedChildRoleId);
       
       if (result.error) {
         throw new Error(result.error.message);
@@ -88,11 +83,11 @@ export const RoleHierarchyManager: React.FC = () => {
       }
       
       setHierarchies(hierarchiesResult.data || []);
-      setSuccess(`Successfully created hierarchy: ${parentRoleName} > ${childRoleName}`);
+      setSuccess(`Successfully created hierarchy: ${selectedRoleId} > ${selectedChildRoleId}`);
       
       // Reset form
-      setParentRoleName('');
-      setChildRoleName('');
+      setSelectedRoleId('');
+      setSelectedChildRoleId('');
     } catch (err: any) {
       setError(err.message || 'Failed to create hierarchy');
     } finally {
@@ -101,13 +96,13 @@ export const RoleHierarchyManager: React.FC = () => {
   };
   
   // Handle hierarchy deletion
-  const handleDeleteHierarchy = async (parentRoleName: string, childRoleName: string) => {
+  const handleDeleteRoleHierarchy = async (hierarchy: RoleHierarchy) => {
     setLoading(true);
     setError(null);
     setSuccess(null);
     
     try {
-      const result = await roleService.removeRoleHierarchy(parentRoleName, childRoleName);
+      const result = await roleService.removeRoleHierarchy(hierarchy.parent_role_id, hierarchy.child_role_id);
       
       if (result.error) {
         throw new Error(result.error.message);
@@ -120,7 +115,7 @@ export const RoleHierarchyManager: React.FC = () => {
       }
       
       setHierarchies(hierarchiesResult.data || []);
-      setSuccess(`Successfully removed hierarchy: ${parentRoleName} > ${childRoleName}`);
+      setSuccess(`Successfully removed hierarchy: ${hierarchy.parent_role_id} > ${hierarchy.child_role_id}`);
     } catch (err: any) {
       setError(err.message || 'Failed to remove hierarchy');
     } finally {
@@ -135,71 +130,55 @@ export const RoleHierarchyManager: React.FC = () => {
   };
   
   return (
-    <Card title="Role Hierarchy Management" className="mb-6">
+    <Card title="Manage Role Hierarchies (Inheritance)" className="mb-6">
       {error && (
-        <Alert type="error" className="mb-4" onClose={() => setError(null)}>
+        <Alert variant="destructive" className="mb-4">
           {error}
         </Alert>
       )}
       
       {success && (
-        <Alert type="success" className="mb-4" onClose={() => setSuccess(null)}>
+        <Alert variant="default" className="mb-4">
           {success}
         </Alert>
       )}
       
-      <div className="mb-6">
-        <h3 className="text-lg font-medium mb-2">Create Role Hierarchy</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Role hierarchies allow permissions to be inherited. A parent role inherits all permissions from its child roles.
-        </p>
-        
-        <form onSubmit={handleCreateHierarchy} className="flex flex-wrap gap-4 items-end">
-          <div className="w-full md:w-auto">
-            <Select
-              label="Parent Role"
-              value={parentRoleName}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setParentRoleName(e.target.value)}
-              disabled={loading}
-              required
-            >
-              <option value="">Select Parent Role</option>
-              {roles.map((role) => (
-                <option key={`parent-${role.id}`} value={role.name}>
-                  {role.name} {role.description ? `(${role.description})` : ''}
-                </option>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div>
+          <label htmlFor="parentRole" className="block text-sm font-medium mb-1">Parent Role</label>
+          <Select value={selectedRoleId} onValueChange={setSelectedRoleId}>
+            <SelectTrigger id="parentRole" className="w-full">
+              <SelectValue placeholder="Select parent role" />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map(role => (
+                <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
               ))}
-            </Select>
-          </div>
-          
-          <div className="w-full md:w-auto flex items-center justify-center">
-            <span className="text-lg font-bold">→</span>
-          </div>
-          
-          <div className="w-full md:w-auto">
-            <Select
-              label="Child Role"
-              value={childRoleName}
-              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setChildRoleName(e.target.value)}
-              disabled={loading}
-              required
-            >
-              <option value="">Select Child Role</option>
-              {roles.map((role) => (
-                <option key={`child-${role.id}`} value={role.name}>
-                  {role.name} {role.description ? `(${role.description})` : ''}
-                </option>
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <label htmlFor="childRole" className="block text-sm font-medium mb-1">Child Role (Inherits Permissions)</label>
+          <Select value={selectedChildRoleId} onValueChange={setSelectedChildRoleId}>
+            <SelectTrigger id="childRole" className="w-full">
+              <SelectValue placeholder="Select child role" />
+            </SelectTrigger>
+            <SelectContent>
+              {roles.map(role => (
+                <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
               ))}
-            </Select>
-          </div>
-          
-          <div className="w-full md:w-auto">
-            <Button type="submit" disabled={loading}>
-              Create Hierarchy
-            </Button>
-          </div>
-        </form>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
+      <Button
+        className="mt-4"
+        onClick={handleAddRoleHierarchy}
+        disabled={!selectedRoleId || !selectedChildRoleId || selectedRoleId === selectedChildRoleId}
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Add Role Hierarchy
+      </Button>
       
       <div>
         <h3 className="text-lg font-medium mb-2">Existing Hierarchies</h3>
@@ -231,15 +210,11 @@ export const RoleHierarchyManager: React.FC = () => {
                   <td>{new Date(hierarchy.created_at || '').toLocaleString()}</td>
                   <td>
                     <Button
-                      variant="danger"
+                      variant="destructive"
                       size="sm"
-                      onClick={() => handleDeleteHierarchy(
-                        getRoleName(hierarchy.parent_role_id),
-                        getRoleName(hierarchy.child_role_id)
-                      )}
-                      disabled={loading}
+                      onClick={() => handleDeleteRoleHierarchy(hierarchy)}
                     >
-                      Remove
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </td>
                 </tr>
@@ -250,6 +225,4 @@ export const RoleHierarchyManager: React.FC = () => {
       </div>
     </Card>
   );
-};
-
-export default RoleHierarchyManager;
+}

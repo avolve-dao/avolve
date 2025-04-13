@@ -1,22 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
 import { useToken } from '@/lib/token/useToken';
-import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
-} from '@/components/ui/toast';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  TrophyIcon, 
-  CoinsIcon, 
-  CheckCircleIcon,
-  XIcon
-} from 'lucide-react';
+import { TrophyIcon, CoinsIcon } from 'lucide-react';
+import { Session } from '@supabase/supabase-js';
 
 export type Achievement = {
   id: string;
@@ -24,197 +12,151 @@ export type Achievement = {
   description: string;
   category: string;
   reward_type: string;
-  reward_amount: number;
-  reward_token_symbol: string;
-  earned_at: string;
-  claimed_at: string | null;
+  reward_amount?: number;
+  reward_token_symbol?: string;
+  earned_at?: string;
 };
 
-export default function AchievementNotificationProvider({
-  children
+export function AchievementNotification({
+  children,
 }: {
   children: React.ReactNode;
 }) {
-  const { supabase, user } = useSupabase();
+  const { supabase, user } = useSupabase() as any;
   const { claimAchievementReward, trackActivity } = useToken();
   
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [open, setOpen] = useState(false);
-  const [currentAchievement, setCurrentAchievement] = useState<Achievement | null>(null);
-  
-  // Listen for new achievements
+  const [displayedAchievement, setDisplayedAchievement] = useState<Achievement | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [claimingId, setClaimingId] = useState<string | null>(null);
+
   useEffect(() => {
-    if (!user?.id) return;
-    
-    // Initial fetch of unclaimed achievements
-    const fetchUnclaimed = async () => {
+    if (!user) return;
+
+    const fetchAchievements = async () => {
       try {
-        const { data } = await supabase
-          .rpc('get_user_achievements', { p_user_id: user.id })
-          .eq('claimed_at', null);
-        
-        if (data && data.length > 0) {
-          setAchievements(data);
-          setCurrentAchievement(data[0]);
-          setOpen(true);
+        const { data: userAchievements } = await supabase.rpc('get_user_achievements', {
+          p_user_id: user.id,
+        });
+
+        if (userAchievements) {
+          setAchievements(userAchievements);
+
+          // Check for unclaimed achievements
+          const unclaimed = userAchievements.find((a: Achievement) => !a.reward_token_symbol);
+          if (unclaimed && !displayedAchievement) {
+            setDisplayedAchievement(unclaimed);
+            setIsVisible(true);
+
+            // Track this view for analytics
+            await trackActivity('view_achievement_notification', 'notification', unclaimed.id);
+          }
         }
       } catch (error) {
-        console.error('Error fetching unclaimed achievements:', error);
+        console.error('Error fetching achievements:', error);
       }
     };
-    
-    fetchUnclaimed();
-    
-    // Subscribe to realtime updates for new achievements
-    const achievementsChannel = supabase
-      .channel('achievement_notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'user_achievements',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          const newAchievement = payload.new as Achievement;
-          
-          // Only show notification for unclaimed achievements
-          if (!newAchievement.claimed_at) {
-            setAchievements(prev => [...prev, newAchievement]);
-            
-            // If no achievement is currently showing, show this one
-            if (!currentAchievement) {
-              setCurrentAchievement(newAchievement);
-              setOpen(true);
-            }
-          }
-        }
-      )
-      .subscribe();
-    
+
+    fetchAchievements();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: Session | null) => {
+      if (event === 'SIGNED_IN' && session) {
+        fetchAchievements();
+      }
+    });
+
     return () => {
-      supabase.removeChannel(achievementsChannel);
+      subscription.unsubscribe();
     };
-  }, [supabase, user?.id]);
-  
-  // Handle claiming achievement reward
-  const handleClaim = async () => {
-    if (!currentAchievement) return;
-    
+  }, [user, supabase, trackActivity, displayedAchievement]);
+
+  const handleClaim = async (achievementId: string) => {
+    setClaimingId(achievementId);
     try {
-      // Claim the reward
-      const success = await claimAchievementReward(currentAchievement.id);
-      
+      const success = await claimAchievementReward(achievementId);
       if (success) {
         // Track this action for analytics
-        await trackActivity('claim_achievement', 'achievement', currentAchievement.id, {
-          achievement_title: currentAchievement.title,
-          reward_amount: currentAchievement.reward_amount,
-          reward_token: currentAchievement.reward_token_symbol
-        });
-        
-        // Remove from list and close
-        setAchievements(prev => prev.filter(a => a.id !== currentAchievement.id));
-        setOpen(false);
-        
-        // Show next achievement if any
-        setTimeout(() => {
-          if (achievements.length > 1) {
-            setCurrentAchievement(achievements.find(a => a.id !== currentAchievement?.id) || null);
-            setOpen(true);
-          } else {
-            setCurrentAchievement(null);
-          }
-        }, 500);
+        await trackActivity('claim_achievement_notification', 'notification', achievementId);
+
+        // Update achievements state
+        const updatedAchievements = achievements.map((a) =>
+          a.id === achievementId ? { ...a, reward_token_symbol: a.reward_token_symbol || 'Claimed' } : a
+        );
+        setAchievements(updatedAchievements);
+        setIsVisible(false);
       }
     } catch (error) {
-      console.error('Error claiming achievement reward:', error);
+      console.error('Error claiming achievement:', error);
+    } finally {
+      setClaimingId(null);
     }
   };
-  
-  // Handle dismissing notification
+
   const handleDismiss = () => {
-    setOpen(false);
-    
-    // Show next achievement if any
-    setTimeout(() => {
-      if (achievements.length > 1) {
-        setCurrentAchievement(achievements.find(a => a.id !== currentAchievement?.id) || null);
-        setOpen(true);
-      } else {
-        setCurrentAchievement(null);
-      }
-    }, 500);
+    setIsVisible(false);
   };
-  
+
   return (
-    <ToastProvider>
+    <>
       {children}
-      {currentAchievement && (
-        <Toast
-          open={open}
-          onOpenChange={setOpen}
-          className="fixed bottom-4 right-4 w-96 bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden"
-        >
-          <div className="bg-gradient-to-r from-amber-400 to-amber-600 p-4 text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <TrophyIcon className="h-5 w-5" />
-                <ToastTitle className="text-lg font-bold">Achievement Unlocked!</ToastTitle>
-              </div>
-              <ToastClose asChild>
-                <button className="text-white/80 hover:text-white">
-                  <XIcon className="h-4 w-4" />
-                </button>
-              </ToastClose>
-            </div>
-          </div>
-          
-          <div className="p-4">
-            <div className="flex items-start gap-3">
-              <div className="bg-amber-100 p-3 rounded-full">
+      <AnimatePresence>
+        {isVisible && displayedAchievement && (
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 50, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            className="fixed bottom-4 right-4 bg-white rounded-lg shadow-xl p-6 max-w-xs border border-amber-200"
+          >
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-full bg-amber-100">
                 <TrophyIcon className="h-6 w-6 text-amber-600" />
               </div>
-              <div>
-                <h3 className="font-bold text-gray-900">{currentAchievement.title}</h3>
-                <ToastDescription className="text-gray-600 mt-1">
-                  {currentAchievement.description}
-                </ToastDescription>
-                
-                <div className="mt-3 flex items-center gap-2">
-                  <Badge className="bg-gray-100 text-gray-700 border-none">
-                    {currentAchievement.category}
-                  </Badge>
-                  {currentAchievement.reward_amount > 0 && (
-                    <Badge className="bg-blue-100 text-blue-700 border-none flex items-center gap-1">
-                      <CoinsIcon className="h-3 w-3" />
-                      {currentAchievement.reward_amount} {currentAchievement.reward_token_symbol}
-                    </Badge>
+              <div className="flex-1">
+                <h3 className="font-bold text-lg text-gray-900">Achievement Unlocked!</h3>
+                <p className="font-medium text-gray-900 mt-1">{displayedAchievement.title}</p>
+                <p className="text-gray-600 mt-1 text-sm">{displayedAchievement.description}</p>
+
+                {displayedAchievement.reward_amount && displayedAchievement.reward_amount > 0 && (
+                  <div className="mt-3 flex items-center gap-2 bg-blue-50 p-2 rounded-md">
+                    <CoinsIcon className="h-4 w-4 text-blue-600" />
+                    <span className="text-blue-700 font-medium">
+                      {displayedAchievement.reward_amount} {displayedAchievement.reward_token_symbol}
+                    </span>
+                  </div>
+                )}
+
+                <div className="mt-4 flex gap-2">
+                  {displayedAchievement.reward_amount && displayedAchievement.reward_amount > 0 && !displayedAchievement.reward_token_symbol && (
+                    <Button
+                      size="sm"
+                      className="bg-gradient-to-r from-amber-500 to-amber-600 text-white"
+                      onClick={() => handleClaim(displayedAchievement.id)}
+                      disabled={claimingId === displayedAchievement.id}
+                    >
+                      {claimingId === displayedAchievement.id ? (
+                        <div className="flex items-center gap-1">
+                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          Claiming...
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <CoinsIcon className="h-4 w-4" />
+                          Claim Reward
+                        </div>
+                      )}
+                    </Button>
                   )}
+                  <Button size="sm" variant="outline" onClick={handleDismiss}>
+                    Dismiss
+                  </Button>
                 </div>
               </div>
             </div>
-            
-            <div className="mt-4 flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={handleDismiss}>
-                Dismiss
-              </Button>
-              {currentAchievement.reward_amount > 0 && !currentAchievement.claimed_at && (
-                <Button 
-                  className="bg-gradient-to-r from-amber-500 to-amber-600 text-white"
-                  size="sm"
-                  onClick={handleClaim}
-                >
-                  <CoinsIcon className="h-4 w-4 mr-1" />
-                  Claim Reward
-                </Button>
-              )}
-            </div>
-          </div>
-        </Toast>
-      )}
-      <ToastViewport />
-    </ToastProvider>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

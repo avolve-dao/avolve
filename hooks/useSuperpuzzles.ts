@@ -14,10 +14,14 @@ interface Superpuzzle {
   completed: boolean;
   progress: number;
   total_required: number;
+  tokens?: any;
+  required_points?: number;
+  teamContributions?: any[];
 }
 
 export function useSuperpuzzles() {
   const [puzzles, setPuzzles] = useState<Superpuzzle[]>([]);
+  const [selectedSuperpuzzle, setSelectedSuperpuzzle] = useState<Superpuzzle | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -147,10 +151,46 @@ export function useSuperpuzzles() {
     });
   };
 
+  const loadSuperpuzzleDetails = async (puzzleId: string) => {
+    setLoading(true);
+    
+    try {
+      // This is a mock implementation - in a real app, you would fetch from Supabase
+      const { data, error } = await supabase
+        .from('superpuzzles')
+        .select(`
+          *,
+          tokens:reward_token (*),
+          teamContributions:team_contributions (
+            *,
+            teams:team_id (*)
+          )
+        `)
+        .eq('id', puzzleId)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      setSelectedSuperpuzzle(data);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load superpuzzle details: " + error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     puzzles,
+    selectedSuperpuzzle,
     loading,
     updateProgress,
-    completeSuperpuzzle
+    completeSuperpuzzle,
+    loadSuperpuzzleDetails
   };
 }

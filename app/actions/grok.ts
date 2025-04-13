@@ -7,15 +7,24 @@ export async function generateGrokResponse(prompt: string, model: GrokModel, sys
   try {
     const grokModel = getGrokModel(model)
 
-    const response = await generateText({
+    const response = await streamText({
       model: grokModel,
       prompt,
       system: systemPrompt,
     })
 
+    // Read the stream content manually
+    let text = '';
+    const reader = response.getReader();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      text += value;
+    }
+
     return {
       success: true,
-      text: response.text,
+      text,
     }
   } catch (error) {
     console.error("Error generating response:", error)

@@ -23,9 +23,25 @@ interface TeamMember {
   contribution_points: number;
 }
 
+interface UserTeam {
+  teamId: string;
+  name: string;
+  role: 'owner' | 'admin' | 'member';
+}
+
+interface TeamMemberWithTeam {
+  team_id: string;
+  role: 'owner' | 'admin' | 'member';
+  teams: {
+    id: string;
+    name: string;
+  };
+}
+
 export function useTeams() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [userTeams, setUserTeams] = useState<UserTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -121,6 +137,65 @@ export function useTeams() {
 
     loadTeams();
   }, [supabase, toast]);
+
+  const loadUserTeams = async () => {
+    setLoading(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      // Get user's teams
+      const { data, error } = await supabase
+        .from('teams')
+        .select(`
+          id,
+          name,
+          team_members!inner (
+            role
+          )
+        `)
+        .eq('team_members.user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      // Transform data into UserTeam format
+      const userTeamsData: UserTeam[] = [];
+      
+      if (data) {
+        data.forEach(team => {
+          if (team && team.team_members && team.team_members.length > 0) {
+            userTeamsData.push({
+              teamId: team.id,
+              name: team.name,
+              role: team.team_members[0].role as 'owner' | 'admin' | 'member'
+            });
+          }
+        });
+      }
+
+      setUserTeams(userTeamsData);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load user teams: " + error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load teams on initial mount
+  useEffect(() => {
+    loadUserTeams();
+  }, []);
 
   const createTeam = async (name: string, description: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -250,9 +325,11 @@ export function useTeams() {
   return {
     teams,
     teamMembers,
+    userTeams,
     loading,
     createTeam,
     joinTeam,
-    leaveTeam
+    leaveTeam,
+    loadUserTeams
   };
 }

@@ -23,6 +23,8 @@ interface Superpuzzle {
 
 export function useSuperpuzzles() {
   const [puzzles, setPuzzles] = useState<Superpuzzle[]>([]);
+  const [activeSuperpuzzles, setActiveSuperpuzzles] = useState<Superpuzzle[]>([]);
+  const [todaySuperpuzzles, setTodaySuperpuzzles] = useState<Superpuzzle[]>([]);
   const [selectedSuperpuzzle, setSelectedSuperpuzzle] = useState<Superpuzzle | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -187,12 +189,123 @@ export function useSuperpuzzles() {
     }
   };
 
+  const loadActiveSuperpuzzles = async () => {
+    setLoading(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      // Get active superpuzzles
+      const { data, error } = await supabase
+        .from('superpuzzles')
+        .select(`
+          *,
+          tokens:reward_token (*)
+        `)
+        .eq('status', 'active');
+
+      if (error) {
+        throw error;
+      }
+
+      setActiveSuperpuzzles(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load active superpuzzles: " + error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadTodaySuperpuzzles = async () => {
+    setLoading(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      // Get today's token symbol based on day of week
+      const today = new Date();
+      const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+      const tokenSymbol = getTokenSymbolForDay(dayOfWeek);
+
+      // Get superpuzzles for today's token
+      const { data, error } = await supabase
+        .from('superpuzzles')
+        .select(`
+          *,
+          tokens:reward_token (*)
+        `)
+        .eq('tokens.symbol', tokenSymbol)
+        .eq('status', 'active');
+
+      if (error) {
+        throw error;
+      }
+
+      setTodaySuperpuzzles(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load today's superpuzzles: " + error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to get token symbol for day of week
+  const getTokenSymbolForDay = (day: number): string => {
+    const symbols = [
+      'SPD', // Sunday
+      'SHE', // Monday
+      'PSP', // Tuesday
+      'SSA', // Wednesday
+      'BSP', // Thursday
+      'SGB', // Friday
+      'SMS', // Saturday
+    ];
+    return symbols[day];
+  };
+
+  // Helper function to get token name for day of week
+  const getTokenNameForDay = (day: number): string => {
+    const names = [
+      'Superpuzzle Developments', // Sunday
+      'Superhuman Enhancements', // Monday
+      'Personal Success Puzzle', // Tuesday
+      'Supersociety Advancements', // Wednesday
+      'Business Success Puzzle', // Thursday
+      'Supergenius Breakthroughs', // Friday
+      'Supermind Superpowers', // Saturday
+    ];
+    return names[day];
+  };
+
   return {
     puzzles,
+    activeSuperpuzzles,
+    todaySuperpuzzles,
     selectedSuperpuzzle,
     loading,
     updateProgress,
     completeSuperpuzzle,
-    loadSuperpuzzleDetails
+    loadSuperpuzzleDetails,
+    loadActiveSuperpuzzles,
+    loadTodaySuperpuzzles,
+    getTokenNameForDay
   };
 }

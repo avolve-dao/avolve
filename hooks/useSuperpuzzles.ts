@@ -18,6 +18,7 @@ interface Superpuzzle {
   required_points?: number;
   teamContributions?: any[];
   status?: 'draft' | 'active' | 'completed' | 'archived';
+  name?: string;
 }
 
 export function useSuperpuzzles() {

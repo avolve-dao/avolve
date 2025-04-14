@@ -24,6 +24,7 @@ interface TeamMember {
 }
 
 interface UserTeam {
+  id: string;
   teamId: string;
   name: string;
   role: 'owner' | 'admin' | 'member';
@@ -172,6 +173,7 @@ export function useTeams() {
         data.forEach(team => {
           if (team && team.team_members && team.team_members.length > 0) {
             userTeamsData.push({
+              id: team.id,
               teamId: team.id,
               name: team.name,
               role: team.team_members[0].role as 'owner' | 'admin' | 'member'

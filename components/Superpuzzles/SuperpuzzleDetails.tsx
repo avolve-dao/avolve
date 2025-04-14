@@ -142,7 +142,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
   
   const progress = Math.min(
     100, 
-    Math.round((totalPoints / selectedSuperpuzzle.required_points) * 100)
+    Math.round((totalPoints / (selectedSuperpuzzle.required_points || 1)) * 100)
   );
 
   return (
@@ -151,7 +151,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
         <CardHeader className={`bg-gradient-to-r ${gradientClass} text-white`}>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle className="text-2xl">{selectedSuperpuzzle.name}</CardTitle>
+              <CardTitle className="text-2xl">{selectedSuperpuzzle.name || selectedSuperpuzzle.title}</CardTitle>
               <CardDescription className="text-white text-opacity-90">
                 {selectedSuperpuzzle.tokens.name} ({selectedSuperpuzzle.tokens.symbol})
               </CardDescription>
@@ -254,7 +254,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
                         <span>{contribution.points} / {selectedSuperpuzzle.required_points} points</span>
                       </div>
                       <Progress 
-                        value={Math.min(100, (contribution.points / selectedSuperpuzzle.required_points) * 100)} 
+                        value={Math.min(100, (contribution.points / (selectedSuperpuzzle.required_points || 1)) * 100)} 
                         className="h-2" 
                       />
                     </div>

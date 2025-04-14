@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Feature Flag System
  * 
@@ -11,7 +13,7 @@
  * 4. User-specific flags (based on user roles or IDs)
  */
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, Fragment } from 'react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
 import { User } from '@supabase/supabase-js';
 import { UseSupabaseResult } from '@/lib/supabase/types';
@@ -38,13 +40,14 @@ export type FeatureFlags = {
 // Type for remote feature flag configuration
 export interface RemoteFeatureFlag {
   id: string;
-  name: FeatureFlagName;
+  name: string;
   enabled: boolean;
   description: string;
   user_group_ids?: string[];
   percentage_rollout?: number;
   created_at: string;
   updated_at: string;
+  is_active?: boolean;
 }
 
 // Default feature flag values
@@ -140,17 +143,14 @@ interface FeatureFlagProviderProps {
 }
 
 // Feature flag provider component
-export const FeatureFlagProvider: React.FC<FeatureFlagProviderProps> = ({ 
+export const FeatureFlagProvider = ({ 
   children, 
   initialFlags 
-}) => {
-  const supabaseContext = useSupabase();
-  const supabase = supabaseContext.supabase;
-  const user = supabaseContext.session?.user || null;
-  
+}: FeatureFlagProviderProps) => {
   const [flags, setFlags] = useState<FeatureFlags>(initializeFeatureFlags(initialFlags));
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
+  const { supabase, user } = useSupabase() as UseSupabaseResult;
   
   // Check if a feature is enabled
   const isEnabled = (flag: FeatureFlagName): boolean => {
@@ -158,54 +158,63 @@ export const FeatureFlagProvider: React.FC<FeatureFlagProviderProps> = ({
   };
   
   // Set a feature flag value
-  const setFlag = (flag: FeatureFlagName, value: boolean) => {
-    setFlags((prevFlags) => {
-      const newFlags = { ...prevFlags, [flag]: value };
-      
-      // Save to local storage in development mode
-      if (process.env.NODE_ENV === 'development') {
-        try {
-          localStorage.setItem('avolve_feature_flags', JSON.stringify(newFlags));
-        } catch (error) {
-          console.error('Error saving feature flags to localStorage:', error);
-        }
+  const setFlag = (flag: FeatureFlagName, value: boolean): void => {
+    const newFlags = { ...flags, [flag]: value };
+    setFlags(newFlags);
+    
+    // Save to local storage in development
+    if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+      try {
+        const localFlags = getLocalStorageFlags();
+        const updatedLocalFlags = { ...localFlags, [flag]: value };
+        localStorage.setItem('avolve_feature_flags', JSON.stringify(updatedLocalFlags));
+      } catch (error) {
+        console.error('Error saving feature flag to localStorage:', error);
       }
-      
-      return newFlags;
-    });
+    }
   };
   
   // Fetch remote feature flags from Supabase
   const fetchRemoteFlags = async (currentUser: User | null): Promise<Partial<FeatureFlags>> => {
+    if (!supabase) {
+      return {};
+    }
+    
     try {
-      // Fetch global feature flags
-      const { data: remoteFlags, error: flagsError } = await supabase
+      // Fetch all feature flags from Supabase
+      const { data: remoteFlags, error } = await supabase
         .from('feature_flags')
-        .select('*')
-        .eq('is_active', true);
+        .select('*');
       
-      if (flagsError) {
-        throw flagsError;
+      if (error) {
+        throw error;
       }
       
-      // Process remote flags
+      if (!remoteFlags || remoteFlags.length === 0) {
+        return {};
+      }
+      
+      // Process flags
       const processedFlags: Partial<FeatureFlags> = {};
       
-      remoteFlags.forEach((flag: RemoteFeatureFlag) => {
-        const flagName = flag.name;
+      remoteFlags.forEach((flag: any) => {
+        // Only process flags that match our known feature flag names
+        const flagName = flag.name as string;
+        if (!(flagName in FEATURE_FLAGS)) {
+          return;
+        }
         
-        // Check if this flag should be enabled for this user
+        const typedFlagName = flagName as FeatureFlagName;
         let isEnabledForUser = flag.enabled;
         
-        // Check percentage rollout if defined
-        if (isEnabledForUser && flag.percentage_rollout !== undefined && flag.percentage_rollout < 100) {
-          // Use user ID to determine if user is in the rollout percentage
+        // Apply percentage rollout if defined
+        if (isEnabledForUser && flag.percentage_rollout !== undefined) {
           if (currentUser?.id) {
             // Generate a consistent hash from user ID + flag name
             const hash = hashString(`${currentUser.id}-${flagName}`);
             const normalizedHash = hash % 100; // 0-99
             
-            isEnabledForUser = normalizedHash < flag.percentage_rollout;
+            isEnabledForUser = normalizedHash < (flag.percentage_rollout as number);
           } else {
             // No user, so not in rollout
             isEnabledForUser = false;
@@ -227,7 +236,7 @@ export const FeatureFlagProvider: React.FC<FeatureFlagProviderProps> = ({
           }
         }
         
-        processedFlags[flagName] = isEnabledForUser;
+        processedFlags[typedFlagName] = isEnabledForUser;
       });
       
       return processedFlags;
@@ -282,17 +291,20 @@ export const FeatureFlagProvider: React.FC<FeatureFlagProviderProps> = ({
   // Fetch remote flags on mount and when user changes
   useEffect(() => {
     refreshFlags();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
   
+  const contextValue: FeatureFlagContextType = {
+    flags,
+    isEnabled,
+    setFlag,
+    refreshFlags,
+    isLoading,
+    error
+  };
+  
   return (
-    <FeatureFlagContext.Provider value={{ 
-      flags, 
-      isEnabled, 
-      setFlag, 
-      refreshFlags,
-      isLoading,
-      error
-    }}>
+    <FeatureFlagContext.Provider value={contextValue}>
       {children}
     </FeatureFlagContext.Provider>
   );
@@ -316,13 +328,13 @@ interface FeatureFlaggedProps {
   fallback?: ReactNode;
 }
 
-export const FeatureFlagged: React.FC<FeatureFlaggedProps> = ({ 
+export const FeatureFlagged = ({ 
   flag, 
   children, 
   fallback = null 
-}) => {
+}: FeatureFlaggedProps) => {
   const { isEnabled } = useFeatureFlags();
-  return isEnabled(flag) ? <>{children}</> : <>{fallback}</>;
+  return isEnabled(flag) ? <Fragment>{children}</Fragment> : <Fragment>{fallback}</Fragment>;
 };
 
 // Helper function to generate a hash from a string

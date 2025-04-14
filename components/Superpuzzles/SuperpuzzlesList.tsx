@@ -16,6 +16,19 @@ interface SuperpuzzlesListProps {
   showContributeButton?: boolean;
 }
 
+// Define interfaces for the formatted superpuzzle items
+interface ContributionData {
+  id: string;
+  points: number;
+  isCompleted: boolean;
+  progress: number;
+}
+
+interface FormattedSuperpuzzleItem {
+  superpuzzle: any;
+  contribution?: ContributionData;
+}
+
 export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
   showTodayOnly = false,
   teamId,
@@ -61,7 +74,7 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
   }
 
   // For team contributions, we need to format the data differently
-  const formattedSuperpuzzles = contributions 
+  const formattedSuperpuzzles: FormattedSuperpuzzleItem[] = contributions 
     ? contributions.map(contribution => ({
         contribution: {
           id: contribution.id,
@@ -75,11 +88,11 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
 
   // Split into active and completed
   const activeItems = formattedSuperpuzzles.filter(item => 
-    !item.contribution?.isCompleted && item.superpuzzle.status !== 'completed'
+    !(item.contribution?.isCompleted ?? false) && item.superpuzzle.status !== 'completed'
   );
   
   const completedItems = formattedSuperpuzzles.filter(item => 
-    item.contribution?.isCompleted || item.superpuzzle.status === 'completed'
+    (item.contribution?.isCompleted ?? false) || item.superpuzzle.status === 'completed'
   );
 
   return (

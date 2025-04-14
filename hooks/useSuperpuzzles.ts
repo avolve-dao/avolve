@@ -17,6 +17,7 @@ interface Superpuzzle {
   tokens?: any;
   required_points?: number;
   teamContributions?: any[];
+  status?: 'draft' | 'active' | 'completed' | 'archived';
 }
 
 export function useSuperpuzzles() {

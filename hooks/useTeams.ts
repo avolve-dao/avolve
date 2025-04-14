@@ -39,11 +39,20 @@ interface TeamMemberWithTeam {
   };
 }
 
+interface EligibilityStatus {
+  isEligible: boolean;
+  completedChallenges: number;
+  requiredChallenges: number;
+  reason?: string;
+}
+
 export function useTeams() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [userTeams, setUserTeams] = useState<UserTeam[]>([]);
   const [loading, setLoading] = useState(true);
+  const [eligibility, setEligibility] = useState<EligibilityStatus | null>(null);
+  const [eligibilityLoading, setEligibilityLoading] = useState(false);
   const { toast } = useToast();
 
   const supabase = createBrowserClient(
@@ -194,10 +203,69 @@ export function useTeams() {
     }
   };
 
-  // Load teams on initial mount
-  useEffect(() => {
-    loadUserTeams();
-  }, []);
+  const checkEligibility = async () => {
+    setEligibilityLoading(true);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setEligibilityLoading(false);
+        return;
+      }
+
+      // Get the number of completed challenges for the user
+      const { data: completedChallenges, error: challengesError } = await supabase
+        .from('user_challenges')
+        .select('count')
+        .eq('user_id', user.id)
+        .eq('completed', true)
+        .single();
+
+      if (challengesError && challengesError.code !== 'PGRST116') {
+        throw challengesError;
+      }
+
+      // Get the required number of challenges from settings
+      const { data: settings, error: settingsError } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'required_challenges_for_team')
+        .single();
+
+      if (settingsError) {
+        throw settingsError;
+      }
+
+      const completedCount = completedChallenges?.count || 0;
+      const requiredCount = parseInt(settings?.value || '3', 10);
+      
+      setEligibility({
+        isEligible: completedCount >= requiredCount,
+        completedChallenges: completedCount,
+        requiredChallenges: requiredCount,
+        reason: completedCount < requiredCount 
+          ? `You need to complete at least ${requiredCount} challenges to create a team.` 
+          : undefined
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to check eligibility: " + error.message,
+        variant: "destructive"
+      });
+      
+      // Set default eligibility status in case of error
+      setEligibility({
+        isEligible: false,
+        completedChallenges: 0,
+        requiredChallenges: 3,
+        reason: "Unable to verify eligibility. Please try again later."
+      });
+    } finally {
+      setEligibilityLoading(false);
+    }
+  };
 
   const createTeam = async (name: string, description: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -324,6 +392,11 @@ export function useTeams() {
     });
   };
 
+  // Load teams on initial mount
+  useEffect(() => {
+    loadUserTeams();
+  }, []);
+
   return {
     teams,
     teamMembers,
@@ -332,6 +405,9 @@ export function useTeams() {
     createTeam,
     joinTeam,
     leaveTeam,
-    loadUserTeams
+    loadUserTeams,
+    checkEligibility,
+    eligibility,
+    eligibilityLoading
   };
 }

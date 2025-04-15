@@ -10,6 +10,58 @@ import { useMessagingTheme } from "@/contexts/theme-context"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 import dynamic from "next/dynamic"
+import { RealtimeChannel } from "@supabase/supabase-js"
+
+// Define message types
+interface MessageProfile {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  type: string;
+  media_url?: string;
+  user_id: string;
+  created_at: string;
+  profiles?: MessageProfile;
+}
+
+// Match the exact types expected by EnhancedMessage component
+interface EnhancedMessageUser {
+  id: string;
+  name: string;
+  avatar?: string;
+}
+
+interface EnhancedReadReceipt {
+  user: EnhancedMessageUser;
+  readAt: string;
+}
+
+interface TypingUser {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
+}
+
+interface MessagePayload {
+  payload: {
+    id: string;
+    [key: string]: any;
+  };
+}
+
+interface ReceiptPayload {
+  payload: {
+    message_id: string;
+    [key: string]: any;
+  };
+}
 
 // Dynamically import the error component
 const ErrorDisplay = dynamic(() => import("@/components/error-display"), {
@@ -23,17 +75,17 @@ interface ChatMessagesProps {
 }
 
 export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
-  const [messages, setMessages] = useState<any[]>([])
-  const [readReceipts, setReadReceipts] = useState<Record<string, any[]>>({})
-  const [typingUsers, setTypingUsers] = useState<any[]>([])
+  const [messages, setMessages] = useState<Message[]>([])
+  const [readReceipts, setReadReceipts] = useState<Record<string, EnhancedReadReceipt[]>>({})
+  const [typingUsers, setTypingUsers] = useState<TypingUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const lastMessageRef = useRef<HTMLDivElement>(null)
   const { isDark } = useMessagingTheme()
   const supabase = createClient()
-  const messageChannelRef = useRef<any>(null)
-  const receiptChannelRef = useRef<any>(null)
+  const messageChannelRef = useRef<RealtimeChannel | null>(null)
+  const receiptChannelRef = useRef<RealtimeChannel | null>(null)
 
   // Load messages
   const loadMessages = useCallback(async () => {
@@ -45,14 +97,14 @@ export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
 
       // Mark messages as read
       if (data.length > 0) {
-        const messageIds = data.filter((msg) => msg.user_id !== userId).map((msg) => msg.id)
+        const messageIds = data.filter((msg: Message) => msg.user_id !== userId).map((msg: Message) => msg.id)
 
         if (messageIds.length > 0) {
           await messagingDb.markMessagesAsRead(chatId, userId, messageIds)
         }
 
         // Load read receipts
-        const allMessageIds = data.map((msg) => msg.id)
+        const allMessageIds = data.map((msg: Message) => msg.id)
         const receipts = await messagingDb.getReadReceipts(allMessageIds)
         setReadReceipts(receipts)
       }
@@ -98,7 +150,7 @@ export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
       .channel(`chat:${chatId}:messages`, {
         config: { broadcast: { self: false } },
       })
-      .on("broadcast", { event: "INSERT" }, async (payload) => {
+      .on("broadcast", { event: "INSERT" }, async (payload: MessagePayload) => {
         // Fetch the complete message with user data
         const { data } = await supabase
           .from("messages")
@@ -132,7 +184,7 @@ export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
       .channel(`chat:${chatId}:receipts`, {
         config: { broadcast: { self: false } },
       })
-      .on("broadcast", { event: "INSERT" }, async (payload) => {
+      .on("broadcast", { event: "INSERT" }, async (payload: ReceiptPayload) => {
         // Update read receipts for the message
         const { data } = await supabase
           .from("message_receipts")
@@ -155,7 +207,11 @@ export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
             [data.message_id]: [
               ...(prev[data.message_id] || []),
               {
-                user: data.profiles,
+                user: {
+                  id: data.profiles.id,
+                  name: data.profiles.full_name || data.profiles.username || "Unknown User",
+                  avatar: data.profiles.avatar_url || undefined
+                },
                 readAt: data.read_at,
               },
             ],
@@ -224,34 +280,39 @@ export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
         </div>
       ) : (
         <div className="space-y-4">
-          {messages.map((message) => (
-            <EnhancedMessage
-              key={message.id}
-              message={{
-                id: message.id,
-                content: message.content,
-                type: message.type,
-                media_url: message.media_url,
-                created_at: message.created_at,
-                user: {
-                  id: message.profiles?.id,
-                  name: message.profiles?.full_name || message.profiles?.username || "Unknown User",
-                  avatar: message.profiles?.avatar_url,
-                },
-              }}
-              isCurrentUser={message.user_id === userId}
-              readReceipts={readReceipts[message.id] || []}
-              onInView={message.user_id !== userId ? handleMessageInView : undefined}
-              currentUserId={userId}
-            />
-          ))}
+          {messages.map((message) => {
+            // Ensure we have a valid user ID
+            const userId = message.profiles?.id || "unknown-user";
+            
+            return (
+              <EnhancedMessage
+                key={message.id}
+                message={{
+                  id: message.id,
+                  content: message.content,
+                  type: message.type,
+                  media_url: message.media_url,
+                  created_at: message.created_at,
+                  user: {
+                    id: userId,
+                    name: message.profiles?.full_name || message.profiles?.username || "Unknown User",
+                    avatar: message.profiles?.avatar_url || undefined,
+                  },
+                }}
+                isCurrentUser={message.user_id === userId}
+                readReceipts={readReceipts[message.id] || []}
+                onInView={message.user_id !== userId ? handleMessageInView : undefined}
+                currentUserId={userId}
+              />
+            );
+          })}
 
           {typingUsers.length > 0 && (
             <TypingIndicator
               users={typingUsers.map((user) => ({
                 id: user.id,
-                name: user.full_name || user.username,
-                avatar: user.avatar_url,
+                name: user.full_name || user.username || "Unknown User",
+                avatar: user.avatar_url || undefined,
               }))}
             />
           )}
@@ -262,4 +323,3 @@ export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
     </ScrollArea>
   )
 }
-

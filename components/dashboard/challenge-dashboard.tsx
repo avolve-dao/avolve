@@ -12,10 +12,32 @@ import { DAY_TO_TOKEN_MAP } from '@/lib/token/token-types';
 import { Loader2, Trophy, Star, Zap, Clock, Calendar, Award, Bug } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFeatureFlags, FeatureFlagged, FEATURE_FLAGS } from '@/lib/feature-flags/feature-flags';
-import { DebugData, Challenge, ChallengeStreak, TokenBalance } from '@/lib/supabase/types';
+import { DebugData, ChallengeStreak, TokenBalance } from '@/lib/supabase/types';
+import { User } from '@supabase/supabase-js';
+
+// Extend the Challenge type to include token_reward
+interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  token_type: string;
+  difficulty: number;
+  day_of_week: number;
+  base_reward: number;
+  token_reward: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Define DebugPanelProps interface
+interface DebugPanelProps {
+  data: DebugData;
+  onClose: () => void;  // Make onClose required
+}
 
 // Dynamically import the debug panel component for better code splitting
-const DebugPanel = dynamic(() => import('@/components/debug/debug-panel'), {
+const DebugPanel = dynamic(() => import('@/components/debug/debug-panel').then(mod => mod.default), {
   ssr: false,
   loading: () => <div className="p-4 text-center text-sm text-gray-500">Loading debug tools...</div>
 });
@@ -28,7 +50,7 @@ const ChallengeDashboard: React.FC<ChallengeDashboardProps> = () => {
   const { toast } = useToast();
   const supabaseContext = useSupabase();
   const supabase = supabaseContext.supabase;
-  const user = supabaseContext.session?.user || null;
+  const [user, setUser] = useState<User | null>(null);
   const { isEnabled } = useFeatureFlags();
   
   const [loading, setLoading] = useState(true);
@@ -43,12 +65,20 @@ const ChallengeDashboard: React.FC<ChallengeDashboardProps> = () => {
     queries: [],
     performance: {},
     session: null,
-    state: null
+    state: {} as Record<string, any>
   });
 
   const userId = user?.id;
   const tokenService = useMemo(() => new TokenService(supabase), [supabase]);
   const todayTokenSymbol = getTodayTokenSymbol();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data?.user || null);
+    };
+    getUser();
+  }, [supabase]);
 
   // Track query performance
   const trackQuery = (table: string, query: string, duration: number, error?: any) => {
@@ -107,121 +137,125 @@ const ChallengeDashboard: React.FC<ChallengeDashboardProps> = () => {
   }
 
   // Get streak multiplier based on user's streak length
-  const getStreakMultiplier = () => {
+  function getStreakMultiplier() {
     if (userStreak >= 9) return 3;
     if (userStreak >= 6) return 2;
     if (userStreak >= 3) return 1.5;
     return 1;
-  };
+  }
 
   // Fetch user data including tokens and streak
   const fetchUserData = async () => {
     if (!userId) return;
     
+    const startTime = performance.now();
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      const startTime = performance.now();
-      
-      // Fetch user tokens
-      const { data: userTokens, error: tokensError } = await supabase
+      // Fetch user's token balances
+      const tokenBalancesStart = performance.now();
+      const { data: tokenBalances, error: tokenError } = await supabase
         .from('user_balances')
-        .select('*, tokens(*)')
+        .select(`
+          id,
+          user_id,
+          token_id,
+          balance,
+          tokens (
+            id,
+            symbol,
+            name,
+            icon_url
+          )
+        `)
         .eq('user_id', userId);
       
-      const tokensTime = performance.now();
-      trackQuery('user_balances', `SELECT * FROM user_balances WHERE user_id = '${userId}'`, tokensTime - startTime, tokensError);
+      const tokenBalancesDuration = performance.now() - tokenBalancesStart;
+      trackQuery('user_balances', 'Get user token balances', tokenBalancesDuration, tokenError);
       
-      if (tokensError) {
-        throw new Error(`Error fetching user tokens: ${tokensError.message}`);
+      if (tokenError) throw new Error(tokenError.message);
+      
+      if (tokenBalances) {
+        setTokens(tokenBalances.map(balance => {
+          // Extract token data safely
+          const tokenData = balance.tokens as any; // Type assertion to handle the structure
+          return {
+            token_id: balance.token_id,
+            token_name: tokenData?.name || 'Unknown',
+            token_symbol: tokenData?.symbol || 'UNK',
+            amount: balance.balance,
+            is_locked: false, // Default value since it's not in the query
+            level: Math.floor(Math.log2(balance.balance + 1)), // Calculate level based on balance
+            last_claimed: undefined
+          };
+        }));
       }
       
-      // Fetch user streak
+      // Fetch user's streak data
+      const streakStart = performance.now();
       const { data: streakData, error: streakError } = await supabase
-        .from('streaks')
+        .from('challenge_streaks')
         .select('*')
         .eq('user_id', userId)
-        .eq('token_type', todayTokenSymbol)
         .single();
       
-      const streakTime = performance.now();
-      trackQuery('streaks', `SELECT * FROM streaks WHERE user_id = '${userId}' AND token_type = '${todayTokenSymbol}'`, streakTime - tokensTime, streakError);
+      const streakDuration = performance.now() - streakStart;
+      trackQuery('challenge_streaks', 'Get user streak', streakDuration, streakError);
       
-      if (streakError && streakError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is fine for new users
-        throw new Error(`Error fetching user streak: ${streakError.message}`);
-      }
-      
-      // Fetch today's challenge
-      const { data: challengeData, error: challengeError } = await supabase
-        .from('challenges')
-        .select('*')
-        .eq('day_of_week', new Date().getDay())
-        .eq('is_active', true)
-        .single();
-      
-      const challengeTime = performance.now();
-      trackQuery('challenges', `SELECT * FROM challenges WHERE day_of_week = ${new Date().getDay()} AND is_active = true`, challengeTime - streakTime, challengeError);
-      
-      if (challengeError && challengeError.code !== 'PGRST116') {
-        throw new Error(`Error fetching today's challenge: ${challengeError.message}`);
-      }
-      
-      // Check if today's challenge is completed
-      if (challengeData && userId) {
-        const today = new Date().toISOString().split('T')[0];
-        
-        const { data: completionData, error: completionError } = await supabase
-          .from('challenge_completions')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('challenge_id', challengeData.id)
-          .gte('completed_at', `${today}T00:00:00`)
-          .lte('completed_at', `${today}T23:59:59`);
-        
-        const completionTime = performance.now();
-        trackQuery('challenge_completions', `SELECT * FROM challenge_completions WHERE user_id = '${userId}' AND challenge_id = '${challengeData.id}' AND completed_at BETWEEN '${today}T00:00:00' AND '${today}T23:59:59'`, completionTime - challengeTime, completionError);
-        
-        if (completionError) {
-          throw new Error(`Error checking challenge completion: ${completionError.message}`);
-        }
-        
-        setTodaysChallengeCompleted(completionData && completionData.length > 0);
-      }
-      
-      // Process and set data
-      if (userTokens) {
-        const processedTokens: TokenBalance[] = userTokens.map((item: any) => ({
-          token_id: item.token_id,
-          token_name: item.tokens.name,
-          token_symbol: item.tokens.symbol,
-          amount: item.amount,
-          is_locked: item.is_locked,
-          level: Math.floor(Math.log2(item.amount + 1)),
-          last_claimed: item.last_claimed
-        }));
-        
-        setTokens(processedTokens);
+      if (streakError && streakError.code !== 'PGRST116') { // Not found error is ok
+        throw new Error(streakError.message);
       }
       
       if (streakData) {
-        setUserStreak(streakData.streak_length || 0);
+        setUserStreak(streakData.current_streak);
       }
       
-      if (challengeData) {
-        setTodayChallenge(challengeData);
+      // Fetch today's challenge
+      const challengeStart = performance.now();
+      const { data: challenges, error: challengeError } = await supabase
+        .from('daily_challenges')
+        .select('*')
+        .eq('active', true)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      const challengeDuration = performance.now() - challengeStart;
+      trackQuery('daily_challenges', 'Get today challenge', challengeDuration, challengeError);
+      
+      if (challengeError) throw new Error(challengeError.message);
+      
+      if (challenges && challenges.length > 0) {
+        // Map the challenge data to our Challenge interface
+        const challenge = challenges[0] as any;
+        setTodayChallenge({
+          ...challenge,
+          token_reward: challenge.base_reward || 10, // Default to base_reward or 10
+        });
+        
+        // Check if user has already completed this challenge
+        const completionStart = performance.now();
+        const { data: completion, error: completionError } = await supabase
+          .from('challenge_completions')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('challenge_id', challenges[0].id)
+          .limit(1);
+        
+        const completionDuration = performance.now() - completionStart;
+        trackQuery('challenge_completions', 'Check challenge completion', completionDuration, completionError);
+        
+        if (completionError) throw new Error(completionError.message);
+        
+        setTodaysChallengeCompleted(completion && completion.length > 0);
       }
       
-      // Track overall performance
-      const endTime = performance.now();
-      trackPerformance('fetchUserData', endTime - startTime);
+      const totalDuration = performance.now() - startTime;
+      trackPerformance('fetchUserData', totalDuration);
       
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
-      toast({
-        title: "Error",
-        description: "Failed to load your data. Please try again.",
-        variant: "destructive"
-      });
+    } catch (err: any) {
+      console.error('Error fetching user data:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
       updateDebugState();
@@ -230,49 +264,56 @@ const ChallengeDashboard: React.FC<ChallengeDashboardProps> = () => {
 
   // Claim today's token reward
   const claimDailyToken = async () => {
-    if (!userId || !todayChallenge || claiming || todaysChallengeCompleted) return;
+    if (!userId || !todayChallenge || todaysChallengeCompleted) return;
+    
+    setClaiming(true);
     
     try {
-      setClaiming(true);
-      const startTime = performance.now();
-      
+      // Calculate token amount based on streak
       const multiplier = getStreakMultiplier();
-      const amount = Math.round(todayChallenge.base_reward * multiplier);
+      const amount = Math.round(todayChallenge.token_reward * multiplier);
       
-      // Claim the token using the token service
-      const result = await tokenService.claimDailyToken(
+      // Log the completion
+      const { error: completionError } = await supabase
+        .from('challenge_completions')
+        .insert({
+          user_id: userId,
+          challenge_id: todayChallenge.id,
+          completed_at: new Date().toISOString(),
+          reward_multiplier: multiplier
+        });
+      
+      if (completionError) throw new Error(completionError.message);
+      
+      // Award the tokens - using the token service
+      // Note: We're using the claimDailyToken method from TokenService
+      await tokenService.claimDailyToken({
         userId,
-        todayChallenge.id,
+        tokenId: todayChallenge.token_type || todayTokenSymbol,
         amount,
+        challengeId: todayChallenge.id,
         multiplier,
-        `Daily challenge completion: ${todayChallenge.title}`
-      );
+        reason: `Daily challenge completion: ${todayChallenge.title}`
+      });
       
-      const endTime = performance.now();
-      trackPerformance('claimDailyToken', endTime - startTime);
-      
-      if (result.error) {
-        throw result.error;
-      }
-      
-      // Update UI
+      // Update UI state
       setTodaysChallengeCompleted(true);
       
-      // Refresh user data to show updated tokens and streak
-      fetchUserData();
+      // Refresh token balances
+      await fetchUserData();
       
       // Show success message
       toast({
-        title: "Success!",
-        description: `You claimed ${amount} tokens with a ${multiplier}x streak bonus!`,
-        variant: "default"
+        title: "Challenge Completed!",
+        description: `You earned ${amount} ${todayTokenSymbol} tokens with a ${multiplier}x streak multiplier!`,
+        duration: 5000
       });
       
-    } catch (error) {
-      console.error('Error claiming daily token:', error);
+    } catch (err: any) {
+      console.error('Error claiming reward:', err);
       toast({
-        title: "Claim Failed",
-        description: error instanceof Error ? error.message : "Failed to claim your daily token. Please try again.",
+        title: "Error Claiming Reward",
+        description: err.message,
         variant: "destructive"
       });
     } finally {
@@ -281,197 +322,165 @@ const ChallengeDashboard: React.FC<ChallengeDashboardProps> = () => {
     }
   };
 
-  // Fetch user data on component mount and when user changes
+  // Initial data fetch
   useEffect(() => {
     if (userId) {
       fetchUserData();
     }
   }, [userId]);
 
-  // CSS classes for sacred geometry visualization
-  const sacredGeometryClasses = {
-    streakContainer: "text-center mb-2",
-    streakText: "text-sm text-gray-500 dark:text-gray-400",
-    streakValue: "text-3xl font-bold",
-    streakBadge: "mt-1 inline-flex items-center",
-    streakIcon: "h-3 w-3 mr-1",
-    streakProgress: "h-2 mb-4"
-  };
+  // Find the token balance for today's token
+  const todayTokenBalance = tokens.find(t => t.token_symbol === todayTokenSymbol)?.amount || 0;
 
   return (
-    <div className="container mx-auto py-6">
-      {/* Debug Panel Toggle - Only in development */}
-      {process.env.NODE_ENV !== 'production' && (
-        <div className="flex justify-end mb-4">
+    <div className="container mx-auto px-4 py-8">
+      {/* Debug button for development */}
+      {process.env.NODE_ENV !== 'production' && isEnabled(FEATURE_FLAGS.ADVANCED_ANALYTICS) && (
+        <div className="fixed bottom-4 right-4 z-50">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={toggleDebugPanel}
-            className="flex items-center gap-1 text-xs"
+            className="bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
           >
-            <Bug size={14} />
-            {showDebugPanel ? 'Hide' : 'Show'} Debug
+            <Bug className="h-4 w-4 mr-2" />
+            {showDebugPanel ? 'Hide Debug' : 'Debug'}
           </Button>
+          
+          <AnimatePresence>
+            {showDebugPanel && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute bottom-12 right-0 w-96"
+              >
+                <Suspense fallback={<div className="p-4 bg-white shadow rounded">Loading debug tools...</div>}>
+                  <DebugPanel 
+                    data={debugData} 
+                    onClose={() => setShowDebugPanel(false)}
+                  />
+                </Suspense>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
       
-      {/* Debug Panel */}
-      {showDebugPanel && process.env.NODE_ENV !== 'production' && (
-        <Suspense fallback={<div className="p-4 text-center text-sm text-gray-500">Loading debug tools...</div>}>
-          <DebugPanel 
-            data={debugData}
-            onClose={() => setShowDebugPanel(false)}
-          />
-        </Suspense>
-      )}
-      
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {/* Main Challenge Card */}
-        <div className="md:col-span-8">
-          <Card className="h-full">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold mb-2">Daily Challenge</h1>
+          <p className="text-gray-500 dark:text-gray-400">Complete daily challenges to earn tokens and build your streak</p>
+        </div>
+        
+        <div className="space-y-6">
+          <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Trophy className="mr-2 h-6 w-6 text-yellow-500" />
-                Today's Challenge
-              </CardTitle>
-              <CardDescription>Complete daily challenges to earn tokens and build your streak</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Today's Challenge</CardTitle>
+                  <CardDescription>Earn {todayTokenSymbol} tokens and increase your streak</CardDescription>
+                </div>
+                
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+                  <Star className="h-3 w-3 mr-1 text-amber-500" />
+                  {userStreak} Day Streak
+                </Badge>
+              </div>
             </CardHeader>
             
-            <CardContent>
+            <CardContent className="space-y-6">
               {loading ? (
-                <div className="flex justify-center items-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : error ? (
-                <div className="text-center py-8 text-red-500">
-                  <p>{error}</p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={fetchUserData} 
-                    className="mt-4"
-                  >
+                <div className="text-center py-8">
+                  <p className="text-red-500 mb-4">{error}</p>
+                  <Button onClick={fetchUserData} variant="outline" size="sm">
                     Try Again
                   </Button>
                 </div>
               ) : !todayChallenge ? (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No challenge available for today. Check back tomorrow!</p>
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground mb-4">No active challenge today. Check back later!</p>
                 </div>
               ) : (
-                <div>
-                  <div className="mb-6">
-                    <h3 className="text-xl font-semibold mb-2">{todayChallenge.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{todayChallenge.description}</p>
+                <>
+                  <div className="bg-muted p-4 rounded-lg">
+                    <h3 className="font-semibold text-lg mb-2">{todayChallenge.title}</h3>
+                    <p className="text-muted-foreground mb-4">{todayChallenge.description}</p>
                     
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      <Badge variant="outline" className="flex items-center">
-                        <Star className="h-3 w-3 mr-1 text-yellow-500" />
-                        {todayChallenge.base_reward} Base Tokens
-                      </Badge>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Zap className="h-5 w-5 mr-2 text-amber-500" />
+                        <span>
+                          Reward: {Math.round(todayChallenge.token_reward * getStreakMultiplier())} {todayTokenSymbol}
+                          {getStreakMultiplier() > 1 && (
+                            <span className="text-sm text-green-600 ml-1">
+                              ({getStreakMultiplier()}x multiplier)
+                            </span>
+                          )}
+                        </span>
+                      </div>
                       
-                      <Badge variant="outline" className="flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][todayChallenge.day_of_week]}
-                      </Badge>
-                      
-                      <Badge variant="outline" className="flex items-center">
-                        <Award className="h-3 w-3 mr-1" />
-                        {['Easy', 'Medium', 'Hard', 'Expert'][todayChallenge.difficulty - 1] || 'Unknown'} Difficulty
-                      </Badge>
+                      <Button 
+                        onClick={claimDailyToken} 
+                        disabled={todaysChallengeCompleted || claiming}
+                      >
+                        {claiming ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Claiming...
+                          </>
+                        ) : todaysChallengeCompleted ? (
+                          <>
+                            <Trophy className="h-4 w-4 mr-2" />
+                            Completed
+                          </>
+                        ) : (
+                          <>
+                            <Trophy className="h-4 w-4 mr-2" />
+                            Complete Challenge
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                   
-                  <div className="mt-6">
-                    <Button
-                      onClick={claimDailyToken}
-                      disabled={!userId || claiming || todaysChallengeCompleted}
-                      className="w-full"
-                    >
-                      {claiming ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Claiming...
-                        </>
-                      ) : todaysChallengeCompleted ? (
-                        "Already Claimed Today"
-                      ) : (
-                        "Claim Daily Reward"
-                      )}
-                    </Button>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium">Your {todayTokenSymbol} Balance</h3>
+                      <span className="text-2xl font-bold">{todayTokenBalance}</span>
+                    </div>
+                    <Progress value={Math.min(todayTokenBalance / 100 * 100, 100)} className="h-2" />
                   </div>
-                </div>
+                  
+                  <div className="pt-2">
+                    <NextBonusCountdown streak={userStreak} />
+                  </div>
+                </>
               )}
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Streak Card */}
-        <div className="md:col-span-4">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Zap className="mr-2 h-6 w-6 text-purple-500" />
-                Your Streak
-              </CardTitle>
-              <CardDescription>Maintain your daily streak for bonus rewards</CardDescription>
-            </CardHeader>
-            
-            <CardContent>
-              <FeatureFlagged 
-                flag={FEATURE_FLAGS.ENHANCED_STREAK_VISUALIZATION}
-                fallback={
-                  <>
-                    <div className="mb-4">
-                      <div className={sacredGeometryClasses.streakContainer}>
-                        <div className={sacredGeometryClasses.streakText}>Current Streak</div>
-                        <div className={sacredGeometryClasses.streakValue}>{userStreak} days</div>
+              
+              {/* Streak visualization */}
+              <FeatureFlagged flag={FEATURE_FLAGS.ENHANCED_STREAK_VISUALIZATION}>
+                <div className="flex flex-col md:flex-row items-center justify-between mt-6 pt-6 border-t">
+                  <div className="w-full md:w-1/2 mb-4 md:mb-0">
+                    <h3 className="font-medium mb-2">Streak Multipliers</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">3 days</span>
+                        <Badge variant={userStreak >= 3 ? "default" : "outline"}>1.5x</Badge>
                       </div>
-                      
-                      <Badge 
-                        variant="outline" 
-                        className={`${sacredGeometryClasses.streakBadge} ${userStreak >= 3 ? 'text-green-500' : 'text-slate-500'}`}
-                      >
-                        <Zap className={sacredGeometryClasses.streakIcon} />
-                        {getStreakMultiplier()}x Bonus
-                      </Badge>
-                    </div>
-                    
-                    <Progress 
-                      value={(userStreak % 9) / 9 * 100} 
-                      className={sacredGeometryClasses.streakProgress} 
-                    />
-                    
-                    {/* Next bonus countdown */}
-                    <NextBonusCountdown streak={userStreak} />
-                  </>
-                }
-              >
-                {/* Enhanced visualization with Tesla's 3-6-9 spiral */}
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="w-full md:w-1/2">
-                    <div className="mb-4">
-                      <div className={sacredGeometryClasses.streakContainer}>
-                        <div className={sacredGeometryClasses.streakText}>Current Streak</div>
-                        <div className={sacredGeometryClasses.streakValue}>{userStreak} days</div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">6 days</span>
+                        <Badge variant={userStreak >= 6 ? "default" : "outline"}>2x</Badge>
                       </div>
-                      
-                      <Badge 
-                        variant="outline" 
-                        className={`${sacredGeometryClasses.streakBadge} ${userStreak >= 3 ? 'text-green-500' : 'text-slate-500'}`}
-                      >
-                        <Zap className={sacredGeometryClasses.streakIcon} />
-                        {getStreakMultiplier()}x Bonus
-                      </Badge>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">9 days</span>
+                        <Badge variant={userStreak >= 9 ? "default" : "outline"}>3x</Badge>
+                      </div>
                     </div>
-                    
-                    <Progress 
-                      value={(userStreak % 9) / 9 * 100} 
-                      className={sacredGeometryClasses.streakProgress} 
-                    />
-                    
-                    {/* Next bonus countdown */}
-                    <NextBonusCountdown streak={userStreak} />
                   </div>
                   
                   {/* Tesla's 3-6-9 Spiral Visualization */}

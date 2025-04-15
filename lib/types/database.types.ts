@@ -18,7 +18,6 @@ export type MembershipStatus = 'pending' | 'active' | 'inactive';
 export type StakingStatus = 'active' | 'completed' | 'cancelled';
 export type TransactionType = 'transfer' | 'reward' | 'mint' | 'burn' | 'stake' | 'unstake' | 'pending_release';
 export type ActivityType = 'meeting_attendance' | 'meeting_contribution' | 'content_creation' | 'task_completion' | 'recruitment';
-export type AchievementType = 'pillar_completion' | 'route_completion' | 'meeting_contribution' | 'token_milestone' | 'recruitment';
 
 /**
  * Community Structure Types
@@ -64,6 +63,7 @@ export interface Section {
   route_id: string;
   slug: string;
   title: string;
+  subtitle: string | null;
   description: string | null;
   display_order: number;
   created_at: string;
@@ -108,6 +108,19 @@ export interface UserComponentProgress {
   desired_state: any | null;
   action_plan: any | null;
   results: any | null;
+  status: JourneyStatus;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// UserSectionProgress - Tracks user progress through sections
+export interface UserSectionProgress {
+  id: string;
+  user_id: string;
+  section_id: string;
+  progress: number;
   status: JourneyStatus;
   started_at: string | null;
   completed_at: string | null;
@@ -206,32 +219,6 @@ export interface GeniusProfile {
   desired_state: any | null;
   action_plan: any | null;
   results: any | null;
-  created_at: string;
-  updated_at: string;
-}
-
-// GeniusAchievement - Record of user achievements
-export interface GeniusAchievement {
-  id: string;
-  user_id: string;
-  profile_id: string;
-  achievement_type: AchievementType;
-  title: string;
-  description: string | null;
-  points: number;
-  awarded_at: string;
-  metadata: any | null;
-  created_at: string;
-}
-
-// GeniusLevelDefinition - Definition of genius levels
-export interface GeniusLevelDefinition {
-  id: string;
-  level_number: number;
-  title: string;
-  description: string | null;
-  points_threshold: number;
-  benefits: any | null;
   created_at: string;
   updated_at: string;
 }
@@ -400,6 +387,11 @@ export interface Database {
         Insert: Omit<UserComponentProgress, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<UserComponentProgress, 'id' | 'created_at' | 'updated_at'>>;
       };
+      user_section_progress: {
+        Row: UserSectionProgress;
+        Insert: Omit<UserSectionProgress, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<UserSectionProgress, 'id' | 'created_at' | 'updated_at'>>;
+      };
       
       // Token Economy
       tokens: {
@@ -433,16 +425,6 @@ export interface Database {
         Row: GeniusProfile;
         Insert: Omit<GeniusProfile, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<GeniusProfile, 'id' | 'created_at' | 'updated_at'>>;
-      };
-      genius_achievements: {
-        Row: GeniusAchievement;
-        Insert: Omit<GeniusAchievement, 'id' | 'created_at'>;
-        Update: Partial<Omit<GeniusAchievement, 'id' | 'created_at'>>;
-      };
-      genius_level_definitions: {
-        Row: GeniusLevelDefinition;
-        Insert: Omit<GeniusLevelDefinition, 'id' | 'created_at' | 'updated_at'>;
-        Update: Partial<Omit<GeniusLevelDefinition, 'id' | 'created_at' | 'updated_at'>>;
       };
       
       // Governance
@@ -538,17 +520,6 @@ export interface Database {
           p_score_change: number;
         };
         Returns: number;
-      };
-      award_achievement: {
-        Args: {
-          p_user_id: string;
-          p_achievement_type: AchievementType;
-          p_title: string;
-          p_description?: string;
-          p_points?: number;
-          p_metadata?: any;
-        };
-        Returns: string;
       };
       
       // Governance Functions

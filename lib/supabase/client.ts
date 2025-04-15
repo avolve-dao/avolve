@@ -35,6 +35,9 @@ export const createBrowserClient = () => {
   }
 };
 
+// Alias createBrowserClient as createClient for backward compatibility
+export const createClient = createBrowserClient;
+
 // Fallback client for when Supabase initialization fails
 function createFallbackClient() {
   return {

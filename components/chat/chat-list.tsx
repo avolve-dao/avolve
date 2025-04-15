@@ -22,8 +22,27 @@ interface ChatListProps {
   activeChatId?: string
 }
 
+// Define interface for chat room
+interface ChatRoom {
+  id: string;
+  display_name: string;
+  avatar_url?: string;
+  is_group: boolean;
+  unread_count: number;
+  last_message?: string;
+  last_activity?: string;
+  created_at: string;
+}
+
+// Define interface for payload
+interface BroadcastPayload {
+  type: string;
+  event: string;
+  [key: string]: any;
+}
+
 export function ChatList({ userId, activeChatId }: ChatListProps) {
-  const [directChats, setDirectChats] = useState<any[]>([])
+  const [directChats, setDirectChats] = useState<ChatRoom[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [expandedCategories, setExpandedCategories] = useState<string[]>(["Superachiever"])
@@ -51,11 +70,11 @@ export function ChatList({ userId, activeChatId }: ChatListProps) {
       .channel(`user:${userId}:chats`, {
         config: { broadcast: { self: false } },
       })
-      .on("broadcast", { event: "UPDATE" }, async (payload) => {
+      .on("broadcast", { event: "UPDATE" }, async (payload: BroadcastPayload) => {
         // Refresh the chat list when a chat is updated
         loadChats()
       })
-      .on("broadcast", { event: "INSERT" }, async (payload) => {
+      .on("broadcast", { event: "INSERT" }, async (payload: BroadcastPayload) => {
         // Refresh the chat list when a new chat is created
         loadChats()
       })
@@ -120,7 +139,17 @@ export function ChatList({ userId, activeChatId }: ChatListProps) {
           <h3 className="px-4 text-sm font-medium text-muted-foreground mb-2">Direct Messages</h3>
 
           {loading ? (
-            <div className="px-4 text-sm text-muted-foreground">Loading conversations...</div>
+            <div className="space-y-2 p-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+                  <div className="space-y-1 flex-1">
+                    <div className="h-4 bg-muted rounded animate-pulse w-1/3" />
+                    <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : filteredDirectChats.length === 0 ? (
             <div className="px-4 text-sm text-muted-foreground">
               {searchQuery ? "No conversations found" : "No direct messages yet"}
@@ -216,4 +245,3 @@ export function ChatList({ userId, activeChatId }: ChatListProps) {
     </div>
   )
 }
-

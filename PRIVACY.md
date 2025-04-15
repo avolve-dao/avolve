@@ -226,6 +226,10 @@ Note: Testing data collection is mandatory
 - Performance metrics
 - Usage patterns
 
-## 15. Acceptance
+## 15. Data & Intellectual Property Ownership
+
+All data, code, and intellectual property in this project are owned and controlled by the Avolve DAO.
+
+## 16. Acceptance
 
 By using our Platform, you consent to this Privacy Policy.

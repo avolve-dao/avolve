@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search } from "lucide-react"
-import { clientDb } from "@/lib/db"
+import { messagingDb } from "@/lib/db-messaging"
 import { useRouter } from "next/navigation"
 
 interface NewDirectMessageDialogProps {
@@ -16,9 +16,23 @@ interface NewDirectMessageDialogProps {
   trigger?: React.ReactNode
 }
 
+interface User {
+  id: string;
+  username?: string;
+  full_name?: string;
+  avatar_url?: string;
+}
+
+interface Chat {
+  id: string;
+  is_group: boolean;
+  participants: User[];
+  name?: string;
+}
+
 export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDialogProps) {
   const [open, setOpen] = useState(false)
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [creating, setCreating] = useState(false)
@@ -29,8 +43,20 @@ export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDial
     const loadUsers = async () => {
       try {
         setLoading(true)
-        const data = await clientDb.getSuggestedUsers(userId, 20)
-        setUsers(data)
+        // Use the Supabase client directly since messagingDb doesn't have getSuggestedUsers
+        const supabase = messagingDb.getSupabaseClient()
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .neq('id', userId)
+          .order('full_name', { ascending: true })
+          .limit(20)
+        
+        if (error) {
+          throw error
+        }
+        
+        setUsers(data || [])
       } catch (error) {
         console.error("Error loading users:", error)
       } finally {
@@ -54,9 +80,9 @@ export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDial
       setCreating(true)
 
       // Check if a chat already exists with this user
-      const existingChats = await clientDb.getUserChats(userId)
+      const existingChats = await messagingDb.getUserChats(userId)
       const existingChat = existingChats.find(
-        (chat) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === selectedUserId,
+        (chat: Chat) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === selectedUserId,
       )
 
       if (existingChat) {
@@ -65,11 +91,11 @@ export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDial
         return
       }
 
-      // Create a new chat
-      const newChat = await clientDb.createChat(userId, [selectedUserId], false, null)
+      // Create a new direct chat
+      const newChatId = await messagingDb.createDirectChat(userId, selectedUserId)
 
       setOpen(false)
-      router.push(`/messages/${newChat.id}`)
+      router.push(`/messages/${newChatId}`)
     } catch (error) {
       console.error("Error creating chat:", error)
     } finally {
@@ -127,4 +153,3 @@ export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDial
     </Dialog>
   )
 }
-

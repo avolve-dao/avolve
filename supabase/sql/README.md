@@ -16,8 +16,6 @@ The database follows a hierarchical structure:
 
 User progress is tracked at multiple levels:
 
-- **User Journeys**: Track which pillars a user is on
-- **User Section Progress**: Track progress through sections
 - **User Component Progress**: Track progress through components with current/desired states
 
 ## SQL Scripts
@@ -43,7 +41,6 @@ Since you have the Supabase MCP server set up, you can use Windsurf to execute t
 
 The following PostgreSQL functions are available for managing user progress:
 
-- `start_user_journey(user_id, pillar_slug)` - Start a user journey for a specific pillar
 - `update_component_progress(user_id, component_slug, status, current_state, desired_state, action_plan, results)` - Update progress on a component
 - `get_user_progress_summary(user_id)` - Get a summary of user progress across all pillars
 

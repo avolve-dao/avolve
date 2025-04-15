@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Search, Plus } from "lucide-react"
-import { clientDb } from "@/lib/db"
+import { messagingDb } from "@/lib/db-messaging"
 import { useRouter } from "next/navigation"
 
 interface NewChatDialogProps {
@@ -18,9 +18,23 @@ interface NewChatDialogProps {
   trigger?: React.ReactNode
 }
 
+interface User {
+  id: string;
+  username?: string;
+  full_name?: string;
+  avatar_url?: string;
+}
+
+interface Chat {
+  id: string;
+  is_group: boolean;
+  participants: User[];
+  name?: string;
+}
+
 export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
   const [open, setOpen] = useState(false)
-  const [users, setUsers] = useState<any[]>([])
+  const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
@@ -34,8 +48,20 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
     const loadUsers = async () => {
       try {
         setLoading(true)
-        const data = await clientDb.getSuggestedUsers(userId, 20)
-        setUsers(data)
+        // Use the Supabase client directly since messagingDb doesn't have getSuggestedUsers
+        const supabase = messagingDb.getSupabaseClient()
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, username, full_name, avatar_url')
+          .neq('id', userId)
+          .order('full_name', { ascending: true })
+          .limit(20)
+        
+        if (error) {
+          throw error
+        }
+        
+        setUsers(data || [])
       } catch (error) {
         console.error("Error loading users:", error)
       } finally {
@@ -72,9 +98,10 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
 
       // For 1-on-1 chats, check if a chat already exists
       if (!isGroup && selectedUsers.length === 1) {
-        const existingChats = await clientDb.getUserChats(userId)
+        // Use the direct chat creation method from messagingDb
+        const existingChats = await messagingDb.getUserChats(userId)
         const existingChat = existingChats.find(
-          (chat) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === selectedUsers[0],
+          (chat: Chat) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === selectedUsers[0],
         )
 
         if (existingChat) {
@@ -84,15 +111,50 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
         }
       }
 
-      const newChat = await clientDb.createChat(
-        userId,
-        selectedUsers,
-        isGroup,
-        isGroup ? groupName || `Group Chat` : null,
-      )
+      // Create a new chat
+      let newChatId: string;
+      
+      if (!isGroup && selectedUsers.length === 1) {
+        // Create a direct chat
+        newChatId = await messagingDb.createDirectChat(userId, selectedUsers[0]);
+      } else {
+        // For group chats, we need to use a different approach
+        // This is a simplified version since messagingDb doesn't have a direct createChat method
+        const supabase = messagingDb.getSupabaseClient()
+        
+        // Create a new chat
+        const { data: newChat, error: chatError } = await supabase
+          .from('chats')
+          .insert({
+            created_by: userId,
+            is_group: isGroup,
+            name: isGroup ? groupName || 'Group Chat' : null,
+          })
+          .select()
+          
+        if (chatError || !newChat || newChat.length === 0) {
+          throw new Error('Failed to create chat')
+        }
+        
+        newChatId = newChat[0].id
+        
+        // Add all participants
+        const participants = [userId, ...selectedUsers].map(id => ({
+          chat_id: newChatId,
+          user_id: id
+        }))
+        
+        const { error: participantError } = await supabase
+          .from('chat_participants')
+          .insert(participants)
+          
+        if (participantError) {
+          throw participantError
+        }
+      }
 
       setOpen(false)
-      router.push(`/messages/${newChat.id}`)
+      router.push(`/messages/${newChatId}`)
     } catch (error) {
       console.error("Error creating chat:", error)
     } finally {
@@ -214,4 +276,3 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
     </Dialog>
   )
 }
-

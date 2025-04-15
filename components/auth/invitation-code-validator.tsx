@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useToast } from '@/components/ui/use-toast';
-import { useSupabase } from '@/components/providers/supabase-provider';
+import { useSupabase } from '@/lib/supabase/use-supabase';
 import { InvitationService } from '@/lib/invitation/invitation-service';
 
 // Form schema using zod for validation

@@ -27,6 +27,58 @@ import { AuthRepository } from './auth-repository';
 import { rateLimit } from '@/lib/rate-limit';
 
 /**
+ * TOTP Factor interface for Multi-Factor Authentication
+ */
+export interface TotpFactor {
+  id: string;
+  secret: string;
+  qrCode: string;
+  uri: string;
+  createdAt: string;
+  verified: boolean;
+}
+
+/**
+ * Recovery Codes interface for Multi-Factor Authentication
+ */
+export interface RecoveryCodes {
+  codes: string[];
+  createdAt: string;
+}
+
+/**
+ * User Session interface for session management
+ */
+export interface UserSession {
+  id: string;
+  sessionId: string;
+  userId: string;
+  userAgent: string;
+  browser: string;
+  os: string;
+  device: string;
+  ip: string;
+  country: string;
+  city: string;
+  region: string;
+  lastActiveAt: string;
+  createdAt: string;
+  isCurrent: boolean;
+  deviceInfo?: {
+    browser?: string;
+    os?: string;
+    device?: string;
+    type?: string;
+  };
+  location?: {
+    country?: string;
+    city?: string;
+    region?: string;
+    ip?: string;
+  };
+}
+
+/**
  * Authentication Service Class
  * 
  * This service provides a high-level API for authentication-related operations.

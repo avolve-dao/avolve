@@ -14,7 +14,7 @@ export function ChatMessageItem({ message, isOwnMessage, showHeader }: ChatMessa
   const [isReplyMode, setIsReplyMode] = useState(false)
 
   // Set up gesture handlers
-  useGestures(messageRef, {
+  useGestures(messageRef as React.RefObject<HTMLElement>, {
     onSwipeRight: () => {
       // Swipe right to reply
       setIsReplyMode(true)
@@ -39,4 +39,3 @@ export function ChatMessageItem({ message, isOwnMessage, showHeader }: ChatMessa
     </div>
   )
 }
-

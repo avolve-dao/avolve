@@ -2,7 +2,7 @@
  * AI Insights Server Component
  * 
  * Displays AI-powered insights and predictions about user progress
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -120,7 +120,7 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
   // Fetch user's token transaction history
   const { data: recentTransactions } = await supabase
     .from('transactions')
-    .select('token_id, amount, created_at, transaction_type')
+    .select('token_id, amount, created_at, transaction_type, to_user_id, from_user_id')
     .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
     .order('created_at', { ascending: false })
     .limit(20);

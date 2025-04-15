@@ -41,7 +41,8 @@ export function GrokChat({ initialSystemPrompt = "" }: GrokChatProps) {
       // This is handled by the streaming UI
     },
     onFinish: (message) => {
-      setMessages((prev) => [...prev, { id: nanoid(), role: "assistant", content: message }])
+      // Ensure message is treated as a string
+      setMessages((prev) => [...prev, { id: nanoid(), role: "assistant" as const, content: message.toString() }])
     },
   })
 
@@ -56,7 +57,7 @@ export function GrokChat({ initialSystemPrompt = "" }: GrokChatProps) {
     if (!input.trim() || isLoading) return
 
     // Add user message
-    const userMessage = { id: nanoid(), role: "user", content: input }
+    const userMessage: ChatMessage = { id: nanoid(), role: "user", content: input }
     setMessages((prev) => [...prev, userMessage])
 
     // Set up AI response
@@ -64,7 +65,7 @@ export function GrokChat({ initialSystemPrompt = "" }: GrokChatProps) {
     setInput("")
 
     // Add empty assistant message for streaming UI
-    setMessages((prev) => [...prev, { id: nanoid(), role: "assistant", content: "" }])
+    setMessages((prev) => [...prev, { id: nanoid(), role: "assistant" as const, content: "" }])
   }
 
   return (
@@ -151,4 +152,3 @@ export function GrokChat({ initialSystemPrompt = "" }: GrokChatProps) {
     </Card>
   )
 }
-

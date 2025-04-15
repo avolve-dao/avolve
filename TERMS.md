@@ -139,12 +139,16 @@ These Terms are governed by the laws of the jurisdiction in which Avolve DAO is 
 - Data is collected
 - Flows may change
 
-## 13. Contact
+## 13. Ownership
+
+All content, code, and intellectual property within this project are exclusively owned and controlled by the Avolve DAO. Unauthorized use, distribution, or reproduction is strictly prohibited.
+
+## 14. Contact
 
 For questions about these Terms:
 - Email: legal@avolve.io
 - Mail: [Legal Address]
 
-## 14. Acceptance
+## 15. Acceptance
 
 BY USING THE PLATFORM, YOU ACCEPT AND AGREE TO THESE TERMS AND CONDITIONS.

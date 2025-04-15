@@ -30,8 +30,31 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-// Token gradients from dashboard page
-import { TOKEN_GRADIENTS, TOKEN_NAMES } from '@/app/dashboard/dashboard-page';
+// Local token definitions
+// These were previously imported from '@/app/dashboard/dashboard-page'
+const TOKEN_GRADIENTS = {
+  SAP: 'from-blue-500 to-indigo-600',
+  PSP: 'from-green-500 to-emerald-600',
+  BSP: 'from-purple-500 to-violet-600',
+  SMS: 'from-red-500 to-rose-600',
+  SCQ: 'from-amber-500 to-yellow-600',
+  SPD: 'from-cyan-500 to-sky-600',
+  SHE: 'from-pink-500 to-fuchsia-600',
+  SSA: 'from-teal-500 to-green-600',
+  SGB: 'from-indigo-500 to-blue-600'
+};
+
+const TOKEN_NAMES = {
+  SAP: 'Superachiever Personal',
+  PSP: 'Personal Success Puzzle',
+  BSP: 'Business Success Puzzle',
+  SMS: 'Supermind Superpowers',
+  SCQ: 'Superpuzzle Developments',
+  SPD: 'Superhuman Enhancements',
+  SHE: 'Supersociety Advancements',
+  SSA: 'Superachievers',
+  SGB: 'Supergenius Breakthroughs'
+};
 
 export interface ActivityItem {
   type: 'activity' | 'notification' | 'event_completion' | 'token_transaction';

@@ -156,6 +156,10 @@ NEXT_PUBLIC_ENABLE_REAL_TIME_CHAT=true
 - Share knowledge openly
 - Celebrate achievements
 
+## Ownership & Licensing
+
+All contributions to this project become the exclusive property of the Avolve DAO and are subject to the DAO’s governance, licensing, and usage terms. By contributing, you agree to these terms.
+
 ## 📚 Additional Resources
 
 - [Design System Documentation](./docs/sacred-geometry-design-system.md)

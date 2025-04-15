@@ -12,8 +12,8 @@ This directory contains the database structure for the Avolve platform, implemen
     - `/functions/` - Function modules
       - `role_functions.sql` - Role management functions
       - `token_functions.sql` - Token operations and access control
-      - `gamification_functions.sql` - Achievements and progress tracking
       - `sacred_geometry_functions.sql` - Functions for sacred geometry calculations
+      - `gamification_functions.sql` - Achievements and progress tracking [UPDATED: Only progress tracking remains.]
   - `schema.sql` - Main schema file
 - `/migrations/` - Migration files to be applied to the database
   - `20240906123045_enhance_tokenomics_with_sacred_geometry.sql` - Sacred geometry enhancements
@@ -73,8 +73,6 @@ Our database schema incorporates sacred geometry principles and Tesla's 3-6-9 pa
 - **user_tokens** - Tracks token ownership for each user
 - **token_transactions** - Records token transfers and rewards
 - **token_exchange_rates** - Defines exchange rates between tokens based on sacred ratios
-- **token_achievements** - Achievements based on token ownership with 3-6-9 pattern thresholds
-- **user_achievements** - Tracks user achievements and rewards
 - **pillars** - The three main content pillars of the platform
 - **sections** - Subdivisions within each pillar
 - **components** - Individual content pieces within sections
@@ -177,14 +175,11 @@ The following key functions are available:
 
 ### Gamification Functions
 - `complete_content(content_id)` - Marks content as completed and grants any associated rewards
-- `get_user_achievements(user_id)` - Returns all achievements for a user
-- `claim_achievement_reward(achievement_id)` - Claims the reward for an earned achievement
 - `get_all_pillars_progress(user_id)` - Returns progress statistics for all pillars
 - `track_user_activity(activity_type, entity_type, entity_id, metadata)` - Records user activity for analytics and gamification
 - `get_user_experience_phase()` - Determines which phase a user is in based on their progress
 - `get_next_recommended_actions()` - Suggests personalized next steps based on user progress
 - `reward_user_activity(user_id, activity_type, activity_details)` - Rewards user activity with tokens based on Tesla multipliers
-- `check_token_achievements(user_id)` - Checks if a user has achieved any token-based achievements
 
 ## TypeScript Integration
 

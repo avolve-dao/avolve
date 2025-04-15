@@ -98,7 +98,7 @@ export function ActivityFeed({
             created_at
           `)
           .neq('actor_id', userId)
-          .in('type', ['comment', 'reaction', 'team_join', 'superpuzzle_contribution', 'achievement'])
+          .in('type', ['comment', 'reaction', 'team_join', 'superpuzzle_contribution', 'milestone', 'feature'])
           .order('created_at', { ascending: false })
           .limit(limit);
           
@@ -189,37 +189,32 @@ export function ActivityFeed({
 
   // Get appropriate link for an activity
   function getActivityLink(activity: any): string {
+    // [LEGACY CLEANUP] Remove achievement activity type
     switch (activity.type) {
-      case 'achievement':
-        return '/dashboard/achievements';
       case 'token':
         return '/tokens';
       case 'component_completion':
-        return `/dashboard/journey/${activity.details?.pillar_slug}/${activity.details?.component_slug}`;
-      case 'comment':
-        return activity.target_type === 'superpuzzle' 
-          ? `/superpuzzles/${activity.target_id}` 
-          : `/dashboard/discover/post/${activity.target_id}`;
-      case 'reaction':
-        return `/dashboard/discover/post/${activity.target_id}`;
-      case 'team_join':
-        return `/teams/${activity.target_id}`;
-      case 'superpuzzle_contribution':
-        return `/superpuzzles/${activity.target_id}`;
+        return `/dashboard/journey/${activity.data?.component_id || ''}`;
+      case 'milestone':
+        return '/dashboard/journey';
+      case 'feature':
+        return '/dashboard/features';
       default:
-        return '/dashboard/activity';
+        return '#';
     }
   }
 
   // Get icon for activity type
   function getActivityIcon(type: string) {
     switch (type) {
-      case 'achievement':
-        return <Award className="h-5 w-5 text-yellow-500" />;
       case 'token':
         return <Coins className="h-5 w-5 text-blue-500" />;
       case 'component_completion':
         return <CheckCircle className="h-5 w-5 text-emerald-500" />;
+      case 'milestone':
+        return <Award className="h-5 w-5 text-yellow-500" />;
+      case 'feature':
+        return <Puzzle className="h-5 w-5 text-orange-500" />;
       case 'comment':
         return <MessageSquare className="h-5 w-5 text-indigo-500" />;
       case 'reaction':
@@ -239,12 +234,14 @@ export function ActivityFeed({
     const actor = isYou ? 'You' : activity.actor_name;
     
     switch (activity.type) {
-      case 'achievement':
-        return `${actor} earned the "${activity.target_name}" achievement`;
       case 'token':
         return `${actor} received ${activity.details?.amount} ${activity.details?.token_type} tokens`;
       case 'component_completion':
         return `${actor} completed the "${activity.target_name}" component`;
+      case 'milestone':
+        return `${actor} reached the "${activity.target_name}" milestone`;
+      case 'feature':
+        return `${actor} unlocked the "${activity.target_name}" feature`;
       case 'comment':
         return `${actor} commented on ${activity.target_type === 'superpuzzle' ? 'a superpuzzle' : 'a post'}`;
       case 'reaction':

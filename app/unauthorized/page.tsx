@@ -87,7 +87,7 @@ export default function UnauthorizedPage() {
             Go Back
           </Button>
           <Button asChild>
-            <Link href="/dashboard">Return to Dashboard</Link>
+            <Link href="/(authenticated)/dashboard">Return to Dashboard</Link>
           </Button>
         </CardFooter>
       </Card>

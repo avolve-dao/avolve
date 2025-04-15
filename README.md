@@ -28,7 +28,6 @@ Transform your personal journey through:
 ### 👥 Superachievers Journey (`/superachievers`)
 Amplify collective transformation through:
 - Real-time chat in Regen Circles
-- Group achievements with token rewards (10 GEN for collective wins)
 - Community reputation system
 - Collaborative goal tracking
 
@@ -78,10 +77,10 @@ The platform uses key metrics to drive engagement and measure success:
 
 Features are progressively unlocked based on user participation and metrics improvements:
 
-- **Teams**: Unlocked after completing 10 challenges
+- **Teams**: Unlocked after reaching progress milestones [UPDATED: Teams are now unlocked by progress milestones.]
 - **Governance**: Unlocked after accumulating 100 GEN tokens
-- **Marketplace**: Unlocked after completing 20 challenges or achieving DAU/MAU > 0.3
-- **Token Utility**: Unlocked after completing 5 challenges and claiming 3 different day tokens
+- **Marketplace**: Unlocked after achieving engagement milestones [UPDATED: Marketplace unlocks based on new engagement metrics.]
+- **Token Utility**: Unlocked after completing component progress milestones [UPDATED: Token utility unlocks based on new component progress.]
 
 Our platform provides tools, resources, and community support to help users evolve in all aspects of their lives, from personal success to business growth and beyond.
 
@@ -324,6 +323,10 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Intellectual Property & Ownership
+
+All code, documentation, and assets in this repository are the exclusive property of the Avolve DAO. Unauthorized use, distribution, or reproduction is strictly prohibited. All contributors agree that their contributions become the property of Avolve DAO and are subject to the DAO’s governance and licensing terms.
 
 ## 📄 License
 

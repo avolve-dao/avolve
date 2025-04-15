@@ -1,20 +1,17 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAuth } from '@/lib/auth-middleware';
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
+  const authResult = await requireAuth(req);
+  if (authResult instanceof NextResponse) return authResult;
+  const { user } = authResult;
+
   try {
     const supabase = createRouteHandlerClient({ cookies })
 
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return new NextResponse('Unauthorized', { status: 401 })
-    }
-
-    const { fromToken, toToken, amount } = await request.json()
+    const { fromToken, toToken, amount } = await req.json()
 
     if (!fromToken || !toToken || !amount) {
       return new NextResponse('Missing required fields', { status: 400 })
@@ -22,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // Call the convert_tokens function
     const { data, error } = await supabase.rpc('convert_tokens', {
-      p_user_id: session.user.id,
+      p_user_id: user.id,
       p_from_token_id: fromToken,
       p_to_token_id: toToken,
       p_amount: amount

@@ -4,10 +4,10 @@
  * AI Insights Client Component
  * 
  * Client-side interactive component for displaying AI-powered insights and predictions
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, 
@@ -115,7 +115,7 @@ export function AIInsightsClient({
         GEN: 'bg-zinc-100 text-zinc-800 border-zinc-300'
       };
       
-      const tokenIcons: Record<string, JSX.Element> = {
+      const tokenIcons: Record<string, React.ReactNode> = {
         SAP: <Zap className="w-5 h-5 text-amber-500" />,
         SCQ: <TrendingUp className="w-5 h-5 text-emerald-500" />,
         GEN: <Brain className="w-5 h-5 text-zinc-500" />
@@ -301,8 +301,10 @@ export function AIInsightsClient({
                   <h4 className="text-sm font-medium">Token Milestone</h4>
                   <p className="text-xs text-muted-foreground">
                     {Object.entries(tokenPredictions)
-                      .sort((a, b) => a[1].daysToTarget - b[1].daysToTarget)[0]
-                      .map(([symbol, pred]) => `${pred.target} ${symbol} in ${formatDays(pred.daysToTarget)}`)}
+                      .sort((a, b) => a[1].daysToTarget - b[1].daysToTarget)
+                      .slice(0, 1)
+                      .map(([symbol, pred]) => `${pred.target} ${symbol} in ${formatDays(pred.daysToTarget)}`)
+                      .join(', ')}
                   </p>
                 </div>
               </div>

@@ -1,33 +1,24 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { requireAuth } from '@/lib/auth-middleware';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const authResult = await requireAuth(req);
+  if (authResult instanceof NextResponse) return authResult;
+  const { user } = authResult;
+
   try {
-    const supabase = createRouteHandlerClient({ cookies })
-
-    const {
-      data: { session },
-    } = await supabase.auth.getSession()
-
-    if (!session) {
-      return new NextResponse('Unauthorized', { status: 401 })
-    }
-
-    // Get user's token balances with token type information
-    const { data: balances, error } = await supabase
+    const supabase = createRouteHandlerClient({ cookies });
+    const { data, error } = await supabase
       .from('token_balances')
-      .select(`
-        *,
-        token_type:token_types(*)
-      `)
-      .eq('user_id', session.user.id)
+      .select(`*, token_type:token_types(*)`)
+      .eq('user_id', user.id);
 
-    if (error) throw error
+    if (error) throw error;
 
-    return NextResponse.json(balances)
+    return NextResponse.json({ balances: data });
   } catch (error) {
-    console.error('Error fetching token balances:', error)
-    return new NextResponse('Internal Server Error', { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -34,18 +34,6 @@ export type NextAction = {
   locked: boolean;
 };
 
-export type Achievement = {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  reward_type: string;
-  reward_amount: number;
-  reward_token_symbol: string;
-  earned_at: string;
-  claimed_at: string | null;
-};
-
 /**
  * Hook for token-related functionality
  */
@@ -361,58 +349,6 @@ export function useToken() {
   }, [supabase, session]);
 
   /**
-   * Get user achievements
-   */
-  const getUserAchievements = useCallback(async (userId?: string): Promise<TokenResult<Achievement[]>> => {
-    const targetUserId = userId || user?.id;
-    
-    if (!session?.user || !targetUserId) {
-      return { data: null, error: new Error('User not authenticated') };
-    }
-
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .rpc('get_user_achievements', { p_user_id: targetUserId });
-      
-      if (error) throw error;
-      
-      return { data, error: null };
-    } catch (error) {
-      console.error('Error getting user achievements:', error);
-      return { data: null, error: error as Error };
-    } finally {
-      setIsLoading(false);
-    }
-  }, [supabase, session, user]);
-
-  /**
-   * Claim achievement reward
-   */
-  const claimAchievementReward = useCallback(async (achievementId: string): Promise<boolean> => {
-    if (!session?.user) {
-      return false;
-    }
-
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .rpc('claim_achievement_reward', { 
-          p_achievement_id: achievementId
-        });
-      
-      if (error) throw error;
-      
-      return !!data;
-    } catch (error) {
-      console.error('Error claiming achievement reward:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [supabase, session]);
-
-  /**
    * Get all pillars progress
    */
   const getAllPillarsProgress = useCallback(async (userId?: string): Promise<TokenResult<any[]>> => {
@@ -539,8 +475,6 @@ export function useToken() {
     hasComponentAccess,
     hasIntroductoryAccess,
     completeContent,
-    getUserAchievements,
-    claimAchievementReward,
     getAllPillarsProgress,
     trackActivity,
     getUserExperiencePhase,

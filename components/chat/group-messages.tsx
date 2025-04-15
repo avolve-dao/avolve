@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { clientDb } from "@/lib/db"
+import { messagingDb } from "@/lib/db-messaging"
 import { Message } from "@/components/chat/message"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { RefreshCcw } from "lucide-react"
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 
 interface GroupMessagesProps {
   chatId: string
@@ -14,8 +15,42 @@ interface GroupMessagesProps {
   groupId: string
 }
 
+interface MessageData {
+  id: string;
+  content: string;
+  type: string;
+  media_url?: string;
+  created_at: string;
+  user_id: string;
+  profiles?: {
+    id: string;
+    username?: string;
+    full_name?: string;
+    avatar_url?: string;
+  };
+}
+
+// Define the message payload type
+interface MessagePayload {
+  id: string;
+  chat_id: string;
+  user_id: string;
+  content: string;
+  type: string;
+  created_at: string;
+}
+
+// Type guard to check if payload has the expected structure
+function isValidPayload(payload: any): payload is { new: MessagePayload } {
+  return payload && 
+         typeof payload === 'object' && 
+         payload.new && 
+         typeof payload.new === 'object' &&
+         typeof payload.new.id === 'string';
+}
+
 export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
-  const [messages, setMessages] = useState<any[]>([])
+  const [messages, setMessages] = useState<MessageData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
@@ -25,7 +60,7 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
     try {
       setLoading(true)
       setError(null)
-      const data = await clientDb.getMessages(chatId)
+      const data = await messagingDb.getMessages(chatId)
       setMessages(data)
     } catch (error) {
       console.error("Error loading messages:", error)
@@ -39,7 +74,7 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
     loadMessages()
 
     // Set up real-time subscription
-    const supabase = clientDb.getSupabaseClient()
+    const supabase = messagingDb.getSupabaseClient()
 
     const subscription = supabase
       .channel(`chat:${chatId}`)
@@ -51,7 +86,13 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
           table: "messages",
           filter: `chat_id=eq.${chatId}`,
         },
-        (payload) => {
+        (payload: any) => {
+          // Check if payload has the expected structure
+          if (!isValidPayload(payload)) {
+            console.error("Invalid payload structure:", payload);
+            return;
+          }
+
           // Fetch the complete message with user data
           const fetchNewMessage = async () => {
             const { data } = await supabase
@@ -69,7 +110,7 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
               .single()
 
             if (data) {
-              setMessages((prev) => [...prev, data])
+              setMessages((prev) => [...prev, data as MessageData])
             }
           }
 
@@ -79,7 +120,7 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
       .subscribe()
 
     return () => {
-      subscription.unsubscribe()
+      supabase.removeChannel(subscription)
     }
   }, [chatId])
 
@@ -140,7 +181,7 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
                 media_url: message.media_url,
                 created_at: message.created_at,
                 user: {
-                  id: message.profiles?.id,
+                  id: message.profiles?.id || "",
                   name: message.profiles?.full_name || message.profiles?.username || "Unknown User",
                   avatar: message.profiles?.avatar_url,
                 },
@@ -154,4 +195,3 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
     </ScrollArea>
   )
 }
-

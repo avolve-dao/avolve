@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Send, Users } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { useTracking } from "@/utils/tracking"
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 
 interface EventChatProps {
   eventId: string;
@@ -26,6 +27,24 @@ interface ChatMessage {
     full_name: string | null;
     avatar_url: string | null;
   };
+}
+
+// Define the message payload type
+interface MessagePayload {
+  id: string;
+  user_id: string;
+  event_id: string;
+  content: string;
+  created_at: string;
+}
+
+// Type guard to check if payload has the expected structure
+function isValidPayload(payload: any): payload is { new: MessagePayload } {
+  return payload && 
+         typeof payload === 'object' && 
+         payload.new && 
+         typeof payload.new === 'object' &&
+         typeof payload.new.id === 'string';
 }
 
 export function EventChat({ eventId, userId: propUserId }: EventChatProps) {
@@ -79,14 +98,9 @@ export function EventChat({ eventId, userId: propUserId }: EventChatProps) {
         console.error("Error fetching messages:", error)
       } else if (data) {
         // Transform the data to match our ChatMessage interface
-        const formattedMessages = data.map(msg => ({
+        const formattedMessages = data.map((msg: any) => ({
           ...msg,
-          profiles: msg.profiles && msg.profiles.length > 0 
-            ? {
-                full_name: msg.profiles[0]?.full_name || null,
-                avatar_url: msg.profiles[0]?.avatar_url || null
-              }
-            : { full_name: null, avatar_url: null }
+          profiles: msg.profiles || { full_name: null, avatar_url: null }
         }));
         
         setMessages(formattedMessages)
@@ -108,7 +122,13 @@ export function EventChat({ eventId, userId: propUserId }: EventChatProps) {
           table: "event_chat_messages",
           filter: `event_id=eq.${eventId}`
         },
-        (payload) => {
+        (payload: any) => {
+          // Check if payload has the expected structure
+          if (!isValidPayload(payload)) {
+            console.error("Invalid payload structure:", payload);
+            return;
+          }
+
           // Fetch the complete message with profile info
           const fetchNewMessage = async () => {
             const { data, error } = await supabase
@@ -131,20 +151,11 @@ export function EventChat({ eventId, userId: propUserId }: EventChatProps) {
               // Transform to match our ChatMessage interface
               const formattedMessage = {
                 ...data,
-                profiles: data.profiles && data.profiles.length > 0 
-                  ? {
-                      full_name: data.profiles[0]?.full_name || null,
-                      avatar_url: data.profiles[0]?.avatar_url || null
-                    }
-                  : { full_name: null, avatar_url: null }
-              };
-              
-              setMessages((prev) => [...prev, formattedMessage])
-              
-              // Scroll to bottom when new message arrives
-              setTimeout(() => {
-                scrollToBottom()
-              }, 100)
+                profiles: data.profiles || { full_name: null, avatar_url: null }
+              }
+
+              setMessages(prev => [...prev, formattedMessage])
+              scrollToBottom()
             }
           }
 
@@ -154,7 +165,7 @@ export function EventChat({ eventId, userId: propUserId }: EventChatProps) {
       .subscribe()
 
     return () => {
-      subscription.unsubscribe()
+      supabase.removeChannel(subscription)
     }
   }, [eventId, supabase])
 

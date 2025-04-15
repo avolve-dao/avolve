@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
+import { requireAuth } from '@/lib/auth-middleware';
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
+  const authResult = await requireAuth(req);
+  if (authResult instanceof NextResponse) return authResult;
+
   try {
-    const { code } = await request.json()
+    const { code } = await req.json()
     
     if (!code) {
       return NextResponse.json(
@@ -13,16 +17,6 @@ export async function POST(request: NextRequest) {
     }
     
     const supabase = createClient()
-    
-    // Verify the user is authenticated
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      )
-    }
     
     // Accept the invitation
     const { data, error } = await supabase.rpc('accept_invitation', {

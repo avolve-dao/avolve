@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/use-toast"
 import { Send, MoreHorizontal, ArrowLeft } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
+import { RealtimeChannel, RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 
 interface Message {
   id: string
@@ -36,6 +37,26 @@ interface ChatRoom {
 interface ChatInterfaceProps {
   chatId?: string
   onBack?: () => void
+}
+
+// Define the message payload type
+interface MessagePayload {
+  id: string;
+  chat_id: string;
+  user_id: string;
+  content: string;
+  type: string;
+  created_at: string;
+}
+
+// Define the payload type for realtime messages
+interface RealtimeMessagePayload {
+  new: MessagePayload;
+  old: Record<string, unknown>;
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+  schema: string;
+  table: string;
+  commit_timestamp: string;
 }
 
 export function ChatInterface({ chatId, onBack }: ChatInterfaceProps) {
@@ -153,7 +174,15 @@ export function ChatInterface({ chatId, onBack }: ChatInterfaceProps) {
           table: 'messages',
           filter: `chat_id=eq.${chatId}`
         },
-        async (payload) => {
+        async (payload: RealtimePostgresChangesPayload<any>) => {
+          // Type assertion to ensure payload has the expected structure
+          const messagePayload = payload as unknown as RealtimeMessagePayload;
+          
+          if (!messagePayload.new || !messagePayload.new.id) {
+            console.error('Invalid message payload:', payload);
+            return;
+          }
+          
           // Fetch the complete message with profile info
           const { data, error } = await supabase
             .from('messages')
@@ -164,15 +193,22 @@ export function ChatInterface({ chatId, onBack }: ChatInterfaceProps) {
                 avatar_url
               )
             `)
-            .eq('id', payload.new.id)
+            .eq('id', messagePayload.new.id)
             .single()
             
-          if (!error && data) {
+          if (error) {
+            console.error('Error fetching new message:', error)
+            return
+          }
+          
+          if (data) {
             setMessages(prev => [...prev, data as Message])
           }
         }
       )
       .subscribe()
+      
+    return channel
   }
   
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -181,6 +217,7 @@ export function ChatInterface({ chatId, onBack }: ChatInterfaceProps) {
     if (!newMessage.trim() || !chatId || !user) return
     
     setSending(true)
+    
     try {
       const { error } = await supabase
         .from('messages')
@@ -198,7 +235,7 @@ export function ChatInterface({ chatId, onBack }: ChatInterfaceProps) {
       console.error('Error sending message:', error)
       toast({
         title: "Error",
-        description: "Could not send message. Please try again.",
+        description: "Failed to send message. Please try again.",
         variant: "destructive"
       })
     } finally {
@@ -207,30 +244,18 @@ export function ChatInterface({ chatId, onBack }: ChatInterfaceProps) {
   }
   
   const getInitials = (name?: string) => {
-    if (!name) return "U"
-    return name.split(' ').map(n => n[0]).join('').toUpperCase()
-  }
-  
-  if (!chatId) {
-    return (
-      <Card className="h-[600px] flex flex-col">
-        <CardContent className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-muted-foreground">Select a chat to start messaging</p>
-          </div>
-        </CardContent>
-      </Card>
-    )
+    return name ? name.charAt(0).toUpperCase() : "U"
   }
   
   return (
-    <Card className="h-[600px] flex flex-col">
-      <CardHeader className="border-b px-4 py-3 flex flex-row items-center gap-2">
+    <Card className="flex flex-col h-[calc(100vh-2rem)] w-full max-w-3xl mx-auto">
+      <CardHeader className="flex flex-row items-center p-4 pb-3">
         {onBack && (
           <Button variant="ghost" size="icon" onClick={onBack} className="mr-2">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         )}
+        
         {loading ? (
           <div className="flex items-center gap-2">
             <Skeleton className="h-10 w-10 rounded-full" />

@@ -113,7 +113,12 @@ export function CommunityPuzzle() {
           verification_challenge_types (name)
         `)
         .eq('user_id', user?.id)
-        .eq('status', 'completed')
+        .eq('status', 'pending')
+        .in('challenge_type_id', (query: any) => {
+          query.select('id')
+            .from('verification_challenge_types')
+            .where('name', 'eq', 'community_puzzle')
+        })
       
       if (challengeError) throw challengeError
       
@@ -219,8 +224,8 @@ export function CommunityPuzzle() {
           `)
           .eq('user_id', user?.id)
           .eq('status', 'pending')
-          .in('challenge_type_id', function() {
-            this.select('id')
+          .in('challenge_type_id', (query: any) => {
+            query.select('id')
               .from('verification_challenge_types')
               .where('name', 'eq', 'community_puzzle')
           })

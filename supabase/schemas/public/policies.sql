@@ -1,6 +1,10 @@
 -- Row Level Security policies for the Avolve platform
 -- This file defines all RLS policies for the public schema tables
 
+-- [LEGACY CLEANUP 2025-04-14]
+-- Removed all RLS policies for dropped legacy tables (user_achievements, genius_achievements, weekly_meetings, etc.)
+-- All policies below are for active tables only.
+
 -- Enable RLS on all tables
 alter table public.roles enable row level security;
 alter table public.user_roles enable row level security;
@@ -11,7 +15,6 @@ alter table public.pillars enable row level security;
 alter table public.sections enable row level security;
 alter table public.components enable row level security;
 alter table public.user_progress enable row level security;
-alter table public.user_achievements enable row level security;
 alter table public.user_activity_logs enable row level security;
 
 -- Roles table policies
@@ -328,36 +331,10 @@ create policy "Admin users can view all user progress"
     )
   );
 
--- User achievements table policies
--- Users can view their own achievements
-create policy "Users can view their own achievements"
-  on public.user_achievements
-  for select
-  to authenticated
-  using (auth.uid() = user_id);
-
--- Admin users can view all user achievements
-create policy "Admin users can view all user achievements"
-  on public.user_achievements
-  for select
-  to authenticated
-  using (
-    exists (
-      select 1 from public.user_roles ur
-      join public.roles r on ur.role_id = r.id
-      where ur.user_id = auth.uid()
-      and r.is_admin = true
-      and (ur.expires_at is null or ur.expires_at > now())
-    )
-  );
-
--- Only system functions can modify user achievements
-create policy "Only system functions can modify user achievements"
-  on public.user_achievements
-  for all
-  to authenticated
-  using (false)
-  with check (false);
+-- User achievements table policies [REMOVED: Table dropped]
+-- create policy "Users can view their own achievements" ... [REMOVED]
+-- create policy "Admin users can view all user achievements" ... [REMOVED]
+-- create policy "Only system functions can modify user achievements" ... [REMOVED]
 
 -- User activity logs table policies
 -- Users can view their own activity logs
@@ -395,3 +372,5 @@ create policy "Anon users have no access to activity logs"
   for all
   to anon
   using (false);
+
+-- [END LEGACY CLEANUP]

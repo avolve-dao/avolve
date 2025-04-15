@@ -90,7 +90,7 @@ All tables have RLS enabled with appropriate policies:
   - Token Overview
   - Transaction History
   - Rewards Center
-  - Achievement Tracking
+  - Component Progress and Milestones [UPDATED: Replaced Achievement Tracking]
 
 ### 2. Onboarding System
 
@@ -116,7 +116,7 @@ All tables have RLS enabled with appropriate policies:
 ### 3. Super Features
 
 - **Puzzle System**:
-  - Daily Challenges
+  - Daily Challenges [UPDATED: Daily challenges are now integrated as component milestones.]
   - Contribution System
   - Progress Tracking
 - **Sacred Geometry**:
@@ -138,7 +138,7 @@ All tables have RLS enabled with appropriate policies:
   - Activity Monitoring
 - **Content Management**:
   - Resource Creation
-  - Challenge Configuration
+  - Challenge Configuration [UPDATED: Challenge configuration is now managed via component and route settings.]
   - Community Updates
 
 ## Development Workflow

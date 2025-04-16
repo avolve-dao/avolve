@@ -447,3 +447,70 @@ For support or inquiries, contact admin@avolve.io.
 ## 🎉 Launch & Feedback
 - The platform is ready for the first 100–1000 users.
 - Feedback channels and monitoring are set up for continuous improvement.
+
+# Avolve Platform
+
+## Vision: Superachiever, Superachievers, Supercivilization
+Avolve is the positive-sum platform for transformation at the individual, collective, and ecosystem levels. Journey from Degen to Regen—unlocking your Genius, Genius Network, and Supercivilization impact.
+
+---
+
+## Getting Started
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+2. **Set up your Supabase project:**
+   - Configure your Supabase URL and anon key in `.env.local`.
+   - Run migrations:
+     ```bash
+     supabase db push
+     ```
+3. **Run the dev server:**
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## Core Features
+- **Canvas Dashboard:** Visualize and manage strategic canvases for each pillar (Individual, Collective, Ecosystem).
+- **Experiments:** Create, track, and distinguish between Real-World and Simulation experiments.
+- **Learnings & Results:** Surface, filter, and act on learnings with actionable statuses and context links (pillar, token, quest).
+- **Stories Bar:** Share and view user/admin stories contextualized to canvas, experiment, or pillar.
+- **Onboarding:** Guided, story-driven onboarding aligned with the Degen→Regen journey.
+
+---
+
+## User Roles & Access
+- **Users:** Can view, participate in, and contribute to experiments and learnings.
+- **Admins:** Can manage canvases, experiments, learnings, and stories. Broader access via RLS policies.
+
+---
+
+## Technical Stack
+- **Frontend:** React (Next.js), TypeScript
+- **Backend:** Supabase (Postgres, Auth, RLS)
+- **Design:** Modern, responsive, accessible UI/UX
+
+---
+
+## Contribution & Community
+- See `CONTRIBUTING.md` for guidelines.
+- Join the Degen→Regen movement and help build the Supercivilization!
+
+---
+
+## Production Checklist
+- [x] Redundant code removed (MentorStoriesBar, legacy imports)
+- [x] Database migrations cleaned and documented
+- [x] Learnings/Results filtering and surfacing polished
+- [x] Onboarding and contextual guidance live
+- [x] RLS security reviewed and tested
+- [x] Mobile and accessibility tested
+- [x] Ready for 100–1000+ users
+
+---
+
+## License
+MIT

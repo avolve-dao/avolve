@@ -1,3 +1,7 @@
+// [Avolve 2025+] This mentorship teaser is currently a placeholder for a future feature. 
+// If mentorship is not a near-term focus, consider removing this file to reduce codebase clutter.
+// Otherwise, keep it as a soft-locked teaser for future launch.
+
 "use client"
 
 import { LockKeyhole, Users, ArrowRight } from "lucide-react"

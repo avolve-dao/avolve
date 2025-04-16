@@ -11,19 +11,33 @@ import { AIInsightsClient } from './client';
 
 // Types
 import type { Database } from '@/types/supabase';
+import type { PhaseId } from '@/types/experience';
 
 // Analytics for predictions
 import { calculatePredictedCompletionDates } from '@/components/dashboard/journey-map/server';
 import { getPersonalizedRecommendations } from '@/lib/analytics/server';
 
+// Type guard for current_phase object
+function isCurrentPhaseObj(val: unknown): val is { current_phase?: string } {
+  return typeof val === 'object' && val !== null && 'current_phase' in val;
+}
+
+function isPhaseId(val: any): val is PhaseId {
+  return ['discovery', 'onboarding', 'scaffolding', 'endgame'].includes(val);
+}
+
 export async function AIInsightsServer({ userId }: { userId: string }) {
   const supabase = createServerComponentClient<Database>({ cookies });
   
-  // Fetch user's current phase and progress
-  const { data: userProgress } = await supabase.rpc('get_user_progress', {
-    user_id_param: userId
+  // Fetch user's current phase
+  const { data: phaseDataRaw } = await supabase.rpc('get_user_progress', {
+    p_user_id: userId
   });
-  
+  // Defensive: handle both array (legacy) and object (current)
+  const phaseData = Array.isArray(phaseDataRaw) ? phaseDataRaw[0] : phaseDataRaw;
+  const currentPhase = isCurrentPhaseObj(phaseData) ? phaseData.current_phase : undefined;
+  const safePhase: PhaseId = isPhaseId(currentPhase) ? currentPhase : 'discovery';
+
   // Fetch user's token balances
   const { data: tokenBalances } = await supabase
     .from('user_balances')
@@ -74,7 +88,16 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
     ) || [];
     
     // Get total milestones for this phase from the phase requirements
-    const totalMilestones = phase.requirements?.milestones?.length || 0;
+    const requirements = phase.requirements;
+    const totalMilestones =
+      requirements &&
+      typeof requirements === 'object' &&
+      !Array.isArray(requirements) &&
+      requirements !== null &&
+      'milestones' in requirements &&
+      Array.isArray((requirements as any).milestones)
+        ? (requirements as any).milestones.length
+        : 0;
     const completedCount = phaseMilestones.length;
     
     return {
@@ -87,7 +110,7 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
         ? Math.round((completedCount / totalMilestones) * 100) 
         : 0,
       completedMilestones: phaseMilestones.map(m => m.milestone_id),
-      isCurrentPhase: userProgress?.current_phase === phase.id
+      isCurrentPhase: safePhase === phase.id
     };
   }) || [];
   
@@ -100,75 +123,66 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
   
   // Get personalized recommendations
   const recommendations = await getPersonalizedRecommendations(userId);
+
+  // --- Remove broken analytics queries (regen_analytics_mv, transactions) and mock analytics for now ---
   
-  // Fetch user's regen score from analytics view
-  const { data: regenAnalytics } = await supabase
-    .from('regen_analytics_mv')
-    .select('user_id, regen_score, regen_level, next_level_threshold')
-    .eq('user_id', userId)
-    .single();
-  
-  // Calculate days to next regen level
-  let daysToNextLevel = null;
-  
-  if (regenAnalytics && regenAnalytics.regen_score && regenAnalytics.next_level_threshold) {
-    const scoreGap = regenAnalytics.next_level_threshold - regenAnalytics.regen_score;
-    const averageScorePerDay = 10; // This would be calculated from historical data in a real implementation
-    daysToNextLevel = Math.ceil(scoreGap / averageScorePerDay);
-  }
-  
-  // Fetch user's token transaction history
+  // Mock regen analytics (replace with real analytics when available)
+  const regenAnalytics = {
+    regen_score: 0,
+    regen_level: 1,
+    next_level_threshold: 100,
+  };
+  const daysToNextLevel = null; // Replace with real calculation if/when available
+
+  // --- End of analytics stub ---
+
+  // Fetch user's token transaction history for analytics
   const { data: recentTransactions } = await supabase
     .from('transactions')
     .select('token_id, amount, created_at, transaction_type, to_user_id, from_user_id')
     .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
     .order('created_at', { ascending: false })
     .limit(20);
-  
+
   // Calculate token earning rate (tokens per week)
   const tokenEarningRates: Record<string, number> = {};
-  
   if (recentTransactions && tokens) {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
     const weeklyTransactions = recentTransactions.filter(
       tx => new Date(tx.created_at) >= oneWeekAgo && tx.to_user_id === userId
     );
-    
     // Group by token
     const tokenTotals: Record<string, number> = {};
-    
     weeklyTransactions.forEach(tx => {
       const token = tokens.find(t => t.id === tx.token_id);
       if (token) {
         if (!tokenTotals[token.symbol]) {
           tokenTotals[token.symbol] = 0;
         }
-        tokenTotals[token.symbol] += tx.amount;
+        tokenTotals[token.symbol] += Number(tx.amount);
       }
     });
-    
     // Calculate weekly rates
     Object.entries(tokenTotals).forEach(([symbol, total]) => {
       tokenEarningRates[symbol] = total;
     });
   }
-  
+
   // Predict when user will reach token thresholds
   const tokenPredictions: Record<string, { target: number, daysToTarget: number }> = {};
   
   // Define token thresholds based on current phase
   const tokenThresholds: Record<string, number> = {
-    SAP: userProgress?.current_phase === 'discovery' ? 50 : 
-         userProgress?.current_phase === 'onboarding' ? 200 : 
-         userProgress?.current_phase === 'scaffolding' ? 500 : 1000,
-    SCQ: userProgress?.current_phase === 'discovery' ? 10 : 
-         userProgress?.current_phase === 'onboarding' ? 50 : 
-         userProgress?.current_phase === 'scaffolding' ? 200 : 500,
-    GEN: userProgress?.current_phase === 'discovery' ? 5 : 
-         userProgress?.current_phase === 'onboarding' ? 20 : 
-         userProgress?.current_phase === 'scaffolding' ? 50 : 200
+    SAP: safePhase === 'discovery' ? 50 : 
+         safePhase === 'onboarding' ? 200 : 
+         safePhase === 'scaffolding' ? 500 : 1000,
+    SCQ: safePhase === 'discovery' ? 10 : 
+         safePhase === 'onboarding' ? 50 : 
+         safePhase === 'scaffolding' ? 200 : 500,
+    GEN: safePhase === 'discovery' ? 5 : 
+         safePhase === 'onboarding' ? 20 : 
+         safePhase === 'scaffolding' ? 50 : 200
   };
   
   // Calculate days to reach thresholds
@@ -189,9 +203,9 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
   
   return (
     <AIInsightsClient 
-      currentPhase={userProgress?.current_phase || 'discovery'}
-      regenScore={regenAnalytics?.regen_score || 0}
-      regenLevel={regenAnalytics?.regen_level || 1}
+      currentPhase={safePhase}
+      regenScore={regenAnalytics.regen_score}
+      regenLevel={regenAnalytics.regen_level}
       daysToNextLevel={daysToNextLevel}
       phaseCompletionPredictions={predictedCompletionDates}
       tokenPredictions={tokenPredictions}

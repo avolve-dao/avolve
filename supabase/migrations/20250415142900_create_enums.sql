@@ -1,6 +1,6 @@
 -- Migration: Create enums for tokens, metrics, and roles
 -- Author: Cascade AI
--- Timestamp: 2025-04-15T22:18:20Z
+-- Timestamp: 2025-04-15T14:29:00Z
 -- Purpose: Define enums for token_type, metric_type, and user_role to ensure data integrity, type safety, and clarity across the schema.
 
 -- Token types reflect the Avolve value pillars and token hierarchy

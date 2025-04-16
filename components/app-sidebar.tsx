@@ -835,12 +835,12 @@ export function AppSidebar({
   activeFocus?: string 
 }) {
   const pathname = usePathname();
-  const [activeTeamId, setActiveTeamId] = useState(activeFocus || getActiveTeamFromPath(pathname));
+  const [activeTeamId, setActiveTeamId] = useState(activeFocus || getActiveTeamFromPath(pathname || ''));
 
   // Update active team when pathname changes
   useEffect(() => {
     if (!activeFocus) {
-      const detectedTeam = getActiveTeamFromPath(pathname);
+      const detectedTeam = getActiveTeamFromPath(pathname || '');
       setActiveTeamId(detectedTeam);
     }
   }, [pathname, activeFocus]);

@@ -29,13 +29,13 @@ export function ContentFilter({ categories = [] }: ContentFilterProps) {
     { label: 'Archived', value: 'archived' },
   ]
 
-  const currentType = searchParams.get('type') || ''
-  const currentStatus = searchParams.get('status') || ''
-  const currentCategory = searchParams.get('category') || ''
-  const currentSearch = searchParams.get('search') || ''
+  const currentType = searchParams?.get('type') || ''
+  const currentStatus = searchParams?.get('status') || ''
+  const currentCategory = searchParams?.get('category') || ''
+  const currentSearch = searchParams?.get('search') || ''
 
   const updateFilters = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || '')
     
     if (value) {
       params.set(key, value)
@@ -134,14 +134,14 @@ export function ContentFilter({ categories = [] }: ContentFilterProps) {
         size="sm"
         className="ml-auto flex items-center"
         onClick={() => {
-          const sort = searchParams.get('sort') || 'newest'
+          const sort = searchParams?.get('sort') || 'newest'
           updateFilters('sort', sort === 'newest' ? 'oldest' : 'newest')
         }}
       >
         <svg className="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 4.5h14.25M3 9h9.75M3 13.5h5.25m5.25-.75L17.25 9m0 0L21 12.75M17.25 9v12" />
         </svg>
-        {searchParams.get('sort') === 'oldest' ? 'Newest First' : 'Oldest First'}
+        {searchParams?.get('sort') === 'oldest' ? 'Newest First' : 'Oldest First'}
       </Button>
     </div>
   )

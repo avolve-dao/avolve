@@ -84,6 +84,60 @@ Features are progressively unlocked based on user participation and metrics impr
 
 Our platform provides tools, resources, and community support to help users evolve in all aspects of their lives, from personal success to business growth and beyond.
 
+## 🧭 Onboarding Flow & User Delight
+
+Avolve delivers a magnetic onboarding experience to ensure every new user feels welcomed, guided, and celebrated from day one.
+
+### Onboarding Steps
+- **Personalized Welcome**: Users are greeted with a custom banner and checklist upon first login.
+- **Guided Actions**: The onboarding checklist walks users through essential actions (profile setup, first token claim, joining a Regen Circle, etc.).
+- **Progress Tracking**: Onboarding progress is tracked in the `user_onboarding` table (see schema below).
+- **Celebratory Milestones**: Completing onboarding triggers delightful UI (confetti, tooltips, and more).
+
+#### Onboarding Table Schema (`public.user_onboarding`)
+| Column           | Type      | Description                                     |
+|------------------|-----------|-------------------------------------------------|
+| id               | uuid      | Primary key                                     |
+| user_id          | uuid      | References `auth.users(id)`                     |
+| completed_steps  | text[]    | Array of completed onboarding step keys         |
+| completed_at     | timestamptz | Timestamp when onboarding was fully completed |
+| created_at       | timestamptz | Row creation timestamp                        |
+| updated_at       | timestamptz | Last update timestamp                         |
+
+- **Row Level Security**: Only the user (and admins) can view or update their onboarding row.
+- **Admin Controls**: Admins can view and manage onboarding progress for all users.
+
+## 🛡️ Security, RLS, and RBAC
+- **Row Level Security**: Enforced on all user data tables, including onboarding, tokens, and profiles.
+- **Role-Based Access Control**: Admin dashboard and sensitive actions are restricted to users with the `admin` role.
+- **Token Gating**: Access to certain features is gated by token ownership and participation.
+
+## 🗄️ Database Design & Live Data Flow
+
+All admin and user-facing features in Avolve use live, real-world data from the production Supabase database. There is no use of mock, sample, or demo data anywhere in the codebase.
+
+#### Core Tables (Live Data Only)
+- `profiles`: user profile and phase data
+- `token_types`: available token types
+- `tokens`: minted tokens (by type)
+- `token_ownership`: which user owns which tokens and their balances
+
+#### Security & RLS Policies
+- Row Level Security is enabled on all tables
+- Only authenticated users can select from `token_ownership`
+- Only admins can insert/update/delete in `token_ownership`
+- All admin actions (create/mint/transfer tokens, promote phases) are RBAC enforced
+
+#### Data Flow
+- All admin and onboarding UI components fetch and mutate data directly via Supabase queries
+- No hardcoded or simulated data is used in any user-facing or admin feature
+- All analytics, onboarding, and admin flows are live and production-grade
+
+#### Migration Example
+See `/supabase/migrations/20250416213258_create_token_ownership_table.sql` for the latest schema changes for live token management.
+
+Learn more in our [Database documentation](./docs/database.md).
+
 ## 🧬 Sacred Geometry & Token Hierarchy
 
 Avolve’s schema, user experience, and gamification system are architected using sacred geometry principles and a fractal token hierarchy:
@@ -307,19 +361,6 @@ All important actions in the system are logged for accountability and transparen
 
 Learn more in our [Audit Logging documentation](./docs/audit-logging.md).
 
-### 🗄️ Database Design
-
-Our database is designed for flexibility, performance, and security:
-
-- Normalized schema design
-- Sacred geometry principles for token relationships
-- Tesla's 3-6-9 patterns for token categorization
-- Efficient query patterns
-- Row-level security policies
-- Comprehensive indexing strategy
-
-Learn more in our [Database documentation](./docs/database.md).
-
 ## 📚 Documentation
 
 Comprehensive documentation is available in the `docs/` directory:
@@ -402,3 +443,7 @@ This project is proprietary software owned by Avolve DAO. All rights reserved.
 For support or inquiries, contact admin@avolve.io.
 
 ---
+
+## 🎉 Launch & Feedback
+- The platform is ready for the first 100–1000 users.
+- Feedback channels and monitoring are set up for continuous improvement.

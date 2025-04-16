@@ -49,13 +49,13 @@ const getSectionTitle = (pathname: string) => {
 export function AppNavbar({ user }: AppNavbarProps) {
   const { toggleSidebar } = useSidebar()
   const pathname = usePathname()
-  const [gradientClass, setGradientClass] = useState(getGradientClass(pathname))
-  const [sectionTitle, setSectionTitle] = useState(getSectionTitle(pathname))
+  const [gradientClass, setGradientClass] = useState(getGradientClass(pathname || ''))
+  const [sectionTitle, setSectionTitle] = useState(getSectionTitle(pathname || ''))
 
   // Update gradient class and section title when pathname changes
   useEffect(() => {
-    setGradientClass(getGradientClass(pathname))
-    setSectionTitle(getSectionTitle(pathname))
+    setGradientClass(getGradientClass(pathname || ''))
+    setSectionTitle(getSectionTitle(pathname || ''))
   }, [pathname])
 
   return (

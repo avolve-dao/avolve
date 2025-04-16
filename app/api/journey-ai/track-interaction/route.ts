@@ -2,7 +2,7 @@
  * Journey AI Interaction Tracking API Route
  * 
  * Tracks user interactions with AI recommendations for improving future suggestions
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
     
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
-      const { data: userRole } = await supabase
+      // Fix: Use type assertion for user_roles
+      const { data: userRole } = await (supabase as any)
         .from('user_roles')
         .select('role')
         .eq('user_id', session.user.id)
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Record the interaction
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('recommendation_interactions')
       .insert({
         user_id: userId,

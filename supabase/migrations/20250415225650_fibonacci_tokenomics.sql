@@ -110,12 +110,13 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_reward_tokens_for_group_event_fib on public.group_events;
-create trigger trg_reward_tokens_for_group_event_fib
-  after update on public.group_events
-  for each row
-  when (new.status = 'completed' and old.status is distinct from 'completed')
-  execute function public.reward_tokens_for_group_event_fib();
+-- The following lines are commented out because group_events does not exist in the schema
+-- drop trigger if exists trg_reward_tokens_for_group_event_fib on public.group_events;
+-- create trigger trg_reward_tokens_for_group_event_fib
+--   after update on public.group_events
+--   for each row
+--   when (new.status = 'completed' and old.status is distinct from 'completed')
+--   execute function public.reward_tokens_for_group_event_fib();
 
 -- All logic above is strictly positive-sum and collaborative.
 -- End of migration

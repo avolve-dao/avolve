@@ -16,7 +16,7 @@ export async function ActivityFeedServer({ userId, limit = 10 }: { userId: strin
   const supabase = createServerComponentClient<Database>({ cookies });
   
   // Fetch user's recent activities
-  const { data: activities } = await supabase
+  const { data: activities } = await (supabase as any)
     .from('user_activity_log')
     .select('*')
     .eq('user_id', userId)
@@ -24,23 +24,23 @@ export async function ActivityFeedServer({ userId, limit = 10 }: { userId: strin
     .limit(limit);
   
   // Fetch user's notifications
-  const { data: notifications } = await supabase
+  const { data: notifications } = await (supabase as any)
     .from('user_notifications')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit);
   
-  // Fetch user's event completions
-  const { data: eventCompletions } = await supabase
+  // Fetch user's event completions (type assertion for missing generated type)
+  const { data: eventCompletions } = await (supabase as any)
     .from('event_completions')
     .select('*, events:event_id(*)')
     .eq('user_id', userId)
     .order('completion_date', { ascending: false })
     .limit(limit);
   
-  // Fetch user's token transactions
-  const { data: tokenTransactions } = await supabase
+  // Fetch user's token transactions (type assertion for missing generated type)
+  const { data: tokenTransactions } = await (supabase as any)
     .from('transactions')
     .select('*, token:token_id(*)')
     .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
@@ -49,30 +49,30 @@ export async function ActivityFeedServer({ userId, limit = 10 }: { userId: strin
   
   // Combine all activities and sort by date
   const allActivities: ActivityItem[] = [
-    ...(activities || []).map(activity => ({
+    ...((activities as any[] || []).map((activity: any) => ({
       type: 'activity' as const,
       id: activity.id,
       timestamp: activity.timestamp,
       data: activity
-    })),
-    ...(notifications || []).map(notification => ({
+    }))),
+    ...((notifications as any[] || []).map((notification: any) => ({
       type: 'notification' as const,
       id: notification.id,
       timestamp: notification.created_at,
       data: notification
-    })),
-    ...(eventCompletions || []).map(completion => ({
+    }))),
+    ...((eventCompletions as any[] || []).map((completion: any) => ({
       type: 'event_completion' as const,
       id: completion.id,
       timestamp: completion.completion_date,
       data: completion
-    })),
-    ...(tokenTransactions || []).map(transaction => ({
+    }))),
+    ...((tokenTransactions as any[] || []).map((transaction: any) => ({
       type: 'token_transaction' as const,
       id: transaction.id,
       timestamp: transaction.created_at,
       data: transaction
-    }))
+    }))),
   ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
    .slice(0, limit);
   

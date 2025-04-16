@@ -21,12 +21,12 @@ export function UserFilter({ roles = [] }: UserFilterProps) {
     { label: 'Pending', value: 'pending' },
   ]
 
-  const currentRole = searchParams.get('role') || ''
-  const currentStatus = searchParams.get('status') || ''
-  const currentSearch = searchParams.get('search') || ''
+  const currentRole = searchParams?.get('role') || ''
+  const currentStatus = searchParams?.get('status') || ''
+  const currentSearch = searchParams?.get('search') || ''
 
   const updateFilters = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || '')
     
     if (value) {
       params.set(key, value)

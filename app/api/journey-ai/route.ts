@@ -33,13 +33,14 @@ export async function POST(request: NextRequest) {
     
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
+      type UserRoleActivity = { role_type: string };
       const { data: userRole } = await supabase
-        .from('user_roles')
-        .select('role')
+        .from('user_role_activity' as any)
+        .select('role_type')
         .eq('user_id', session.user.id)
         .single();
-      
-      if (!userRole || userRole.role !== 'admin') {
+      const role = (userRole as UserRoleActivity | null)?.role_type;
+      if (!role || role !== 'admin') {
         return NextResponse.json(
           { error: 'Forbidden: Cannot access another user\'s recommendations' },
           { status: 403 }
@@ -47,8 +48,8 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Fetch user's regen analytics data
-    const { data: regenData, error: regenError } = await supabase
+    // Fetch user's regen analytics data (type assertion for custom RPC)
+    const { data: regenData, error: regenError } = await (supabase as any)
       .rpc('get_user_regen_analytics', { user_id_param: userId });
     
     if (regenError) {
@@ -59,11 +60,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch user's journey progress
-    const { data: journeyProgress, error: journeyError } = await supabase.rpc(
-      'get_user_progress',
-      { user_id_param: userId }
-    );
+    // Fetch user's journey progress (type assertion for custom RPC)
+    const { data: journeyProgress, error: journeyError } = await (supabase as any)
+      .rpc('get_user_progress', { user_id_param: userId });
     
     if (journeyError) {
       console.error('Error fetching journey progress:', journeyError);
@@ -73,8 +72,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch user's token balances
-    const { data: tokenBalances, error: tokenError } = await supabase
+    // Fetch user's token balances (type assertion for missing generated type)
+    const { data: tokenBalances, error: tokenError } = await (supabase as any)
       .from('user_balances')
       .select('token_id, balance, tokens(id, symbol, name, token_type)')
       .eq('user_id', userId);
@@ -87,16 +86,16 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch token flow analytics for personalized token recommendations
-    const { data: tokenFlowData, error: tokenFlowError } = await supabase
+    // Fetch token flow analytics for personalized token recommendations (type assertion for custom RPC)
+    const { data: tokenFlowData, error: tokenFlowError } = await (supabase as any)
       .rpc('get_user_token_health', { user_id_param: userId });
     
     if (tokenFlowError && tokenFlowError.code !== 'PGRST116') { // Not found is okay
       console.error('Error fetching token flow data:', tokenFlowError);
     }
     
-    // Fetch upcoming events
-    const { data: upcomingEvents, error: eventsError } = await supabase
+    // Fetch upcoming events (type assertion for missing generated type)
+    const { data: upcomingEvents, error: eventsError } = await (supabase as any)
       .from('events')
       .select('*, event_types(*)')
       .gt('event_date', new Date().toISOString())
@@ -111,8 +110,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch user's completed events
-    const { data: completedEvents, error: completedError } = await supabase
+    // Fetch user's completed events (type assertion for missing generated type)
+    const { data: completedEvents, error: completedError } = await (supabase as any)
       .from('event_completions')
       .select('event_id, completion_date')
       .eq('user_id', userId);
@@ -126,7 +125,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Fetch user's streak data
-    const { data: streakData, error: streakError } = await supabase
+    const { data: streakData, error: streakError } = await (supabase as any)
       .from('user_token_streaks')
       .select('*')
       .eq('user_id', userId)
@@ -136,8 +135,8 @@ export async function POST(request: NextRequest) {
       console.error('Error fetching streak data:', streakError);
     }
     
-    // Fetch user's recommendation interactions for personalization
-    const { data: interactionData, error: interactionError } = await supabase
+    // Fetch user's recommendation interactions for personalization (type assertion for missing generated type)
+    const { data: interactionData, error: interactionError } = await (supabase as any)
       .from('recommendation_interactions')
       .select('recommendation_id, action, interaction_date')
       .eq('user_id', userId)
@@ -160,21 +159,14 @@ export async function POST(request: NextRequest) {
       interactionData || []
     );
     
-    // Log the recommendation generation without blocking response
-    const { error } = await supabase
+    // Log the recommendation generation without blocking response (type assertion for missing generated type)
+    const { error } = await (supabase as any)
       .from('ai_recommendation_logs')
       .insert({
         user_id: userId,
         recommendation_type: 'journey',
-        input_data: JSON.stringify({
-          regen_level: regenData?.regen_level || 0,
-          journey_phase: journeyProgress?.current_phase || 'discovery',
-          token_count: tokenBalances?.length || 0,
-          event_count: upcomingEvents?.length || 0
-        }),
-        output_data: JSON.stringify(recommendations),
-        journey_phase: journeyProgress?.current_phase || 'discovery',
-        timestamp: new Date().toISOString()
+        input_data: JSON.stringify({ regenData, journeyProgress, tokenBalances, upcomingEvents, completedEvents, streakData, tokenFlowData, interactionData }),
+        created_at: new Date().toISOString()
       });
     
     if (error) {
@@ -757,13 +749,14 @@ export async function PUT(request: NextRequest) {
     
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
+      type UserRoleActivity = { role_type: string };
       const { data: userRole } = await supabase
-        .from('user_roles')
-        .select('role')
+        .from('user_role_activity' as any)
+        .select('role_type')
         .eq('user_id', session.user.id)
         .single();
-      
-      if (!userRole || userRole.role !== 'admin') {
+      const role = (userRole as UserRoleActivity | null)?.role_type;
+      if (!role || role !== 'admin') {
         return NextResponse.json(
           { error: 'Forbidden: Cannot track interactions for another user' },
           { status: 403 }
@@ -772,7 +765,7 @@ export async function PUT(request: NextRequest) {
     }
     
     // Record the interaction
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('recommendation_interactions')
       .insert({
         user_id: userId,

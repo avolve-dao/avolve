@@ -9,22 +9,22 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth/use-auth';
-import { TokenService } from '@/lib/token/token-service';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Alert } from '@/components/ui/alert';
+import Confetti from 'react-confetti';
+import { toast } from 'sonner';
+import { useWindowSize } from 'react-use';
 
 // TokenManager component for admin dashboard
 export default function TokenManager() {
   const { session } = useAuth();
   const user = session?.user;
   const isAdmin = user?.app_metadata?.role === 'admin';
-
-  // Initialize token service (adjust initialization based on your actual service)
-  // For now, we'll assume TokenService can be instantiated or used statically
-  const tokenService = TokenService; // Update this line based on actual service initialization
+  const supabase = createClientComponentClient();
 
   // State for token types
   const [tokenTypes, setTokenTypes] = useState<any[]>([]);
@@ -60,27 +60,26 @@ export default function TokenManager() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  // Celebration state
+  const [celebrate, setCelebrate] = useState(false);
+  const { width, height } = useWindowSize();
+
   // Fetch token types on component mount
   useEffect(() => {
     const fetchTokenTypes = async () => {
       setLoadingTokenTypes(true);
       setError(null);
-      try {
-        // Use dummy data since actual method is not available
-        const types = [
-          { id: '1', name: 'Gold Token', symbol: 'GOLD', total_supply: 1000000 },
-          { id: '2', name: 'Silver Token', symbol: 'SILV', total_supply: 2000000 },
-          { id: '3', name: 'Bronze Token', symbol: 'BRNZ', total_supply: 3000000 },
-        ];
-        setTokenTypes(types);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch token types');
+      const { data, error } = await supabase
+        .from('token_types')
+        .select('*');
+      if (error) {
+        setError(error.message);
         setTokenTypes([]);
-      } finally {
-        setLoadingTokenTypes(false);
+      } else {
+        setTokenTypes(data || []);
       }
+      setLoadingTokenTypes(false);
     };
-
     fetchTokenTypes();
   }, []);
 
@@ -89,22 +88,17 @@ export default function TokenManager() {
     const fetchTokens = async () => {
       setLoadingTokens(true);
       setError(null);
-      try {
-        // Use dummy data since actual method is not available
-        const tokenData = [
-          { id: '1', token_type_id: '1', amount: 500, created_at: '2023-10-01T00:00:00Z' },
-          { id: '2', token_type_id: '2', amount: 1000, created_at: '2023-10-02T00:00:00Z' },
-          { id: '3', token_type_id: '3', amount: 1500, created_at: '2023-10-03T00:00:00Z' },
-        ];
-        setTokens(tokenData);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch tokens');
+      const { data, error } = await supabase
+        .from('tokens')
+        .select('*');
+      if (error) {
+        setError(error.message);
         setTokens([]);
-      } finally {
-        setLoadingTokens(false);
+      } else {
+        setTokens(data || []);
       }
+      setLoadingTokens(false);
     };
-
     fetchTokens();
   }, []);
 
@@ -113,131 +107,110 @@ export default function TokenManager() {
     const fetchTokenOwnership = async () => {
       setLoadingOwnership(true);
       setError(null);
-      try {
-        // Use dummy data since actual method is not available
-        const ownershipData = [
-          { id: '1', user_id: 'user1', token_type_id: '1', balance: 200, updated_at: '2023-10-05T00:00:00Z' },
-          { id: '2', user_id: 'user2', token_type_id: '2', balance: 300, updated_at: '2023-10-06T00:00:00Z' },
-          { id: '3', user_id: 'user3', token_type_id: '3', balance: 400, updated_at: '2023-10-07T00:00:00Z' },
-        ];
-        setTokenOwnership(ownershipData);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch token ownership');
+      const { data, error } = await supabase
+        .from('token_ownership')
+        .select('*');
+      if (error) {
+        setError(error.message);
         setTokenOwnership([]);
-      } finally {
-        setLoadingOwnership(false);
+      } else {
+        setTokenOwnership(data || []);
       }
+      setLoadingOwnership(false);
     };
-
     fetchTokenOwnership();
   }, []);
 
   // Handle creating a new token type
-  const handleCreateTokenType = async (e: React.FormEvent) => {
+  async function handleCreateTokenType(e: React.FormEvent) {
     e.preventDefault();
-    if (!newTokenTypeName || !newTokenTypeSymbol || !newTokenTypeTotalSupply) {
-      setError('Name, symbol, and total supply are required');
-      return;
-    }
-
     setCreatingTokenType(true);
     setError(null);
     setSuccess(null);
-
-    try {
-      // Simulate creating a token type since actual method is not available
-      const newType = {
-        id: Math.random().toString(36).substr(2, 9),
+    const { error } = await supabase
+      .from('token_types')
+      .insert({
         name: newTokenTypeName,
         symbol: newTokenTypeSymbol,
-        description: newTokenTypeDescription || null,
-        total_supply: parseInt(newTokenTypeTotalSupply, 10),
-      };
-      setTokenTypes([...tokenTypes, newType]);
-
-      setSuccess(`Successfully created token type: ${newTokenTypeName}`);
+        description: newTokenTypeDescription,
+        total_supply: Number(newTokenTypeTotalSupply)
+      });
+    setCreatingTokenType(false);
+    if (!error) {
+      setSuccess('Token type created successfully!');
+      setCelebrate(true);
+      toast.success('🎉 Token type created!');
       setNewTokenTypeName('');
       setNewTokenTypeSymbol('');
       setNewTokenTypeDescription('');
       setNewTokenTypeTotalSupply('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create token type');
-    } finally {
-      setCreatingTokenType(false);
+      // Refresh token types
+      const { data } = await supabase.from('token_types').select('*');
+      setTokenTypes(data || []);
+      setTimeout(() => setCelebrate(false), 1800);
+    } else {
+      setError(error.message);
     }
   };
 
   // Handle minting tokens
-  const handleMintTokens = async (e: React.FormEvent) => {
+  async function handleMintTokens(e: React.FormEvent) {
     e.preventDefault();
-    if (!selectedTokenTypeId || !mintAmount) {
-      setError('Token type and amount are required');
-      return;
-    }
-
     setMintingTokens(true);
     setError(null);
     setSuccess(null);
-
-    try {
-      // Simulate minting tokens since actual method is not available
-      const newToken = {
-        id: Math.random().toString(36).substr(2, 9),
+    const { error } = await supabase
+      .from('tokens')
+      .insert({
         token_type_id: selectedTokenTypeId,
-        amount: parseInt(mintAmount, 10),
-        created_at: new Date().toISOString(),
-      };
-      setTokens([...tokens, newToken]);
-
-      setSuccess(`Successfully minted ${mintAmount} tokens`);
+        amount: Number(mintAmount),
+        created_at: new Date().toISOString()
+      });
+    setMintingTokens(false);
+    if (!error) {
+      setSuccess('Tokens minted successfully!');
+      setCelebrate(true);
+      toast.success('🎉 Tokens minted!');
       setSelectedTokenTypeId('');
       setMintAmount('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to mint tokens');
-    } finally {
-      setMintingTokens(false);
+      // Refresh tokens
+      const { data } = await supabase.from('tokens').select('*');
+      setTokens(data || []);
+      setTimeout(() => setCelebrate(false), 1800);
+    } else {
+      setError(error.message);
     }
   };
 
   // Handle transferring tokens
-  const handleTransferTokens = async (e: React.FormEvent) => {
+  async function handleTransferTokens(e: React.FormEvent) {
     e.preventDefault();
-    if (!transferTokenId || !transferToUserId || !transferAmount) {
-      setError('Token, recipient, and amount are required');
-      return;
-    }
-
     setTransferringTokens(true);
     setError(null);
     setSuccess(null);
-
-    try {
-      // Simulate transferring tokens since actual method is not available
-      const updatedOwnership = tokenOwnership.map(o => {
-        if (o.token_type_id === tokens.find(t => t.id === transferTokenId)?.token_type_id) {
-          return { ...o, balance: o.balance - parseInt(transferAmount, 10) };
-        }
-        return o;
-      });
-      setTokenOwnership(updatedOwnership);
-
-      const newOwnership = {
-        id: Math.random().toString(36).substr(2, 9),
+    // Example: update token_ownership table (adjust logic as needed)
+    const { error } = await supabase
+      .from('token_ownership')
+      .upsert({
+        token_id: transferTokenId,
         user_id: transferToUserId,
-        token_type_id: tokens.find(t => t.id === transferTokenId)?.token_type_id || '',
-        balance: parseInt(transferAmount, 10),
-        updated_at: new Date().toISOString(),
-      };
-      setTokenOwnership([...updatedOwnership, newOwnership]);
-
-      setSuccess(`Successfully transferred ${transferAmount} tokens`);
+        balance: Number(transferAmount),
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'token_id,user_id' });
+    setTransferringTokens(false);
+    if (!error) {
+      setSuccess('Tokens transferred successfully!');
+      setCelebrate(true);
+      toast.success('🎉 Tokens transferred!');
       setTransferTokenId('');
       setTransferToUserId('');
       setTransferAmount('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to transfer tokens');
-    } finally {
-      setTransferringTokens(false);
+      // Refresh ownership
+      const { data } = await supabase.from('token_ownership').select('*');
+      setTokenOwnership(data || []);
+      setTimeout(() => setCelebrate(false), 1800);
+    } else {
+      setError(error.message);
     }
   };
 
@@ -258,7 +231,13 @@ export default function TokenManager() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-6">
+    <div className="token-manager-container relative">
+      {celebrate && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-20">
+          <Confetti width={width} height={height} numberOfPieces={350} recycle={false} />
+          <span className="text-4xl font-bold mt-8 animate-bounce">🎉</span>
+        </div>
+      )}
       <h1 className="text-2xl font-bold">Token Manager</h1>
 
       {/* Error/Success Messages */}

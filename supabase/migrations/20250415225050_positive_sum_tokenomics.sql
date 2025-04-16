@@ -29,13 +29,13 @@ begin
 end;
 $$;
 
--- Attach to group_quests table (assumes such a table exists and quest completion is marked by status)
-drop trigger if exists trg_reward_tokens_for_group_quest on public.group_quests;
-create trigger trg_reward_tokens_for_group_quest
-  after update on public.group_quests
-  for each row
-  when (new.status = 'completed' and old.status is distinct from 'completed')
-  execute function public.reward_tokens_for_group_quest();
+-- The following lines are commented out because group_quests does not exist in the schema
+-- drop trigger if exists trg_reward_tokens_for_group_quest on public.group_quests;
+-- create trigger trg_reward_tokens_for_group_quest
+--   after update on public.group_quests
+--   for each row
+--   when (new.status = 'completed' and old.status is distinct from 'completed')
+--   execute function public.reward_tokens_for_group_quest();
 
 -- 2. Mentorship Event: Reward both mentor and mentee
 create or replace function public.reward_tokens_for_mentorship()
@@ -52,11 +52,12 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_reward_tokens_for_mentorship on public.mentorships;
-create trigger trg_reward_tokens_for_mentorship
-  after insert on public.mentorships
-  for each row
-  execute function public.reward_tokens_for_mentorship();
+-- The following lines are commented out because mentorships does not exist in the schema
+-- drop trigger if exists trg_reward_tokens_for_mentorship on public.mentorships;
+-- create trigger trg_reward_tokens_for_mentorship
+--   after insert on public.mentorships
+--   for each row
+--   execute function public.reward_tokens_for_mentorship();
 
 -- 3. Collaboration Event: Reward all collaborators
 create or replace function public.reward_tokens_for_collaboration()
@@ -76,12 +77,13 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_reward_tokens_for_collaboration on public.collaborations;
-create trigger trg_reward_tokens_for_collaboration
-  after update on public.collaborations
-  for each row
-  when (new.status = 'completed' and old.status is distinct from 'completed')
-  execute function public.reward_tokens_for_collaboration();
+-- The following lines are commented out because collaborations does not exist in the schema
+-- drop trigger if exists trg_reward_tokens_for_collaboration on public.collaborations;
+-- create trigger trg_reward_tokens_for_collaboration
+--   after update on public.collaborations
+--   for each row
+--   when (new.status = 'completed' and old.status is distinct from 'completed')
+--   execute function public.reward_tokens_for_collaboration();
 
 -- All logic above is strictly positive-sum: tokens are only minted for positive actions.
 -- No tokens are ever deducted or burned. All rewards are collaborative or personal bests.

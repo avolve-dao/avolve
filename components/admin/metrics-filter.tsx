@@ -21,11 +21,11 @@ export function MetricsFilter() {
     { label: 'Revenue', value: 'revenue' },
   ]
 
-  const currentRange = searchParams.get('range') || '30d'
-  const currentMetrics = searchParams.get('metrics')?.split(',') || ['users', 'teams']
+  const currentRange = searchParams?.get('range') || '30d'
+  const currentMetrics = searchParams?.get('metrics')?.split(',') || ['users', 'teams']
 
   const updateFilters = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
+    const params = new URLSearchParams(searchParams?.toString() || '')
     
     if (key === 'range') {
       params.set('range', value)

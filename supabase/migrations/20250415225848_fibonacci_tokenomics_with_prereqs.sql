@@ -29,10 +29,14 @@ create table if not exists public.group_events (
 alter table public.group_events enable row level security;
 
 -- Policies
-create policy if not exists "select_group_events_anon" on public.group_events for select to anon using (true);
-create policy if not exists "select_group_events_authenticated" on public.group_events for select to authenticated using (true);
-create policy if not exists "insert_group_events_authenticated" on public.group_events for insert to authenticated with check (true);
-create policy if not exists "update_group_events_authenticated" on public.group_events for update to authenticated using (true);
+drop policy if exists "select_group_events_anon" on public.group_events;
+create policy "select_group_events_anon" on public.group_events for select to anon using (true);
+drop policy if exists "select_group_events_authenticated" on public.group_events;
+create policy "select_group_events_authenticated" on public.group_events for select to authenticated using (true);
+drop policy if exists "insert_group_events_authenticated" on public.group_events;
+create policy "insert_group_events_authenticated" on public.group_events for insert to authenticated with check (true);
+drop policy if exists "update_group_events_authenticated" on public.group_events;
+create policy "update_group_events_authenticated" on public.group_events for update to authenticated using (true);
 
 -- 2. Create group_event_participants table
 create table if not exists public.group_event_participants (
@@ -43,10 +47,14 @@ create table if not exists public.group_event_participants (
 );
 
 alter table public.group_event_participants enable row level security;
-create policy if not exists "select_group_event_participants_anon" on public.group_event_participants for select to anon using (true);
-create policy if not exists "select_group_event_participants_authenticated" on public.group_event_participants for select to authenticated using (true);
-create policy if not exists "insert_group_event_participants_authenticated" on public.group_event_participants for insert to authenticated with check (true);
-create policy if not exists "update_group_event_participants_authenticated" on public.group_event_participants for update to authenticated using (true);
+drop policy if exists "select_group_event_participants_anon" on public.group_event_participants;
+create policy "select_group_event_participants_anon" on public.group_event_participants for select to anon using (true);
+drop policy if exists "select_group_event_participants_authenticated" on public.group_event_participants;
+create policy "select_group_event_participants_authenticated" on public.group_event_participants for select to authenticated using (true);
+drop policy if exists "insert_group_event_participants_authenticated" on public.group_event_participants;
+create policy "insert_group_event_participants_authenticated" on public.group_event_participants for insert to authenticated with check (true);
+drop policy if exists "update_group_event_participants_authenticated" on public.group_event_participants;
+create policy "update_group_event_participants_authenticated" on public.group_event_participants for update to authenticated using (true);
 
 -- 3. Add team_id to profiles if not exists
 alter table public.profiles add column if not exists team_id uuid;
@@ -62,9 +70,12 @@ create table if not exists public.team_tokens (
 );
 
 alter table public.team_tokens enable row level security;
-create policy if not exists "select_team_tokens_anon" on public.team_tokens for select to anon using (true);
-create policy if not exists "select_team_tokens_authenticated" on public.team_tokens for select to authenticated using (true);
-create policy if not exists "insert_team_tokens_authenticated" on public.team_tokens for insert to authenticated with check (true);
+drop policy if exists "select_team_tokens_anon" on public.team_tokens;
+create policy "select_team_tokens_anon" on public.team_tokens for select to anon using (true);
+drop policy if exists "select_team_tokens_authenticated" on public.team_tokens;
+create policy "select_team_tokens_authenticated" on public.team_tokens for select to authenticated using (true);
+drop policy if exists "insert_team_tokens_authenticated" on public.team_tokens;
+create policy "insert_team_tokens_authenticated" on public.team_tokens for insert to authenticated with check (true);
 
 -- 5. Fibonacci sequence function
 create or replace function public.fibonacci(n integer)

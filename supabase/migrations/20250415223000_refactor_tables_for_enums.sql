@@ -11,18 +11,43 @@ alter table public.metrics
 alter table public.tokens
   alter column token_type type public.token_type using token_type::public.token_type;
 
--- Refactor team_tokens table to use token_type enum
-alter table public.team_tokens
-  alter column token_type type public.token_type using token_type::public.token_type;
+-- The following lines are commented out because team_tokens does not exist in the schema
+-- alter table public.team_tokens
+--   alter column token_type type public.token_type using token_type::public.token_type;
 
--- Refactor user_role_activity table to use user_role enum
-alter table public.user_role_activity
-  alter column role type public.user_role using role::public.user_role;
+-- Add points column for gamification (if not already present)
+ALTER TABLE public.user_role_activity ADD COLUMN IF NOT EXISTS points numeric NOT NULL DEFAULT 1;
+
+-- Pre-migration: ensure all values in role_type are valid enum members
+UPDATE public.user_role_activity
+  SET role_type = 'subscriber'
+  WHERE role_type NOT IN ('subscriber', 'participant', 'contributor');
+
+-- Drop dependent view before altering column type
+DROP VIEW IF EXISTS public.user_role_points;
+
+-- Robust enum migration: create new column, copy values, drop old, rename new
+ALTER TABLE public.user_role_activity ADD COLUMN role_type_new public.user_role;
+UPDATE public.user_role_activity SET role_type_new = role_type::public.user_role;
+ALTER TABLE public.user_role_activity DROP COLUMN role_type;
+ALTER TABLE public.user_role_activity RENAME COLUMN role_type_new TO role_type;
 
 -- Add comments for clarity
-comment on column public.metrics.metric_type is 'Type of metric, now using enum public.metric_type.';
-comment on column public.tokens.token_type is 'Type of token, now using enum public.token_type.';
-comment on column public.team_tokens.token_type is 'Type of token, now using enum public.token_type.';
-comment on column public.user_role_activity.role is 'User role, now using enum public.user_role.';
+COMMENT ON COLUMN public.metrics.metric_type IS 'Type of metric, now using enum public.metric_type.';
+COMMENT ON COLUMN public.tokens.token_type IS 'Type of token, now using enum public.token_type.';
+-- comment on column public.team_tokens.token_type is 'Type of token, now using enum public.token_type.';
+COMMENT ON COLUMN public.user_role_activity.role_type IS 'User role, now using enum public.user_role.';
+COMMENT ON COLUMN public.user_role_activity.points IS 'Points earned by the user for gamification.';
+
+-- Recreate user_role_points view with updated column type
+CREATE OR REPLACE VIEW public.user_role_points AS
+SELECT
+  user_id,
+  role_type,
+  SUM(points) AS total_points
+FROM public.user_role_activity
+GROUP BY user_id, role_type;
+
+COMMENT ON VIEW public.user_role_points IS 'Aggregates user actions by role type to assign dynamic roles and track progression.';
 
 -- End of migration

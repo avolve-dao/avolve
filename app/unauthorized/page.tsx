@@ -22,9 +22,9 @@ export default function UnauthorizedPage() {
   const { user } = useAuth()
   
   // Get required roles and permissions from query parameters
-  const requiredRoles = searchParams.get('roles')?.split(',') || []
-  const requiredPermissions = searchParams.get('permissions')?.split(',') || []
-  const resource = searchParams.get('resource') || ''
+  const requiredRoles = searchParams?.get('roles')?.split(',') || []
+  const requiredPermissions = searchParams?.get('permissions')?.split(',') || []
+  const resource = searchParams?.get('resource') || ''
   
   return (
     <div className="container flex items-center justify-center min-h-screen py-10">

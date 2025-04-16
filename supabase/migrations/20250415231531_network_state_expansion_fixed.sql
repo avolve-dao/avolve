@@ -30,9 +30,13 @@ alter table public.teams add column if not exists milestone_desc text;
 alter table public.teams add column if not exists upgraded_at timestamptz;
 
 alter table public.teams enable row level security;
+drop policy if exists "select_teams_anon" on public.teams;
 create policy "select_teams_anon" on public.teams for select to anon using (true);
+drop policy if exists "select_teams_authenticated" on public.teams;
 create policy "select_teams_authenticated" on public.teams for select to authenticated using (true);
+drop policy if exists "insert_teams_authenticated" on public.teams;
 create policy "insert_teams_authenticated" on public.teams for insert to authenticated with check (true);
+drop policy if exists "update_teams_authenticated" on public.teams;
 create policy "update_teams_authenticated" on public.teams for update to authenticated using (true);
 
 -- 2. Team Memberships
@@ -46,9 +50,13 @@ create table if not exists public.team_memberships (
 );
 
 alter table public.team_memberships enable row level security;
+drop policy if exists "select_team_memberships_anon" on public.team_memberships;
 create policy "select_team_memberships_anon" on public.team_memberships for select to anon using (true);
+drop policy if exists "select_team_memberships_authenticated" on public.team_memberships;
 create policy "select_team_memberships_authenticated" on public.team_memberships for select to authenticated using (true);
+drop policy if exists "insert_team_memberships_authenticated" on public.team_memberships;
 create policy "insert_team_memberships_authenticated" on public.team_memberships for insert to authenticated with check (true);
+drop policy if exists "update_team_memberships_authenticated" on public.team_memberships;
 create policy "update_team_memberships_authenticated" on public.team_memberships for update to authenticated using (true);
 
 -- 3. Collective Actions
@@ -63,9 +71,13 @@ create table if not exists public.collective_actions (
 );
 
 alter table public.collective_actions enable row level security;
+drop policy if exists "select_collective_actions_anon" on public.collective_actions;
 create policy "select_collective_actions_anon" on public.collective_actions for select to anon using (true);
+drop policy if exists "select_collective_actions_authenticated" on public.collective_actions;
 create policy "select_collective_actions_authenticated" on public.collective_actions for select to authenticated using (true);
+drop policy if exists "insert_collective_actions_authenticated" on public.collective_actions;
 create policy "insert_collective_actions_authenticated" on public.collective_actions for insert to authenticated with check (true);
+drop policy if exists "update_collective_actions_authenticated" on public.collective_actions;
 create policy "update_collective_actions_authenticated" on public.collective_actions for update to authenticated using (true);
 
 -- 4. DAO/Coop Proposals
@@ -81,9 +93,13 @@ create table if not exists public.proposals (
 );
 
 alter table public.proposals enable row level security;
+drop policy if exists "select_proposals_anon" on public.proposals;
 create policy "select_proposals_anon" on public.proposals for select to anon using (true);
+drop policy if exists "select_proposals_authenticated" on public.proposals;
 create policy "select_proposals_authenticated" on public.proposals for select to authenticated using (true);
+drop policy if exists "insert_proposals_authenticated" on public.proposals;
 create policy "insert_proposals_authenticated" on public.proposals for insert to authenticated with check (true);
+drop policy if exists "update_proposals_authenticated" on public.proposals;
 create policy "update_proposals_authenticated" on public.proposals for update to authenticated using (true);
 
 -- 5. DAO/Coop Voting
@@ -96,9 +112,13 @@ create table if not exists public.votes (
 );
 
 alter table public.votes enable row level security;
+drop policy if exists "select_votes_anon" on public.votes;
 create policy "select_votes_anon" on public.votes for select to anon using (true);
+drop policy if exists "select_votes_authenticated" on public.votes;
 create policy "select_votes_authenticated" on public.votes for select to authenticated using (true);
+drop policy if exists "insert_votes_authenticated" on public.votes;
 create policy "insert_votes_authenticated" on public.votes for insert to authenticated with check (true);
+drop policy if exists "update_votes_authenticated" on public.votes;
 create policy "update_votes_authenticated" on public.votes for update to authenticated using (true);
 
 -- 6. On-Chain Census View (team stats)

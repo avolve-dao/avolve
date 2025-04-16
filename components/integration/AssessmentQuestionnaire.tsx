@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { Database } from '@/types/supabase';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 
 type Question = {
   id: string;
@@ -26,7 +26,7 @@ type Response = {
 export default function AssessmentQuestionnaire() {
   const supabase = useSupabaseClient<Database>();
   const user = useUser();
-  const { addTokens } = useToken();
+  const { addTokens } = useTokens();
   
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);

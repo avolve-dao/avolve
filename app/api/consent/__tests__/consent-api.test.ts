@@ -324,7 +324,7 @@ describe('Consent API', () => {
       });
       
       // Call the PATCH function
-      const response = await PATCH(mockRequest as unknown as NextRequest, { params: mockParams });
+      const response = await PATCH(mockRequest as unknown as NextRequest);
       
       // Verify consent ownership check
       expect(mockSupabase.from).toHaveBeenCalledWith('user_consent');
@@ -371,7 +371,7 @@ describe('Consent API', () => {
       });
       
       // Call the PATCH function
-      const response = await PATCH(mockRequest as unknown as NextRequest, { params: mockParams });
+      const response = await PATCH(mockRequest as unknown as NextRequest);
       
       // Verify error response
       expect(NextResponse.json).toHaveBeenCalledWith({

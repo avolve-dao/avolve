@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase';
+import type { Database } from '../types/database';
 import { TeamRoles, TeamChallengeStatuses, type TeamRole, type TeamChallengeStatus } from '@/types/platform';
 import { MetricTypes, type MetricType } from '@/types/platform';
 

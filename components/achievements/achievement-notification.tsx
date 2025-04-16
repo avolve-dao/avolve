@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { TrophyIcon, CoinsIcon } from 'lucide-react';
@@ -23,7 +23,7 @@ export function AchievementNotification({
   children: React.ReactNode;
 }) {
   const { supabase, user } = useSupabase() as any;
-  const { claimAchievementReward, trackActivity } = useToken();
+  const { claimAchievementReward, trackActivity } = useTokens();
   
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [displayedAchievement, setDisplayedAchievement] = useState<Achievement | null>(null);

@@ -84,6 +84,35 @@ Features are progressively unlocked based on user participation and metrics impr
 
 Our platform provides tools, resources, and community support to help users evolve in all aspects of their lives, from personal success to business growth and beyond.
 
+## 🧬 Sacred Geometry & Token Hierarchy
+
+Avolve’s schema, user experience, and gamification system are architected using sacred geometry principles and a fractal token hierarchy:
+
+- **GEN (Supercivilization)**: Ecosystem journey (Zinc gradient)
+- **SAP (Superachiever)**: Individual journey (Stone gradient)
+  - **PSP**: Personal Success Puzzle (Amber-Yellow)
+  - **BSP**: Business Success Puzzle (Teal-Cyan)
+  - **SMS**: Supermind Superpowers (Violet-Purple-Fuchsia-Pink)
+- **SCQ (Superachievers)**: Collective journey (Slate gradient)
+  - **SPD**: Superpuzzle Developments (Red-Green-Blue)
+  - **SHE**: Superhuman Enhancements (Rose-Red-Orange)
+  - **SSA**: Supersociety Advancements (Lime-Green-Emerald)
+  - **SBG**: Supergenius Breakthroughs (Sky-Blue-Indigo)
+
+See [docs/database/er_diagram_sacred_geometry.mmd](./docs/database/er_diagram_sacred_geometry.mmd) and [docs/database/schema.md](./docs/database/schema.md#sacred-geometry-inspired-er-diagram) for a visual and technical overview.
+
+### 🎨 Daily & Weekly Token Claims
+
+- **Sunday**: SPD (Superpuzzle Developments)
+- **Monday**: SHE (Superhuman Enhancements)
+- **Tuesday**: PSP (Personal Success Puzzle)
+- **Wednesday**: SSA (Supersociety Advancements)
+- **Thursday**: BSP (Business Success Puzzle)
+- **Friday**: SGB (Supergenius Breakthroughs)
+- **Saturday**: SMS (Supermind Superpowers)
+
+This system magnetically attracts engagement, balancing individual and collective journeys.
+
 ## 🧮 Sacred Geometry & Tesla's 3-6-9 Patterns
 
 Avolve incorporates sacred geometry principles and Tesla's 3-6-9 patterns as fundamental design elements across both visual interfaces and system architecture. This approach creates mathematical harmony throughout the platform.
@@ -113,6 +142,30 @@ Nikola Tesla famously said, "If you only knew the magnificence of the 3, 6, and 
 4. **Pattern Recognition**: The repeating patterns in the 3-6-9 system make it easier for users to recognize and predict behaviors and relationships.
 
 Learn more in our [Sacred Geometry Design System](./docs/sacred-geometry-design-system.md) documentation.
+
+## 🏛️ DAO Ownership & Schema Governance
+
+This project, its codebase, and all database schema/migrations are owned, controlled, and managed by the **Avolve DAO**. Currently, the DAO is stewarded by its founder, Joshua Seymour, who acts as the benevolent dictator to ensure rapid progress and alignment with the Avolve vision. The explicit goal is for the DAO to mature into a fully decentralized, community-governed organization that collectively manages all assets, code, and decision-making.
+
+- **DAO Governance:** Schema and code changes are submitted as Pull Requests and require DAO review/approval. As the DAO matures, governance will transition to on-chain voting and collective decision-making.
+- **Transparency:** All migrations, schema docs, and Supabase configuration are public and version-controlled.
+- **Best Practices:** Every migration enables Row Level Security (RLS), policies, and is fully documented.
+- **How to Propose Changes:** See [CONTRIBUTING.md](./CONTRIBUTING.md) for details on submitting proposals and schema changes for DAO review.
+
+For a complete, up-to-date reference of all tables, columns, and relationships, see [docs/database/schema.md](./docs/database/schema.md).
+
+## 🧑‍💻 Developer & Contributor Onboarding
+
+- **Type Safety**: All backend logic uses auto-generated types from the Supabase schema ([src/types/database.ts](./src/types/database.ts)).
+- **Enum Enforcement**: Core tables and business logic use enums for `token_type`, `metric_type`, and `user_role` ([see migration](./supabase/migrations/20250415222000_create_enums.sql)).
+- **RLS & Security**: Every table uses Row Level Security (RLS) with granular policies ([see schema docs](./docs/database/schema.md)).
+- **Testing**: Automated integration tests validate RLS and enum constraints ([tests/integration/rls-enum-logic.test.ts](./tests/integration/rls-enum-logic.test.ts)).
+
+## 🏁 Quickstart for Users, Admins, and AI
+
+1. **Users**: Sign up, claim daily tokens, and progress through your personal and collective journeys.
+2. **Admins**: Use the admin dashboard to manage tokens, metrics, and user roles. All actions are logged and governed by DAO policies.
+3. **AI/Developers**: Reference the ER diagram and unified types for rapid, safe feature development. All schema changes are managed via migrations and PRs.
 
 ## 🛠️ Tech Stack
 
@@ -284,6 +337,10 @@ Comprehensive documentation is available in the `docs/` directory:
   - [Authorization](./docs/security/rbac.md)
   - [Token Access](./docs/security/token-access.md)
 
+### DAO Governance
+- [DAO Governance Guide](./docs/dao/governance.md)
+- [How to Propose Schema Changes](./docs/dao/schema-changes.md)
+
 ### Design & Implementation
 - [Sacred Geometry Design System](./docs/sacred-geometry-design-system.md)
 - [UI Style Guide](./docs/ui/style-guide.md)
@@ -326,7 +383,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 ## Intellectual Property & Ownership
 
-All code, documentation, and assets in this repository are the exclusive property of the Avolve DAO. Unauthorized use, distribution, or reproduction is strictly prohibited. All contributors agree that their contributions become the property of Avolve DAO and are subject to the DAO’s governance and licensing terms.
+All code, documentation, assets, and database schema/migrations in this repository are the exclusive property of the **Avolve DAO**. Unauthorized use, distribution, or reproduction is strictly prohibited. All contributors agree that their contributions become the property of Avolve DAO and are subject to the DAO’s governance and licensing terms.
 
 ## 📄 License
 

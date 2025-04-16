@@ -115,11 +115,13 @@ import { FocusMode } from '@/components/dashboard/focus-mode';
 import { FeaturePreview } from '@/components/dashboard/feature-preview';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
+import { useTokens } from '@/hooks/use-tokens';
 
 export default async function Dashboard() {
   const supabase = createServerComponentClient({ cookies });
   const { data: { session } } = await supabase.auth.getSession();
   const userId = session?.user?.id;
+  const { tokens } = useTokens();
 
   if (!userId) {
     return <div>Please sign in to view your dashboard</div>;

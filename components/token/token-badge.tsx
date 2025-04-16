@@ -4,7 +4,7 @@ import React from 'react'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useToken } from '@/lib/token/use-token'
+import { useTokens } from '@/hooks/use-tokens'
 import { useTokenRBAC } from '@/lib/token/use-token-rbac'
 
 /**
@@ -67,7 +67,7 @@ interface TokenBadgeProps {
  *   showTooltip={false}
  * />
  * 
- * @see {@link useToken} For token balance retrieval
+ * @see {@link useTokens} For token balance retrieval
  * @see {@link useTokenRBAC} For token permission checking
  */
 export function TokenBadge({
@@ -79,7 +79,7 @@ export function TokenBadge({
   showTooltip = true,
   size = 'md'
 }: TokenBadgeProps) {
-  const { getUserTokenBalance, loading } = useToken()
+  const { getUserTokenBalance, isLoading } = useTokens()
   const [balance, setBalance] = React.useState<number | null>(null)
   const { hasTokenPermission } = useTokenRBAC()
   const [hasAccess, setHasAccess] = React.useState(false)

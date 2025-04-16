@@ -1,0 +1,11 @@
+{
+  "name": "@avolve/utils",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "private": true,
+  "description": "Shared utility functions for Avolve platform.",
+  "keywords": ["utils", "utilities", "avolve"],
+  "author": "Avolve DAO",
+  "license": "UNLICENSED"
+}

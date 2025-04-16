@@ -4,7 +4,7 @@ import React from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { useToken } from "@/lib/token/use-token"
+import { useTokens } from "@/hooks/use-tokens"
 import { TokenBadge } from "./token-badge"
 import { cn } from "@/lib/utils"
 
@@ -26,18 +26,15 @@ export function TokenStats({
   gradientClass,
   className
 }: TokenStatsProps) {
-  const { getUserTokenBalance } = useToken()
+  const { tokens, userBalances, isLoading } = useTokens()
   const [balance, setBalance] = React.useState<number>(0)
   const [level, setLevel] = React.useState<number>(0)
   const [progress, setProgress] = React.useState<number>(0)
-  const [loading, setLoading] = React.useState<boolean>(true)
 
   React.useEffect(() => {
     const fetchTokenData = async () => {
       try {
-        setLoading(true)
-        const result = await getUserTokenBalance(tokenCode)
-        const tokenBalance = result.data || 0
+        const tokenBalance = userBalances[tokenCode] || 0
         setBalance(tokenBalance)
         
         // Calculate level based on balance (example formula)
@@ -51,13 +48,11 @@ export function TokenStats({
         setProgress(Math.min(Math.max(levelProgress, 0), 100))
       } catch (error) {
         console.error("Error fetching token data:", error)
-      } finally {
-        setLoading(false)
       }
     }
 
     fetchTokenData()
-  }, [tokenCode, getUserTokenBalance])
+  }, [tokenCode, userBalances])
 
   return (
     <motion.div
@@ -89,7 +84,7 @@ export function TokenStats({
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {loading ? (
+            {isLoading ? (
               <div className="h-24 flex items-center justify-center">
                 <div className="animate-pulse text-muted-foreground">Loading...</div>
               </div>

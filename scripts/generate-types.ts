@@ -41,7 +41,7 @@ async function generateTypesWithCli(): Promise<string> {
   }
   
   const schemas = CONFIG.schemas.join(',');
-  const command = `supabase gen types typescript --project-ref ${CONFIG.projectRef} --schema ${schemas}`;
+  const command = `supabase gen types typescript --project-id ${CONFIG.projectRef} --schema ${schemas}`;
   
   try {
     return execSync(command).toString();

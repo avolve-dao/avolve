@@ -1,0 +1,9 @@
+{
+  "name": "@avolve/ui",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "description": "Shared UI components for the Avolve platform.",
+  "author": "Avolve DAO",
+  "license": "UNLICENSED"
+}

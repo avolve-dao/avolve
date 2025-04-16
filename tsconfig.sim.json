@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["scripts/simulate-gamification.ts"],
+  "exclude": ["**/*.test.ts", "**/*.spec.ts", "node_modules", "**/__tests__/**"],
+  "compilerOptions": {
+    "outDir": "dist-sim",
+    "noEmitOnError": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "resolveJsonModule": true
+  }
+}

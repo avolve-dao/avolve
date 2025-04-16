@@ -103,6 +103,31 @@ NEXT_PUBLIC_ENABLE_REAL_TIME_CHAT=true
 - Include usage examples
 - Document accessibility features
 
+## ⚙️ CI/CD & Automation
+
+Avolve uses fully automated CI/CD pipelines to guarantee quality, safety, and rapid iteration:
+
+- **Linting & Formatting:** All code is checked with ESLint and Prettier.
+- **Type Generation:** Database schema changes trigger automatic regeneration of TypeScript types (`pnpm generate:types`).
+- **Migrations:** Every schema change is managed via versioned migrations and reviewed via PR.
+- **Testing:**
+  - Unit and integration tests run for every PR and push.
+  - RLS and enum enforcement are validated with integration tests ([see example](./tests/integration/rls-enum-logic.test.ts)).
+  - Accessibility and E2E tests are included in the pipeline.
+- **Deployment:**
+  - Preview deployments for every PR (Vercel/Netlify).
+  - Production deploys are gated on passing all checks.
+
+### How to Run Checks Locally
+
+```bash
+pnpm lint
+pnpm test
+pnpm generate:types
+```
+
+All contributors are expected to run these before submitting a PR. See [README.md](./README.md#developer--contributor-onboarding) for details.
+
 ## 🔄 Pull Request Process
 
 1. **Branch Naming**

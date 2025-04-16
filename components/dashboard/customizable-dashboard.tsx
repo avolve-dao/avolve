@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,13 +26,26 @@ import {
 // Import dashboard widgets
 import { TodayEventCard } from '@/components/dashboard/today-event-card';
 import { ValueCard } from '@/components/dashboard/value-card';
-import { LeaderboardSection } from '@/app/dashboard/components/leaderboard-section';
+// TODO: LeaderboardSection component is missing. Import and usage commented out for now.
+// import { LeaderboardSection } from '@/app/dashboard/components/leaderboard-section';
 import { FeaturePreview } from '@/components/dashboard/feature-preview';
 import { JourneyMap } from '@/components/dashboard/journey-map';
 import { QuickStartGuide } from '@/components/onboarding/quick-start-guide';
 
 // Define available widgets
-const availableWidgets = {
+type Widget = {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  component: React.ElementType;
+  defaultSize: string;
+  allowedSizes: string[];
+  defaultEnabled: boolean;
+  [key: string]: any;
+};
+
+const availableWidgets: { [key: string]: Widget } = {
   today_event: {
     id: 'today_event',
     title: 'Today\'s Event',
@@ -62,16 +76,17 @@ const availableWidgets = {
     defaultEnabled: true,
     category: 'onboarding'
   },
-  leaderboard: {
-    id: 'leaderboard',
-    title: 'Leaderboard',
-    description: 'See how you rank among other members',
-    component: LeaderboardSection,
-    defaultSize: 'medium',
-    allowedSizes: ['small', 'medium', 'large'],
-    defaultEnabled: true,
-    category: 'community'
-  },
+  // TODO: LeaderboardSection component is missing. Usage commented out for now.
+  // leaderboard: {
+  //   id: 'leaderboard',
+  //   title: 'Leaderboard',
+  //   description: 'See how you rank among other members',
+  //   component: LeaderboardSection,
+  //   defaultSize: 'medium',
+  //   allowedSizes: ['small', 'medium', 'large'],
+  //   defaultEnabled: true,
+  //   category: 'community'
+  // },
   value_card: {
     id: 'value_card',
     title: 'Value Card',
@@ -116,8 +131,8 @@ interface CustomizableDashboardProps {
 }
 
 export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
-  const [activeWidgets, setActiveWidgets] = useState<any[]>([]);
-  const [availableWidgetsState, setAvailableWidgetsState] = useState<any>(availableWidgets);
+  const [activeWidgets, setActiveWidgets] = useState<Widget[]>([]);
+  const [availableWidgetsState, setAvailableWidgetsState] = useState<{ [key: string]: Widget }>(availableWidgets);
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [focusedWidget, setFocusedWidget] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -139,8 +154,8 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
       } else {
         // Otherwise use default configuration
         const defaultWidgets = Object.values(availableWidgets)
-          .filter(widget => widget.defaultEnabled)
-          .map(widget => ({
+          .filter((widget: Widget) => widget.defaultEnabled)
+          .map((widget: Widget) => ({
             id: widget.id,
             size: widget.defaultSize,
             visible: true
@@ -169,8 +184,8 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
   // Reset dashboard to defaults
   const resetDashboard = () => {
     const defaultWidgets = Object.values(availableWidgets)
-      .filter(widget => widget.defaultEnabled)
-      .map(widget => ({
+      .filter((widget: Widget) => widget.defaultEnabled)
+      .map((widget: Widget) => ({
         id: widget.id,
         size: widget.defaultSize,
         visible: true
@@ -300,7 +315,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                       ref={provided.innerRef}
                       className="space-y-2"
                     >
-                      {activeWidgets.map((widget, index) => (
+                      {activeWidgets.map((widget: Widget, index: number) => (
                         <Draggable 
                           key={`${widget.id}-${index}`} 
                           draggableId={`${widget.id}-${index}`} 
@@ -396,9 +411,9 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                     {['all', ...Object.keys(widgetCategories)].map((category) => (
                       <TabsContent key={category} value={category} className="space-y-2">
                         {Object.values(availableWidgetsState)
-                          .filter(widget => category === 'all' || widget.category === category)
-                          .map(widget => {
-                            const isAdded = activeWidgets.some(w => w.id === widget.id);
+                          .filter((widget: Widget) => category === 'all' || widget.category === category)
+                          .map((widget: Widget) => {
+                            const isAdded = activeWidgets.some((w: Widget) => w.id === widget.id);
                             
                             return (
                               <div 
@@ -449,7 +464,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
       ) : dashboardMode === 'focus' ? (
         // Focus mode - show only the selected widget
         <div className="w-full">
-          {focusedWidget && activeWidgets.find(w => w.id === focusedWidget) && (
+          {focusedWidget && activeWidgets.find((w: Widget) => w.id === focusedWidget) && (
             <Card className="w-full">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>
@@ -476,8 +491,8 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
         // Grid mode - show all visible widgets
         <div className="grid grid-cols-3 gap-4">
           {activeWidgets
-            .filter(widget => widget.visible)
-            .map((widget, index) => (
+            .filter((widget: Widget) => widget.visible)
+            .map((widget: Widget, index: number) => (
               <Card 
                 key={`${widget.id}-${index}`}
                 className={`${getWidgetSizeClass(widget.size)} overflow-hidden`}

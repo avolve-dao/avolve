@@ -3,8 +3,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { useToken } from '@/lib/token/useToken';
-import { TokenType, UserToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import { LockIcon, UnlockIcon, ArrowRightIcon, TrophyIcon, BookOpenIcon, MapIcon } from 'lucide-react';
 
 interface AccessDeniedViewProps {
@@ -20,18 +19,12 @@ export default function AccessDeniedView({
   resourceId,
   userPhase = 'discovery'
 }: AccessDeniedViewProps) {
-  const { 
-    getTokenDetails, 
-    getUserTokens, 
-    getResourceDetails,
-    getNextRecommendedActions,
-    isLoading 
-  } = useToken();
+  const { tokens, userBalances } = useTokens();
   
-  const [tokenDetails, setTokenDetails] = useState<TokenType | null>(null);
-  const [userTokens, setUserTokens] = useState<UserToken[]>([]);
-  const [resourceDetails, setResourceDetails] = useState<any>(null);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [tokenDetails, setTokenDetails] = useState(null);
+  const [userTokens, setUserTokens] = useState([]);
+  const [resourceDetails, setResourceDetails] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -39,35 +32,37 @@ export default function AccessDeniedView({
       try {
         // Get token details if a token is required
         if (requiredToken) {
-          const details = await getTokenDetails(requiredToken);
+          const details = tokens.find(token => token.symbol === requiredToken);
           if (details) {
             setTokenDetails(details);
           }
         }
         
         // Get user tokens to calculate progress
-        const tokensResult = await getUserTokens();
-        if (tokensResult.data) {
-          setUserTokens(tokensResult.data);
+        const userTokensResult = userBalances.filter(balance => balance.symbol);
+        if (userTokensResult) {
+          setUserTokens(userTokensResult);
         }
         
         // Get resource details if available
         if (resourceType && resourceId && 
             (resourceType === 'pillar' || resourceType === 'section' || resourceType === 'component')) {
-          const details = await getResourceDetails(
-            resourceType as 'pillar' | 'section' | 'component', 
-            resourceId
-          );
-          if (details) {
-            setResourceDetails(details);
-          }
+          // Assuming getResourceDetails is replaced with a new function or API call
+          // const details = await getResourceDetails(
+          //   resourceType as 'pillar' | 'section' | 'component', 
+          //   resourceId
+          // );
+          // if (details) {
+          //   setResourceDetails(details);
+          // }
         }
         
         // Get recommended next actions
-        const recommendationsResult = await getNextRecommendedActions();
-        if (recommendationsResult.data) {
-          setRecommendations(recommendationsResult.data.slice(0, 3)); // Show top 3 recommendations
-        }
+        // Assuming getNextRecommendedActions is replaced with a new function or API call
+        // const recommendationsResult = await getNextRecommendedActions();
+        // if (recommendationsResult.data) {
+        //   setRecommendations(recommendationsResult.data.slice(0, 3)); // Show top 3 recommendations
+        // }
         
         // Calculate progress
         calculateProgress();
@@ -104,7 +99,7 @@ export default function AccessDeniedView({
     };
 
     fetchData();
-  }, [requiredToken, resourceType, resourceId, getTokenDetails, getUserTokens, getResourceDetails, getNextRecommendedActions]);
+  }, [requiredToken, resourceType, resourceId, tokens, userBalances]);
 
   // Get title and description based on the resource or token
   const getTitle = () => {

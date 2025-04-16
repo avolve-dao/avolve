@@ -155,20 +155,21 @@ The token system is tightly integrated with the experience phases system:
 
 ### React Hooks
 
-1. **useTokens**
+1. **useTokens** (from `@/hooks/use-tokens`)
    - Provides token management functionality
    - Real-time balance updates via Supabase subscriptions
    - Methods for transferring tokens and checking balances
 
 ```typescript
 // Example usage
+import { useTokens } from '@/hooks/use-tokens';
 const { 
   tokens, 
   userBalances, 
   transferTokens, 
   getTokenBalance, 
   hasEnoughTokens 
-} = useTokens();
+} = useTokens(); // from @/hooks/use-tokens
 
 // Check if user has enough tokens
 if (hasEnoughTokens('GEN', 100)) {

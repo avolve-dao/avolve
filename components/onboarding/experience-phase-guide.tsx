@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabase } from '@/lib/supabase/use-supabase';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import {
   Card,
   CardContent,
@@ -74,7 +74,7 @@ export default function ExperiencePhaseGuide({
 }: ExperiencePhaseGuideProps) {
   const router = useRouter();
   const { supabase, user } = useSupabase();
-  const { getUserExperiencePhase, getNextRecommendedActions, trackActivity } = useToken();
+  const { getUserExperiencePhase, getNextRecommendedActions, trackActivity } = useTokens();
   
   const [currentPhase, setCurrentPhase] = useState<ExperiencePhase | null>(null);
   const [nextActions, setNextActions] = useState<NextAction[]>([]);

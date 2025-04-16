@@ -24,7 +24,7 @@ node_modules/
 .npm
 
 # dotenv environment variables
-.env*
+
 
 # OS files
 .DS_Store

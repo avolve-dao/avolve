@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import { Achievement } from './achievement-notification';
 import {
   Card,
@@ -52,7 +52,7 @@ export default function AchievementDashboard({
   className = '',
 }: AchievementDashboardProps) {
   const supabaseHook = useSupabase();
-  const { claimAchievementReward, trackActivity } = useToken();
+  const { claimAchievementReward, trackActivity } = useTokens();
   
   const [achievements, setAchievements] = useState<UserAchievement[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<UserAchievement[]>([]);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabase } from '@/lib/supabase/use-supabase';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import {
   Card,
   CardContent,
@@ -56,7 +56,7 @@ export default function DiscoveryTutorial({
 }: DiscoveryTutorialProps) {
   const router = useRouter();
   const { supabase, user } = useSupabase();
-  const { trackActivity, completeContent } = useToken();
+  const { trackActivity, completeContent } = useTokens();
   
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);

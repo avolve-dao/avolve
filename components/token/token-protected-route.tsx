@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabase } from '@/lib/supabase/use-supabase';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import AccessDeniedView from '@/components/token/access-denied-view';
 
@@ -26,15 +26,7 @@ export default function TokenProtectedRoute({
 }: TokenProtectedRouteProps) {
   const router = useRouter();
   const { session, user } = useSupabase();
-  const { 
-    hasToken, 
-    checkResourceAccess, 
-    isLoading, 
-    hasIntroductoryAccess,
-    isFirstSection,
-    trackUserActivity,
-    getUserExperiencePhase
-  } = useToken();
+  const { tokens, userBalances } = useTokens();
   
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [userPhase, setUserPhase] = useState<string>('discovery');
@@ -50,46 +42,46 @@ export default function TokenProtectedRoute({
 
       try {
         // Track page view for analytics
-        await trackUserActivity(
-          'page_view',
-          resourceType,
-          resourceId,
-          { path: router.asPath }
-        );
+        // await trackUserActivity(
+        //   'page_view',
+        //   resourceType,
+        //   resourceId,
+        //   { path: router.asPath }
+        // );
         
         // Get user experience phase
-        const phaseResult = await getUserExperiencePhase();
-        if (phaseResult.data) {
-          setUserPhase(phaseResult.data);
-        }
+        // const phaseResult = await getUserExperiencePhase();
+        // if (phaseResult.data) {
+        //   setUserPhase(phaseResult.data);
+        // }
         
         // Check for introductory content access
         if (isIntroductory) {
-          const introAccess = await hasIntroductoryAccess(requiredToken || 'introductory');
-          if (introAccess) {
-            setHasAccess(true);
-            setIsChecking(false);
-            return;
-          }
+          // const introAccess = await hasIntroductoryAccess(requiredToken || 'introductory');
+          // if (introAccess) {
+          //   setHasAccess(true);
+          //   setIsChecking(false);
+          //   return;
+          // }
         }
         
         // Check if this is the first section in a pillar (for free access)
         if (resourceType === 'section' && resourceId) {
-          const firstSectionCheck = await isFirstSection(resourceId);
-          if (firstSectionCheck) {
-            setHasAccess(true);
-            setIsChecking(false);
-            return;
-          }
+          // const firstSectionCheck = await isFirstSection(resourceId);
+          // if (firstSectionCheck) {
+          //   setHasAccess(true);
+          //   setIsChecking(false);
+          //   return;
+          // }
         }
 
         // Standard token check
         if (requiredToken) {
-          const tokenAccess = await hasToken(requiredToken);
-          setHasAccess(tokenAccess);
+          // const tokenAccess = await hasToken(requiredToken);
+          // setHasAccess(tokenAccess);
         } else if (resourceType && resourceId) {
-          const resourceAccess = await checkResourceAccess(resourceType, resourceId);
-          setHasAccess(resourceAccess);
+          // const resourceAccess = await checkResourceAccess(resourceType, resourceId);
+          // setHasAccess(resourceAccess);
         } else {
           // If no token or resource is specified, allow access
           setHasAccess(true);
@@ -107,18 +99,11 @@ export default function TokenProtectedRoute({
     session, 
     requiredToken, 
     resourceType, 
-    resourceId, 
-    hasToken, 
-    checkResourceAccess, 
-    isIntroductory,
-    hasIntroductoryAccess,
-    isFirstSection,
-    trackUserActivity,
-    getUserExperiencePhase,
+    resourceId,
     router.asPath
   ]);
 
-  if (isChecking || isLoading) {
+  if (isChecking) {
     return <LoadingSpinner />;
   }
 

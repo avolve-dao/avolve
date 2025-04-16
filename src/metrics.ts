@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase';
+import type { Database } from './types/database';
 import { MetricTypes, type MetricType } from '@/types/platform';
 
 // Initialize Supabase client
@@ -27,7 +27,7 @@ export class MetricsService {
    */
   async updateMetrics(userId: string): Promise<{
     success: boolean;
-    data?: any;
+    data?: Database['public']['Tables']['metrics']['Row'];
     error?: string;
   }> {
     try {
@@ -67,7 +67,7 @@ export class MetricsService {
     metadata?: Record<string, any>
   ): Promise<{
     success: boolean;
-    data?: any;
+    data?: Database['public']['Tables']['metrics']['Row'];
     error?: string;
   }> {
     try {
@@ -108,7 +108,7 @@ export class MetricsService {
     feedback?: string
   ): Promise<{
     success: boolean;
-    data?: any;
+    data?: Database['public']['Tables']['metrics']['Row'];
     error?: string;
   }> {
     // Validate score range
@@ -142,7 +142,7 @@ export class MetricsService {
     activityType?: string
   ): Promise<{
     success: boolean;
-    data?: any;
+    data?: Database['public']['Tables']['metrics']['Row'];
     error?: string;
   }> {
     return this.recordMetric(
@@ -167,7 +167,7 @@ export class MetricsService {
     interactionType: string
   ): Promise<{
     success: boolean;
-    data?: any;
+    data?: Database['public']['Tables']['metrics']['Row'];
     error?: string;
   }> {
     return this.recordMetric(

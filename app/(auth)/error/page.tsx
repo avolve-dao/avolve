@@ -16,7 +16,7 @@ export default function AuthErrorPage() {
   }
 
   const searchParams = useSearchParams()
-  const error = searchParams.get('error') || "default"
+  const error = searchParams?.get('error') || "default"
   const message = errorMessages[error] || errorMessages.default
 
   return (

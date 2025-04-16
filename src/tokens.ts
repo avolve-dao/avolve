@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase';
+import type { Database } from '../types/database';
 import { metricsService } from './metrics';
 
 // Initialize Supabase client
@@ -24,7 +24,7 @@ export class TokensService {
    */
   async getAllTokens(): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Database['public']['Tables']['tokens']['Row'][];
     error?: string;
   }> {
     try {
@@ -70,7 +70,7 @@ export class TokensService {
    */
   async getUserBalances(userId: string): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Database['public']['Tables']['user_balances']['Row'][];
     error?: string;
   }> {
     try {
@@ -119,7 +119,7 @@ export class TokensService {
    */
   async getUserTransactions(userId: string, limit: number = 10, offset: number = 0): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Database['public']['Tables']['transactions']['Row'][];
     error?: string;
   }> {
     try {
@@ -180,7 +180,7 @@ export class TokensService {
    */
   async getTokenDetails(tokenId: string): Promise<{
     success: boolean;
-    data?: any;
+    data?: Database['public']['Tables']['tokens']['Row'];
     error?: string;
   }> {
     try {

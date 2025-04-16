@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Database } from '@/types/supabase';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Dumbbell } from 'lucide-react';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 
 type Exercise = {
   id: string;
@@ -45,7 +45,7 @@ type ExerciseProgress = {
 export default function ExerciseInterface({ exerciseId }: { exerciseId: string }) {
   const supabase = useSupabaseClient<Database>();
   const user = useUser();
-  const { addTokens } = useToken();
+  const { addTokens } = useTokens();
   
   const [exercise, setExercise] = useState<Exercise | null>(null);
   const [progress, setProgress] = useState<ExerciseProgress | null>(null);

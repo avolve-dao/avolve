@@ -182,23 +182,23 @@ export class TokenService {
 Custom React hooks provide components with access to services:
 
 ```typescript
-// lib/token/use-token.ts
+// lib/auth/use-auth.ts
 import { useState, useCallback } from 'react';
 import { useSupabase } from '../supabase/use-supabase';
-import { TokenService } from './token-service';
+import { AuthService } from './auth-service';
 
-export function useToken() {
+export function useAuth() {
   const { supabase } = useSupabase();
-  const [tokenService] = useState(() => new TokenService(supabase));
+  const [authService] = useState(() => new AuthService(supabase));
   
-  const transferTokens = useCallback(async (toUserId, tokenId, amount) => {
-    // Implementation using tokenService
+  const login = useCallback(async (email, password) => {
+    // Implementation using authService
     // ...
-  }, [tokenService]);
+  }, [authService]);
 
   return {
     // Exposed methods and state
-    transferTokens,
+    login,
     // ...
   };
 }
@@ -212,18 +212,16 @@ Context providers make services and state available throughout the application:
 // lib/app-context.tsx
 import { createContext, useContext, ReactNode } from 'react';
 import { useAuth } from './auth/use-auth';
-import { useToken } from './token/use-token';
 import { useNotifications } from './notifications/use-notifications';
 
 const AppContext = createContext(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
-  const token = useToken();
   const notifications = useNotifications();
 
   return (
-    <AppContext.Provider value={{ auth, token, notifications }}>
+    <AppContext.Provider value={{ auth, notifications }}>
       {children}
     </AppContext.Provider>
   );
@@ -724,3 +722,5 @@ avolve/
 - `lib/audit/audit-service.ts`: Audit logging service
 - `lib/app-context.tsx`: Application-wide context provider
 - `lib/utils/database-initializer.ts`: Database initialization utilities
+
+**Note:** The `useToken` hook has been migrated to `useTokens` for future reference. Please update any references to `useToken` to `useTokens` accordingly.

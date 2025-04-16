@@ -407,6 +407,75 @@ export function useTokens() {
     }
   }, [supabase]);
 
+  // --- Legacy compatibility methods (from useToken) ---
+
+  /**
+   * Get a token by its ID
+   */
+  const getToken = useCallback(async (tokenId: string): Promise<Token | null> => {
+    if (!supabase) return null;
+    const { data, error } = await supabase.from('tokens').select('*').eq('id', tokenId).single();
+    if (error) return null;
+    return data;
+  }, [supabase]);
+
+  /**
+   * Get a user's token by token ID
+   */
+  const getUserToken = useCallback(async (tokenId: string): Promise<any | null> => {
+    if (!supabase || !session?.user) return null;
+    const { data, error } = await supabase
+      .from('user_tokens')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('token_id', tokenId)
+      .single();
+    if (error) return null;
+    return data;
+  }, [supabase, session]);
+
+  /**
+   * Get a user's balance for a given tokenId
+   */
+  const getTokenBalanceById = useCallback(async (tokenId: string): Promise<number | null> => {
+    const userToken = await getUserToken(tokenId);
+    return userToken ? userToken.balance : 0;
+  }, [getUserToken]);
+
+  /**
+   * Get all token types
+   */
+  const getAllTokenTypes = useCallback(async (): Promise<any[]> => {
+    if (!supabase) return [];
+    const { data, error } = await supabase.from('token_types').select('*');
+    if (error) return [];
+    return data || [];
+  }, [supabase]);
+
+  /**
+   * Get a user's token balance by token code
+   */
+  const getUserTokenBalance = useCallback(async (tokenCode: string): Promise<{ data: number, error: any }> => {
+    if (!supabase || !session?.user) return { data: 0, error: 'Not authenticated' };
+    const { data: tokenTypes, error: tokenTypesError } = await supabase.from('token_types').select('*');
+    if (tokenTypesError) return { data: 0, error: tokenTypesError };
+    const tokenType = (tokenTypes || []).find((tt: any) => tt.code === tokenCode);
+    if (!tokenType) return { data: 0, error: null };
+    const { data: tokens, error: tokensError } = await supabase.from('tokens').select('*').eq('type_id', tokenType.id);
+    if (tokensError) return { data: 0, error: tokensError };
+    if (!tokens || tokens.length === 0) return { data: 0, error: null };
+    const userToken = await getUserToken(tokens[0].id);
+    return { data: userToken ? userToken.balance : 0, error: null };
+  }, [supabase, session, getUserToken]);
+
+  // --- Achievement & Activity helpers (stubs, to be implemented as needed) ---
+  const claimAchievementReward = async (..._args: any[]) => {
+    throw new Error('claimAchievementReward is not implemented in useTokens.');
+  };
+  const trackActivity = async (..._args: any[]) => {
+    throw new Error('trackActivity is not implemented in useTokens.');
+  };
+
   // Set up real-time subscription for token balance updates
   useEffect(() => {
     if (!supabase || !session?.user) return;
@@ -489,6 +558,13 @@ export function useTokens() {
     // Utilities
     getTokenBalance,
     hasEnoughTokens,
-    getTokenSupply
+    getTokenSupply,
+    getToken,
+    getUserToken,
+    getTokenBalanceById,
+    getAllTokenTypes,
+    getUserTokenBalance,
+    claimAchievementReward, // stub
+    trackActivity // stub
   };
 }

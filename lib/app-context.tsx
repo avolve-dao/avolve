@@ -8,7 +8,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { AuthProvider, useAuthContext } from './auth/auth-context';
 import { NotificationProvider, useNotificationContext } from './notifications/notification-context';
-import { useToken } from './token/use-token';
+import { useTokens } from './token/use-tokens';
 import { usePermissions } from './token/use-permissions';
 import { useConsensus } from './token/use-consensus';
 
@@ -16,7 +16,7 @@ import { useConsensus } from './token/use-consensus';
 interface AppContextValue {
   auth: ReturnType<typeof useAuthContext>;
   notifications: ReturnType<typeof useNotificationContext>;
-  tokens: ReturnType<typeof useToken>;
+  tokens: ReturnType<typeof useTokens>;
   permissions: ReturnType<typeof usePermissions>;
   consensus: ReturnType<typeof useConsensus>;
 }
@@ -37,7 +37,7 @@ interface AppProviderProps {
 function InnerAppProvider({ children }: AppProviderProps) {
   const auth = useAuthContext();
   const notifications = useNotificationContext();
-  const tokens = useToken();
+  const tokens = useTokens();
   const permissions = usePermissions();
   const consensus = useConsensus();
   

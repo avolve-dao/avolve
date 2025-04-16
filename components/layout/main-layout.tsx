@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSupabase } from '@/lib/supabase/use-supabase';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import ExperiencePhaseGuide from '@/components/onboarding/experience-phase-guide';
 import DiscoveryTutorial from '@/components/onboarding/discovery-tutorial';
 import Sidebar from '@/components/navigation/sidebar';
@@ -22,7 +22,7 @@ export default function MainLayout({
   const supabase = useSupabase();
   const session = supabase.session || supabase?.auth?.session || null;
   const user = supabase.user || supabase?.auth?.user || null;
-  const { getUserExperiencePhase, trackActivity } = useToken();
+  const { getUserExperiencePhase, trackActivity } = useTokens();
   
   const [experiencePhase, setExperiencePhase] = useState<string | null>(null);
   const [showDiscoveryTutorial, setShowDiscoveryTutorial] = useState(false);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import { TokenDisplay } from '@/components/token/token-display';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,14 +41,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
  * Component that displays the user's tokens and allows them to manage them
  */
 export function TokensDashboard() {
-  const { 
-    getUserTokens, 
-    getAllTokenTypes,
-    isLoading 
-  } = useToken();
+  const { tokens, userBalances, isLoading } = useTokens();
   
-  const [tokens, setTokens] = useState<any[]>([]);
-  const [allTokenTypes, setAllTokenTypes] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('tokens');
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [isStakeDialogOpen, setIsStakeDialogOpen] = useState(false);
@@ -60,20 +54,20 @@ export function TokensDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       // Get user tokens
-      const tokensResult = await getUserTokens();
+      const tokensResult = await tokens();
       if (tokensResult.data) {
-        setTokens(tokensResult.data);
+        // setTokens(tokensResult.data);
       }
       
       // Get all token types
-      const tokenTypesResult = await getAllTokenTypes();
+      const tokenTypesResult = await userBalances();
       if (tokenTypesResult.data) {
-        setAllTokenTypes(tokenTypesResult.data);
+        // setAllTokenTypes(tokenTypesResult.data);
       }
     };
     
     fetchData();
-  }, [getUserTokens, getAllTokenTypes]);
+  }, [tokens, userBalances]);
 
   // Handle token transfer
   const handleTransfer = () => {

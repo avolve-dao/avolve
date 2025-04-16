@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useToken } from '@/lib/token/useToken';
+import { useTokens } from '@/hooks/use-tokens';
 import { TokenDisplay } from '@/components/token/token-display';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,14 +31,18 @@ import {
  */
 export function JourneyDashboard() {
   const { 
-    getUserTokens, 
-    getAllPillarsProgress, 
-    getUserAchievements,
-    claimAchievementReward,
+    tokens, 
+    userBalances, 
+    transactions, 
+    balanceChanges, 
+    getToken, 
+    getUserToken, 
+    getTokenBalance, 
+    getAllTokenTypes, 
+    getUserTokenBalance, 
     isLoading 
-  } = useToken();
+  } = useTokens();
   
-  const [tokens, setTokens] = useState<any[]>([]);
   const [pillarsProgress, setPillarsProgress] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('progress');
@@ -50,12 +54,6 @@ export function JourneyDashboard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Get user tokens
-      const tokensResult = await getUserTokens();
-      if (tokensResult.data) {
-        setTokens(tokensResult.data);
-      }
-      
       // Get pillars progress
       const progressResult = await getAllPillarsProgress();
       if (progressResult.data) {
@@ -69,11 +67,11 @@ export function JourneyDashboard() {
       }
       
       // Determine experience phase based on progress
-      determineExperiencePhase(tokensResult.data, progressResult.data, achievementsResult.data);
+      determineExperiencePhase(tokens, progressResult.data, achievementsResult.data);
     };
     
     fetchData();
-  }, [getUserTokens, getAllPillarsProgress, getUserAchievements]);
+  }, [getAllPillarsProgress, getUserAchievements]);
   
   // Determine which experience phase the user is in based on their progress
   const determineExperiencePhase = (
@@ -117,7 +115,7 @@ export function JourneyDashboard() {
         setAchievements(achievementsResult.data);
       }
       
-      const tokensResult = await getUserTokens();
+      const tokensResult = await getToken();
       if (tokensResult.data) {
         setTokens(tokensResult.data);
       }

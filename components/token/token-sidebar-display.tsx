@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { cn } from '@/lib/utils'
-import { useToken } from '@/lib/token/use-token'
+import { useTokens } from '@/hooks/use-tokens';
 import { TokenBadge } from './token-badge'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { ChevronRight } from 'lucide-react'
@@ -24,7 +24,7 @@ interface TokenBalance {
  * that matches Avolve's three pillars and token hierarchy.
  */
 export function TokenSidebarDisplay() {
-  const { getAllTokenTypes, getUserTokenBalance, loading } = useToken()
+  const { getAllTokenTypes, getUserTokenBalance, isLoading } = useTokens()
   const [tokenHierarchy, setTokenHierarchy] = React.useState<TokenHierarchyItem[]>([])
   const [userTokens, setUserTokens] = React.useState<Record<string, number>>({})
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({
@@ -148,7 +148,7 @@ export function TokenSidebarDisplay() {
     )
   }
 
-  if (loading) {
+  if (isLoading) {
     return <div className="p-4 text-sm text-muted-foreground">Loading tokens...</div>
   }
 

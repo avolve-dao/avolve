@@ -56,8 +56,8 @@ graph TD
     C --> J[SGB Token]
     
     %% Token Components
-    K[TokenBadge] --> L[useToken Hook]
-    K --> M[useTokenRBAC Hook]
+    K[TokenBadge] --> L[useTokens Hook]
+    K --> M[useTokensRBAC Hook]
     
     %% Token Access
     N[TokenProtectedRoute] --> O[hasTokenAccess]
@@ -74,10 +74,10 @@ graph TD
 
 | Component | Dependencies | Database Tables | Hooks |
 |-----------|--------------|----------------|-------|
-| `TokenBadge` | `Badge`, `Tooltip` | `tokens`, `user_tokens` | `useToken`, `useTokenRBAC` |
-| `DailyClaimCard` | `Card`, `Button` | `tokens`, `user_tokens`, `token_transactions` | `useToken`, `useToast` |
-| `TokenProtectedRoute` | `Redirect` | `tokens`, `user_tokens` | `useTokenRBAC` |
-| `TokenDisplay` | `TokenBadge` | `tokens`, `user_tokens` | `useToken` |
+| `TokenBadge` | `Badge`, `Tooltip` | `tokens`, `user_tokens` | `useTokens`, `useTokensRBAC` |
+| `DailyClaimCard` | `Card`, `Button` | `tokens`, `user_tokens`, `token_transactions` | `useTokens`, `useToast` |
+| `TokenProtectedRoute` | `Redirect` | `tokens`, `user_tokens` | `useTokensRBAC` |
+| `TokenDisplay` | `TokenBadge` | `tokens`, `user_tokens` | `useTokens` |
 | `JourneyDashboard` | `Progress` | `pillars`, `user_journeys` | `useJourney` |
 
 ### API Routes

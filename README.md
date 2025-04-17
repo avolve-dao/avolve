@@ -430,15 +430,11 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## Intellectual Property & Ownership
+## License & Ownership
 
-All code, documentation, assets, and database schema/migrations in this repository are the exclusive property of the **Avolve DAO**. Unauthorized use, distribution, or reproduction is strictly prohibited. All contributors agree that their contributions become the property of Avolve DAO and are subject to the DAO’s governance and licensing terms.
+This project and all associated documentation, code, and assets are owned, controlled, and managed by the **Avolve DAO**. All rights reserved. Redistribution, modification, or commercial use is subject to DAO approval and the platform's terms of service. For licensing or usage inquiries, contact admin@avolve.io.
 
-## 📄 License
-
-This project is proprietary software owned by Avolve DAO. All rights reserved.
-
-## 🙏 Acknowledgements
+## 📄 Acknowledgements
 
 - [Next.js](https://nextjs.org/)
 - [Supabase](https://supabase.io/)
@@ -539,8 +535,9 @@ For more, see [docs/README.md](./docs/README.md).
 
 ---
 
-## License
-MIT
+## License & Ownership
+
+This project and all associated documentation, code, and assets are owned, controlled, and managed by the **Avolve DAO**. All rights reserved. Redistribution, modification, or commercial use is subject to DAO approval and the platform's terms of service. For licensing or usage inquiries, contact admin@avolve.io.
 
 ---
 

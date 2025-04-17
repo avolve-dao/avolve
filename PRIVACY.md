@@ -1,5 +1,7 @@
 # Privacy Policy
 
+> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+
 Last Updated: April 11, 2025
 
 Copyright 2025 Avolve DAO and the Joshua Seymour Family. All rights reserved. Proprietary and confidential.
@@ -102,9 +104,15 @@ This Privacy Policy explains how Avolve DAO ("we", "our", or "us") collects, use
 - Government requests
 - Rights protection
 
-## 5. Data Security
+## 5. User Rights
+- Access your data
+- Request correction or deletion
+- Withdraw consent at any time
+- Contact privacy@avolve.io for requests
 
-### 5.1 Security Measures
+## 6. Data Security
+
+### 6.1 Security Measures
 - Encryption in transit and at rest
 - Access controls
 - Regular security audits
@@ -112,31 +120,13 @@ This Privacy Policy explains how Avolve DAO ("we", "our", or "us") collects, use
 - Rate limiting
 - RBAC implementation
 
-### 5.2 Data Retention
+### 6.2 Data Retention
 - Account data: Until deletion
 - Usage data: 24 months
 - Consent records: 7 years
 - Backup data: 30 days
 - Test data: 12 months
 - Puzzle solutions: Permanent
-
-## 6. User Rights
-
-### 6.1 Access Rights
-You can:
-- Access your data
-- Request corrections
-- Download your information
-- Delete your account
-- View test participation
-
-### 6.2 Consent Management
-You can:
-- Update privacy settings
-- Manage notifications
-- Control data sharing
-- Withdraw consent
-- Note: Cannot opt-out of A/B testing
 
 ## 7. Children's Privacy
 

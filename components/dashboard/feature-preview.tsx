@@ -17,8 +17,18 @@ interface FeatureRequirement {
   amount?: number;
   name: string;
   description: string;
-  current: number;
-  max: number;
+  current?: number;
+  max?: number;
+}
+
+interface FeatureDefinition {
+  title: string;
+  description: string;
+  image: string;
+  tooltipType?: string;
+  unlockPath: string;
+  unlockPhase: string;
+  requirements: FeatureRequirement[];
 }
 
 interface FeaturePreviewProps {
@@ -27,7 +37,7 @@ interface FeaturePreviewProps {
 }
 
 // Define available features with unlock requirements
-const featureDefinitions = {
+const featureDefinitions: { [key: string]: FeatureDefinition } = {
   superpuzzles: {
     title: 'Superpuzzles',
     description: 'Collaborate with the community to solve complex challenges and earn SCQ tokens.',
@@ -347,9 +357,10 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
                 {feature.tooltipType && (
                   <ContextualTooltip 
                     type={feature.tooltipType as any} 
-                    userId={userId}
                     className="ml-1"
-                  />
+                  >
+                    <></>
+                  </ContextualTooltip>
                 )}
               </CardTitle>
               <CardDescription>{feature.description}</CardDescription>
@@ -385,7 +396,7 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
                         </div>
                         {req.type === 'token' && req.amount && (
                           <Progress 
-                            value={(req.current / req.max) * 100} 
+                            value={(req.current ?? 0) / (req.max ?? 0) * 100} 
                             className="h-1 mt-1" 
                           />
                         )}
@@ -393,17 +404,17 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
                       <div className="ml-2 flex items-center">
                         {req.type === 'token' && req.amount ? (
                           <Badge variant="outline" className="ml-auto">
-                            {req.current}/{req.amount}
+                            {(req.current ?? 0)}/{(req.amount ?? 0)}
                           </Badge>
                         ) : (
                           <Badge 
-                            variant={req.current >= req.max ? "success" : "outline"} 
+                            variant={(req.current ?? 0) >= (req.max ?? 0) ? "success" : "outline"} 
                             className="ml-auto"
                           >
-                            {req.current >= req.max ? (
+                            {(req.current ?? 0) >= (req.max ?? 0) ? (
                               <Star className="h-3 w-3 mr-1 fill-current" />
                             ) : null}
-                            {req.current >= req.max ? 'Completed' : 'Incomplete'}
+                            {(req.current ?? 0) >= (req.max ?? 0) ? 'Completed' : 'Incomplete'}
                           </Badge>
                         )}
                       </div>

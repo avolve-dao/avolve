@@ -22,6 +22,14 @@ This guide will help new contributors, admins, and future DAO members understand
 - For questions, contact admin@avolve.io.
 - Join the DAO community to participate in governance and platform evolution.
 
+## 5. Where to Get Help
+- Email: admin@avolve.io
+- Join the community chat (see project README for invite)
+- See the [DAO Governance Guide](./governance.md) for more
+
+## 6. DAO Roadmap
+- See [Governance Guide](./governance.md#transition-to-full-dao-governance) for the decentralization plan and upcoming milestones.
+
 ---
 
 Welcome aboard! Together, we’re building a platform for transformation, transparency, and collective success.

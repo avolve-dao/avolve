@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { createClient } from '../../lib/supabase/client';
 
 interface Experiment {
   id: string;
@@ -25,7 +25,7 @@ const CanvasLearningManager: React.FC<{ onCreated?: () => void }> = ({ onCreated
 
   useEffect(() => {
     const fetchExperiments = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await createClient()
         .from('experiments')
         .select('id, title')
         .order('created_at', { ascending: false });
@@ -48,7 +48,7 @@ const CanvasLearningManager: React.FC<{ onCreated?: () => void }> = ({ onCreated
       setLoading(false);
       return;
     }
-    const { error } = await supabase.from('learnings').insert([form]);
+    const { error } = await createClient().from('learnings').insert([form]);
     if (error) {
       setError(error.message);
     } else {

@@ -111,6 +111,25 @@ Common error scenarios:
 - Input validation for all request data
 - Rate limiting applied to prevent abuse
 
+## Usage Example
+
+```js
+fetch('/api/consent', {
+  headers: { Authorization: 'Bearer <your_token>' }
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
+
+## FAQ & Troubleshooting
+- **Q: Why am I not seeing my consent records?**
+  - A: Check your authentication and query parameters. Only records for the authenticated user are returned.
+- **Q: How do I revoke consent?**
+  - A: Use the PATCH endpoint (see API spec) with the consent ID and new status.
+
+## Feedback & Support
+- For help or to request new consent features, open an issue or email dev@avolve.io
+
 ## Testing
 
 Comprehensive test suite available in `app/api/consent/__tests__/consent-api.test.ts`.

@@ -244,6 +244,32 @@ Content-Type: application/json
 }
 ```
 
+## Getting Started with the API
+- All requests require authentication (see below).
+- Start by reviewing the API table above and selecting the endpoint you need.
+- Example request (using fetch):
+```js
+fetch('https://api.avolve.io/v1/profile', {
+  headers: { Authorization: 'Bearer <your_token>' }
+})
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
+- For Postman collections and more examples, see the project wiki or ask in the community chat.
+
+## FAQ & Troubleshooting
+- **Q: I get a 401 Unauthorized error.**
+  - A: Check your JWT token and authentication method.
+- **Q: How do I test the API locally?**
+  - A: Use the local Supabase instance and set your env vars accordingly.
+- **Q: Where do I find the OpenAPI spec?**
+  - A: See `docs/openapi.yaml` in this repo.
+- **Q: Who do I contact for API support?**
+  - A: Email dev@avolve.io or join the developer chat.
+
+## Feedback & Support
+- Found a bug or want to request an endpoint? Open an issue or use the in-app feedback form.
+
 ## Testing
 
 For detailed testing information, see our [Testing Documentation](/docs/testing/README.md).

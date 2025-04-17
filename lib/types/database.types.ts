@@ -223,6 +223,9 @@ export interface GeniusProfile {
   updated_at: string;
 }
 
+// GeniusLevelDefinition - Definition of a genius level
+export type GeniusLevelDefinition = any;
+
 /**
  * Governance Types
  */

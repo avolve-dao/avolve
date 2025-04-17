@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { createClient } from '../../lib/supabase/client';
 
 // Types for Canvas, Experiment, Learning
 interface CanvasEntry {
@@ -48,15 +48,15 @@ const CanvasDashboard: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const { data: canvas, error: canvasError } = await supabase
+      const { data: canvas, error: canvasError } = await createClient()
         .from('canvas_entries')
         .select('*')
         .eq('pillar', selectedPillar)
         .order('created_at', { ascending: false });
-      const { data: experiments, error: expError } = await supabase
+      const { data: experiments, error: expError } = await createClient()
         .from('experiments')
         .select('*');
-      const { data: learnings, error: learnError } = await supabase
+      const { data: learnings, error: learnError } = await createClient()
         .from('learnings')
         .select('*');
       if (!canvasError && !expError && !learnError) {

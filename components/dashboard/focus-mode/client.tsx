@@ -4,7 +4,7 @@
  * Focus Mode Client Component
  * 
  * Client-side interactive component for displaying personalized focus areas and recommendations
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { useState } from 'react';
@@ -31,7 +31,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 // Types
 import type { PhaseId } from '@/types/experience';
 
-interface FocusArea {
+export interface FocusArea {
   id: string;
   title: string;
   description: string;

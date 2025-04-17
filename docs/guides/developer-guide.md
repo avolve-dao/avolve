@@ -1,6 +1,8 @@
 # Avolve Developer Guide 2025
 
-Copyright © 2025 Avolve DAO. All rights reserved.
+Copyright 2025 Avolve DAO. All rights reserved.
+
+> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
 
 ## Table of Contents
 
@@ -12,6 +14,9 @@ Copyright © 2025 Avolve DAO. All rights reserved.
 6. [Security Guidelines](#security-guidelines)
 7. [Testing Strategy](#testing-strategy)
 8. [Deployment](#deployment)
+9. [Troubleshooting](#troubleshooting)
+10. [Contact & Support](#contact--support)
+11. [FAQ](#faq)
 
 ## Introduction
 
@@ -189,6 +194,20 @@ function ClientComponent({ initialData }) {
    supabase db push
    ```
 
+## Troubleshooting
+- If you encounter build errors, check the [README Quick Start](../../README.md#quick-start) and ensure all dependencies are installed.
+- For Supabase issues, verify your `.env.local` and Supabase project status.
+- See [FAQ](#faq) below for common problems.
+
+## Contact & Support
+- For dev support, open an issue or contact dev@avolve.io
+
+## FAQ
+- **Q: The build fails with a missing dependency.**
+  - A: Run `npm install` and check the package.json for required packages.
+- **Q: Supabase auth is not working.**
+  - A: Ensure your environment variables are set correctly and Supabase is running.
+
 ## Additional Resources
 
 - [API Documentation](/docs/api/README.md)
@@ -202,4 +221,4 @@ See our [Contributing Guide](/docs/guides/contributing.md) for details on our de
 
 ## License
 
-Copyright © 2025 Avolve DAO. All rights reserved.
+Copyright 2025 Avolve DAO. All rights reserved.

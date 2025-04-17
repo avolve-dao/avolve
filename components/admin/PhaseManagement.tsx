@@ -1,8 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Confetti from 'react-confetti';
 import { toast } from 'sonner';
-import { useWindowSize } from 'react-use';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+
+// Native window size hook replacement
+function useWindowSize() {
+  const isClient = typeof window === 'object';
+  function getSize() {
+    return {
+      width: isClient ? window.innerWidth : undefined,
+      height: isClient ? window.innerHeight : undefined
+    };
+  }
+  const [windowSize, setWindowSize] = React.useState(getSize);
+  useEffect(() => {
+    if (!isClient) return;
+    function handleResize() {
+      setWindowSize(getSize());
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isClient]);
+  return windowSize;
+}
 
 export function PhaseManagement() {
   const [users, setUsers] = useState<any[]>([]);

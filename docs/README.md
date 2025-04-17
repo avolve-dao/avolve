@@ -1,10 +1,29 @@
 # Avolve Documentation
 
-Copyright © 2025 Avolve DAO. All rights reserved.
+_Last updated: 2025-04-16_
+
+> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+
+# Welcome to Avolve Docs
+
+🎉 **What’s New:**
+- Refined onboarding for users/admins
+- Visual ER diagrams and token structure
+- Troubleshooting, FAQ, and support in every major doc
+- Feedback badges everywhere
+
+Copyright 2025 Avolve DAO. All rights reserved.
 
 ## Overview
 
 Welcome to the Avolve platform documentation. This guide provides comprehensive information about the platform's architecture, development practices, and implementation details.
+
+## How to Use This Documentation
+
+- Start here if you're new to Avolve or want a high-level overview.
+- Use the Table of Contents below to jump to guides, technical docs, and reference material.
+- Each section links to more detailed documentation.
+- For help, see the [Developer Guide](guides/developer-guide.md) or [User Guide](guides/user-guide.md).
 
 ## Table of Contents
 
@@ -48,4 +67,4 @@ Please read our [Contributing Guide](guides/contributing.md) for details on our 
 
 ## License
 
-Copyright © 2025 Avolve DAO. All rights reserved.
+Copyright 2025 Avolve DAO. All rights reserved.

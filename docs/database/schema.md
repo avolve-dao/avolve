@@ -4,6 +4,27 @@ _Last updated: 2025-04-15_
 
 This document provides a comprehensive, human-readable reference to the current Avolve database schema, including tables, columns, relationships, and Row Level Security (RLS) policies. All schema changes are managed by the Avolve DAO and tracked via migrations in the codebase.
 
+## How to Use This Document
+- New to Avolve? Start with the [Database README](./README.md) for navigation and quick links.
+- Each section below documents a table, its columns, relationships, and RLS policies.
+- For visual learners, see the [ER Diagram](./er_diagram_sacred_geometry.mmd).
+- For migration or extension, see [How to Propose Schema Changes](../dao/schema-changes.md).
+
+## Visual Schema (ER Diagram)
+- View `er_diagram_sacred_geometry.mmd` in a Mermaid-compatible viewer (e.g., VSCode plugin, mermaid.live).
+- For a rendered version, see the project wiki or ask in the community chat.
+
+## Extending the Schema
+- Propose changes via PR and follow [Schema Changes Guide](../dao/schema-changes.md).
+- Always enable RLS and write clear migration comments.
+- Update this doc after any schema change.
+
+## Admin Tips & Troubleshooting
+- Use metrics tables for analytics and engagement insights.
+- Check RLS policies if users report data access issues.
+- For schema drift or migration errors, review migration history and ensure all migrations follow naming conventions.
+- For help, email admin@avolve.io or join the community chat.
+
 ## Overview
 - **DAO Ownership:** The schema is governed by the Avolve DAO. All changes are proposed via PR and subject to DAO governance.
 - **Best Practices:** Every table uses RLS, explicit policies, and is fully documented.

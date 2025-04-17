@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { createClient } from '../../lib/supabase/client';
 
 interface CanvasEntryInput {
   pillar: 'individual' | 'collective' | 'ecosystem';
@@ -42,7 +42,7 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
     setLoading(true);
     setError(null);
     setSuccess(false);
-    const { error } = await supabase.from('canvas_entries').insert([form]);
+    const { error } = await createClient().from('canvas_entries').insert([form]);
     if (error) {
       setError(error.message);
     } else {

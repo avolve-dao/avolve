@@ -8,7 +8,7 @@
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { Database } from '@/types/supabase';
+// import { Database } from '@/types/supabase'; // Temporarily removed due to missing export
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({

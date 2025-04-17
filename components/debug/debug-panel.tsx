@@ -27,11 +27,18 @@ export interface DebugPanelProps {
  * This component is only rendered in development mode and when the appropriate feature flag is enabled.
  */
 const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
-  const { session } = useSupabase();
+  const { supabase } = useSupabase();
   const { isEnabled } = useFeatureFlags();
   const [activeTab, setActiveTab] = useState<'queries' | 'performance' | 'session' | 'state'>('queries');
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  // Helper to get session from supabase
+  async function getSessionUser() {
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data.session) return null;
+    return data.session.user;
+  }
 
   // Check if the current user is authorized to view the debug panel
   useEffect(() => {
@@ -44,20 +51,21 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
       
       // In production, only allow access if the user has the appropriate role
       // This would typically check against a list of admin users or roles
-      if (session?.user) {
+      const user = await getSessionUser();
+      if (user) {
         // Example: Check if user email is in an allowed list
         const allowedEmails = [
           'admin@avolve.com',
-          'developer@avolve.com'
+          'founder@avolve.com',
         ];
         
-        if (allowedEmails.includes(session.user.email || '')) {
+        if (user.email && allowedEmails.includes(user.email)) {
           setIsAuthorized(true);
           return;
         }
         
         // Example: Check if user has metadata indicating they're an admin
-        const userMetadata = session.user.user_metadata;
+        const userMetadata = user.user_metadata;
         if (userMetadata && userMetadata.is_admin === true) {
           setIsAuthorized(true);
           return;
@@ -69,7 +77,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
     };
     
     checkAuthorization();
-  }, [session]);
+  }, [supabase]);
 
   // Close the panel when clicking outside of it
   useEffect(() => {

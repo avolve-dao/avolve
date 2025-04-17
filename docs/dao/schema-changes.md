@@ -42,4 +42,11 @@ This guide explains how to propose, review, and implement changes to the Avolve 
 - [DAO Governance Guide](./governance.md)
 - [Database Schema Reference](../database/schema.md)
 
+## Common Mistakes to Avoid
+- Forgetting to enable RLS and policies for new tables
+- Using uppercase or inconsistent naming in migrations
+- Missing or incomplete migration header comments
+- Not updating documentation after a schema change
+- Submitting PRs without a rationale or impact summary
+
 For questions or support, contact admin@avolve.io.

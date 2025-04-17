@@ -103,6 +103,14 @@ NEXT_PUBLIC_ENABLE_REAL_TIME_CHAT=true
 - Include usage examples
 - Document accessibility features
 
+## 🛠️ Code Standards & PR Process
+
+- Follow the existing code style and naming conventions.
+- Write clear commit messages (imperative, present tense).
+- All PRs must be reviewed by at least one maintainer.
+- Link related issues in PRs when possible.
+- Ensure all tests pass before requesting review.
+
 ## ⚙️ CI/CD & Automation
 
 Avolve uses fully automated CI/CD pipelines to guarantee quality, safety, and rapid iteration:

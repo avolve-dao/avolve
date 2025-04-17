@@ -243,7 +243,9 @@ export function FocusMode({ userId }: FocusModeProps) {
                     <ContextualTooltip 
                       content={topAction.tooltipContent}
                       className="ml-1"
-                    />
+                    >
+                      <></>
+                    </ContextualTooltip>
                   )}
                 </h3>
                 <p className="text-sm text-muted-foreground">

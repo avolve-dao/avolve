@@ -32,4 +32,12 @@ Avolve DAO is the steward and ultimate authority for the Avolve platform, its co
 - [DAO Onboarding Guide](./onboarding.md)
 - [Avolve Platform README](../README.md)
 
+## Governance FAQ
+- **Q: How do I become a DAO reviewer?**
+  - A: Start by contributing regularly and participating in reviews. DAO reviewers are nominated by the steward or elected by the community as the DAO matures.
+- **Q: When will on-chain voting be available?**
+  - A: This is on the DAO roadmap. Watch for updates in this doc and community channels.
+- **Q: Who can propose changes?**
+  - A: Any contributor can propose changes via Pull Request.
+
 For questions or to get involved, contact admin@avolve.io or join the Avolve DAO community.

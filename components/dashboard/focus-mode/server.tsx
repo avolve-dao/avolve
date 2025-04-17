@@ -2,7 +2,7 @@
  * Focus Mode Server Component
  * 
  * Provides personalized recommendations and focus areas based on user progress
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -11,6 +11,7 @@ import { FocusModeClient } from './client';
 
 // Types
 import type { Database } from '@/types/supabase';
+import type { FocusArea } from './client';
 
 // Analytics for personalized recommendations
 import { getPersonalizedRecommendations } from '@/lib/analytics/server';
@@ -191,7 +192,7 @@ function determineFocusAreas(
     }
   }
   
-  return focusAreas;
+  return focusAreas as FocusArea[];
 }
 
 // Helper function to capitalize the first letter of a string

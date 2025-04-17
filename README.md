@@ -2,7 +2,15 @@
 
 > *"Transform yourself, transform the world."*
 
+> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+
 Welcome to the Avolve platform repository! This project is designed to help individuals and communities evolve through a comprehensive token-based ecosystem that supports personal and collective transformation, built on sacred geometry principles and Tesla's 3-6-9 patterns.
+
+🎉 **What’s New:**
+- Full onboarding guides for users and admins
+- API docs with usage examples and troubleshooting
+- DAO and database docs with visual diagrams
+- Feedback badges and support links everywhere
 
 ## ✨ Overview
 
@@ -455,6 +463,25 @@ Avolve is the positive-sum platform for transformation at the individual, collec
 
 ---
 
+## 🚀 Quick Start
+
+To get started with development:
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a `.env.local` file (see [IMPLEMENTATION-GUIDE.md](./IMPLEMENTATION-GUIDE.md))
+4. Run the development server: `npm run dev`
+
+For more, see [docs/README.md](./docs/README.md).
+
+## 📚 Where to Go Next
+- [Implementation Guide](./IMPLEMENTATION-GUIDE.md)
+- [API Reference](./docs/api/README.md)
+- [User Guide](./docs/guides/user-guide.md)
+- [Admin Guide](./docs/guides/admin-guide.md)
+- [Contributing](./CONTRIBUTING.md)
+
+---
+
 ## Getting Started
 1. **Install dependencies:**
    ```bash
@@ -514,3 +541,10 @@ Avolve is the positive-sum platform for transformation at the individual, collec
 
 ## License
 MIT
+
+---
+
+## Documentation Review & Update Process
+- Docs are reviewed quarterly (or as needed with major releases)
+- See the [Update History](docs/IMPLEMENTATION-GUIDE.md#update-history)
+- Suggest changes any time via GitHub or email

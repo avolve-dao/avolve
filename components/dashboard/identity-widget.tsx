@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useIdentityApi } from '@/lib/api/hooks';
-import { GeniusProfile, GeniusLevelDefinition } from '@/lib/types/database.types';
+import { GeniusProfile } from '@/lib/types/database.types';
 import { useUser } from '@/lib/hooks/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,7 @@ export function IdentityWidget() {
   const { user } = useUser();
   const [profile, setProfile] = useState<GeniusProfile | null>(null);
   const [levelInfo, setLevelInfo] = useState<{ level: number; progress: number }>({ level: 1, progress: 0 });
-  const [levelDefinition, setLevelDefinition] = useState<GeniusLevelDefinition | null>(null);
+  const [levelDefinition, setLevelDefinition] = useState<any | null>(null);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,15 +33,15 @@ export function IdentityWidget() {
       setLoading(true);
       try {
         // Fetch profile
-        const profileData = await identityApi.getProfile(user.id);
+        const profileData = await identityApi.getGeniusProfile(user.id);
         setProfile(profileData);
 
-        // Fetch milestones (replace achievements)
-        const milestoneData = await identityApi.getMilestones(user.id);
-        setMilestones(milestoneData);
+        // Fetch achievements as milestones
+        const achievements = await identityApi.getUserAchievements(user.id);
+        setMilestones(achievements);
 
         // Fetch level info
-        const level = await identityApi.getLevel(user.id);
+        const level = await identityApi.calculateUserLevel(user.id);
         setLevelInfo(level);
 
         // Fetch level definition
@@ -83,10 +83,10 @@ export function IdentityWidget() {
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={profile?.avatar_url || undefined} alt="Profile" />
-            <AvatarFallback className="text-lg">{profile?.displayName?.substring(0, 2).toUpperCase() || '??'}</AvatarFallback>
+            <AvatarFallback className="text-lg">{profile?.genius_id?.substring(0, 2).toUpperCase() || '??'}</AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <h3 className="font-medium">{profile?.displayName || 'User'}</h3>
+            <h3 className="font-medium">{profile?.genius_id || 'User'}</h3>
             <div className="flex items-center">
               <Badge className="mr-2">Level {levelInfo.level}</Badge>
               {levelDefinition && (

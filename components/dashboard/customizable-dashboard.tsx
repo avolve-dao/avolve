@@ -156,7 +156,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
         const defaultWidgets = Object.values(availableWidgets)
           .filter((widget: Widget) => widget.defaultEnabled)
           .map((widget: Widget) => ({
-            id: widget.id,
+            ...widget,
             size: widget.defaultSize,
             visible: true
           }));
@@ -186,7 +186,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
     const defaultWidgets = Object.values(availableWidgets)
       .filter((widget: Widget) => widget.defaultEnabled)
       .map((widget: Widget) => ({
-        id: widget.id,
+        ...widget,
         size: widget.defaultSize,
         visible: true
       }));
@@ -213,7 +213,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
       setActiveWidgets([
         ...activeWidgets,
         {
-          id: widgetId,
+          ...widgetToAdd,
           size: widgetToAdd.defaultSize,
           visible: true
         }

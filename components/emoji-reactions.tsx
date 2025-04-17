@@ -64,7 +64,7 @@ export function EmojiReactions({ itemId, itemType, userId, username }: EmojiReac
     })
 
     // Handle emoji click events
-    channel.on("broadcast", { event: "emoji_click" }, (payload) => {
+    channel.on("broadcast", { event: "emoji_click" }, (payload: any) => {
       const { emoji, position, senderId, senderName } = payload.payload
 
       // Update reactions count
@@ -86,7 +86,7 @@ export function EmojiReactions({ itemId, itemType, userId, username }: EmojiReac
     })
 
     // Handle emoji remove events
-    channel.on("broadcast", { event: "emoji_remove" }, (payload) => {
+    channel.on("broadcast", { event: "emoji_remove" }, (payload: any) => {
       const { emoji, senderId } = payload.payload
 
       // Update reactions count
@@ -105,7 +105,7 @@ export function EmojiReactions({ itemId, itemType, userId, username }: EmojiReac
     })
 
     // Subscribe to channel
-    channel.subscribe(async (status) => {
+    channel.subscribe(async (status: any) => {
       if (status === "SUBSCRIBED") {
         // Track presence
         await channel.track({
@@ -153,7 +153,7 @@ export function EmojiReactions({ itemId, itemType, userId, username }: EmojiReac
       const counts: Record<string, number> = {}
       const userReacted: Record<string, boolean> = {}
 
-      data?.forEach((reaction) => {
+      data?.forEach((reaction: any) => {
         counts[reaction.emoji] = (counts[reaction.emoji] || 0) + 1
 
         if (reaction.user_id === userId) {
@@ -335,4 +335,3 @@ export function EmojiReactions({ itemId, itemType, userId, username }: EmojiReac
     </div>
   )
 }
-

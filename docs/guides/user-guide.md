@@ -1,6 +1,53 @@
 # Avolve Platform User Guide
 
+> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+
 This guide explains how to engage with the Avolve platform's regenerative gamified system, including subscribing, participating through daily claims, contributing, and unlocking features through metrics improvements.
+
+## Table of Contents
+
+- [Get Started in 5 Minutes](#get-started-in-5-minutes)
+- [Getting Started](#getting-started)
+  - [Creating an Account](#creating-an-account)
+  - [Getting Started with Invitations](#getting-started-with-invitations)
+  - [Onboarding Process](#onboarding-process)
+  - [Starting Your First Challenge](#starting-your-first-challenge)
+- [Your Journey](#your-journey)
+  - [Degen-to-Regen Transformation](#degen-to-regen-transformation)
+  - [Experience Phases](#experience-phases)
+  - [Personalized Recommendations](#personalized-recommendations)
+- [Transformation Journeys](#transformation-journeys)
+  - [Superachiever Journey](#superachiever-journey)
+  - [Superachievers Journey](#superachievers-journey)
+  - [Supercivilization Journey](#supercivilization-journey)
+  - [Journey Integration](#journey-integration)
+- [Maximize Your Time](#maximize-your-time)
+  - [Complete SSA in Two Clicks](#complete-ssa-in-two-clicks)
+  - [10-Second Feedback](#10-second-feedback)
+- [Your Value Journey](#your-value-journey)
+  - [Journey Selection Guide](#journey-selection-guide)
+  - [Token Optimization Strategy](#token-optimization-strategy)
+- [Participating with Daily Claims](#participating-with-daily-claims)
+  - [Daily Claim Schedule](#daily-claim-schedule)
+  - [Weekly Token Schedule](#weekly-token-schedule)
+- [Contributing to the Community](#contributing-to-the-community)
+  - [Ways to Contribute](#ways-to-contribute)
+- [Tracking Your Contributions](#tracking-your-contributions)
+  - [Census Dashboard](#census-dashboard)
+  - [Contribution Analytics](#contribution-analytics)
+  - [Impact Metrics](#impact-metrics)
+- [Metrics and Feature Unlocks](#metrics-and-feature-unlocks)
+  - [Key Metrics](#key-metrics)
+  - [Feature Unlock Requirements](#feature-unlock-requirements)
+- [Earning Tokens and Streaks](#earning-tokens-and-streaks)
+  - [Tips for Maximizing Your Streak Bonuses](#tips-for-maximizing-your-streak-bonuses)
+- [Understanding Your Consent History](#understanding-your-consent-history)
+  - [Accessing Your Consent History](#accessing-your-consent-history)
+  - [Managing Your Consent](#managing-your-consent)
+- [Getting Help](#getting-help)
+  - [Frequently Asked Questions](#frequently-asked-questions)
+- [Support & Feedback](#support--feedback)
+- [FAQ](#faq)
 
 ## Table of Contents
 
@@ -839,7 +886,7 @@ In addition to daily challenges, the platform offers weekly challenges for each 
 ### Common Questions
 
 **Q: What happens if I miss a daily challenge?**
-A: If you miss a daily challenge, your streak for that specific token will reset. However, your streaks for other tokens remain unaffected. Your longest streak is still recorded in your profile statistics.
+A: If you miss a day, your streak for that specific token will reset. However, your streaks for other tokens remain unaffected. Your longest streak is still recorded in your profile statistics.
 
 **Q: How exactly does the Tesla 3-6-9 bonus system work?**
 A: The Tesla 3-6-9 system provides increasing rewards as your streak grows:
@@ -868,342 +915,16 @@ For additional support, contact our team at **admin@avolve.io** with the followi
 
 Remember that your journey on the Avolve platform is unique to you. Embrace the process of transformation, engage with the community, and enjoy the benefits of the regenerative gamified system.
 
-## How to Participate in Governance
-
-The Avolve platform enables community members to participate in governance activities through a transparent and consent-based system. Here's how you can get involved:
-
-### Prerequisites for Governance Participation
-
-- You must have at least 100 GEN tokens to create proposals
-- Any user can vote on existing proposals
-- All governance actions require explicit consent
-
-### Creating a Proposal
-
-1. **Access the Governance Dashboard**: Navigate to the "Governance" section from the main menu
-2. **Click "Create Proposal"**: This button is located at the top-right of the Governance Dashboard
-3. **Fill in Proposal Details**:
-   - Title: A clear, concise title for your proposal
-   - Description: A detailed explanation of what you're proposing and why
-4. **Provide Consent**: Check the consent box to confirm your voluntary participation
-5. **Submit Your Proposal**: Click the "Create Proposal" button to submit
-
-![Creating a proposal](https://github.com/avolve-dao/avolve/assets/images/create-proposal.png)
-
-### Voting on Proposals
-
-1. **Browse Active Proposals**: On the Governance Dashboard, navigate to the "Active Proposals" tab
-2. **Select a Proposal**: Click "View Details" on any proposal you wish to vote on
-3. **Review the Proposal**: Read the full description and current voting status
-4. **Provide Consent**: Check the consent box to confirm your voluntary participation
-5. **Cast Your Vote**: Click the "Cast Vote" button to register your vote
-
-Your voting power is proportional to your GEN token holdings, giving you more influence as you accumulate more tokens.
-
-### Tracking Proposal Outcomes
-
-1. **Check Proposal Status**: Proposals can be in one of three states:
-   - Active: Currently open for voting
-   - Approved: Received sufficient votes to pass
-   - Rejected: Did not receive sufficient votes to pass
-2. **View Results**: Navigate to the appropriate tab on the Governance Dashboard
-3. **Implementation Updates**: For approved proposals, implementation updates will be posted in the proposal details
-
-### Best Practices for Governance Participation
-
-- **Research Thoroughly**: Understand the full implications of proposals before voting
-- **Engage in Discussion**: Participate in community discussions about active proposals
-- **Regular Participation**: Check the Governance Dashboard regularly for new proposals
-- **Responsible Proposal Creation**: Only create well-thought-out proposals that benefit the community
-
-## Reporting a Violation
-
-The Avolve platform includes a dispute resolution system to address potential violations of community guidelines or The Prime Law. Here's how to report a violation:
-
-### When to Report a Violation
-
-You should consider reporting a violation when you encounter:
-
-- Content that violates The Prime Law principles
-- Harassment or abusive behavior
-- Misuse of platform features
-- Fraudulent activities
-- Technical exploits or vulnerabilities
-
-### How to Submit a Report
-
-1. **Access the Dispute Resolution System**: Click on the "Report" button (available on all content) or navigate to "Support" > "Report a Violation"
-2. **Select Violation Type**: Choose the category that best describes the violation
-3. **Provide Details**: Describe the violation in detail, including:
-   - What happened
-   - When it occurred
-   - Who was involved (usernames)
-   - Any relevant evidence (screenshots, links)
-4. **Review and Submit**: Verify your report details and submit
-
-![Reporting a violation](https://github.com/avolve-dao/avolve/assets/images/report-violation.png)
-
-### After Submitting a Report
-
-1. **Confirmation**: You'll receive a confirmation that your report has been received
-2. **Review Process**: A member of the dispute resolution team will review your report
-3. **Additional Information**: You may be contacted for additional information
-4. **Resolution**: You'll be notified when a resolution has been reached
-
-### Dispute Resolution Process
-
-The dispute resolution process follows these steps:
-
-1. **Initial Review**: The report is reviewed by the dispute resolution team
-2. **Investigation**: Relevant evidence is gathered and analyzed
-3. **Mediation**: If appropriate, a mediation process between parties is initiated
-4. **Resolution**: A resolution is determined based on the investigation
-5. **Implementation**: Any necessary actions are taken
-6. **Documentation**: The resolution is documented for future reference
-
-All dispute resolution processes adhere to The Prime Law's principles of voluntary participation and consent.
-
-## Understanding Your Consent History
-
-The Avolve platform maintains a transparent record of all consent actions you've taken. Here's how to access and understand your consent history:
-
-### Accessing Your Consent History
-
-1. **Navigate to Your Profile**: Click on your profile icon in the top-right corner
-2. **Select "Consent History"**: This option is available in the dropdown menu
-3. **View Your Records**: Your consent history will be displayed in chronological order
-
-![Consent history page](https://github.com/avolve-dao/avolve/assets/images/consent-history.png)
-
-### Understanding Consent Records
-
-Each consent record includes the following information:
-
-- **Date and Time**: When the consent was given
-- **Interaction Type**: The type of action (e.g., governance_proposal, governance_vote, token_transfer)
-- **Terms**: The specific terms you consented to
-- **Status**: The current status of your consent (active, revoked, expired)
-- **Metadata**: Additional contextual information about the consent
-
-### Filtering Your Consent History
-
-You can filter your consent records using various criteria:
-
-1. **Date Range**: Use the date range picker to view consents within a specific period
-2. **Interaction Type**: Filter by the type of interaction
-3. **Status**: View only active, revoked, or expired consents
-4. **Search**: Use the search bar to find specific consent records
-
-### Managing Your Consent
-
-You can manage your consent records in the following ways:
-
-1. **View Details**: Click on any consent record to view its full details
-2. **Revoke Consent**: For eligible consents, you can click "Revoke" to withdraw your consent
-3. **Download Records**: You can download your consent history as a CSV file for your records
-
-### Consent and The Prime Law
-
-All consent mechanisms in the Avolve platform adhere to The Prime Law's principles of voluntary participation. This means:
-
-- Consent is always explicit and informed
-- You can withdraw consent at any time for future actions
-- Your consent history is transparent and accessible
-- No action requiring consent is taken without your explicit approval
-
-Understanding and managing your consent history is an important part of participating in the Avolve network state, ensuring that your interactions remain voluntary and transparent.
-
-## Launch Day Experience
-
-Welcome to the official launch of the Avolve platform! Today marks the beginning of your regenerative journey with our community. Here's what to expect on your first day:
-
-### Start with SSA (Lime-Green-Emerald)
-
-Today's token focus is **SSA (Supersociety Advancements)**, represented by our distinctive Lime-Green-Emerald gradient. This token represents our collective journey toward a more advanced society.
-
-1. **Complete Today's Challenge**: Navigate to your dashboard to find today's SSA challenge
-2. **Reflect and Engage**: Take a moment to thoughtfully complete the reflection or action
-3. **Rate Your Experience**: Use the Feedback Form to share your thoughts on the SSA challenge
-4. **Track Your Progress**: Watch your token balance update in real-time
-
-The SSA token is particularly special as it represents the bridge between individual achievement and collective advancement—the perfect starting point for your Avolve journey.
-
-### Monitor Your Regen Score
-
-Your personal **Regen Score** is now live on your dashboard! This score measures your regenerative impact based on:
-
-- Platform activity and engagement
-- Community contributions and connections
-- Token utilization and diversity
-- Streak maintenance and consistency
-
-As you engage with the platform, you'll see your Regen Score increase, unlocking new features and opportunities. The score updates in real-time as you complete challenges and interact with the community.
-
-### Propose New Unlocks
-
-See a locked feature you're excited about? You can now propose to unlock it earlier:
-
-1. Navigate to any locked feature card on your dashboard
-2. Click "Propose Unlock" to open the proposal form
-3. Make your case for why this feature should be unlocked sooner
-4. Submit your proposal for community consideration
-
-Popular proposals include the **Mentorship Program**, which connects experienced members with newcomers for personalized guidance and accelerated growth.
-
-## Live Community
-
-The Avolve platform is built around real-time community interaction. Experience the power of our connected ecosystem through these features:
-
-### Real-Time SSA Leaderboard
-
-Watch as the SSA leaderboard updates in real-time throughout launch day:
-
-1. **Live Updates**: See immediate changes as community members complete SSA challenges
-2. **Celebration Notifications**: Receive alerts when milestones are reached
-3. **Engagement Metrics**: Track total community participation and completion rates
-4. **Token Velocity**: Monitor how quickly SSA tokens are being earned platform-wide
-
-The leaderboard uses Supabase's real-time subscriptions to provide instantaneous updates without requiring page refreshes.
-
-### Connect with Top Regens
-
-The leaderboard isn't just for competition—it's for connection:
-
-1. **View Profiles**: Click on any leaderboard entry to view that member's profile
-2. **Send Connection Requests**: Reach out to top performers for mentorship or collaboration
-3. **Join Discussion Threads**: Participate in conversations about SSA challenges
-4. **Form Study Groups**: Create or join groups focused on specific aspects of SSA
-
-Building connections with top Regens can accelerate your journey and provide valuable insights into effective platform strategies.
-
-## Your 2025 Regen Path
-
-The Avolve platform offers a personalized regenerative journey tailored to your unique goals and interests. Here's how to make the most of your 2025 Regen Path:
-
-### Pick Your Journey
-
-Your journey on Avolve is customized based on your primary token focus:
-
-- **SAP (Superachiever)**: Focus on individual growth and personal achievements
-- **SCQ (Superachievers)**: Emphasize collective growth and community contributions
-- **GEN (Supercivilization)**: Balance both individual and collective growth
-
-Each path provides tailored SSA events and challenges designed to maximize your growth in your chosen areas. Your dashboard will highlight recommended events based on your token holdings and previous engagement patterns.
-
-![Journey Selection](/assets/images/journey-selection-2025.png)
-
-### Live SSA Leaderboard
-
-Connect with fellow Regens through the real-time SSA leaderboard:
-
-- **Real-Time Updates**: See immediate changes as community members complete events
-- **Community Recognition**: Celebrate top contributors and their achievements
-- **Engagement Metrics**: Track your position and progress relative to the community
-- **Connection Opportunities**: Find and connect with like-minded Regens
-
-The leaderboard updates instantly using Supabase real-time subscriptions, ensuring you always have the most current view of community activity.
-
-### Trust Through Transparency
-
-At Avolve, your consent and privacy are paramount:
-
-- **Comprehensive Consent Logs**: Every action requiring your consent is meticulously recorded
-- **Transparent Data Usage**: Clear documentation of how your data is used
-- **Revocable Permissions**: Ability to review and revoke consent at any time
-- **Audit Trail**: Complete history of your platform interactions
-
-Your consent logs provide a transparent record of all platform interactions, empowering you with full control over your data and experience.
-
-## Shape the Future
-
-As a valued member of the Avolve community, you have the power to influence the platform's evolution:
-
-### Propose New Unlocks
-
-The Avolve platform grows through community-driven feature proposals:
-
-1. **Identify Opportunities**: Explore locked features in the `/dashboard` to understand what's coming
-2. **Draft Proposals**: Create detailed proposals for new features or modifications
-3. **Community Feedback**: Gather input from other community members
-4. **Formal Submission**: Submit your proposal through the governance system
-
-Popular community proposals include governance mechanisms, enhanced token utilities, and new collaboration tools.
-
-### Locked Features Preview
-
-Visit your `/dashboard` to preview upcoming features that can be unlocked:
-
-- **Governance Portal**: Participate in platform decision-making (requires 100 GEN tokens)
-- **Advanced Analytics**: Access detailed insights about your journey (requires 50 GEN tokens)
-- **Collaboration Spaces**: Create dedicated spaces for team projects (requires 75 GEN tokens)
-- **Token Exchange**: Trade tokens with other community members (requires 200 GEN tokens)
-
-Each locked feature displays clear requirements for unlocking, typically based on token holdings, engagement metrics, or streak achievements.
-
-## Getting Help
-
-If you need assistance with any aspect of the platform:
-
-1. Visit the "Help Center" for documentation and guides
-2. Join the community forum to ask questions and share experiences
-3. Contact support through the "Support" section for personalized assistance
-4. Participate in onboarding webinars and tutorials for guided learning
-
-### Need Help?
-
-If you encounter any issues while using the Avolve platform, here are some common troubleshooting steps:
-
-#### Invitation Code Not Working?
-- Check that you've entered the code exactly as provided (codes are case-sensitive)
-- Verify that the invitation hasn't expired (check the expiration date)
-- Ensure the invitation hasn't already been claimed by someone else
-- Contact the person who invited you for a new code if necessary
-
-#### Daily Challenge Not Registering?
-- Make sure you've completed all requirements for the challenge
-- Check your internet connection and refresh the page
-- Try logging out and logging back in
-- Wait 5-10 minutes as some actions may take time to process
-
-#### Tokens Not Appearing in Your Wallet?
-- Verify that you've properly claimed the reward
-- Check the "Transactions" tab to see if the mint was successful
-- Allow up to 15 minutes for tokens to appear during high traffic periods
-- Contact support if tokens don't appear after 24 hours
-
-#### Streak Incorrectly Reset?
-- Check if you completed the challenge before the daily reset time (midnight UTC)
-- Verify that you completed the correct challenge for that day
-- Review your activity log for confirmation of completion
-
-### Frequently Asked Questions
-
-**Q: What happens if I miss a day in my streak?**
-A: If you miss a day, your streak for that specific token will reset to 0. However, your streaks for other tokens remain unaffected. Your longest streak is still recorded in your profile statistics.
-
-**Q: How exactly does the Tesla 3-6-9 bonus system work?**
-A: The Tesla 3-6-9 system provides increasing rewards as your streak grows:
-- Streaks of 1-2 days: Standard reward (1.0x multiplier)
-- Streaks of 3-5 days: 1.3x reward multiplier
-- Streaks of 6-8 days: 1.6x reward multiplier
-- Streaks of 9+ days: 1.9x reward multiplier, plus an additional 0.3x for every 3 days beyond 9
-
-**Q: Can I participate in multiple challenges on the same day?**
-A: Yes! While each day has a featured token challenge, you can participate in any available challenges. However, you'll only increase your streak for the token associated with the current day.
-
-**Q: What's the best strategy to maximize my token earnings?**
-A: Focus on maintaining consistent daily streaks, particularly for tokens that align with your interests. Aim to reach the 9-day milestone for maximum rewards, and participate in weekly challenges for additional bonuses.
-
-**Q: How do invitation tiers affect my experience?**
-A: Higher invitation tiers provide more substantial welcome bonuses and longer validity periods. However, once you're registered, all members have equal access to platform features regardless of their invitation tier.
-
-**Q: Can I change my email or username after registration?**
-A: You can change your display name at any time from your profile settings. Email changes require verification and can be done through the "Account Settings" section.
-
-For additional support, contact our team at **admin@avolve.io** with the following information:
-- Your username
-- Description of the issue
-- Screenshots (if applicable)
-- Steps you've already taken to resolve the issue
-
-Remember that your journey on the Avolve platform is unique to you. Embrace the process of transformation, engage with the community, and enjoy the benefits of the regenerative gamified system.
+## Support & Feedback
+
+- For help, contact support@avolve.io
+- To provide feedback or request features, open an issue or use the in-app feedback form.
+
+## FAQ
+
+- **Q: How do I reset my password?**
+  - A: Use the password reset link on the login page.
+- **Q: How do I earn more tokens?**
+  - A: Participate daily, complete challenges, and contribute to the community.
+- **Q: Who can I contact for help?**
+  - A: Email support@avolve.io or ask in the community chat.

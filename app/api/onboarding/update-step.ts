@@ -60,7 +60,7 @@ export async function PATCH(req: NextRequest) {
         completed_at: onboardingDone ? new Date().toISOString() : null,
         updated_at: new Date().toISOString()
       }
-    ], { onConflict: ['user_id'] });
+    ], { onConflict: 'user_id' });
 
   if (updateError) {
     console.error('Error updating onboarding progress:', updateError);

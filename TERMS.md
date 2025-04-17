@@ -1,5 +1,7 @@
 # Terms of Service
 
+> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+
 Last Updated: April 11, 2025
 
 Copyright 2025 Avolve DAO and the Joshua Seymour Family. All rights reserved. Proprietary and confidential.
@@ -121,34 +123,49 @@ TO THE MAXIMUM EXTENT PERMITTED BY LAW, AVOLVE DAO SHALL NOT BE LIABLE FOR ANY I
 
 We may modify these Terms at any time. Continued use of the Platform constitutes acceptance of modified Terms.
 
-## 11. Governing Law
+## 11. Dispute Resolution
+
+- Any disputes arising from these Terms will be resolved through binding arbitration in the jurisdiction of Avolve DAO.
+- Please contact legal@avolve.io for any legal questions or dispute notices.
+
+## 12. Governing Law
 
 These Terms are governed by the laws of the jurisdiction in which Avolve DAO is registered.
 
-## 12. Platform Testing
+## 13. Platform Testing
 
-### 12.1 Feature Testing
+### 13.1 Feature Testing
 - We regularly test new features
 - Test participation is automatic
 - Test data is collected
 - No opt-out from testing
 
-### 12.2 Onboarding Variants
+### 13.2 Onboarding Variants
 - Multiple onboarding flows exist
 - Assignment is random
 - Data is collected
 - Flows may change
 
-## 13. Ownership
+## 14. Ownership
 
 All content, code, and intellectual property within this project are exclusively owned and controlled by the Avolve DAO. Unauthorized use, distribution, or reproduction is strictly prohibited.
 
-## 14. Contact
+## 15. Contact
 
 For questions about these Terms:
 - Email: legal@avolve.io
 - Mail: [Legal Address]
 
-## 15. Acceptance
+## 16. Acceptance
 
 BY USING THE PLATFORM, YOU ACCEPT AND AGREE TO THESE TERMS AND CONDITIONS.
+
+## 📋 Summary Table
+| Section | Description |
+|---------|-------------|
+| Agreement | User agrees to terms by using the platform |
+| Service | Platform for personal/collective growth |
+| Accounts | Registration, security, termination |
+| Tokens | Usage, value, rules |
+| Privacy | See [Privacy Policy](./PRIVACY.md) |
+| Security | See [Security Policy](./SECURITY.md) |

@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { Database } from '@/types/supabase';
+// import { Database } from '@/types/supabase'; // Temporarily removed due to missing export
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     // Initialize Supabase client
-    const supabase = createRouteHandlerClient<Database>({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     
     // Verify authentication
     const { data: { session } } = await supabase.auth.getSession();
@@ -732,7 +732,7 @@ function formatPhaseName(phase: string): string {
 export async function PUT(request: NextRequest) {
   try {
     // Initialize Supabase client
-    const supabase = createRouteHandlerClient<Database>({ cookies });
+    const supabase = createRouteHandlerClient({ cookies });
     
     // Verify authentication
     const { data: { session } } = await supabase.auth.getSession();

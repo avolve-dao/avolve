@@ -193,7 +193,7 @@ export class AuditService {
       }
       
       // Get client information if available
-      let ipAddress: string | null = null;
+      const ipAddress: string | null = null;
       let userAgent: string | null = null;
       
       if (typeof window !== 'undefined') {

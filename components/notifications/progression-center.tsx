@@ -120,7 +120,7 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
 
   const markAsRead = async (itemId: string, itemType: string) => {
     let table = '';
-    let idColumn = 'id';
+    const idColumn = 'id';
     switch (itemType) {
       case 'token':
         table = 'token_transactions';

@@ -1,7 +1,6 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { Database } from "@/lib/database.types"
 
 /**
  * Completes the weekly check-in quest for a user, minting PSP tokens if eligible

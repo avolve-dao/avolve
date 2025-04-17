@@ -224,7 +224,7 @@ export function HumanVerification() {
     }
     
     let correct = 0
-    let total = Object.keys(correctAnswers).length
+    const total = Object.keys(correctAnswers).length
     
     for (const [key, value] of Object.entries(correctAnswers)) {
       if (challengeResponse[key] === value) {

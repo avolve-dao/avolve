@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient, Session } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,7 +20,7 @@ interface BusinessProfile {
 export default function Business() {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<any | null>(null);
   const [profile, setProfile] = useState<BusinessProfile | null>(null);
   const [scores, setScores] = useState({ front_stage_score: "", back_stage_score: "", bottom_line_score: "" });
   const [edit, setEdit] = useState(false);

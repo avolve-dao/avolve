@@ -271,7 +271,7 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
       }
       
       // Calculate progress based on requirements
-      let totalRequirements = feature.requirements.length;
+      const totalRequirements = feature.requirements.length;
       let completedRequirements = 0;
       
       feature.requirements.forEach((req) => {

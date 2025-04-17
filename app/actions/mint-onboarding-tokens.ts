@@ -1,7 +1,6 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { cookies } from "next/headers"
 
 /**
  * Mints initial SAP and PSP tokens for a user who has completed onboarding

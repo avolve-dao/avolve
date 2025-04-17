@@ -48,7 +48,7 @@ export function JourneyMap({ userId }: JourneyMapProps) {
     
     // Count total phases completed
     let completedPhases = 0;
-    let totalPhases = userProgress.length * 4; // 4 phases per pillar
+    const totalPhases = userProgress.length * 4; // 4 phases per pillar
     
     userProgress.forEach(pillar => {
       const phaseIndex = ['discover', 'onboard', 'scaffold', 'endgame'].indexOf(pillar.current_phase);

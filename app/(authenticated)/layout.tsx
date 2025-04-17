@@ -4,10 +4,9 @@ import { createClient } from "@/lib/supabase/server"
 import Sidebar from "../components/Sidebar"
 import Navbar from "../components/Navbar"
 import { ThemeProvider } from "@/components/theme-provider"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { SidebarProvider } from "@/components/ui/sidebar"
 import { Suspense } from "react"
 import LoadingSpinner from "@/components/ui/loading-spinner"
-import type { User } from "@supabase/supabase-js"
 
 function RouteLoadingSpinner() {
   return (

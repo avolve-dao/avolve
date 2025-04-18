@@ -8,7 +8,85 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-// import { Database } from '@/types/supabase'; // Temporarily removed due to missing export
+
+// --- Types ---
+interface UserRoleActivity {
+  role_type: string;
+}
+
+interface RegenAnalytics {
+  regen_level: number;
+  community_engagement_score: number;
+  has_team: boolean;
+  contribution_score: number;
+  event_count?: number;
+  team_count?: number;
+  token_transaction_count?: number;
+  recent_milestone_count?: number;
+  current_streak?: number;
+  is_leader?: boolean;
+  [key: string]: unknown;
+}
+
+interface JourneyProgress {
+  current_phase?: string;
+  phase_progress?: number;
+  [key: string]: unknown;
+}
+
+interface Token {
+  id: string;
+  symbol: string;
+  name: string;
+  token_type: string;
+}
+
+interface TokenBalance {
+  token_id: string;
+  balance: number;
+  tokens: Token;
+}
+
+interface EventType {
+  type_name?: string;
+  [key: string]: unknown;
+}
+
+interface Event {
+  id: string;
+  event_date: string;
+  event_types?: EventType;
+  current_participants?: number;
+  max_participants?: number;
+  [key: string]: unknown;
+}
+
+interface TokenFlowData {
+  [key: string]: unknown;
+}
+
+interface StreakData {
+  current_daily_streak?: number;
+  [key: string]: unknown;
+}
+
+interface InteractionData {
+  action?: string;
+  recommendation_id?: string;
+  [key: string]: unknown;
+}
+
+interface Recommendation {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  icon: null;
+  action: string;
+  actionUrl: string;
+  priority: number;
+  reason: string;
+}
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
@@ -33,9 +111,8 @@ export async function POST(request: NextRequest) {
     
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
-      type UserRoleActivity = { role_type: string };
       const { data: userRole } = await supabase
-        .from('user_role_activity' as any)
+        .from('user_role_activity')
         .select('role_type')
         .eq('user_id', session.user.id)
         .single();
@@ -48,8 +125,8 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Fetch user's regen analytics data (type assertion for custom RPC)
-    const { data: regenData, error: regenError } = await (supabase as any)
+    // Fetch user's regen analytics data
+    const { data: regenData, error: regenError } = await supabase
       .rpc('get_user_regen_analytics', { user_id_param: userId });
     
     if (regenError) {
@@ -60,8 +137,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch user's journey progress (type assertion for custom RPC)
-    const { data: journeyProgress, error: journeyError } = await (supabase as any)
+    // Fetch user's journey progress
+    const { data: journeyProgress, error: journeyError } = await supabase
       .rpc('get_user_progress', { user_id_param: userId });
     
     if (journeyError) {
@@ -72,8 +149,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch user's token balances (type assertion for missing generated type)
-    const { data: tokenBalances, error: tokenError } = await (supabase as any)
+    // Fetch user's token balances
+    const { data: tokenBalances, error: tokenError } = await supabase
       .from('user_balances')
       .select('token_id, balance, tokens(id, symbol, name, token_type)')
       .eq('user_id', userId);
@@ -86,16 +163,16 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch token flow analytics for personalized token recommendations (type assertion for custom RPC)
-    const { data: tokenFlowData, error: tokenFlowError } = await (supabase as any)
+    // Fetch token flow analytics
+    const { data: tokenFlowData, error: tokenFlowError } = await supabase
       .rpc('get_user_token_health', { user_id_param: userId });
     
     if (tokenFlowError && tokenFlowError.code !== 'PGRST116') { // Not found is okay
       console.error('Error fetching token flow data:', tokenFlowError);
     }
     
-    // Fetch upcoming events (type assertion for missing generated type)
-    const { data: upcomingEvents, error: eventsError } = await (supabase as any)
+    // Fetch upcoming events
+    const { data: upcomingEvents, error: eventsError } = await supabase
       .from('events')
       .select('*, event_types(*)')
       .gt('event_date', new Date().toISOString())
@@ -110,14 +187,14 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Fetch user's completed events (type assertion for missing generated type)
-    const { data: completedEvents, error: completedError } = await (supabase as any)
-      .from('event_completions')
-      .select('event_id, completion_date')
+    // Fetch user's completed events
+    const { data: completedEvents, error: completedEventsError } = await supabase
+      .from('user_completed_events')
+      .select('*')
       .eq('user_id', userId);
     
-    if (completedError) {
-      console.error('Error fetching completed events:', completedError);
+    if (completedEventsError) {
+      console.error('Error fetching completed events:', completedEventsError);
       return NextResponse.json(
         { error: 'Failed to fetch completed events' },
         { status: 500 }
@@ -125,42 +202,37 @@ export async function POST(request: NextRequest) {
     }
     
     // Fetch user's streak data
-    const { data: streakData, error: streakError } = await (supabase as any)
-      .from('user_token_streaks')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+    const { data: streakData, error: streakError } = await supabase
+      .rpc('get_user_streak', { user_id_param: userId });
     
-    if (streakError && streakError.code !== 'PGRST116') { // Not found is okay
+    if (streakError && streakError.code !== 'PGRST116') {
       console.error('Error fetching streak data:', streakError);
     }
     
-    // Fetch user's recommendation interactions for personalization (type assertion for missing generated type)
-    const { data: interactionData, error: interactionError } = await (supabase as any)
-      .from('recommendation_interactions')
-      .select('recommendation_id, action, interaction_date')
-      .eq('user_id', userId)
-      .order('interaction_date', { ascending: false })
-      .limit(20);
+    // Fetch user's interaction data
+    const { data: interactionData, error: interactionError } = await supabase
+      .from('user_interactions')
+      .select('*')
+      .eq('user_id', userId);
     
     if (interactionError) {
-      console.error('Error fetching recommendation interactions:', interactionError);
+      console.error('Error fetching interaction data:', interactionError);
     }
     
-    // Generate AI-driven recommendations based on collected data
+    // Generate recommendations
     const recommendations = generateRecommendations(
-      regenData,
-      journeyProgress,
-      tokenBalances,
-      upcomingEvents,
-      completedEvents,
-      streakData,
-      tokenFlowData,
-      interactionData || []
+      regenData as RegenAnalytics,
+      journeyProgress as JourneyProgress,
+      (tokenBalances ?? []) as TokenBalance[],
+      (upcomingEvents ?? []) as Event[],
+      (completedEvents ?? []) as Event[],
+      streakData as StreakData,
+      tokenFlowData as TokenFlowData,
+      (interactionData ?? []) as InteractionData[]
     );
     
-    // Log the recommendation generation without blocking response (type assertion for missing generated type)
-    const { error } = await (supabase as any)
+    // Log the recommendation generation without blocking response
+    const { error } = await supabase
       .from('ai_recommendation_logs')
       .insert({
         user_id: userId,
@@ -185,23 +257,22 @@ export async function POST(request: NextRequest) {
 
 // Helper function to generate recommendations based on user data
 function generateRecommendations(
-  regenData: any,
-  journeyProgress: any,
-  tokenBalances: any[],
-  upcomingEvents: any[],
-  completedEvents: any[],
-  streakData: any,
-  tokenFlowData: any,
-  interactionData: any[]
-) {
-  const recommendations: any[] = [];
+  regenData: RegenAnalytics,
+  journeyProgress: JourneyProgress,
+  tokenBalances: TokenBalance[],
+  upcomingEvents: Event[],
+  completedEvents: Event[],
+  streakData: StreakData,
+  tokenFlowData: TokenFlowData,
+  interactionData: InteractionData[]
+): Recommendation[] {
+  const recommendations: Recommendation[] = [];
   
   // Track which recommendation types we've already added
   const addedTypes = new Set();
   
-  // Get user's current phase and level
+  // Get user's current phase
   const currentPhase = journeyProgress?.current_phase || 'discovery';
-  const regenLevel = regenData?.regen_level || 1;
   
   // Analyze past interactions to improve recommendations
   const clickedRecommendations = new Set(
@@ -217,7 +288,7 @@ function generateRecommendations(
   );
   
   // Prioritize streak maintenance if streak exists
-  if (streakData && streakData.current_daily_streak > 0) {
+  if (streakData && typeof streakData.current_daily_streak === 'number' && streakData.current_daily_streak > 0) {
     // Calculate days until next Tesla milestone (3, 6, 9, etc.)
     const currentStreak = streakData.current_daily_streak;
     const nextMilestone = Math.ceil(currentStreak / 3) * 3;
@@ -243,33 +314,28 @@ function generateRecommendations(
   // Add event recommendations
   if (upcomingEvents && upcomingEvents.length > 0) {
     // Filter out events the user has already completed
-    const completedEventIds = new Set(completedEvents.map((e: any) => e.event_id));
-    const relevantEvents = upcomingEvents.filter((event: any) => !completedEventIds.has(event.id));
+    const completedEventIds = new Set(completedEvents.map((e: Event) => e.id));
+    const relevantEvents = upcomingEvents.filter((event: Event) => !completedEventIds.has(event.id));
     
     // Sort by relevance to user's journey
-    relevantEvents.sort((a: any, b: any) => {
+    relevantEvents.sort((a: Event, b: Event) => {
       const priorityA = calculateEventPriority(a, regenData);
       const priorityB = calculateEventPriority(b, regenData);
       return priorityB - priorityA;
     });
     
     // Add top 2 most relevant events
-    relevantEvents.slice(0, 2).forEach((event: any) => {
+    relevantEvents.slice(0, 2).forEach((event: Event) => {
       const eventPriority = calculateEventPriority(event, regenData);
       const recommendationId = `event-${event.id}`;
-      
-      // Skip if user has dismissed this recommendation recently
-      if (dismissedRecommendations.has(recommendationId)) {
-        return;
-      }
-      
+      // Defensive: event.title and event.description may be unknown
+      const title = typeof event.title === 'string' ? event.title : 'Untitled Event';
+      const description = typeof event.description === 'string' ? event.description : '';
       recommendations.push({
         id: recommendationId,
         type: 'event',
-        title: event.title,
-        description: event.description.length > 100 
-          ? `${event.description.substring(0, 97)}...` 
-          : event.description,
+        title,
+        description,
         icon: null,
         action: 'Join Event',
         actionUrl: `/events/${event.id}`,
@@ -366,18 +432,18 @@ function generateRecommendations(
 }
 
 // Calculate priority for event recommendations
-function calculateEventPriority(event: any, regenData: any): number {
+function calculateEventPriority(event: Event, regenData: RegenAnalytics): number {
   let priority = 50; // Base priority
   
   // Adjust based on event type match to user's journey
-  if (event.event_types) {
-    const eventType = event.event_types.type_name?.toLowerCase() || '';
+  if (event.event_types && event.event_types.type_name) {
+    const eventType = event.event_types.type_name.toLowerCase();
     
     // Boost priority for events that match user's strengths
     if (
-      (eventType.includes('personal') && regenData.event_count > 5) ||
+      (eventType.includes('personal') && typeof regenData.event_count === 'number' && regenData.event_count > 5) ||
       (eventType.includes('community') && regenData.team_count > 0) ||
-      (eventType.includes('token') && regenData.token_transaction_count > 10)
+      (eventType.includes('token') && typeof regenData.token_transaction_count === 'number' && regenData.token_transaction_count > 10)
     ) {
       priority += 15;
     }
@@ -385,7 +451,7 @@ function calculateEventPriority(event: any, regenData: any): number {
     // Boost priority for events that help with user's weaknesses
     if (
       (eventType.includes('community') && regenData.community_engagement_score < 30) ||
-      (eventType.includes('milestone') && regenData.recent_milestone_count < 2) ||
+      (eventType.includes('milestone') && typeof regenData.recent_milestone_count === 'number' && regenData.recent_milestone_count < 2) ||
       (eventType.includes('streak') && (!regenData.current_streak || regenData.current_streak < 3))
     ) {
       priority += 20;
@@ -409,10 +475,12 @@ function calculateEventPriority(event: any, regenData: any): number {
   }
   
   // Adjust based on capacity
-  const capacityPercentage = event.current_participants / event.max_participants * 100;
-  if (capacityPercentage >= 80) {
-    // Almost full
-    priority += 10;
+  if (event.current_participants && event.max_participants) {
+    const capacityPercentage = event.current_participants / event.max_participants * 100;
+    if (capacityPercentage >= 80) {
+      // Almost full
+      priority += 10;
+    }
   }
   
   // Cap priority at 100
@@ -420,16 +488,16 @@ function calculateEventPriority(event: any, regenData: any): number {
 }
 
 // Determine reason for recommending an event
-function determineEventRecommendationReason(event: any, regenData: any): string {
-  if (event.event_types) {
-    const eventType = event.event_types.type_name?.toLowerCase() || '';
+function determineEventRecommendationReason(event: Event, regenData: RegenAnalytics): string {
+  if (event.event_types && event.event_types.type_name) {
+    const eventType = event.event_types.type_name.toLowerCase();
     
     // Personalized reason based on event type and user data
     if (eventType.includes('community') && regenData.community_engagement_score < 30) {
       return 'This event will boost your community engagement score';
     }
     
-    if (eventType.includes('milestone') && regenData.recent_milestone_count < 2) {
+    if (eventType.includes('milestone') && typeof regenData.recent_milestone_count === 'number' && regenData.recent_milestone_count < 2) {
       return 'Completing this event will help you achieve more milestones';
     }
     
@@ -451,7 +519,7 @@ function determineEventRecommendationReason(event: any, regenData: any): string 
     return 'Happening soon! Join to earn immediate rewards';
   }
   
-  if (event.current_participants / event.max_participants >= 0.8) {
+  if (event.current_participants && event.max_participants && event.current_participants / event.max_participants >= 0.8) {
     return 'This event is filling up quickly';
   }
   
@@ -459,8 +527,8 @@ function determineEventRecommendationReason(event: any, regenData: any): string 
 }
 
 // Generate content recommendations based on journey progress
-function generateContentRecommendations(journeyProgress: any, regenData: any): any[] {
-  const recommendations: any[] = [];
+function generateContentRecommendations(journeyProgress: JourneyProgress, regenData: RegenAnalytics): Recommendation[] {
+  const recommendations: Recommendation[] = [];
   const currentPhase = journeyProgress?.current_phase || 'discovery';
   
   // Discovery phase content
@@ -553,12 +621,12 @@ function generateContentRecommendations(journeyProgress: any, regenData: any): a
 
 // Generate token recommendations
 function generateTokenRecommendations(
-  tokenBalances: any[], 
-  streakData: any, 
-  regenData: any,
-  tokenFlowData: any
-): any[] {
-  const recommendations: any[] = [];
+  tokenBalances: TokenBalance[], 
+  streakData: StreakData, 
+  regenData: RegenAnalytics,
+  tokenFlowData: TokenFlowData
+): Recommendation[] {
+  const recommendations: Recommendation[] = [];
   
   // Check if user has any tokens
   if (!tokenBalances || tokenBalances.length === 0) {
@@ -578,7 +646,7 @@ function generateTokenRecommendations(
   }
   
   // Recommend streak building if no active streak
-  if (!streakData || streakData.current_daily_streak === 0) {
+  if (!streakData || typeof streakData.current_daily_streak !== 'number' || streakData.current_daily_streak === 0) {
     recommendations.push({
       id: 'token-start-streak',
       type: 'token',
@@ -653,8 +721,8 @@ function generateTokenRecommendations(
 }
 
 // Generate community recommendations
-function generateCommunityRecommendations(regenData: any): any[] {
-  const recommendations: any[] = [];
+function generateCommunityRecommendations(regenData: RegenAnalytics): Recommendation[] {
+  const recommendations: Recommendation[] = [];
   
   // Recommend community engagement based on regen level
   if (regenData.regen_level >= 2) {
@@ -749,9 +817,8 @@ export async function PUT(request: NextRequest) {
     
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
-      type UserRoleActivity = { role_type: string };
       const { data: userRole } = await supabase
-        .from('user_role_activity' as any)
+        .from('user_role_activity')
         .select('role_type')
         .eq('user_id', session.user.id)
         .single();
@@ -765,7 +832,7 @@ export async function PUT(request: NextRequest) {
     }
     
     // Record the interaction
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('recommendation_interactions')
       .insert({
         user_id: userId,

@@ -39,14 +39,14 @@ export function A11yProvider({ children }: { children: React.ReactNode }) {
       try {
         new URL(supabaseUrl);
         supabase = createBrowserClient(supabaseUrl, supabaseKey);
-      } catch (urlError) {
+      } catch {
         // Suppress the error from being logged as unhandled
         console.warn('Supabase URL is not properly formatted. Accessibility features may not work as expected.');
       }
     } else {
       console.warn('Supabase URL or Key not set. Accessibility features may not work as expected.');
     }
-  } catch (error: unknown) {
+  } catch {
     console.warn('Supabase initialization failed. Accessibility features may not work as expected.');
   }
 

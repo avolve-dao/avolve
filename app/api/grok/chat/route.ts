@@ -2,7 +2,7 @@ import { StreamingTextResponse, streamText } from "@/lib/ai-sdk-setup"
 import { getContextualGrokModel } from "@/lib/grok-context"
 import { rateLimit } from "@/lib/rate-limit"
 import { logger } from "@/lib/logger"
-import { generateCacheKey, getCachedResponse, setCachedResponse } from "@/lib/cache"
+import { generateCacheKey, getCachedResponse } from "@/lib/cache"
 import { applySecurityHeaders } from "@/lib/security-headers"
 import { safeValidateGrokChatRequest } from "@/lib/validators/chat"
 import { NextRequest, NextResponse } from 'next/server';

@@ -186,7 +186,7 @@ export async function GET(req: NextRequest) {
     const supabase = createRouteHandlerClient({ cookies });
     
     // Get the user ID from the request headers
-    const userId = getUserId(req);
+    const userId = getUserId(req) as string | undefined;
     
     if (!userId) {
       return NextResponse.json<ErrorResponse>(

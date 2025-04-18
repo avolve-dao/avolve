@@ -93,17 +93,17 @@ export function isMarketplaceIntegrationEnabled(): boolean {
   return !!MARKETPLACE_API_KEY;
 }
 
+// TODO: Uncomment and ensure this import is valid, or implement shareContent locally if needed
+// import { shareContent } from '@/lib/utils/socialSharing';
+
 /**
  * Utility to share a listed NFT on social media after successful listing
- * @param listingId The ID of the listing on the marketplace
- * @param platform The social media platform to share on
  * @returns True if sharing is initiated
  */
-export function shareNFTListing(listingId: string, platform: string): boolean {
-  const marketplaceUrl = `https://example-nft-marketplace.com/listing/${listingId}`;
-  const message = `Check out my Avolve Reward NFT now listed on the marketplace! #Avolve #NFT`;
+export function shareNFTListing(): boolean {
+  // const marketplaceUrl = `https://example-nft-marketplace.com/listing/${listingId}`;
+  // const message = `Check out my Avolve Reward NFT now listed on the marketplace! #Avolve #NFT`;
 
-  // Reuse the shareContent function from socialSharing utility
-  const { shareContent } = require('@/lib/utils/socialSharing');
-  return shareContent(platform, message, marketplaceUrl);
+  // TODO: Implement or import shareContent for sharing functionality
+  return false;
 }

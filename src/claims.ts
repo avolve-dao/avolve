@@ -5,7 +5,7 @@ import { TokenSymbols, type TokenSymbol } from '@/types/platform';
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient<Database>(supabaseUrl || '', supabaseKey || '');
+// const supabase = createClient<Database>(supabaseUrl || '', supabaseKey || '');
 
 /**
  * ClaimsService - Handles daily token claims and streak management
@@ -205,12 +205,12 @@ export class ClaimsService {
    */
   async getRecentClaims(userId: string, limit: number = 7): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Claim[];
     error?: string;
   }> {
     try {
       const { data, error } = await this.supabase
-        .from('daily_claims')
+        .from('claims')
         .select(`
           id,
           token_id,
@@ -224,9 +224,19 @@ export class ClaimsService {
 
       if (error) throw error;
 
+      // Normalize data to Claim[]
+      const claims: Claim[] = (data || []).map((row: Record<string, unknown>) => ({
+        id: String(row.id ?? ''),
+        token_id: String(row.token_id ?? ''),
+        token_symbol: typeof row.tokens === 'object' && row.tokens && 'symbol' in row.tokens ? String((row.tokens as Record<string, unknown>).symbol ?? '') : '',
+        token_name: typeof row.tokens === 'object' && row.tokens && 'name' in row.tokens ? String((row.tokens as Record<string, unknown>).name ?? '') : '',
+        amount: typeof row.amount === 'number' ? row.amount : 0,
+        claimed_at: String(row.claimed_at ?? '')
+      }));
+
       return {
         success: true,
-        data
+        data: claims
       };
     } catch (error) {
       console.error('Get recent claims error:', error);
@@ -280,6 +290,16 @@ export class ClaimsService {
       };
     }
   }
+}
+
+// Add Claim interface for type safety
+export interface Claim {
+  id: string;
+  token_id: string;
+  token_symbol: string;
+  token_name: string;
+  amount: number;
+  claimed_at: string;
 }
 
 // Export a singleton instance

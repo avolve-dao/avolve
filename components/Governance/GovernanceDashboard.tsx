@@ -29,7 +29,7 @@ const GovernanceDashboard: React.FC = () => {
   const [consentGiven, setConsentGiven] = useState(false);
   
   // Get governance data with react-query
-  const { data: petitions, isLoading: petitionsLoading, error: petitionsError } = usePetitions();
+  const { data: petitions, isLoading: petitionsLoading } = usePetitions();
   const { data: eligibility, isLoading: eligibilityLoading } = useEligibility();
   
   // Mutations
@@ -51,7 +51,7 @@ const GovernanceDashboard: React.FC = () => {
       setTitle('');
       setDescription('');
       setConsentGiven(false);
-    } catch (error) {
+    } catch {
       // Error handling is done in the mutation
     }
   };
@@ -60,7 +60,7 @@ const GovernanceDashboard: React.FC = () => {
   const handleVote = async (petitionId: string, voteType: 'support' | 'oppose' | 'abstain') => {
     try {
       await votePetitionMutation.mutateAsync({ petitionId, voteType });
-    } catch (error) {
+    } catch {
       // Error handling is done in the mutation
     }
   };
@@ -188,11 +188,9 @@ const GovernanceDashboard: React.FC = () => {
         
         {petitionsLoading ? (
           <p className="text-gray-500">Loading petitions...</p>
-        ) : petitionsError ? (
-          <p className="text-red-500">Failed to load petitions</p>
         ) : petitions?.length > 0 ? (
           <div className="space-y-6">
-            {petitions.map((petition: any) => (
+            {petitions.map((petition: unknown) => (
               <motion.div
                 key={petition.id}
                 initial={{ opacity: 0, y: 20 }}

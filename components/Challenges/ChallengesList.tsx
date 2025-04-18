@@ -2,15 +2,15 @@
 
 import React, { useState } from 'react';
 import { useChallenges } from '../../hooks/useChallenges';
-import { TokenSymbols, type TokenSymbol } from '@/types/platform';
+import { TokenSymbols } from '@/types/platform';
 
 /**
  * ChallengesList Component
  * Displays today's challenges and allows users to complete them
  */
-const ChallengesList: React.FC = () => {
+const ChallengesList: React.FC<unknown> = () => {
   const {
-    challenges,
+    challenges: challengesHook,
     loading,
     claimReward
   } = useChallenges();
@@ -19,7 +19,7 @@ const ChallengesList: React.FC = () => {
   const [completionResult, setCompletionResult] = useState<{
     success: boolean;
     message: string;
-    data?: any;
+    data?: unknown;
   } | null>(null);
 
   // Handle challenge completion
@@ -77,7 +77,7 @@ const ChallengesList: React.FC = () => {
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">Today's Challenges</h2>
+      <h2 className="text-2xl font-bold mb-4">{"Today&apos;s Challenges"}</h2>
       
       {loading ? (
         <div className="flex justify-center my-4">
@@ -86,22 +86,22 @@ const ChallengesList: React.FC = () => {
       ) : (
         <>
           {/* Today's Token */}
-          {challenges && challenges.length > 0 && (
+          {challengesHook && challengesHook.length > 0 && (
             <div className="mb-6">
-              <div className={`p-4 rounded-lg text-white ${getTokenColor(challenges[0].reward_token)}`}>
+              <div className={`p-4 rounded-lg text-white ${getTokenColor(challengesHook[0].reward_token)}`}>
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-xl font-bold">{challenges[0].reward_token}</p>
+                    <p className="text-xl font-bold">{challengesHook[0].reward_token}</p>
                     <p className="text-xs mt-1 opacity-80">
-                      {getDayForToken(challenges[0].reward_token)}
+                      {getDayForToken(challengesHook[0].reward_token)}
                     </p>
                   </div>
                   <div>
-                    {challenges[0].reward_token && (
+                    {challengesHook[0].reward_token && (
                       <div className="text-right">
                         <p className="text-sm">Progress</p>
                         <p className="text-xl font-bold">
-                          {challenges[0].progress} pts
+                          {challengesHook[0].progress} pts
                         </p>
                       </div>
                     )}
@@ -112,9 +112,9 @@ const ChallengesList: React.FC = () => {
           )}
 
           {/* Challenge List */}
-          {challenges && challenges.length > 0 ? (
+          {challengesHook && challengesHook.length > 0 ? (
             <div className="space-y-4">
-              {challenges.map((challenge) => {
+              {challengesHook.map((challenge) => {
                 const isCompleted = challenge.completed;
                 
                 return (
@@ -162,7 +162,7 @@ const ChallengesList: React.FC = () => {
           ) : (
             <div className="p-6 text-center bg-gray-50 rounded-lg">
               <p className="text-gray-500">
-                {challenges?.length === 0
+                {challengesHook?.length === 0
                   ? "No challenges available for today's token."
                   : "No challenges available."
                 }

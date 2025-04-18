@@ -79,7 +79,7 @@ export interface Component {
   subtitle: string | null;
   description: string | null;
   component_type: ComponentType;
-  content: any | null;
+  content: Record<string, unknown> | null;
   display_order: number;
   created_at: string;
   updated_at: string;
@@ -104,10 +104,10 @@ export interface UserComponentProgress {
   id: string;
   user_id: string;
   component_id: string;
-  current_state: any | null;
-  desired_state: any | null;
-  action_plan: any | null;
-  results: any | null;
+  current_state: Record<string, unknown> | null;
+  desired_state: Record<string, unknown> | null;
+  action_plan: Record<string, unknown> | null;
+  results: Record<string, unknown> | null;
   status: JourneyStatus;
   started_at: string | null;
   completed_at: string | null;
@@ -215,16 +215,16 @@ export interface GeniusProfile {
   chain_account: string | null;
   avatar_url: string | null;
   bio: string | null;
-  current_state: any | null;
-  desired_state: any | null;
-  action_plan: any | null;
-  results: any | null;
+  current_state: Record<string, unknown> | null;
+  desired_state: Record<string, unknown> | null;
+  action_plan: Record<string, unknown> | null;
+  results: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
 
 // GeniusLevelDefinition - Definition of a genius level
-export type GeniusLevelDefinition = any;
+export type GeniusLevelDefinition = Record<string, unknown>;
 
 /**
  * Governance Types
@@ -296,7 +296,7 @@ export interface PhysicalNode {
   founder_id: string | null;
   latitude: number | null;
   longitude: number | null;
-  address: any | null;
+  address: Record<string, unknown> | null;
   city: string | null;
   state_province: string | null;
   country: string | null;
@@ -348,7 +348,7 @@ export interface NetworkCensus {
   under_development_nodes: number;
   fundraising_nodes: number;
   proposed_nodes: number;
-  census_data: any | null;
+  census_data: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
@@ -504,7 +504,7 @@ export interface Database {
         Args: {
           p_user_id: string;
         };
-        Returns: any;
+        Returns: Record<string, unknown>;
       };
       
       // Identity Functions

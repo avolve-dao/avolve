@@ -26,12 +26,12 @@ export async function POST(request: NextRequest) {
     
     // Parse request body
     const body = await request.json();
-    const { userId, recommendationId, action, timestamp } = body;
+    const { userId, recommendationId, action, timestamp, metadata } = body;
     
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
       // Fix: Use type assertion for user_roles
-      const { data: userRole } = await (supabase as any)
+      const { data: userRole } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', session.user.id)
@@ -46,13 +46,14 @@ export async function POST(request: NextRequest) {
     }
     
     // Record the interaction
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('recommendation_interactions')
       .insert({
         user_id: userId,
         recommendation_id: recommendationId,
         action,
-        interaction_date: timestamp || new Date().toISOString()
+        interaction_date: timestamp || new Date().toISOString(),
+        metadata
       });
     
     if (error) {

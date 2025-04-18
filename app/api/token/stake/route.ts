@@ -8,7 +8,7 @@ import { getCachedData, setCachedData, generateCacheKey } from "@/lib/cache"
  * POST /api/token/stake
  * Stake tokens using a specific staking rule
  */
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const body = await req.json()
+    const body = await NextRequest.json()
     const { tokenTypeId, stakingRuleId, amount } = body
 
     if (!tokenTypeId || !stakingRuleId || !amount) {
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
  * GET /api/token/stake
  * Get staking information for the authenticated user
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -156,7 +156,7 @@ export async function GET(req: NextRequest) {
  * DELETE /api/token/stake
  * Unstake tokens from an active stake
  */
-export async function DELETE(req: NextRequest) {
+export async function DELETE() {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -168,7 +168,7 @@ export async function DELETE(req: NextRequest) {
       )
     }
 
-    const body = await req.json()
+    const body = await NextRequest.json()
     const { stakeId } = body
 
     if (!stakeId) {

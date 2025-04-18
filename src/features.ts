@@ -1,19 +1,14 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase';
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
  * FeaturesService - Manages feature unlocks based on user progress and metrics
  * Handles unlocking teams, governance, marketplace, and day-specific tokens
  */
 export class FeaturesService {
-  private supabase: SupabaseClient<Database>;
+  private supabase: SupabaseClient<unknown>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
-    this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
+  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
+    this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
   /**
@@ -37,9 +32,7 @@ export class FeaturesService {
       dayTokensClaimed: number;
     };
   }> {
-    const { data, error } = await this.supabase.rpc('check_feature_unlock', {
-      p_feature_name: featureName
-    });
+    const { data, error } = await this.supabase.rpc('check_feature_unlock', featureName);
 
     if (error) {
       console.error('Error checking feature unlock:', error);
@@ -69,9 +62,7 @@ export class FeaturesService {
       gradient: string;
     };
   }> {
-    const { data, error } = await this.supabase.rpc('check_day_token_unlock', {
-      p_day_name: dayName
-    });
+    const { data, error } = await this.supabase.rpc('check_day_token_unlock', dayName);
 
     if (error) {
       console.error('Error checking day token unlock:', error);
@@ -153,9 +144,7 @@ export class FeaturesService {
     message: string;
     amount?: number;
   }> {
-    const { data, error } = await this.supabase.rpc('claim_day_token', {
-      p_token_symbol: tokenSymbol
-    });
+    const { data, error } = await this.supabase.rpc('claim_day_token', tokenSymbol);
 
     if (error) {
       console.error('Error claiming day token:', error);
@@ -181,9 +170,7 @@ export class FeaturesService {
     dayOfWeek: number;
     gradient: string;
   }> {
-    const { data, error } = await this.supabase.rpc('get_day_token_info', {
-      p_day_of_week: dayOfWeek
-    });
+    const { data, error } = await this.supabase.rpc('get_day_token_info', dayOfWeek);
 
     if (error) {
       console.error('Error getting day token info:', error);

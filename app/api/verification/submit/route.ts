@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get current verification status
-    const { data: verificationData, error: verificationError } = await supabase
+    const { data: verificationData } = await supabase
       .from('human_verifications')
       .select('is_verified, verification_data')
       .eq('user_id', user.id)
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     const isNowVerified = newScore >= 100
     
     // Update verification data
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('human_verifications')
       .upsert({
         user_id: user.id,

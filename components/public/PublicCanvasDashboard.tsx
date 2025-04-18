@@ -3,6 +3,10 @@ import { createClient } from '../../lib/supabase/client';
 import FeedbackWidget from './FeedbackWidget';
 import ExperimentParticipationWidget from './ExperimentParticipationWidget';
 import UserAdminStoriesBar from './UserAdminStoriesBar';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 const supabase = createClient();
 
@@ -103,16 +107,13 @@ const PublicCanvasDashboard: React.FC = () => {
         {relatedExperiments.map(exp => (
           <li key={exp.id}>
             <strong>{exp.title}</strong> ({exp.status}){' '}
-            <span style={{
-              display: 'inline-block',
-              marginLeft: 8,
-              padding: '2px 8px',
-              borderRadius: 8,
-              fontSize: '0.85em',
-              background: exp.experiment_type === 'simulation' ? '#f5eaff' : '#eaffea',
-              color: exp.experiment_type === 'simulation' ? '#a259e6' : '#2e7d32',
-              fontWeight: 600
-            }}>
+            <span
+              className="inline-block ml-2 px-2 py-1 rounded-md text-xs font-bold"
+              style={{
+                background: exp.experiment_type === 'simulation' ? '#f5eaff' : '#eaffea',
+                color: exp.experiment_type === 'simulation' ? '#a259e6' : '#2e7d32',
+              }}
+            >
               {exp.experiment_type === 'simulation' ? 'Simulation' : 'Real-World'}
             </span><br />
             <span>{exp.description}</span>
@@ -139,15 +140,15 @@ const PublicCanvasDashboard: React.FC = () => {
     }
     if (relatedLearnings.length === 0) return null;
     return (
-      <ul style={{ marginLeft: '1em' }}>
+      <ul className="ml-4">
         {relatedLearnings.map(learning => (
-          <li key={learning.id} style={{ marginBottom: 10 }}>
+          <li key={learning.id} className="mb-4">
             <em>{learning.summary}</em>
-            {learning.details && <div style={{ fontSize: '0.95em', color: '#555' }}>{learning.details}</div>}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+            {learning.details && <div className="text-sm text-muted-foreground">{learning.details}</div>}
+            <div className="flex items-center gap-2 mt-1">
               <span
+                className="text-xs font-bold rounded-md px-2 py-1"
                 style={{
-                  fontSize: '0.8em', borderRadius: 8, padding: '2px 8px', fontWeight: 600,
                   background: learning.actionable_status === 'actionable' ? '#fffbe6' : learning.actionable_status === 'implemented' ? '#e6ffed' : learning.actionable_status === 'follow_up' ? '#e6f0ff' : '#f5f5f5',
                   color: learning.actionable_status === 'actionable' ? '#b26a00' : learning.actionable_status === 'implemented' ? '#237804' : learning.actionable_status === 'follow_up' ? '#0050b3' : '#888',
                   cursor: 'help',
@@ -158,7 +159,12 @@ const PublicCanvasDashboard: React.FC = () => {
               </span>
               {learning.context?.pillar && (
                 <span
-                  style={{ fontSize: '0.8em', background: '#f0f8ff', color: '#0070f3', borderRadius: 8, padding: '2px 8px', fontWeight: 600, cursor: 'help' }}
+                  className="text-xs font-bold rounded-md px-2 py-1"
+                  style={{
+                    background: '#f0f8ff',
+                    color: '#0070f3',
+                    cursor: 'help',
+                  }}
                   title="Pillar: Individual (Superachiever), Collective (Superachievers), or Ecosystem (Supercivilization)."
                 >
                   {learning.context.pillar.charAt(0).toUpperCase() + learning.context.pillar.slice(1)}
@@ -166,7 +172,12 @@ const PublicCanvasDashboard: React.FC = () => {
               )}
               {learning.context?.token && (
                 <span
-                  style={{ fontSize: '0.8em', background: '#f8fff0', color: '#2e7d32', borderRadius: 8, padding: '2px 8px', fontWeight: 600, cursor: 'help' }}
+                  className="text-xs font-bold rounded-md px-2 py-1"
+                  style={{
+                    background: '#f8fff0',
+                    color: '#2e7d32',
+                    cursor: 'help',
+                  }}
                   title="Token: Platform or pillar token associated with this learning."
                 >
                   {learning.context.token.toUpperCase()}
@@ -174,7 +185,12 @@ const PublicCanvasDashboard: React.FC = () => {
               )}
               {learning.context?.quest && (
                 <span
-                  style={{ fontSize: '0.8em', background: '#fff0f8', color: '#b4004e', borderRadius: 8, padding: '2px 8px', fontWeight: 600, cursor: 'help' }}
+                  className="text-xs font-bold rounded-md px-2 py-1"
+                  style={{
+                    background: '#fff0f8',
+                    color: '#b4004e',
+                    cursor: 'help',
+                  }}
                   title="Quest: Thematic or strategic quest linked to this learning."
                 >
                   {learning.context.quest}
@@ -188,44 +204,47 @@ const PublicCanvasDashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="p-6">
       <h1>Strategyzer Canvas (Public Transparency)</h1>
       {/* Stories Bar - contextually filtered to pillar */}
       <UserAdminStoriesBar context={selectedPillar} />
-      <div style={{ marginBottom: 16 }}>
-        {pillars.map(p => (
-          <button
+      <div className="flex flex-wrap gap-2 mb-4">
+        {pillars.map((p) => (
+          <Button
             key={p.key}
+            variant={selectedPillar === p.key ? 'default' : 'secondary'}
             onClick={() => setSelectedPillar(p.key)}
-            style={{
-              marginRight: 8,
-              background: selectedPillar === p.key ? '#0070f3' : '#eee',
-              color: selectedPillar === p.key ? '#fff' : '#333',
-              border: 'none',
-              borderRadius: 4,
-              padding: '8px 16px',
-              cursor: 'pointer',
-            }}
+            className={selectedPillar === p.key ? '' : 'text-foreground'}
           >
             {p.label}
-          </button>
+          </Button>
         ))}
       </div>
-      <h3 style={{ marginTop: 0 }}>Filter Learnings:</h3>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
-        <select value={learningStatusFilter} onChange={e => setLearningStatusFilter(e.target.value)}>
-          <option value="">All Statuses</option>
-          <option value="needs_review">Needs Review</option>
-          <option value="actionable">Actionable</option>
-          <option value="implemented">Implemented</option>
-          <option value="follow_up">Follow Up</option>
-        </select>
-        <select value={learningTypeFilter} onChange={e => setLearningTypeFilter(e.target.value)}>
-          <option value="">All Pillars</option>
-          <option value="individual">Individual (Superachiever)</option>
-          <option value="collective">Collective (Superachievers)</option>
-          <option value="ecosystem">Ecosystem (Supercivilization)</option>
-        </select>
+      <h3 className="mt-0">Filter Learnings:</h3>
+      <div className="flex gap-3 mb-4">
+        <Select value={learningStatusFilter} onValueChange={setLearningStatusFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Statuses" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="needs_review">Needs Review</SelectItem>
+            <SelectItem value="actionable">Actionable</SelectItem>
+            <SelectItem value="implemented">Implemented</SelectItem>
+            <SelectItem value="follow_up">Follow Up</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={learningTypeFilter} onValueChange={setLearningTypeFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="All Pillars" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Pillars</SelectItem>
+            <SelectItem value="individual">Individual (Superachiever)</SelectItem>
+            <SelectItem value="collective">Collective (Superachievers)</SelectItem>
+            <SelectItem value="ecosystem">Ecosystem (Supercivilization)</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       {loading ? (
         <div>Loading...</div>
@@ -236,7 +255,7 @@ const PublicCanvasDashboard: React.FC = () => {
           ) : (
             <ul>
               {canvasEntries.map(entry => (
-                <li key={entry.id} style={{ marginBottom: 24 }}>
+                <li key={entry.id} className="mb-6">
                   <h3>{entry.title}</h3>
                   <div><strong>Type:</strong> {entry.canvas_type}</div>
                   <div>{entry.description}</div>
@@ -244,7 +263,7 @@ const PublicCanvasDashboard: React.FC = () => {
                   {userId && <FeedbackWidget context={`canvas:${entry.id}`} userId={userId} />}
                   {/* Stories Bar for canvas entry */}
                   <UserAdminStoriesBar context={`canvas:${entry.id}`} />
-                  <div style={{ marginTop: 8 }}>
+                  <div className="mt-2">
                     <strong>Experiments:</strong>
                     {renderExperiments(entry.id)}
                   </div>
@@ -254,55 +273,32 @@ const PublicCanvasDashboard: React.FC = () => {
           )}
         </div>
       )}
-      <div style={{ marginTop: 32, fontSize: '0.95em', color: '#555' }}>
+      <div className="mt-8 text-[0.95em] text-muted-foreground">
         <p>This dashboard provides transparent visibility into the current and evolving Canvas, experiments, and learnings for each pillar of the Avolve journey. User feedback and participation are always welcome!</p>
       </div>
-      {/* Native React Modal for Onboarding */}
-      {showOnboarding && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-          background: 'rgba(0,0,0,0.45)', zIndex: 1000,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="avolve-onboarding-title"
-        >
-          <div style={{
-            background: '#fff', borderRadius: 12, padding: 32, maxWidth: 480, width: '90%',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.18)', position: 'relative',
-          }}>
-            <button
-              onClick={() => setShowOnboarding(false)}
-              style={{ position: 'absolute', top: 14, right: 18, background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: '#aaa' }}
-              aria-label="Close onboarding modal"
-            >&times;</button>
-            <h2 id="avolve-onboarding-title" style={{ marginTop: 0, marginBottom: 12 }}>🌱 Welcome to Avolve!</h2>
-            <p style={{ fontSize: '1.1em', marginBottom: 16 }}>
-              Begin your Supercivilization journey from <strong>Degen</strong> to <strong>Regen</strong>.<br/>
-              <br/>
-              <strong>Explore:</strong>
-              <ul style={{ margin: '8px 0 16px 18px', fontSize: '1em' }}>
-                <li><b>Canvas Dashboard</b>: Visualize transformation at the <b>Individual</b>, <b>Collective</b>, and <b>Ecosystem</b> levels.</li>
-                <li><b>Experiments</b>: Run Real-World & Simulation experiments. Track status and learnings.</li>
-                <li><b>Learnings & Results</b>: Filter, act, and celebrate progress. Badges show actionable status and context.</li>
-                <li><b>Stories Bar</b>: Share and discover real journeys and breakthroughs.</li>
-              </ul>
-              <b>Tip:</b> Hover over badges and icons for more context.
-            </p>
-            <button
-              onClick={() => setShowOnboarding(false)}
-              style={{
-                background: '#0070f3', color: '#fff', border: 'none', borderRadius: 6,
-                padding: '10px 28px', fontWeight: 600, fontSize: '1em', cursor: 'pointer',
-                marginTop: 8
-              }}
-            >
-              🚀 Start Exploring
-            </button>
+      {/* Onboarding Dialog */}
+      <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
+        <DialogContent className="max-w-lg w-full">
+          <DialogHeader>
+            <DialogTitle>🌱 Welcome to Avolve!</DialogTitle>
+          </DialogHeader>
+          <div className="mb-3 text-base">
+            Begin your Supercivilization journey from <strong>Degen</strong> to <strong>Regen</strong>.<br />
+            <br />
+            <strong>Explore:</strong>
+            <ul className="my-2 ml-5 list-disc text-base">
+              <li><b>Canvas Dashboard</b>: Visualize transformation at the <b>Individual</b>, <b>Collective</b>, and <b>Ecosystem</b> levels.</li>
+              <li><b>Experiments</b>: Run Real-World & Simulation experiments. Track status and learnings.</li>
+              <li><b>Learnings & Results</b>: Filter, act, and celebrate progress. Badges show actionable status and context.</li>
+              <li><b>Stories Bar</b>: Share and discover real journeys and breakthroughs.</li>
+            </ul>
+            <b>Tip:</b> Hover over badges and icons for more context.
           </div>
-        </div>
-      )}
+          <Button onClick={() => setShowOnboarding(false)} className="mt-2 w-full">
+            🚀 Start Exploring
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

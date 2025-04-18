@@ -45,12 +45,12 @@ export async function GET(req: Request) {
         .map((i: string) => i.trim())
         .join(", ") || "Not specified yet"
 
-    const activitySummary = recentActivity?.length
-      ? recentActivity.map((a: any) => `${a.action_type} a ${a.entity_type}`).join(", ")
+    const activitySummary = Array.isArray(recentActivity) && recentActivity.length
+      ? recentActivity.map((a: { action_type: string; entity_type: string }) => `${a.action_type} a ${a.entity_type}`).join(", ")
       : "No recent activity"
 
-    const trendingSummary = trendingPosts?.length
-      ? trendingPosts.map((p: any) => p.content.substring(0, 30) + "...").join(", ")
+    const trendingSummary = Array.isArray(trendingPosts) && trendingPosts.length
+      ? trendingPosts.map((p: { content: string }) => p.content.substring(0, 30) + "...").join(", ")
       : "No trending topics available"
 
     return new Response(
@@ -80,4 +80,3 @@ export async function GET(req: Request) {
     )
   }
 }
-

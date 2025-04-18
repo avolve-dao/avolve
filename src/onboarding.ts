@@ -1,10 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
-import { metricsService } from './metrics';
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
  * OnboardingService - Manages user onboarding process
@@ -13,7 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export class OnboardingService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
+  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 

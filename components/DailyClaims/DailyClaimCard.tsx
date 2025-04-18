@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useDailyClaims } from '../../hooks/useDailyClaims';
-import { TokenSymbols, type TokenSymbol } from '@/types/platform';
+import { TokenSymbols } from '@/types/platform';
 
 /**
  * DailyClaimCard Component

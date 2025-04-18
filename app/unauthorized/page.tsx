@@ -1,12 +1,11 @@
 "use client"
 
-import React, { useEffect, useState } from "react"
+import React from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle, ShieldAlert } from "lucide-react"
-import { useAuth } from "@/lib/hooks/use-auth"
+import { ShieldAlert } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 /**
@@ -19,7 +18,6 @@ import { Badge } from "@/components/ui/badge"
 export default function UnauthorizedPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user } = useAuth()
   
   // Get required roles and permissions from query parameters
   const requiredRoles = searchParams?.get('roles')?.split(',') || []
@@ -35,12 +33,12 @@ export default function UnauthorizedPage() {
           </div>
           <CardTitle className="text-2xl">Access Denied</CardTitle>
           <CardDescription>
-            You don't have permission to access this resource.
+            You don&apos;t have permission to access this resource.
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
           <p className="text-muted-foreground mb-4">
-            This area requires specific permissions or roles that your account doesn't have.
+            This area requires specific permissions or roles that your account doesn&apos;t have.
             {resource && (
               <span> You attempted to access: <strong>{resource}</strong></span>
             )}

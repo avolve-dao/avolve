@@ -5,7 +5,7 @@ import { createBrowserClient } from '@supabase/ssr';
 
 // Create context for features
 interface FeaturesContextType {
-  features: any;
+  features: unknown;
   loading: boolean;
 }
 
@@ -19,7 +19,7 @@ export const useFeatures = () => useContext(FeaturesContext);
 
 // Features provider component
 export const FeaturesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [features, setFeatures] = useState<any>(null);
+  const [features, setFeatures] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
 
   const supabase = createBrowserClient(

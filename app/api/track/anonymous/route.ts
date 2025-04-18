@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
 import { ActivityActionType } from '@/utils/tracking';
 import { Logger } from '@/lib/monitoring/logger';
 
@@ -8,7 +6,7 @@ const logger = new Logger('AnonymousTrackingAPI');
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    // Removed unused variables supabase, ipAddress, userAgent
     
     const body = await request.json();
     
@@ -20,8 +18,6 @@ export async function POST(request: NextRequest) {
     // Extract data from the request
     const actionType = body.action_type as ActivityActionType;
     const details = body.details || null;
-    const ipAddress = request.headers.get('x-forwarded-for') || null;
-    const userAgent = request.headers.get('user-agent') || null;
     
     // For anonymous tracking, we'll use a special system user ID or just log without a user ID
     // depending on the database structure

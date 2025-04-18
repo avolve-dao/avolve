@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { AlertCircle, RefreshCw, Home } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { Logger } from "@/lib/monitoring/logger"
 
 // Initialize logger
@@ -17,7 +16,7 @@ interface ErrorProps {
 }
 
 export default function Error({ error, reset }: ErrorProps) {
-  const router = useRouter()
+  // Removed unused variable router
   
   useEffect(() => {
     // Log the error to our monitoring system

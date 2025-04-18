@@ -44,7 +44,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
     loadUserTeams
   } = useTeams();
   
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<unknown>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string>('');
   
   useEffect(() => {
@@ -57,14 +57,14 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
     }
     loadSuperpuzzleDetails(superpuzzleId);
     loadData();
-  }, [superpuzzleId, supabase]);
+  }, [superpuzzleId, supabase, loadSuperpuzzleDetails, loadUserTeams]);
 
   useEffect(() => {
     // Set the first team as default if user has teams
     if (userTeams.length > 0 && !selectedTeamId) {
       setSelectedTeamId(userTeams[0].teamId);
     }
-  }, [userTeams]);
+  }, [userTeams, selectedTeamId]);
 
   const loading = superpuzzleLoading || teamsLoading;
 
@@ -137,7 +137,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
   
   // Calculate total points from all team contributions
   const totalPoints = selectedSuperpuzzle.teamContributions?.reduce(
-    (sum: number, contribution: any) => sum + contribution.points, 0
+    (sum: number, contribution: unknown) => sum + contribution.points, 0
   ) || 0;
   
   const progress = Math.min(
@@ -236,7 +236,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
               </div>
             ) : (
               <div className="space-y-4">
-                {selectedSuperpuzzle.teamContributions?.sort((a: any, b: any) => b.points - a.points).map((contribution: any) => (
+                {selectedSuperpuzzle.teamContributions?.sort((a: unknown, b: unknown) => b.points - a.points).map((contribution: unknown) => (
                   <div key={contribution.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center">

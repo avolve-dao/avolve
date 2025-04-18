@@ -1,23 +1,13 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'; 
 import { SupabaseClientProvider } from '@/components/supabase-client-provider'; 
-import SupabaseProvider from '@/lib/supabase/supabase-provider'; 
 
 // TODO: Import authentication context or hook from your auth system
 // import { useAuth } from '@/contexts/AuthContext'; // Placeholder import
-
-// Configure Inter font with Next.js optimization
-const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-})
 
 export const metadata: Metadata = {
   title: 'Avolve - Evolve Your Potential',

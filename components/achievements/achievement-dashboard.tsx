@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
 import { useTokens } from '@/hooks/use-tokens';
-import { Achievement } from './achievement-notification';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -54,7 +52,6 @@ export default function AchievementDashboard({
   const supabaseHook = useSupabase();
   const { claimAchievementReward, trackActivity } = useTokens();
   
-  const [achievements, setAchievements] = useState<UserAchievement[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<UserAchievement[]>([]);
   const [lockedAchievements, setLockedAchievements] = useState<UserAchievement[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -122,9 +119,6 @@ export default function AchievementDashboard({
             });
           
           setLockedAchievements(locked);
-          
-          // Set all achievements
-          setAchievements([...typedUserAchievements, ...locked]);
           
           // Calculate stats
           setTotalAchievements(allAchievements.length);

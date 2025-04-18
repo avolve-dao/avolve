@@ -4,14 +4,15 @@
  * This file provides utility functions for interacting with the Avolve platform database.
  */
 
-import { createClient, TypedSupabaseClient } from '@/lib/supabase/client';
-import type { Database, JourneyStatus } from '@/lib/types/database.types';
+import { createClient } from '@/lib/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { JourneyStatus } from '@/lib/types/database.types';
 
 /**
  * Get all pillars
  */
 export async function getPillars() {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('pillars')
     .select('*')
@@ -29,7 +30,7 @@ export async function getPillars() {
  * Get a pillar by slug
  */
 export async function getPillarBySlug(slug: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('pillars')
     .select('*')
@@ -48,7 +49,7 @@ export async function getPillarBySlug(slug: string) {
  * Get sections for a pillar
  */
 export async function getSectionsForPillar(pillarId: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('sections')
     .select('*')
@@ -67,7 +68,7 @@ export async function getSectionsForPillar(pillarId: string) {
  * Get a section by slug
  */
 export async function getSectionBySlug(slug: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('sections')
     .select('*')
@@ -86,7 +87,7 @@ export async function getSectionBySlug(slug: string) {
  * Get components for a section
  */
 export async function getComponentsForSection(sectionId: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('components')
     .select('*')
@@ -105,7 +106,7 @@ export async function getComponentsForSection(sectionId: string) {
  * Get a component by slug
  */
 export async function getComponentBySlug(slug: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('components')
     .select('*')
@@ -124,7 +125,7 @@ export async function getComponentBySlug(slug: string) {
  * Start a user journey
  */
 export async function startUserJourney(userId: string, pillarSlug: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .rpc('start_user_journey', {
       user_id: userId,
@@ -146,12 +147,12 @@ export async function updateComponentProgress(
   userId: string,
   componentSlug: string,
   status: JourneyStatus,
-  currentState?: any,
-  desiredState?: any,
-  actionPlan?: any,
-  results?: any
+  currentState?: Record<string, unknown>,
+  desiredState?: Record<string, unknown>,
+  actionPlan?: Record<string, unknown>,
+  results?: Record<string, unknown>
 ) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .rpc('update_component_progress', {
       user_id: userId,
@@ -175,7 +176,7 @@ export async function updateComponentProgress(
  * Get user progress summary
  */
 export async function getUserProgressSummary(userId: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .rpc('get_user_progress_summary', {
       user_id: userId
@@ -193,7 +194,7 @@ export async function getUserProgressSummary(userId: string) {
  * Get user journey for a pillar
  */
 export async function getUserJourney(userId: string, pillarId: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('user_journeys')
     .select('*')
@@ -213,7 +214,7 @@ export async function getUserJourney(userId: string, pillarId: string) {
  * Get user section progress
  */
 export async function getUserSectionProgress(userId: string, sectionId: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('user_section_progress')
     .select('*')
@@ -233,7 +234,7 @@ export async function getUserSectionProgress(userId: string, sectionId: string) 
  * Get user component progress
  */
 export async function getUserComponentProgress(userId: string, componentId: string) {
-  const supabase: TypedSupabaseClient = createClient();
+  const supabase: SupabaseClient = createClient();
   const { data, error } = await supabase
     .from('user_component_progress')
     .select('*')

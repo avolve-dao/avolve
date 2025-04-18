@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Parse the request body
-    const body = await req.json()
+    const body: Record<string, unknown> = await req.json()
     
     // Validate the request body
     const validationResult = feedbackSchema.safeParse(body)

@@ -19,7 +19,7 @@ export async function retryOperation<T>(
   maxRetries: number = 2,
   initialDelay: number = 300
 ): Promise<T> {
-  let lastError: any;
+  let lastError: unknown;
   let delay = initialDelay;
   
   for (let attempt = 0; attempt <= maxRetries; attempt++) {

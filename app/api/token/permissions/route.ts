@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server"
  * GET /api/token/permissions
  * Get token-based permissions for the authenticated user
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()

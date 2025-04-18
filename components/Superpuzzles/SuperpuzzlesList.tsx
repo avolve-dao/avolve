@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 interface SuperpuzzlesListProps {
   showTodayOnly?: boolean;
   teamId?: string;
-  contributions?: any[];
+  contributions?: unknown[];
   showContributeButton?: boolean;
 }
 
@@ -25,7 +25,7 @@ interface ContributionData {
 }
 
 interface FormattedSuperpuzzleItem {
-  superpuzzle: any;
+  superpuzzle: unknown;
   contribution?: ContributionData;
 }
 
@@ -51,7 +51,7 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
     } else if (!contributions) {
       loadActiveSuperpuzzles();
     }
-  }, [showTodayOnly]);
+  }, [showTodayOnly, contributions, loadActiveSuperpuzzles, loadTodaySuperpuzzles]);
 
   const superpuzzlesToDisplay = contributions || (showTodayOnly ? todaySuperpuzzles : activeSuperpuzzles);
 
@@ -84,7 +84,7 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
         },
         superpuzzle: contribution.superpuzzle
       }))
-    : superpuzzlesToDisplay.map((superpuzzle: any) => ({ superpuzzle }));
+    : superpuzzlesToDisplay.map((superpuzzle: unknown) => ({ superpuzzle }));
 
   // Split into active and completed
   const activeItems = formattedSuperpuzzles.filter(item => 
@@ -100,7 +100,7 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">
           {showTodayOnly 
-            ? `Today's Superpuzzles: ${getTokenNameForDay(new Date().getDay())}` 
+            ? `Today&apos;s Superpuzzles: ${getTokenNameForDay(new Date().getDay())}` 
             : 'Superpuzzles'}
         </h2>
         {!showTodayOnly && !contributions && (
@@ -108,7 +108,7 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
             onClick={() => router.push('/superpuzzles/today')}
             variant="outline"
           >
-            View Today's Superpuzzles
+            View Today&apos;s Superpuzzles
           </Button>
         )}
       </div>
@@ -121,7 +121,7 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
             {showTodayOnly 
               ? "There are no superpuzzles available for today." 
               : contributions 
-                ? "This team hasn't contributed to any superpuzzles yet."
+                ? "This team hasn&apos;t contributed to any superpuzzles yet."
                 : "There are no active superpuzzles available at the moment."}
           </p>
           {!showTodayOnly && (

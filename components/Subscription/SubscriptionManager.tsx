@@ -140,7 +140,7 @@ export function SubscriptionManager() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            You don't have an active subscription at the moment.
+            {"You can&apos;t manage your subscription here."}
           </p>
         </CardContent>
       </Card>

@@ -1,11 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
-import { TokenSymbol } from '../types/supabase';
-import { metricsService } from './metrics';
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { TokenSymbol } from '../types/platform';
 
 /**
  * ChallengesService - Manages user challenges and progress
@@ -14,7 +9,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export class ChallengesService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
+  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
@@ -33,7 +28,7 @@ export class ChallengesService {
     success: boolean;
     data?: {
       points: number;
-      tokenSymbol: string;
+      tokenSymbol: TokenSymbol;
       unlocked: boolean;
       totalPoints: number;
     };
@@ -50,17 +45,22 @@ export class ChallengesService {
 
       // Boost interaction rate in metrics
       if (data) {
-        await metricsService.recordMetric(
-          'interaction',
-          1,
-          userId,
-          { challenge_id: challengeId, points: data.points }
-        );
+        await this.supabase.rpc('record_metric', {
+          p_metric: 'interaction',
+          p_value: 1,
+          p_user_id: userId,
+          p_data: JSON.stringify({ challenge_id: challengeId, points: data.points })
+        });
       }
 
       return {
         success: true,
-        data
+        data: {
+          points: data.points,
+          tokenSymbol: data.tokenSymbol,
+          unlocked: data.unlocked,
+          totalPoints: data.totalPoints
+        }
       };
     } catch (error) {
       console.error('Challenge completion error:', error);
@@ -80,7 +80,7 @@ export class ChallengesService {
    */
   async getChallenges(tokenSymbol?: TokenSymbol): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Challenge[];
     error?: string;
   }> {
     try {
@@ -116,7 +116,18 @@ export class ChallengesService {
 
       return {
         success: true,
-        data
+        data: data.map((challenge) => ({
+          id: challenge.id,
+          name: challenge.name,
+          description: challenge.description,
+          token_id: challenge.token_id,
+          tokens: {
+            symbol: challenge.tokens.symbol,
+            name: challenge.tokens.name
+          },
+          points: challenge.points,
+          active: challenge.active
+        }))
       };
     } catch (error) {
       console.error('Get challenges error:', error);
@@ -135,7 +146,7 @@ export class ChallengesService {
    */
   async getUserCompletedChallenges(userId: string): Promise<{
     success: boolean;
-    data?: any[];
+    data?: ChallengeCompletion[];
     error?: string;
   }> {
     try {
@@ -160,7 +171,21 @@ export class ChallengesService {
 
       return {
         success: true,
-        data
+        data: data.map((completion) => ({
+          id: completion.id,
+          challenge_id: completion.challenge_id,
+          challenges: {
+            name: completion.challenges.name,
+            description: completion.challenges.description,
+            points: completion.challenges.points,
+            token_id: completion.challenges.token_id,
+            tokens: {
+              symbol: completion.challenges.tokens.symbol,
+              name: completion.challenges.tokens.name
+            }
+          },
+          completed_at: completion.completed_at
+        }))
       };
     } catch (error) {
       console.error('Get user completed challenges error:', error);
@@ -179,7 +204,7 @@ export class ChallengesService {
    */
   async getUserProgress(userId: string): Promise<{
     success: boolean;
-    data?: any[];
+    data?: UserProgress[];
     error?: string;
   }> {
     try {
@@ -198,7 +223,17 @@ export class ChallengesService {
 
       return {
         success: true,
-        data
+        data: data.map((progress) => ({
+          id: progress.id,
+          token_id: progress.token_id,
+          tokens: {
+            symbol: progress.tokens.symbol,
+            name: progress.tokens.name,
+            is_locked: progress.tokens.is_locked
+          },
+          points: progress.points,
+          level: progress.level
+        }))
       };
     } catch (error) {
       console.error('Get user progress error:', error);
@@ -217,10 +252,9 @@ export class ChallengesService {
    */
   async getTodaysChallenges(userId: string): Promise<{
     success: boolean;
-    data?: {
-      dayToken: string;
-      challenges: any[];
-      completedToday: any[];
+    data: {
+      challenges: Challenge[];
+      completedToday: ChallengeCompletion[];
     };
     error?: string;
   }> {
@@ -295,9 +329,29 @@ export class ChallengesService {
       return {
         success: true,
         data: {
-          dayToken,
-          challenges: challenges || [],
-          completedToday: completedToday || []
+          challenges: challenges.map((challenge) => ({
+            id: challenge.id,
+            name: challenge.name,
+            description: challenge.description,
+            token_id: challenge.token_id,
+            tokens: {
+              symbol: challenge.tokens.symbol,
+              name: challenge.tokens.name
+            },
+            points: challenge.points,
+            active: challenge.active
+          })),
+          completedToday: completedToday.map((completion) => ({
+            id: completion.id,
+            challenge_id: completion.challenge_id,
+            challenges: {
+              name: completion.challenges.name,
+              description: completion.challenges.description,
+              points: completion.challenges.points,
+              token_id: completion.challenges.token_id
+            },
+            completed_at: completion.completed_at
+          }))
         }
       };
     } catch (error) {
@@ -308,6 +362,47 @@ export class ChallengesService {
       };
     }
   }
+}
+
+interface Challenge {
+  id: string;
+  name: string;
+  description: string;
+  token_id: string;
+  tokens: {
+    symbol: string;
+    name: string;
+  };
+  points: number;
+  active: boolean;
+}
+
+interface ChallengeCompletion {
+  id: string;
+  challenge_id: string;
+  challenges: {
+    name: string;
+    description: string;
+    points: number;
+    token_id: string;
+    tokens: {
+      symbol: string;
+      name: string;
+    };
+  };
+  completed_at: string;
+}
+
+interface UserProgress {
+  id: string;
+  token_id: string;
+  tokens: {
+    symbol: string;
+    name: string;
+    is_locked: boolean;
+  };
+  points: number;
+  level: number;
 }
 
 // Export a singleton instance

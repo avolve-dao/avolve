@@ -1,12 +1,30 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../types/database';
 import { TeamRoles, TeamChallengeStatuses, type TeamRole, type TeamChallengeStatus } from '@/types/platform';
-import { MetricTypes, type MetricType } from '@/types/platform';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+
+// Interfaces for type safety
+interface Team {
+  id: string;
+  name: string;
+  description?: string;
+  leader_id: string;
+  created_at: string;
+  memberCount: number;
+  [key: string]: unknown;
+}
+
+interface Profile {
+  id: string;
+  username: string;
+  fullName: string | null;
+  avatarUrl: string | null;
+  [key: string]: unknown;
+}
 
 /**
  * TeamsService - Manages team creation, membership, and collaboration
@@ -412,8 +430,8 @@ export class TeamsService {
       id: string;
       name: string;
       description: string | null;
-      leaderId: string;
-      createdAt: string;
+      leader_id: string;
+      created_at: string;
       memberCount: number;
     }>;
     error?: string;
@@ -453,8 +471,8 @@ export class TeamsService {
         id: team.id,
         name: team.name,
         description: team.description ?? '', // Provide default for null
-        leaderId: team.leader_id,
-        createdAt: team.created_at ?? new Date().toISOString(), // Provide default for null
+        leader_id: team.leader_id,
+        created_at: team.created_at ?? new Date().toISOString(), // Provide default for null
         memberCount: countMap.get(team.id) || 0
       }));
 
@@ -487,8 +505,8 @@ export class TeamsService {
         id: string;
         name: string;
         description: string | null;
-        leaderId: string;
-        createdAt: string;
+        leader_id: string;
+        created_at: string;
         memberCount: number;
       };
     }>;
@@ -544,7 +562,7 @@ export class TeamsService {
       }
 
       // Create a map of team ID to team details
-      const teamMap = new Map<string, any>();
+      const teamMap = new Map<string, Team>();
       teams.forEach(team => {
         teamMap.set(team.id, {
           ...team,
@@ -565,8 +583,8 @@ export class TeamsService {
               id: team.id,
               name: team.name,
               description: team.description ?? '', // Provide default for null
-              leaderId: team.leader_id,
-              createdAt: team.created_at ?? new Date().toISOString(), // Provide default for null
+              leader_id: team.leader_id,
+              created_at: team.created_at ?? new Date().toISOString(), // Provide default for null
               memberCount: team.memberCount
             }
           };
@@ -597,13 +615,13 @@ export class TeamsService {
       id: string;
       name: string;
       description: string | null;
-      leaderId: string;
-      createdAt: string;
+      leader_id: string;
+      created_at: string;
       members: Array<{
         id: string;
-        userId: string;
+        user_id: string;
         role: string;
-        joinedAt: string;
+        joined_at: string;
         profile: {
           id: string;
           username: string;
@@ -624,6 +642,10 @@ export class TeamsService {
 
       if (teamError) throw teamError;
 
+      if (!teamData) {
+        throw new Error('Team not found');
+      }
+
       // Get team members
       const { data: membersData, error: membersError } = await this.client
         .from('team_members')
@@ -643,22 +665,21 @@ export class TeamsService {
       const userIds = membersData.map(member => member.user_id);
       
       // Create a map to store profile data
-      const profileMap = new Map<string, any>();
+      const profileMap = new Map<string, Profile>();
       
       // Fetch profile data for each user ID
       // Note: In a real implementation, you would create an RPC function to get profiles
-      // For now, we'll simulate profile data
       for (const userId of userIds) {
         try {
           // This would be replaced with an actual RPC call to get profile data
           // const { data: profile } = await this.supabase.rpc('get_user_profile', { user_id: userId });
           
           // Simulated profile data for now
-          const profile = {
+          const profile: Profile = {
             id: userId,
-            username: `user_${userId.substring(0, 5)}`,
-            full_name: null,
-            avatar_url: null
+            username: `user_${userId}`,
+            fullName: `User ${userId}`,
+            avatarUrl: undefined
           };
           
           profileMap.set(userId, profile);
@@ -673,14 +694,14 @@ export class TeamsService {
         const profile = profileMap.get(member.user_id);
         return {
           id: member.id,
-          userId: member.user_id,
+          user_id: member.user_id,
           role: member.role,
-          joinedAt: member.joined_at ?? new Date().toISOString(), // Provide default for null
+          joined_at: member.joined_at ?? new Date().toISOString(), // Provide default for null
           profile: profile ? {
             id: profile.id,
             username: profile.username,
-            fullName: profile.full_name,
-            avatarUrl: profile.avatar_url
+            fullName: profile.fullName,
+            avatarUrl: profile.avatarUrl
           } : null
         };
       });
@@ -689,8 +710,8 @@ export class TeamsService {
         id: teamData.id,
         name: teamData.name,
         description: teamData.description ?? '', // Provide default for null
-        leaderId: teamData.leader_id,
-        createdAt: teamData.created_at ?? new Date().toISOString(), // Provide default for null
+        leader_id: teamData.leader_id,
+        created_at: teamData.created_at ?? new Date().toISOString(), // Provide default for null
         members: formattedMembers
       };
 
@@ -720,14 +741,14 @@ export class TeamsService {
     teamId: string,
     metricType: string,
     value: number,
-    metadata: Record<string, any> = {}
+    metadata: Record<string, unknown> = {}
   ): Promise<boolean> {
     try {
       const { error } = await this.client
         .from('team_metrics')
         .insert({
           team_id: teamId,
-          metric_type: metricType as MetricType,
+          metric_type: metricType,
           value,
           metadata,
           recorded_at: new Date().toISOString()

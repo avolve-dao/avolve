@@ -64,7 +64,7 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
     return () => {
       subscription.unsubscribe();
     };
-  }, [featureName, supabase]);
+  }, [featureName, supabase, checkFeatureUnlock]);
 
   if (loading) {
     return (

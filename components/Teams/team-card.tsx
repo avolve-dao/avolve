@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function TeamCard({ team, variant }: { team: any; variant?: string }) {
+export function TeamCard({ team, variant }: { team: unknown; variant?: string }) {
   return (
     <div className="p-4 border rounded-lg shadow-sm">
       <h3 className="text-lg font-semibold">Team Card</h3>

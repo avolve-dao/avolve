@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 type FeedbackType = 'success' | 'error' | 'info' | 'warning';
 

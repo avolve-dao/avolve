@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { supabase } from '../../lib/supabaseClient';
+import { createClient } from '../../lib/supabase/client';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface ExperimentParticipationWidgetProps {
   experimentId: string;
   userId: string;
 }
+
+const supabase = createClient();
 
 const ExperimentParticipationWidget: React.FC<ExperimentParticipationWidgetProps> = ({ experimentId, userId }) => {
   const [participating, setParticipating] = useState(false);
@@ -29,17 +33,19 @@ const ExperimentParticipationWidget: React.FC<ExperimentParticipationWidgetProps
   };
 
   return (
-    <div style={{ margin: '16px 0' }}>
-      {participating ? (
-        <div style={{ color: '#008c4a' }}>Thank you for participating in this experiment!</div>
-      ) : (
-        <button onClick={handleParticipate} disabled={submitting} style={{ background: '#0070f3', color: '#fff', border: 'none', borderRadius: 4, padding: '6px 16px', cursor: 'pointer' }}>
-          {submitting ? 'Joining...' : 'Join this Experiment'}
-        </button>
-      )}
-      {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
-      {success && <div style={{ color: 'green', marginTop: 8 }}>Participation logged!</div>}
-    </div>
+    <Card className="my-4 max-w-md">
+      <CardContent className="p-4">
+        {participating ? (
+          <div className="text-green-600 font-medium">Thank you for participating in this experiment!</div>
+        ) : (
+          <Button onClick={handleParticipate} disabled={submitting} className="w-full">
+            {submitting ? 'Joining...' : 'Join this Experiment'}
+          </Button>
+        )}
+        {error && <div className="text-sm text-destructive mt-2">{error}</div>}
+        {success && <div className="text-sm text-green-600 mt-2">Participation logged!</div>}
+      </CardContent>
+    </Card>
   );
 };
 

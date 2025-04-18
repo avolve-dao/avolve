@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { SupabaseClient, createClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { TokenService } from './token-service';
 import { 
   ConsensusService, 
   ConsensusMetingData, 
-  ConsensusGroupData, 
-  ConsensusParticipantData,
   PendingRespectData,
-  TokenAllocationProposalData,
-  TokenAllocationVoteData
+  TokenAllocationProposalData
 } from './consensus-service';
 
 /**

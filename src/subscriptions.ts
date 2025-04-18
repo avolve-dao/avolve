@@ -11,7 +11,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export class SubscriptionService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
+  constructor(supabaseUrl: string, supabaseKey: string) {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
@@ -30,11 +30,11 @@ export class SubscriptionService {
   async subscribe(
     userId: string, 
     amountUsd: number = 100,
-    paymentMethod?: Record<string, any>,
-    metadata?: Record<string, any>
+    paymentMethod?: Record<string, unknown>,
+    metadata?: Record<string, unknown>
   ): Promise<{
     success: boolean;
-    data?: any;
+    data?: Subscription;
     error?: string;
   }> {
     try {
@@ -78,7 +78,7 @@ export class SubscriptionService {
     description?: string
   ): Promise<{
     success: boolean;
-    data?: any;
+    data?: SpendResult;
     error?: string;
   }> {
     try {
@@ -113,7 +113,7 @@ export class SubscriptionService {
    */
   async getUserSubscription(userId: string): Promise<{
     success: boolean;
-    data?: any;
+    data?: Subscription | null;
     error?: string;
   }> {
     try {
@@ -173,38 +173,66 @@ export class SubscriptionService {
    */
   async getTreasuryAllocations(): Promise<{
     success: boolean;
-    data?: any;
+    data?: TreasuryAllocation[];
     error?: string;
   }> {
     try {
+      // Fetch raw allocations from Supabase
       const { data, error } = await this.supabase
         .from('treasury_allocations')
-        .select(`
-          token_id,
-          tokens (symbol, name),
-          sum(amount_usd),
-          percentage
-        `)
-        .group('token_id, tokens.symbol, tokens.name, percentage');
+        .select('*');
 
       if (error) throw error;
 
+      // Map/normalize results to TreasuryAllocation interface
+      const allocations: TreasuryAllocation[] = (data || []).map((row: Record<string, unknown>) => ({
+        id: String(row.id ?? ''),
+        amount: typeof row.amount === 'number' ? row.amount : 0,
+        allocation_type: typeof row.allocation_type === 'string' ? row.allocation_type : '',
+        token_id: String(row.token_id ?? ''),
+        token_symbol: typeof row.tokens === 'object' && row.tokens && 'symbol' in row.tokens ? String((row.tokens as Record<string, unknown>).symbol ?? '') : '',
+        token_name: typeof row.tokens === 'object' && row.tokens && 'name' in row.tokens ? String((row.tokens as Record<string, unknown>).name ?? '') : '',
+        percentage: typeof row.percentage === 'number' ? row.percentage : 0
+      }));
+
       return {
         success: true,
-        data
+        data: allocations
       };
     } catch (error) {
       console.error('Get treasury allocations error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting treasury allocations'
+        error: error instanceof Error ? error.message : 'Unknown treasury allocations error'
       };
     }
   }
 }
 
+interface Subscription {
+  id: string;
+  user_id: string;
+  status: string;
+  start_date: string;
+  end_date: string;
+  [key: string]: unknown;
+}
+
+interface SpendResult {
+  transactionId: string;
+  newBalance: number;
+  [key: string]: unknown;
+}
+
+interface TreasuryAllocation {
+  id: string;
+  amount: number;
+  allocation_type: string;
+  [key: string]: unknown;
+}
+
 // Export a singleton instance
-export const subscriptionService = new SubscriptionService();
+export const subscriptionService = new SubscriptionService(supabaseUrl, supabaseAnonKey);
 
 // Export default for direct imports
 export default subscriptionService;

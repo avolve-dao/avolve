@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { invitationCodeSchema } from '@/lib/validators/invitation'
 import { rateLimit } from '@/lib/utils/rate-limit'
-import { headers } from 'next/headers'
 
 // Create a rate limiter that allows 10 requests per minute
 const limiter = rateLimit({

@@ -6,21 +6,37 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// Define explicit types for events and feedback
+interface AnalyticsEvent {
+  id: string;
+  event_type: string;
+  created_at: string;
+  event_data: Record<string, unknown>;
+}
+
+interface UserFeedback {
+  id: string;
+  context: string;
+  submitted_at: string;
+  rating?: number;
+  feedback_text: string;
+}
+
 export default function AdminInsights() {
-  const [events, setEvents] = useState<any[]>([]);
-  const [feedback, setFeedback] = useState<any[]>([]);
+  const [events, setEvents] = useState<AnalyticsEvent[]>([]);
+  const [feedback, setFeedback] = useState<UserFeedback[]>([]);
 
   useEffect(() => {
     supabase
       .from('analytics_events')
       .select('*')
       .order('created_at', { ascending: false })
-      .then(({ data }) => setEvents(data || []));
+      .then(({ data }) => setEvents((data as AnalyticsEvent[]) || []));
     supabase
       .from('user_feedback')
       .select('*')
       .order('submitted_at', { ascending: false })
-      .then(({ data }) => setFeedback(data || []));
+      .then(({ data }) => setFeedback((data as UserFeedback[]) || []));
   }, []);
 
   return (

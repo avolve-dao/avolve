@@ -43,12 +43,11 @@ export async function POST(req: NextRequest) {
       return applySecurityHeaders(response);
     }
 
-    const { messages, model, systemPrompt } = validatedBody.data
+    const { messages, model } = validatedBody.data
     
     // Use a string prefix and relevant parameters for the cache key
     const cacheKey = generateCacheKey('chat_api', { 
       model: model || 'default', // Use default if model is undefined
-      systemPrompt: systemPrompt || '', // Use empty string if systemPrompt is undefined
     }); 
     const cachedResponse = await getCachedResponse(cacheKey)
     
@@ -73,8 +72,7 @@ export async function POST(req: NextRequest) {
     // Generate response stream and content
     const { stream: responseStream, content: responseContent } = await generateText({ 
       messages,
-      model,
-      systemPrompt
+      model
     })
 
     if (!responseStream) {
@@ -109,12 +107,10 @@ export async function POST(req: NextRequest) {
 // Modify generateText to return both stream and content
 async function generateText({ 
   messages, 
-  model, 
-  systemPrompt 
+  model 
 }: { 
-  messages: any[]; 
+  messages: Record<string, unknown>[]; 
   model?: string; 
-  systemPrompt?: string 
 }): Promise<{ stream: ReadableStream | null; content: string | null }> { // Update return type
   try {
     const lastMessage = messages[messages.length - 1]

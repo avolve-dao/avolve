@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function generateText({ messages }: { messages: any[] }): Promise<{ stream: ReadableStream | null; content: string | null }> {
+async function generateText({ messages }: { messages: Record<string, unknown>[] }): Promise<{ stream: ReadableStream | null; content: string | null }> {
   try {
     const lastMessage = messages[messages.length - 1]
     const mockResponse = `This is a test response to: "${lastMessage.content}". The AI SDK and integration are working correctly!`

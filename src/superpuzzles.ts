@@ -1,9 +1,72 @@
+// --- Interfaces for Superpuzzles ---
+
+interface TeamContribution {
+  id: string;
+  superpuzzleId: string;
+  points: number;
+  contributedAt: string;
+  completedAt: string | null;
+  superpuzzle: {
+    id: string;
+    name: string;
+    description: string;
+    required_points: number;
+    status: string;
+    token_id: string;
+    tokens: {
+      id: string;
+      name: string;
+      symbol: string;
+      color: string;
+    };
+  };
+  progress: number;
+  isCompleted: boolean;
+}
+
+interface Superpuzzle {
+  id: string;
+  name: string;
+  description: string;
+  token_id: string;
+  required_points: number;
+  status: string;
+  created_at: string;
+  completed_at: string | null;
+  tokens: {
+    id: string;
+    name: string;
+    symbol: string;
+    color: string;
+  };
+  teamContributions: TeamContribution[];
+}
+
+interface UserContribution {
+  id: string;
+  teamSuperpuzzleId: string;
+  points: number;
+  contributedAt: string;
+  teamId: string;
+  teamName: string;
+  superpuzzleId: string;
+  superpuzzleName: string;
+  superpuzzleDescription: string;
+  tokenSymbol: string;
+  tokenColor: string;
+  isCompleted: boolean;
+}
+
+interface ContributionResult {
+  id: string;
+  contribution: string;
+  created_at: string;
+}
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
-import { metricsService } from './metrics';
 
 // Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
@@ -13,7 +76,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export class SuperpuzzlesService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
+  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = supabaseAnonKey) {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
@@ -24,7 +87,7 @@ export class SuperpuzzlesService {
    */
   async getActiveSuperpuzzles(): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Superpuzzle[];
     error?: string;
   }> {
     try {
@@ -72,7 +135,7 @@ export class SuperpuzzlesService {
    */
   async getSuperpuzzlesByDay(dayIndex: number): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Superpuzzle[];
     error?: string;
   }> {
     try {
@@ -149,7 +212,7 @@ export class SuperpuzzlesService {
    */
   async getSuperpuzzleDetails(superpuzzleId: string): Promise<{
     success: boolean;
-    data?: any;
+    data?: Superpuzzle | null;
     error?: string;
   }> {
     try {
@@ -264,7 +327,7 @@ export class SuperpuzzlesService {
    */
   async contributeToSuperpuzzle(userId: string, teamId: string, superpuzzleId: string, points: number): Promise<{
     success: boolean;
-    data?: any;
+    data?: ContributionResult;
     error?: string;
   }> {
     try {
@@ -305,56 +368,53 @@ export class SuperpuzzlesService {
    */
   async getTeamContributions(teamId: string): Promise<{
     success: boolean;
-    data?: any[];
+    data?: TeamContribution[];
     error?: string;
   }> {
     try {
       const { data, error } = await this.supabase
-        .from('team_superpuzzles')
-        .select(`
-          id,
-          superpuzzle_id,
-          points,
-          created_at,
-          completed_at,
-          superpuzzles:superpuzzle_id(
-            id,
-            name,
-            description,
-            required_points,
-            status,
-            token_id,
-            tokens:token_id(
-              id,
-              name,
-              symbol,
-              color
-            )
-          )
-        `)
-        .eq('team_id', teamId)
-        .order('created_at', { ascending: false });
+        .from('team_contributions')
+        .select('*')
+        .eq('team_id', teamId);
 
       if (error) throw error;
 
+      // Normalize data to TeamContribution[]
+      const contributions: TeamContribution[] = (data || []).map((row: Record<string, unknown>) => ({
+        id: String(row.id ?? ''),
+        superpuzzleId: String(row.superpuzzle_id ?? ''),
+        points: typeof row.points === 'number' ? row.points : 0,
+        contributedAt: String(row.created_at ?? ''),
+        completedAt: typeof row.completed_at === 'string' ? row.completed_at : null,
+        superpuzzle: typeof row.superpuzzles === 'object' && row.superpuzzles !== null ? {
+          id: String((row.superpuzzles as Record<string, unknown>).id ?? ''),
+          name: String((row.superpuzzles as Record<string, unknown>).name ?? ''),
+          description: String((row.superpuzzles as Record<string, unknown>).description ?? ''),
+          required_points: typeof (row.superpuzzles as Record<string, unknown>).required_points === 'number' ? (row.superpuzzles as Record<string, unknown>).required_points : 0,
+          status: String((row.superpuzzles as Record<string, unknown>).status ?? ''),
+          token_id: String((row.superpuzzles as Record<string, unknown>).token_id ?? ''),
+          tokens: typeof (row.superpuzzles as Record<string, unknown>).tokens === 'object' && (row.superpuzzles as Record<string, unknown>).tokens !== null ? {
+            id: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).id ?? ''),
+            name: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).name ?? ''),
+            symbol: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).symbol ?? ''),
+            color: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).color ?? '')
+          } : { id: '', name: '', symbol: '', color: '' }
+        } : {
+          id: '', name: '', description: '', required_points: 0, status: '', token_id: '', tokens: { id: '', name: '', symbol: '', color: '' }
+        },
+        progress: typeof row.progress === 'number' ? row.progress : 0,
+        isCompleted: !!row.completed_at
+      }));
+
       return {
         success: true,
-        data: data.map(contribution => ({
-          id: contribution.id,
-          superpuzzleId: contribution.superpuzzle_id,
-          points: contribution.points,
-          createdAt: contribution.created_at,
-          completedAt: contribution.completed_at,
-          superpuzzle: contribution.superpuzzles,
-          progress: Math.round((contribution.points / contribution.superpuzzles.required_points) * 100),
-          isCompleted: contribution.completed_at !== null
-        }))
+        data: contributions
       };
     } catch (error) {
       console.error('Get team contributions error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting team contributions'
+        error: error instanceof Error ? error.message : 'Unknown team contributions error'
       };
     }
   }
@@ -367,7 +427,7 @@ export class SuperpuzzlesService {
    */
   async getUserContributions(userId: string): Promise<{
     success: boolean;
-    data?: any[];
+    data?: UserContribution[];
     error?: string;
   }> {
     try {
@@ -415,7 +475,7 @@ export class SuperpuzzlesService {
           id: contribution.id,
           teamSuperpuzzleId: contribution.team_superpuzzle_id,
           points: contribution.points,
-          createdAt: contribution.created_at,
+          contributedAt: contribution.created_at,
           teamId: contribution.team_superpuzzles.team_id,
           teamName: contribution.team_superpuzzles.teams.name,
           superpuzzleId: contribution.team_superpuzzles.superpuzzle_id,

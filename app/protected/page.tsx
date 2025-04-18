@@ -5,7 +5,8 @@ import { createClient } from "@/lib/supabase/server"
 import { OnboardingBanner } from '@/components/onboarding/OnboardingBanner'
 import { OnboardingChecklistClient } from '@/components/onboarding/OnboardingChecklistClient'
 import { AIInsightsServer } from '@/components/dashboard/ai-insights/server'
-import { useState, useTransition } from 'react';
+
+// Removed unused imports useState and useTransition
 
 export default async function ProtectedPage() {
   const supabase = await createClient()

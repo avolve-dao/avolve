@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // 2. Register user
-  const { error: signUpError, user } = await supabase.auth.signUp({ email, password });
+  const { error: signUpError } = await supabase.auth.signUp({ email, password });
   if (signUpError) {
     return res.status(400).json({ error: signUpError.message });
   }

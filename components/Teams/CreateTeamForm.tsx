@@ -21,7 +21,7 @@ export const CreateTeamForm: React.FC = () => {
 
   useEffect(() => {
     checkEligibility();
-  }, []);
+  }, [checkEligibility]); // Added missing dependency 'checkEligibility'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +56,7 @@ export const CreateTeamForm: React.FC = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Not Eligible</AlertTitle>
             <AlertDescription>
-              {eligibility.reason || `You need to complete at least ${eligibility.requiredChallenges} challenges to create a team. You've completed ${eligibility.completedChallenges} so far.`}
+              {eligibility.reason || `You need to complete at least ${eligibility.requiredChallenges} challenges to create a team. You&apos;ve completed ${eligibility.completedChallenges} so far.`}
             </AlertDescription>
             <div className="mt-4">
               <Progress 
@@ -72,9 +72,9 @@ export const CreateTeamForm: React.FC = () => {
           eligibility && eligibility.isEligible && (
             <Alert className="mb-6 bg-green-50 border-green-200">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">You're Eligible!</AlertTitle>
+              <AlertTitle className="text-green-800">You&apos;re Eligible!</AlertTitle>
               <AlertDescription className="text-green-700">
-                You've completed {eligibility.completedChallenges} challenges and can now create a team.
+                You&apos;ve completed {eligibility.completedChallenges} challenges and can now create a team.
               </AlertDescription>
             </Alert>
           )
@@ -98,7 +98,7 @@ export const CreateTeamForm: React.FC = () => {
               <Label htmlFor="description">Description (Optional)</Label>
               <Textarea
                 id="description"
-                placeholder="Describe your team's mission and goals"
+                placeholder="Describe your team&apos;s mission and goals"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={loading || (eligibility && !eligibility.isEligible)}

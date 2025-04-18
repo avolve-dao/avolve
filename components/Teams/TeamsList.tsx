@@ -35,7 +35,7 @@ export const TeamsList: React.FC<TeamsListProps> = ({
     } else {
       loadAllTeams();
     }
-  }, [userTeamsOnly]);
+  }, [userTeamsOnly, loadAllTeams, loadUserTeams]);
 
   const handleCreateTeam = () => {
     router.push('/teams/create');

@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Users, Trophy, Clock, ArrowRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import SuperpuzzlesList from '../Superpuzzles/SuperpuzzlesList';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/useToast';
 
@@ -18,14 +17,45 @@ interface TeamDetailsProps {
   teamId: string;
 }
 
+interface Team {
+  id: string;
+  name: string;
+  description: string;
+  created_at: Date;
+  leader_id: string;
+  members: Member[];
+}
+
+interface Member {
+  id: string;
+  userId: string;
+  joinedAt: Date;
+  profile: {
+    avatar_url: string;
+    full_name: string;
+    username: string;
+  };
+}
+
+interface Profile {
+  avatar_url: string;
+  full_name: string;
+  username: string;
+}
+
+interface User {
+  id: string;
+  profile: Profile;
+}
+
 export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
   const router = useRouter();
   const { toast } = useToast();
-  const [team, setTeam] = useState<any>(null);
+  const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -53,7 +83,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
 
   useEffect(() => {
     loadTeamAndUser();
-  }, [teamId, supabase]);
+  }, [teamId, supabase, loadTeamAndUser]);
 
   const handleJoinTeam = async () => {
     if (!currentUser) {
@@ -135,7 +165,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
     );
   }
 
-  const isMember = team.members?.some((member: any) => member.user_id === currentUser?.id);
+  const isMember = team.members?.some((member: Member) => member.userId === currentUser?.id);
   const isLeader = team.leader_id === currentUser?.id;
 
   return (
@@ -260,7 +290,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
             
             <TabsContent value="members" className="mt-6">
               <div className="space-y-4">
-                {team.members?.map((member: any) => (
+                {team.members?.map((member: Member) => (
                   <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
                     <div className="flex items-center">
                       <Avatar className="h-10 w-10">
@@ -296,7 +326,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                 <Trophy className="mx-auto h-12 w-12 text-slate-400" />
                 <h3 className="mt-4 text-lg font-medium">No superpuzzles yet</h3>
                 <p className="mt-2 text-sm text-slate-500">
-                  This team hasn't contributed to any superpuzzles yet.
+                  This team hasn&apos;t contributed to any superpuzzles yet.
                 </p>
                 {isMember && (
                   <Button

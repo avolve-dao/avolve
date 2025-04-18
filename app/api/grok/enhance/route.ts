@@ -23,9 +23,9 @@ export async function POST(req: Request) {
     const { model, context } = await getContextualGrokModel(userId)
 
     // Generate 3 different enhancements
-    const enhancements = []
+    const enhancements: string[] = []
 
-    const enhancementTypes = [
+    const enhancementTypes: string[] = [
       "Make it more engaging and conversational",
       "Make it more professional and polished",
       "Add relevant hashtags and make it more shareable",
@@ -39,12 +39,11 @@ export async function POST(req: Request) {
  Enhancement type: ${type}
  
  Consider the user's interests: ${context.profile?.interests || "Unknown"}
- Consider platform trends: ${context.trendingTopics?.map((t: any) => t.content.substring(0, 30)).join(", ") || "None available"}
+ Consider platform trends: ${Array.isArray(context.trendingTopics) ? context.trendingTopics.map((t: { content: string }) => t.content.substring(0, 30)).join(", ") : "None available"}
  Consider the user's recent activity: ${
-   context.recentActivity
-     ?.slice(0, 2)
-     .map((a: any) => a.action_type)
-     .join(", ") || "None available"
+   Array.isArray(context.recentActivity)
+     ? context.recentActivity.slice(0, 2).map((a: { action_type: string }) => a.action_type).join(", ")
+     : "None available"
  }
  
  Guidelines:
@@ -58,12 +57,12 @@ export async function POST(req: Request) {
       })
 
       // Read the stream content manually
-      let text = '';
-      const reader = response.getReader();
+      let text = ''
+      const reader = response.getReader()
       while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        text += value;
+        const { done, value } = await reader.read()
+        if (done) break
+        text += value
       }
 
       enhancements.push(text)

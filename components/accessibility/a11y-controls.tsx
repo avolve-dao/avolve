@@ -10,21 +10,14 @@
 import { useState } from 'react';
 import { useA11y } from './a11y-provider';
 import { 
-  Sun, 
-  Moon, 
-  Type, 
   ZoomIn, 
   ZoomOut, 
-  Zap, 
-  Activity,
-  ToggleLeft,
-  ToggleRight
+  Activity
 } from 'lucide-react';
 
 // UI components
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 

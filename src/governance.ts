@@ -1,10 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
-import { metricsService } from './metrics';
-
-// Initialize Supabase client
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
 /**
  * GovernanceService - Manages platform governance through petitions and voting
@@ -13,7 +8,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export class GovernanceService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = supabaseUrl, supabaseKey: string = supabaseAnonKey) {
+  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
@@ -195,52 +190,63 @@ export class GovernanceService {
    */
   async getAllPetitions(status?: 'pending' | 'approved' | 'rejected'): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Petition[];
     error?: string;
   }> {
     try {
-      let query = this.supabase
+      const { data, error } = await this.supabase
         .from('petitions')
         .select(`
           id,
-          user_id,
           title,
           description,
-          status,
+          user_id,
           created_at,
-          updated_at,
-          approved_at,
-          rejected_at,
-          profiles:user_id(
-            id,
-            username,
-            full_name,
-            avatar_url
-          ),
-          votes:votes(count)
+          status,
+          profiles:user_id(id, username, full_name, avatar_url),
+          votes:petition_id(id, user_id, vote_weight, created_at)
         `)
-        .order('created_at', { ascending: false });
-
-      if (status) {
-        query = query.eq('status', status);
-      }
-
-      const { data, error } = await query;
+        .eq('status', status || 'pending');
 
       if (error) throw error;
 
+      // Normalize data to Petition[]
+      const petitions: Petition[] = (data || []).map((row: Record<string, unknown>) => ({
+        id: String(row.id ?? ''),
+        user_id: String(row.user_id ?? ''),
+        title: String(row.title ?? ''),
+        description: String(row.description ?? ''),
+        creator_id: String(row.user_id ?? ''),
+        created_at: String(row.created_at ?? ''),
+        status: String(row.status ?? ''),
+        profiles: Array.isArray(row.profiles)
+          ? (row.profiles as Profile[]).map((p) => ({
+              id: String(p.id ?? ''),
+              username: String(p.username ?? ''),
+              full_name: String(p.full_name ?? ''),
+              avatar_url: String(p.avatar_url ?? '')
+            }))
+          : [],
+        votes: Array.isArray(row.votes)
+          ? (row.votes as Vote[]).map((v) => ({
+              id: String(v.id ?? ''),
+              user_id: String(v.user_id ?? ''),
+              vote_weight: typeof v.vote_weight === 'number' ? v.vote_weight : 1,
+              created_at: String(v.created_at ?? '')
+            }))
+          : [],
+        voteCount: Array.isArray(row.votes) ? row.votes.length : 0
+      }));
+
       return {
         success: true,
-        data: data.map(petition => ({
-          ...petition,
-          voteCount: petition.votes[0]?.count || 0
-        }))
+        data: petitions
       };
     } catch (error) {
       console.error('Get all petitions error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting petitions'
+        error: error instanceof Error ? error.message : 'Unknown getAllPetitions error'
       };
     }
   }
@@ -253,7 +259,7 @@ export class GovernanceService {
    */
   async getUserPetitions(userId: string): Promise<{
     success: boolean;
-    data?: any[];
+    data?: Petition[];
     error?: string;
   }> {
     try {
@@ -300,7 +306,7 @@ export class GovernanceService {
    */
   async getPetitionDetails(petitionId: string): Promise<{
     success: boolean;
-    data?: any;
+    data?: Petition | null;
     error?: string;
   }> {
     try {
@@ -414,6 +420,34 @@ export class GovernanceService {
       };
     }
   }
+}
+
+interface Petition {
+  id: string;
+  title: string;
+  description: string;
+  user_id: string;
+  created_at: string;
+  status: string;
+  votes?: Vote[];
+  profiles?: Profile[];
+  voteCount?: number;
+  [key: string]: unknown;
+}
+
+interface Vote {
+  id: string;
+  user_id: string;
+  vote_weight: number;
+  created_at: string;
+  profiles?: Profile[];
+}
+
+interface Profile {
+  id: string;
+  username: string;
+  full_name: string;
+  avatar_url: string;
 }
 
 // Export a singleton instance

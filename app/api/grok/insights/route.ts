@@ -26,8 +26,8 @@ export async function GET(req: Request) {
     // Get additional platform data
     const supabase = await createClient()
 
-    // Get trending posts
-    const { data: trendingPosts } = await supabase
+    // Removed unused variable 'trendingPosts'
+    await supabase
       .from("posts")
       .select("id, content, user_id, created_at, like_count")
       .order("like_count", { ascending: false })

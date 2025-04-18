@@ -2,14 +2,14 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { getCachedData, setCachedData, generateCacheKey } from "@/lib/cache"
 
 /**
  * GET /api/user/rewards
  * Get potential rewards for the authenticated user
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()

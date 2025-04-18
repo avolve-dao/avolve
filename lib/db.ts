@@ -2,7 +2,7 @@ import { createClient as createClientBrowser } from "@/lib/supabase/client"
 import { LRUCache } from "lru-cache"
 
 // Create a cache for database queries
-const queryCache = new LRUCache<string, any>({
+const queryCache = new LRUCache<string, unknown>({
   max: 100, // Maximum number of items to store in cache
   ttl: 1000 * 60 * 5, // 5 minutes TTL
 })
@@ -21,7 +21,7 @@ export const clientDb = {
   },
 
   // Cache key generator
-  _cacheKey(operation: string, ...args: any[]) {
+  _cacheKey(operation: string, ...args: unknown[]) {
     return `${operation}:${JSON.stringify(args)}`
   },
 
@@ -340,4 +340,3 @@ export const clientDb = {
     queryCache.clear()
   },
 }
-

@@ -5,7 +5,7 @@ import { MetricTypes, type MetricType } from '@/types/platform';
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient<Database>(supabaseUrl || '', supabaseKey || '');
+// const supabase = createClient<Database>(supabaseUrl || '', supabaseKey || '');
 
 /**
  * MetricsService - Tracks and analyzes platform metrics
@@ -64,7 +64,7 @@ export class MetricsService {
     metricType: MetricType,
     value: number,
     userId?: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<{
     success: boolean;
     data?: Database['public']['Tables']['metrics']['Row'];
@@ -189,7 +189,7 @@ export class MetricsService {
    */
   async getMetricsSummary(days: number = 30): Promise<{
     success: boolean;
-    data?: any;
+    data?: MetricsSummary;
     error?: string;
   }> {
     try {
@@ -303,6 +303,17 @@ export class MetricsService {
 
     return metrics;
   }
+}
+
+interface MetricsSummary {
+  dau: number;
+  mau: number;
+  dauMauRatio: number;
+  retention: number;
+  arpu: number;
+  nps: number;
+  boostEligible: boolean;
+  [key: string]: unknown;
 }
 
 // Export a singleton instance

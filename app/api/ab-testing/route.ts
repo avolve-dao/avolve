@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
-import { z } from 'zod';
+import { z, ZodError, ZodIssue, ZodFormattedError } from 'zod';
 import { authMiddleware, getUserId } from '@/middleware/auth-middleware';
 import { sanitizeJson } from '@/lib/security/sanitize';
 import { env } from '@/lib/env';
@@ -12,7 +12,7 @@ const abTestingSchema = z.object({
   testId: z.string().min(1).max(50).regex(/^[a-zA-Z0-9_\-]+$/),
   variant: z.string().min(1).max(50).regex(/^[a-zA-Z0-9_\-]+$/),
   action: z.enum(['impression', 'conversion']),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 // Define response types
@@ -23,7 +23,7 @@ type SuccessResponse = {
 
 type ErrorResponse = {
   error: string;
-  details?: any;
+  details?: ZodFormattedError<any, string> | ZodIssue[];
 };
 
 export const runtime = 'edge';
@@ -34,7 +34,7 @@ export const revalidate = 0;
  * POST handler for A/B testing events
  * Records impressions and conversions for A/B tests
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   // Check if A/B testing is enabled
   if (!env.AB_TESTING_ENABLED_BOOL) {
     return NextResponse.json<ErrorResponse>(
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
     console.error('Error processing A/B testing event:', error);
     
     // Handle validation errors
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json<ErrorResponse>(
         { error: 'Invalid A/B testing data', details: error.errors },
         { status: 400 }
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
  * GET handler for A/B testing configuration
  * Returns the available tests and variants for the user
  */
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   // Check if A/B testing is enabled
   if (!env.AB_TESTING_ENABLED_BOOL) {
     return NextResponse.json<ErrorResponse>(

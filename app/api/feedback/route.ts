@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { z } from 'zod'
+import { z, ZodError, ZodIssue, ZodFormattedError } from 'zod'
 import { env } from '@/lib/env'
 import { rateLimit } from '@/lib/rate-limit'
 import { sanitizeHtml } from '@/lib/security/sanitize'
@@ -12,7 +12,7 @@ const feedbackSchema = z.object({
   rating: z.number().int().min(1).max(5),
   comment: z.string().min(5).max(500),
   worthTime: z.boolean().optional().default(true),
-  metadata: z.record(z.string(), z.any()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 })
 
 // Define response types for better type safety
@@ -23,7 +23,7 @@ type SuccessResponse = {
 
 type ErrorResponse = {
   error: string;
-  details?: any;
+  details?: ZodFormattedError<any, string> | ZodIssue[];
 }
 
 export const runtime = 'edge'
@@ -35,7 +35,7 @@ export const config = {
   cache: 'no-store' 
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     // Apply rate limiting
     const ip = req.headers.get('x-forwarded-for') || 'anonymous'
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Parse the request body
-    const body: Record<string, unknown> = await req.json()
+    const body: z.infer<typeof feedbackSchema> = await req.json()
     
     // Validate the request body
     const validationResult = feedbackSchema.safeParse(body)
@@ -133,9 +133,9 @@ export async function POST(req: NextRequest) {
     console.error('Error processing feedback:', error)
     
     // Handle validation errors
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json<ErrorResponse>(
-        { error: 'Invalid feedback data', details: error.errors },
+        { error: 'Invalid feedback data', details: error.issues },
         { status: 400 }
       )
     }

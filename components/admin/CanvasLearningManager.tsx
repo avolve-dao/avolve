@@ -33,8 +33,7 @@ const CanvasLearningManager: React.FC<{ onCreated?: () => void }> = ({ onCreated
     },
   });
 
-  const { handleSubmit, reset, setValue, watch } = formMethods;
-  const form = watch();
+  const { handleSubmit, reset, watch } = formMethods;
 
   useEffect(() => {
     const fetchExperiments = async () => {

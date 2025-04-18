@@ -1,0 +1,16 @@
+{
+  "name": "Viral Growth",
+  "num_users": 200,
+  "sim_days": 14,
+  "user_types": [
+    { "type": "power_user", "percent": 5, "actions_per_day": 20 },
+    { "type": "sharer", "percent": 20, "actions_per_day": 8 },
+    { "type": "normal", "percent": 75, "actions_per_day": 3 }
+  ],
+  "invite_rate": 0.7,
+  "group_quest_rate": 0.15,
+  "special_events": [
+    { "day": 7, "event": "double_rewards", "multiplier": 2 },
+    { "day": 10, "event": "referral_campaign", "multiplier": 3 }
+  ]
+}

@@ -11,20 +11,25 @@ Welcome to **Avolve**! Here’s how you can start earning, using, and enjoying t
 
 ---
 
-## 2. Earning Tokens
+## 2. Ways to Earn Tokens
 
-- **Complete Challenges:** Take on daily, weekly, and special challenges for instant rewards.
-- **Finish Assessments & Exercises:** Each completed assessment or exercise grants you tokens.
-- **Join Community Events:** Participate in meetings, quests, or group activities to earn collective tokens.
-- **Daily Rewards:** Check in every day to claim your daily bonus tokens!
+| **Action**                    | **Reward**                        |
+|-------------------------------|-----------------------------------|
+| Complete onboarding/assessment| Tokens, badges, progress          |
+| Daily check-in                | Daily token bonus                 |
+| Finish exercises/challenges   | Immediate tokens, achievements    |
+| Join meetings/events          | Collective tokens, special rewards|
+| Refer friends/help others     | Referral tokens, recognition      |
 
 ---
 
-## 3. Spending Tokens
+## 3. Ways to Spend Tokens
 
-- **Unlock Features:** Use tokens to access premium content, tools, or experiences.
-- **Marketplace:** Redeem tokens for goods, services, or exclusive offers (coming soon!).
-- **Participate in Governance:** Use GEN, SAP, or SCQ tokens to vote and help shape the platform.
+| **Action**                    | **Benefit**                       |
+|-------------------------------|-----------------------------------|
+| Unlock features               | Access premium content/tools      |
+| Marketplace                   | Redeem for goods/services         |
+| Governance                    | Vote/shape the platform           |
 
 ---
 
@@ -36,17 +41,19 @@ Welcome to **Avolve**! Here’s how you can start earning, using, and enjoying t
 
 ---
 
-## 5. FAQ
+## 5. Scenario-Based FAQ
 
-- **How do I get more tokens?**
-  - Complete challenges, daily quests, and participate in community events.
-- **What can I do with my tokens?**
-  - Unlock features, redeem rewards, and participate in platform governance.
-- **How do I see my progress?**
-  - Your dashboard and Reward Center show all your tokens, badges, and upcoming rewards.
+- **How do I maximize my rewards?**
+  - Check in daily, complete new challenges, and help others.
+- **What if I miss a daily check-in?**
+  - No problem! Just re-engage the next day for more rewards.
+- **How do I use tokens in the marketplace?**
+  - Visit the Marketplace section to redeem tokens for offers and features.
+- **How do I see my badges and achievements?**
+  - Badges and achievements are displayed on your dashboard and in the Reward Center.
 - **What if something goes wrong?**
   - All actions are logged; contact support or admins for help.
 
 ---
 
-Enjoy your journey with Avolve—where every step forward is rewarded!
+For more help, see the [Glossary](./glossary.md) or click the “Help” button in the app. Enjoy your journey with Avolve—where every step forward is rewarded!

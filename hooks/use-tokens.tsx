@@ -347,6 +347,79 @@ export function useTokens() {
   }, [supabase, session, userBalances, toast, fetchUserBalances, fetchUserTransactions]);
 
   /**
+   * Award tokens to the current user (e.g., for completing an assessment or exercise)
+   * @param tokenSymbol The symbol of the token to award (e.g., 'SAP')
+   * @param amount The amount of tokens to add
+   * @param reason The reason for awarding tokens (shown in transaction log)
+   */
+  const addTokens = useCallback(
+    async (
+      tokenSymbol: string,
+      amount: number,
+      reason: string
+    ): Promise<{ success: boolean; message?: string; error?: string }> => {
+      if (!supabase || !session?.user) {
+        return {
+          success: false,
+          error: 'You must be logged in to receive tokens',
+        };
+      }
+      if (amount <= 0) {
+        return {
+          success: false,
+          error: 'Amount must be greater than 0',
+        };
+      }
+      try {
+        setIsLoading(true);
+        setError(null);
+        // Get token ID from symbol
+        const token = tokens.find((t) => t.symbol === tokenSymbol);
+        if (!token) {
+          return {
+            success: false,
+            error: `Token ${tokenSymbol} not found`,
+          };
+        }
+        // Call Supabase RPC to award tokens atomically
+        const { data, error: rpcError } = await supabase.rpc('award_tokens', {
+          p_user_id: session.user.id,
+          p_token_id: token.id,
+          p_amount: amount,
+          p_reason: reason,
+        });
+        if (rpcError) throw rpcError;
+        // Refresh balances and transactions
+        await fetchUserBalances();
+        await fetchUserTransactions();
+        toast({
+          title: 'Tokens Awarded',
+          description: `You received ${amount} ${tokenSymbol} for: ${reason}`,
+        });
+        return {
+          success: true,
+          message: `You received ${amount} ${tokenSymbol}`,
+        };
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to award tokens';
+        setError(err instanceof Error ? err : new Error(errorMessage));
+        toast({
+          title: 'Token Award Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return {
+          success: false,
+          error: errorMessage,
+        };
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [supabase, session, tokens, toast, fetchUserBalances, fetchUserTransactions]
+  );
+
+  /**
    * Get token details by symbol
    */
   const getTokenDetails = useCallback(async (symbol: string): Promise<Token | null> => {
@@ -552,6 +625,7 @@ export function useTokens() {
     fetchUserTransactions,
     transferTokens,
     spendGenTokens,
+    addTokens,
     getTokenDetails,
     setSelectedToken,
     

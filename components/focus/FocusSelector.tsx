@@ -89,13 +89,13 @@ export function FocusSelector() {
               <RadioGroup.Option
                 key={option.id}
                 value={option.id}
-                className={({ active, checked }) =>
+                className={({ active, checked }: { active: boolean; checked: boolean }) =>
                   `${active ? 'ring-2 ring-offset-2 ring-offset-sky-300 ring-white ring-opacity-60' : ''}
                   ${checked ? `bg-gradient-to-r ${option.gradient} text-white` : 'bg-white'}
                   relative flex cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-none`
                 }
               >
-                {({ active, checked }) => (
+                {({ active, checked }: { active: boolean; checked: boolean }) => (
                   <>
                     <div className="flex w-full items-center justify-between">
                       <div className="flex items-center">

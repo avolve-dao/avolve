@@ -479,20 +479,21 @@ export function HumanVerification() {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Trust Score */}
-        <div className="bg-muted p-4 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center">
-              <Shield className="h-5 w-5 mr-2 text-primary" />
-              <h3 className="font-medium">Trust Score</h3>
+        <div className="flex items-center gap-4 mb-6">
+          <Shield className="h-6 w-6 text-blue-500" />
+          <div>
+            <div className="font-semibold text-lg">
+              Trust Score:{' '}
+              <span>
+                {trustScore?.score !== undefined && trustScore?.score !== null ? trustScore.score.toFixed(1) : 'N/A'}
+              </span>
             </div>
-            <Badge variant="outline" className="bg-primary/10 text-primary">
-              {getTrustLevelName(trustScore?.level || 1)}
-            </Badge>
-          </div>
-          <Progress value={trustScore?.score || 0} max={200} className="h-2 mb-2" />
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{trustScore?.score || 0} points</span>
-            <span>Next level: {trustScore?.level < 5 ? (trustScore?.level || 1) * 50 : 'Max'} points</span>
+            <div className="text-sm text-gray-500">
+              Level:{' '}
+              <span>
+                {trustScore?.level !== undefined && trustScore?.level !== null ? trustScore.level : 'N/A'}
+              </span>
+            </div>
           </div>
         </div>
         

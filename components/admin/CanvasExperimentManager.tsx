@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createClient } from '../../lib/supabase/client';
 import { useForm } from 'react-hook-form';
-import type { ControllerRenderProps } from 'react-hook-form';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -24,7 +23,11 @@ interface ExperimentInput {
   experiment_type: 'real' | 'simulation';
 }
 
-const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
+interface CanvasExperimentManagerProps {
+  onCreated?: () => void;
+}
+
+const CanvasExperimentManager: React.FC<CanvasExperimentManagerProps> = ({ onCreated }) => {
   const [canvasEntries, setCanvasEntries] = useState<CanvasEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +56,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
       if (!error && data) setCanvasEntries(data);
     };
     fetchCanvasEntries();
-  }, []);
+  }, [setCanvasEntries]);
 
   const onSubmit = async (values: ExperimentInput) => {
     setLoading(true);
@@ -86,7 +89,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
             <FormField
               control={control}
               name="canvas_entry_id"
-              render={({ field }: { field: ControllerRenderProps<any, any> }) => (
+              render={({ field, fieldState, formState }) => (
                 <FormItem>
                   <FormLabel>Canvas Entry</FormLabel>
                   <Select
@@ -111,7 +114,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
             <FormField
               control={control}
               name="title"
-              render={({ field }: { field: ControllerRenderProps<any, any> }) => (
+              render={({ field, fieldState, formState }) => (
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
@@ -124,7 +127,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
             <FormField
               control={control}
               name="description"
-              render={({ field }: { field: ControllerRenderProps<any, any> }) => (
+              render={({ field, fieldState, formState }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
@@ -137,7 +140,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
             <FormField
               control={control}
               name="status"
-              render={({ field }: { field: ControllerRenderProps<any, any> }) => (
+              render={({ field, fieldState, formState }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
                   <Select value={field.value} onValueChange={(val: string) => field.onChange(val)}>
@@ -158,7 +161,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
             <FormField
               control={control}
               name="experiment_type"
-              render={({ field }: { field: ControllerRenderProps<any, any> }) => (
+              render={({ field, fieldState, formState }) => (
                 <FormItem>
                   <FormLabel>Experiment Type</FormLabel>
                   <Select value={field.value} onValueChange={(val: string) => field.onChange(val)} required>
@@ -177,7 +180,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
             <FormField
               control={control}
               name="start_date"
-              render={({ field }: { field: ControllerRenderProps<any, any> }) => (
+              render={({ field, fieldState, formState }) => (
                 <FormItem>
                   <FormLabel>Start Date</FormLabel>
                   <FormControl>
@@ -190,7 +193,7 @@ const CanvasExperimentManager: React.FC<{ onCreated?: () => void }> = ({ onCreat
             <FormField
               control={control}
               name="end_date"
-              render={({ field }: { field: ControllerRenderProps<any, any> }) => (
+              render={({ field, fieldState, formState }) => (
                 <FormItem>
                   <FormLabel>End Date</FormLabel>
                   <FormControl>

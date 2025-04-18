@@ -9,9 +9,7 @@ interface ActivityItem {
     name: string
     avatar_url: string
   }
-  metadata?: {
-    [key: string]: any
-  }
+  metadata?: Record<string, unknown>
 }
 
 interface ActivityFeedProps {

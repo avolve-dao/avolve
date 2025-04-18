@@ -46,7 +46,7 @@ export function TokensDashboard() {
   const [activeTab, setActiveTab] = useState('tokens');
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [isStakeDialogOpen, setIsStakeDialogOpen] = useState(false);
-  const [selectedToken, setSelectedToken] = useState<any>(null);
+  const [selectedToken, setSelectedToken] = useState<TokenWithBalance | null>(null);
   const [transferAmount, setTransferAmount] = useState('');
   const [stakeAmount, setStakeAmount] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');

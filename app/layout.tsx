@@ -76,7 +76,7 @@ export default function RootLayout({
                           </svg>
                         </div>
                         <button className="p-1 rounded-full text-zinc-400 hover:text-zinc-100 focus:outline-none">
-                          // TODO: Add interactivity for Social Feed in a Client Component
+                          {/* TODO: Add interactivity for Social Feed in a Client Component */}
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m5.66 0a2 2 0 01-1.414 3.414l-1.25-.313A2 2 0 0113 8.172V7h4a2 2 0 012 2v2a2 2 0 01-.073.83l1.491.373a2 2 0 011.416 1.92v.785a1.97 1.97 0 01-.459 1.244l1.493.373a2 2 0 011.626 1.968V17a2 2 0 01-2 2z" />
                             <circle cx="9" cy="12" r="2" />
@@ -86,21 +86,21 @@ export default function RootLayout({
                           <span className="sr-only">Social Feed</span>
                         </button>
                         <button className="p-1 rounded-full text-zinc-400 hover:text-zinc-100 focus:outline-none">
-                          // TODO: Add interactivity for Events in a Client Component
+                          {/* TODO: Add interactivity for Events in a Client Component */}
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4M9 21h6M7.5 13l-.354.354a.5.5 0 000 .707l.354.354M12 13v1m4.646-.647l.354-.354a.5.5 0 000-.707l-.354-.354M3 9a1 1 0 011-1h16a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1V9z" />
                           </svg>
                           <span className="sr-only">Events</span>
                         </button>
                         <button className="p-1 rounded-full text-zinc-400 hover:text-zinc-100 focus:outline-none">
-                          // TODO: Add interactivity for Courses in a Client Component
+                          {/* TODO: Add interactivity for Courses in a Client Component */}
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
                           <span className="sr-only">Courses</span>
                         </button>
                         <button className="p-1 rounded-full text-zinc-400 hover:text-zinc-100 focus:outline-none relative">
-                          // TODO: Add interactivity for Notifications in a Client Component
+                          {/* TODO: Add interactivity for Notifications in a Client Component */}
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.4 2.757a.5.5 0 01.2.485v.553a.5.5 0 01-.2.485L15 17M5 17l4-4m6 4H9m-1.343-5.086A8 8 0 1115.343 8.657a8 8 0 01-7.686 5.257z" />
                           </svg>
@@ -108,7 +108,7 @@ export default function RootLayout({
                           <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500"></div>
                         </button>
                         <button className="p-1 rounded-full text-zinc-400 hover:text-zinc-100 focus:outline-none relative">
-                          // TODO: Add interactivity for Messages in a Client Component
+                          {/* TODO: Add interactivity for Messages in a Client Component */}
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
@@ -116,7 +116,7 @@ export default function RootLayout({
                           <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-red-500"></div>
                         </button>
                         <button className="p-1 rounded-full text-zinc-400 hover:text-zinc-100 focus:outline-none">
-                          // TODO: Add interactivity for User Profile & Settings in a Client Component
+                          {/* TODO: Add interactivity for User Profile & Settings in a Client Component */}
                           <div className="w-6 h-6 rounded-full bg-indigo-500 flex items-center justify-center text-indigo-100 font-medium">
                             U
                           </div>

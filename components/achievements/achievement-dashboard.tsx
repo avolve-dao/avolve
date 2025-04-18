@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { useState, useEffect } from 'react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
 import { useTokens } from '@/hooks/use-tokens';
@@ -38,7 +39,7 @@ type UserAchievement = {
   id: string;
   title: string;
   description: string;
-  category: string;
+  category: AchievementCategory;
   reward_type: string;
   claimed_at?: string | null;
   earned_at?: string | null;
@@ -49,62 +50,65 @@ type UserAchievement = {
 export default function AchievementDashboard({
   className = '',
 }: AchievementDashboardProps) {
-  const supabaseHook = useSupabase();
+  const { supabase } = useSupabase();
   const { claimAchievementReward, trackActivity } = useTokens();
-  
+
   const [unlockedAchievements, setUnlockedAchievements] = useState<UserAchievement[]>([]);
   const [lockedAchievements, setLockedAchievements] = useState<UserAchievement[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [claimingId, setClaimingId] = useState<string | null>(null);
-  
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
   // Achievement stats
-  const [totalAchievements, setTotalAchievements] = useState(0);
-  const [unlockedCount, setUnlockedCount] = useState(0);
-  const [totalTokensEarned, setTotalTokensEarned] = useState(0);
-  
+  const [totalAchievements, setTotalAchievements] = useState<number>(0);
+  const [unlockedCount, setUnlockedCount] = useState<number>(0);
+  const [totalTokensEarned, setTotalTokensEarned] = useState<number>(0);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoading(true);
+      const {
+        data: { user: currentUser },
+        error
+      } = await supabase.auth.getUser();
+      setUser(currentUser);
+      setLoading(false);
+    };
+    fetchUser();
+  }, [supabase]);
+
   useEffect(() => {
     const fetchAchievements = async () => {
-      // Use a safer approach to access user and supabase
-      const typedHook = supabaseHook as any;
-      const user = typedHook.user as { id: string } | null;
-      const supabase = typedHook.supabase;
-      
       if (!user) {
         console.error('User not available');
         return;
       }
-      
+      setLoading(true);
       try {
-        // Track this view for analytics
         await trackActivity?.('view_achievements', 'page', 'achievements');
-        
-        // Get user achievements
         const { data: userAchievements } = await supabase
           ?.rpc('get_user_achievements', { p_user_id: user.id });
-        
-        // Get all possible achievements
         const { data: allAchievements } = await supabase
           ?.from('achievements')
           .select('*');
-        
         if (userAchievements && allAchievements) {
-          // Set unlocked achievements
-          const typedUserAchievements = userAchievements.map((a: any) => ({
-            ...a,
+          const typedUserAchievements: UserAchievement[] = userAchievements.map((a: any) => ({
+            id: a.id,
+            title: a.title,
+            description: a.description,
+            category: a.category,
+            reward_type: a.reward_type,
             claimed_at: a.claimed_at ?? null,
             earned_at: a.earned_at ?? null,
             reward_amount: a.reward_amount ?? 0,
             reward_token_symbol: a.reward_token_symbol ?? ''
-          } as UserAchievement));
-          
+          }));
           setUnlockedAchievements(typedUserAchievements);
-          
-          // Calculate locked achievements
           const unlockedIds = typedUserAchievements.map((a: UserAchievement) => a.id);
           const locked: UserAchievement[] = allAchievements
             .filter((a: any) => !unlockedIds.includes(a.id))
             .map((a: any) => {
-              // Explicitly create UserAchievement with default values
               return {
                 id: a.id,
                 title: a.title,
@@ -117,70 +121,56 @@ export default function AchievementDashboard({
                 reward_token_symbol: ''
               } as UserAchievement;
             });
-          
           setLockedAchievements(locked);
-          
-          // Calculate stats
           setTotalAchievements(allAchievements.length);
           setUnlockedCount(typedUserAchievements.length);
-          
-          // Calculate total tokens earned
-          const totalEarned = typedUserAchievements.reduce((total: number, a: UserAchievement) => {
-            return total + (a.claimed_at ? a.reward_amount : 0);
-          }, 0);
-          
-          setTotalTokensEarned(totalEarned);
+          setTotalTokensEarned(
+            typedUserAchievements.reduce((sum, a) => sum + (a.reward_amount || 0), 0)
+          );
         }
-      } catch (error) {
-        console.error('Error fetching achievements:', error);
+      } catch (err) {
+        console.error('Error fetching achievements:', err);
+      } finally {
+        setLoading(false);
       }
     };
-    
-    fetchAchievements();
-  }, [supabaseHook, trackActivity]);
-  
+    if (user) fetchAchievements();
+  }, [supabase, trackActivity, user]);
+
   const handleClaimReward = async (achievementId: string) => {
-    // Use a safer approach to access user
-    const typedHook = supabaseHook as any;
-    const user = typedHook.user as { id: string } | null;
-    
     if (!user) {
       console.error('User not available');
       return;
     }
-    
     setClaimingId(achievementId);
-    
     try {
-      const success = await claimAchievementReward?.(achievementId);
-      
-      if (success) {
-        // Track this action for analytics
-        const achievement = unlockedAchievements.find(a => a.id === achievementId);
-        
-        if (achievement) {
-          await trackActivity?.('claim_achievement', 'achievement', achievementId, {
-            reward_amount: achievement.reward_amount,
-            reward_token: achievement.reward_token_symbol
-          });
-        }
-        
-        // Update achievements state
-        const updatedUnlocked = unlockedAchievements.map(a => 
-          a.id === achievementId ? { ...a, claimed_at: new Date().toISOString() } : a
-        );
-        
-        setUnlockedAchievements(updatedUnlocked);
+      await claimAchievementReward?.(achievementId, user.id);
+      // Refresh achievements after claiming
+      const { data: userAchievements } = await supabase
+        ?.rpc('get_user_achievements', { p_user_id: user.id });
+      if (userAchievements) {
+        const typedUserAchievements: UserAchievement[] = userAchievements.map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          description: a.description,
+          category: a.category,
+          reward_type: a.reward_type,
+          claimed_at: a.claimed_at ?? null,
+          earned_at: a.earned_at ?? null,
+          reward_amount: a.reward_amount ?? 0,
+          reward_token_symbol: a.reward_token_symbol ?? ''
+        }));
+        setUnlockedAchievements(typedUserAchievements);
       }
-    } catch (error) {
-      console.error('Error claiming achievement:', error);
+    } catch (err) {
+      console.error('Error claiming reward:', err);
     } finally {
       setClaimingId(null);
     }
   };
-  
+
   const categoryIcon = (category: AchievementCategory) => {
-    const icons = {
+    const icons: Record<AchievementCategory, JSX.Element> = {
       'discovery': <StarIcon className="h-3 w-3" />,
       'onboarding': <RocketIcon className="h-3 w-3" />,
       'scaffolding': <LayersIcon className="h-3 w-3" />,
@@ -192,7 +182,7 @@ export default function AchievementDashboard({
   };
   
   const categoryColor = (category: AchievementCategory) => {
-    const colors = {
+    const colors: Record<AchievementCategory, string> = {
       'discovery': 'bg-purple-100 text-purple-700',
       'onboarding': 'bg-blue-100 text-blue-700',
       'scaffolding': 'bg-green-100 text-green-700',
@@ -202,34 +192,15 @@ export default function AchievementDashboard({
     
     return colors[category] ?? 'bg-gray-100 text-gray-700';
   };
-  
-  // Use a safer approach to access isLoading
-  const isLoading = (supabaseHook as any).isLoading as boolean;
-  
-  if (isLoading) {
+
+  if (loading) {
     return (
       <Card className={`w-full ${className}`}>
-        <CardContent className="pt-6">
-          <div className="flex items-center justify-center h-40">
-            <div className="animate-pulse flex space-x-4">
-              <div className="rounded-full bg-slate-200 h-10 w-10"></div>
-              <div className="flex-1 space-y-6 py-1">
-                <div className="h-2 bg-slate-200 rounded"></div>
-                <div className="space-y-3">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="h-2 bg-slate-200 rounded col-span-2"></div>
-                    <div className="h-2 bg-slate-200 rounded col-span-1"></div>
-                  </div>
-                  <div className="h-2 bg-slate-200 rounded"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
+        <CardContent>Loading...</CardContent>
       </Card>
     );
   }
-  
+
   return (
     <Card className={`w-full ${className}`}>
       <CardHeader>
@@ -268,7 +239,7 @@ export default function AchievementDashboard({
           
           <TabsContent value="all">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...unlockedAchievements, ...lockedAchievements].map(achievement => (
+              {[...unlockedAchievements, ...lockedAchievements].map((achievement: any) => (
                 <div 
                   key={achievement.id} 
                   className={`border rounded-lg p-4 ${
@@ -302,10 +273,10 @@ export default function AchievementDashboard({
                         <div className="mt-3 flex items-center gap-2 flex-wrap">
                           <Badge 
                             className={`flex items-center gap-1 ${
-                              categoryColor(achievement.category as AchievementCategory)
+                              categoryColor(achievement.category)
                             }`}
                           >
-                            {categoryIcon(achievement.category as AchievementCategory)}
+                            {categoryIcon(achievement.category)}
                             {achievement.category}
                           </Badge>
                           
@@ -360,7 +331,7 @@ export default function AchievementDashboard({
           
           <TabsContent value="unlocked">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {unlockedAchievements.map(achievement => (
+              {unlockedAchievements.map((achievement: any) => (
                 <div 
                   key={achievement.id} 
                   className="border rounded-lg p-4 bg-white border-gray-200"
@@ -382,10 +353,10 @@ export default function AchievementDashboard({
                         <div className="mt-3 flex items-center gap-2 flex-wrap">
                           <Badge 
                             className={`flex items-center gap-1 ${
-                              categoryColor(achievement.category as AchievementCategory)
+                              categoryColor(achievement.category)
                             }`}
                           >
-                            {categoryIcon(achievement.category as AchievementCategory)}
+                            {categoryIcon(achievement.category)}
                             {achievement.category}
                           </Badge>
                           
@@ -438,7 +409,7 @@ export default function AchievementDashboard({
           
           <TabsContent value="locked">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lockedAchievements.map(achievement => (
+              {lockedAchievements.map((achievement: any) => (
                 <div 
                   key={achievement.id} 
                   className="border rounded-lg p-4 bg-gray-50 border-gray-300 opacity-60"
@@ -460,10 +431,10 @@ export default function AchievementDashboard({
                         <div className="mt-3 flex items-center gap-2 flex-wrap">
                           <Badge 
                             className={`flex items-center gap-1 ${
-                              categoryColor(achievement.category as AchievementCategory)
+                              categoryColor(achievement.category)
                             }`}
                           >
-                            {categoryIcon(achievement.category as AchievementCategory)}
+                            {categoryIcon(achievement.category)}
                             {achievement.category}
                           </Badge>
                         </div>

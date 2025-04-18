@@ -16,7 +16,9 @@ interface ActivityItemProps {
     action_type: ActivityAction
     entity_type: string
     entity_id: string
-    metadata: Record<string, any>
+    metadata: {
+      [key: string]: string | number | boolean | null | undefined
+    }
     created_at: string
   }
 }
@@ -34,13 +36,13 @@ export function ActivityItem({ activity }: ActivityItemProps) {
       case "message_send":
         return "sent a message"
       case "reaction_add":
-        return `reacted with ${activity.metadata.emoji || "👍"}`
+        return `reacted with ${activity.metadata.emoji || ""}`
       case "user_follow":
-        return `followed ${activity.metadata.target_name || "someone"}`
+        return `followed ${activity.metadata.target_name || ""}`
       case "user_join":
         return "joined the platform"
       case "group_join":
-        return `joined ${activity.metadata.group_name || "a group"}`
+        return `joined ${activity.metadata.group_name || ""}`
       case "profile_update":
         return "updated their profile"
       default:
@@ -97,7 +99,7 @@ export function ActivityItem({ activity }: ActivityItemProps) {
       <div className="flex items-start gap-3">
         <Avatar className="h-10 w-10">
           <AvatarImage src={activity.user_avatar || undefined} />
-          <AvatarFallback>{activity.user_name?.[0] || "U"}</AvatarFallback>
+          <AvatarFallback>{activity.user_name?.[0] || ""}</AvatarFallback>
         </Avatar>
 
         <div className="flex-1">
@@ -124,4 +126,3 @@ export function ActivityItem({ activity }: ActivityItemProps) {
     </Card>
   )
 }
-

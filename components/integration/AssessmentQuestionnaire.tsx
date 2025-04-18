@@ -199,130 +199,106 @@ export default function AssessmentQuestionnaire() {
     return (
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
-          <CardTitle>Assessment Completed</CardTitle>
+          <CardTitle>Assessment Complete</CardTitle>
           <CardDescription>
-            Thank you for completing your integration assessment. Here's your integration profile:
+            Thank you for completing the integration assessment! Here are your results:
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h3 className="text-lg font-medium">Your Primary Integration Need:</h3>
-              <p className="text-xl font-bold mt-2">{profile.primary_integration_need.replace('.', ' › ')}</p>
-            </div>
-            
-            <div>
-              <h3 className="text-lg font-medium mb-4">Domain Scores:</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-amber-600">Personal</h4>
-                  <div className="grid grid-cols-3 gap-4 mt-2">
-                    <div>
-                      <p className="text-sm">Health</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-amber-500 rounded-full" 
-                          style={{ width: `${profile.personal_health_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.personal_health_score.toFixed(1)}/10</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Wealth</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-yellow-500 rounded-full" 
-                          style={{ width: `${profile.personal_wealth_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.personal_wealth_score.toFixed(1)}/10</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Peace</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-amber-300 rounded-full" 
-                          style={{ width: `${profile.personal_peace_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.personal_peace_score.toFixed(1)}/10</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-teal-600">Business</h4>
-                  <div className="grid grid-cols-3 gap-4 mt-2">
-                    <div>
-                      <p className="text-sm">Users</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-teal-500 rounded-full" 
-                          style={{ width: `${profile.business_users_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.business_users_score.toFixed(1)}/10</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Admin</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-cyan-500 rounded-full" 
-                          style={{ width: `${profile.business_admin_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.business_admin_score.toFixed(1)}/10</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Profit</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-teal-300 rounded-full" 
-                          style={{ width: `${profile.business_profit_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.business_profit_score.toFixed(1)}/10</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-purple-600">Supermind</h4>
-                  <div className="grid grid-cols-3 gap-4 mt-2">
-                    <div>
-                      <p className="text-sm">Vision</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-violet-500 rounded-full" 
-                          style={{ width: `${profile.supermind_vision_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.supermind_vision_score.toFixed(1)}/10</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Planning</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-purple-500 rounded-full" 
-                          style={{ width: `${profile.supermind_planning_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.supermind_planning_score.toFixed(1)}/10</p>
-                    </div>
-                    <div>
-                      <p className="text-sm">Execution</p>
-                      <div className="h-2 bg-gray-200 rounded-full mt-1">
-                        <div 
-                          className="h-2 bg-fuchsia-500 rounded-full" 
-                          style={{ width: `${profile.supermind_execution_score * 10}%` }}
-                        ></div>
-                      </div>
-                      <p className="text-right text-sm mt-1">{profile.supermind_execution_score.toFixed(1)}/10</p>
-                    </div>
-                  </div>
-                </div>
+              <p className="text-sm">Personal Health</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-amber-500 rounded-full" 
+                  style={{ width: `${typeof profile.personal_health_score === 'number' ? profile.personal_health_score * 10 : 0}%` }}
+                ></div>
               </div>
+              <p className="text-right text-sm mt-1">{typeof profile.personal_health_score === 'number' ? profile.personal_health_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+            <div>
+              <p className="text-sm">Personal Wealth</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-yellow-500 rounded-full" 
+                  style={{ width: `${typeof profile.personal_wealth_score === 'number' ? profile.personal_wealth_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.personal_wealth_score === 'number' ? profile.personal_wealth_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+            <div>
+              <p className="text-sm">Personal Peace</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-amber-300 rounded-full" 
+                  style={{ width: `${typeof profile.personal_peace_score === 'number' ? profile.personal_peace_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.personal_peace_score === 'number' ? profile.personal_peace_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div>
+              <p className="text-sm">Business Users</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-teal-500 rounded-full" 
+                  style={{ width: `${typeof profile.business_users_score === 'number' ? profile.business_users_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.business_users_score === 'number' ? profile.business_users_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+            <div>
+              <p className="text-sm">Business Admin</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-cyan-500 rounded-full" 
+                  style={{ width: `${typeof profile.business_admin_score === 'number' ? profile.business_admin_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.business_admin_score === 'number' ? profile.business_admin_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+            <div>
+              <p className="text-sm">Business Profit</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-cyan-400 rounded-full" 
+                  style={{ width: `${typeof profile.business_profit_score === 'number' ? profile.business_profit_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.business_profit_score === 'number' ? profile.business_profit_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div>
+              <p className="text-sm">Supermind Vision</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-violet-500 rounded-full" 
+                  style={{ width: `${typeof profile.supermind_vision_score === 'number' ? profile.supermind_vision_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.supermind_vision_score === 'number' ? profile.supermind_vision_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+            <div>
+              <p className="text-sm">Supermind Planning</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-purple-500 rounded-full" 
+                  style={{ width: `${typeof profile.supermind_planning_score === 'number' ? profile.supermind_planning_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.supermind_planning_score === 'number' ? profile.supermind_planning_score.toFixed(1) : 'N/A'}/10</p>
+            </div>
+            <div>
+              <p className="text-sm">Supermind Execution</p>
+              <div className="h-2 bg-gray-200 rounded-full mt-1">
+                <div 
+                  className="h-2 bg-fuchsia-500 rounded-full" 
+                  style={{ width: `${typeof profile.supermind_execution_score === 'number' ? profile.supermind_execution_score * 10 : 0}%` }}
+                ></div>
+              </div>
+              <p className="text-right text-sm mt-1">{typeof profile.supermind_execution_score === 'number' ? profile.supermind_execution_score.toFixed(1) : 'N/A'}/10</p>
             </div>
           </div>
         </CardContent>

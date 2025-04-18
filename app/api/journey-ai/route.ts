@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
     const recommendations = generateRecommendations(
       regenData as RegenAnalytics,
       journeyProgress as JourneyProgress,
-      (tokenBalances ?? []) as TokenBalance[],
+      tokenBalances as unknown as TokenBalance[],
       (upcomingEvents ?? []) as Event[],
       (completedEvents ?? []) as Event[],
       streakData as StreakData,
@@ -442,7 +442,7 @@ function calculateEventPriority(event: Event, regenData: RegenAnalytics): number
     // Boost priority for events that match user's strengths
     if (
       (eventType.includes('personal') && typeof regenData.event_count === 'number' && regenData.event_count > 5) ||
-      (eventType.includes('community') && regenData.team_count > 0) ||
+      (eventType.includes('community') && regenData.team_count !== undefined && regenData.team_count > 0) ||
       (eventType.includes('token') && typeof regenData.token_transaction_count === 'number' && regenData.token_transaction_count > 10)
     ) {
       priority += 15;
@@ -572,7 +572,7 @@ function generateContentRecommendations(journeyProgress: JourneyProgress, regenD
       reason: 'Can increase your token earnings by up to 90%'
     });
     
-    if (regenData?.team_count === 0) {
+    if (regenData?.team_count !== undefined && regenData.team_count > 0) {
       recommendations.push({
         id: 'content-team-benefits',
         type: 'content',

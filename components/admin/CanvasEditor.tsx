@@ -30,7 +30,7 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
     },
   });
 
-  const { handleSubmit, reset, control } = formMethods;
+  const { handleSubmit, reset } = formMethods;
 
   const onSubmit = async (values: CanvasEntryInput) => {
     setLoading(true);
@@ -79,8 +79,8 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {pillars.map(p => (
-                        <SelectItem key={p.key} value={p.key}>{p.label}</SelectItem>
+                      {pillars.map((p, index) => (
+                        <SelectItem key={index} value={p.key}>{p.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -98,8 +98,8 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {canvasTypes.map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      {canvasTypes.map((type, index) => (
+                        <SelectItem key={index} value={type}>{type}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

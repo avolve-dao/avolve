@@ -31,17 +31,7 @@ Avolve is built around three value pillars:
 
 ## 2. How Users Earn & Spend Tokens
 
-### **Earning Tokens**
-- **Complete Assessments:** Finish onboarding or self-assessments.
-- **Complete Exercises/Challenges:** Engage in learning, integration, and verification challenges.
-- **Daily Rewards & Achievements:** Claim daily tokens and unlock achievements.
-- **Community Actions:** Participate in meetings, quests, or group activities.
-
-### **Spending Tokens**
-- **Marketplace:** Redeem for goods, services, or premium features.
-- **Governance:** Vote, propose, or support initiatives (GEN, SAP, SCQ).
-- **Staking/Donations:** Support causes or stake for rewards.
-- **Unlocking Features:** Access advanced tools, content, or experiences.
+See the [User Quickstart Guide](./user-quickstart.md) for detailed earning/spending tables and scenarios.
 
 ---
 
@@ -102,6 +92,7 @@ Avolve is built around three value pillars:
 - [User Quickstart Guide](./user-quickstart.md)
 - [Admin/Dev Onboarding](./admin-onboarding.md)
 - [Database Schema & API Docs](./database-api.md)
+- [Glossary](./glossary.md)
 - [Tokenomics Whitepaper](./tokenomics-whitepaper.md)
 
 ---

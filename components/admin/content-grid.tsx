@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { formatDistanceToNow } from 'date-fns'
 
 interface ContentItem {
@@ -79,10 +80,12 @@ export function ContentGrid({ items = [] }: ContentGridProps) {
             <div className="flex items-center gap-x-2">
               <div className="h-8 w-8 rounded-full bg-zinc-800">
                 {item.author.avatar_url && (
-                  <img
+                  <Image
                     src={item.author.avatar_url}
                     alt={item.author.full_name}
                     className="h-8 w-8 rounded-full"
+                    width={32}
+                    height={32}
                   />
                 )}
               </div>

@@ -18,6 +18,16 @@ const tokenGradients = {
   SGB: 'from-sky-500 via-blue-500 to-indigo-500', // Supergenius Breakthroughs
 };
 
+// Define Petition type for type safety
+interface Petition {
+  id: string;
+  title: string;
+  description: string;
+  support_count: number;
+  oppose_count: number;
+  user_vote?: 'support' | 'oppose' | 'abstain' | null;
+}
+
 const GovernanceDashboard: React.FC = () => {
   const { user } = useUser();
   const { usePetitions, useEligibility, useCreatePetition, useVotePetition } = useGovernanceQuery();
@@ -190,7 +200,7 @@ const GovernanceDashboard: React.FC = () => {
           <p className="text-gray-500">Loading petitions...</p>
         ) : petitions?.length > 0 ? (
           <div className="space-y-6">
-            {petitions.map((petition: unknown) => (
+            {petitions.map((petition: Petition) => (
               <motion.div
                 key={petition.id}
                 initial={{ opacity: 0, y: 20 }}

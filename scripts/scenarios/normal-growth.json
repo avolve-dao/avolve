@@ -1,0 +1,15 @@
+{
+  "name": "Normal Growth",
+  "num_users": 100,
+  "sim_days": 21,
+  "user_types": [
+    { "type": "power_user", "percent": 10, "actions_per_day": 10 },
+    { "type": "lurker", "percent": 30, "actions_per_day": 1 },
+    { "type": "normal", "percent": 60, "actions_per_day": 3 }
+  ],
+  "invite_rate": 0.2,
+  "group_quest_rate": 0.1,
+  "special_events": [
+    { "day": 14, "event": "double_rewards", "multiplier": 2 }
+  ]
+}

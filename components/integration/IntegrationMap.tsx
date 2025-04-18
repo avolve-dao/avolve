@@ -78,6 +78,10 @@ export default function IntegrationMap() {
 
         setProfile(data);
         
+        // Defensive null checks for profile scores
+        const safeScore = (score: number | undefined | null) =>
+          typeof score === 'number' && !isNaN(score) ? score : 0;
+        
         // Generate domain nodes
         const domainData: Domain[] = [
           // Personal domains
@@ -86,33 +90,33 @@ export default function IntegrationMap() {
             name: 'Health',
             subdomain: 'health',
             fullName: 'Personal Health',
-            score: data.personal_health_score,
+            score: safeScore(data.personal_health_score),
             x: 150,
             y: 100,
             color: 'rgb(245, 158, 11)', // amber-500
-            radius: 30 + (data.personal_health_score * 3)
+            radius: 30 + (safeScore(data.personal_health_score) * 3)
           },
           {
             id: 'personal.wealth',
             name: 'Wealth',
             subdomain: 'wealth',
             fullName: 'Personal Wealth',
-            score: data.personal_wealth_score,
+            score: safeScore(data.personal_wealth_score),
             x: 250,
             y: 150,
             color: 'rgb(234, 179, 8)', // yellow-500
-            radius: 30 + (data.personal_wealth_score * 3)
+            radius: 30 + (safeScore(data.personal_wealth_score) * 3)
           },
           {
             id: 'personal.peace',
             name: 'Peace',
             subdomain: 'peace',
             fullName: 'Personal Peace',
-            score: data.personal_peace_score,
+            score: safeScore(data.personal_peace_score),
             x: 150,
             y: 200,
             color: 'rgb(252, 211, 77)', // amber-300
-            radius: 30 + (data.personal_peace_score * 3)
+            radius: 30 + (safeScore(data.personal_peace_score) * 3)
           },
           
           // Business domains
@@ -121,33 +125,33 @@ export default function IntegrationMap() {
             name: 'Users',
             subdomain: 'users',
             fullName: 'Business Users',
-            score: data.business_users_score,
+            score: safeScore(data.business_users_score),
             x: 400,
             y: 100,
             color: 'rgb(20, 184, 166)', // teal-500
-            radius: 30 + (data.business_users_score * 3)
+            radius: 30 + (safeScore(data.business_users_score) * 3)
           },
           {
             id: 'business.admin',
             name: 'Admin',
             subdomain: 'admin',
             fullName: 'Business Admin',
-            score: data.business_admin_score,
+            score: safeScore(data.business_admin_score),
             x: 500,
             y: 150,
             color: 'rgb(6, 182, 212)', // cyan-500
-            radius: 30 + (data.business_admin_score * 3)
+            radius: 30 + (safeScore(data.business_admin_score) * 3)
           },
           {
             id: 'business.profit',
             name: 'Profit',
             subdomain: 'profit',
             fullName: 'Business Profit',
-            score: data.business_profit_score,
+            score: safeScore(data.business_profit_score),
             x: 400,
             y: 200,
-            color: 'rgb(94, 234, 212)', // teal-300
-            radius: 30 + (data.business_profit_score * 3)
+            color: 'rgb(34, 211, 238)', // cyan-400
+            radius: 30 + (safeScore(data.business_profit_score) * 3)
           },
           
           // Supermind domains
@@ -156,33 +160,33 @@ export default function IntegrationMap() {
             name: 'Vision',
             subdomain: 'vision',
             fullName: 'Supermind Vision',
-            score: data.supermind_vision_score,
-            x: 250,
-            y: 300,
+            score: safeScore(data.supermind_vision_score),
+            x: 275,
+            y: 50,
             color: 'rgb(139, 92, 246)', // violet-500
-            radius: 30 + (data.supermind_vision_score * 3)
+            radius: 30 + (safeScore(data.supermind_vision_score) * 3)
           },
           {
             id: 'supermind.planning',
             name: 'Planning',
             subdomain: 'planning',
             fullName: 'Supermind Planning',
-            score: data.supermind_planning_score,
-            x: 350,
-            y: 350,
+            score: safeScore(data.supermind_planning_score),
+            x: 325,
+            y: 250,
             color: 'rgb(168, 85, 247)', // purple-500
-            radius: 30 + (data.supermind_planning_score * 3)
+            radius: 30 + (safeScore(data.supermind_planning_score) * 3)
           },
           {
             id: 'supermind.execution',
             name: 'Execution',
             subdomain: 'execution',
             fullName: 'Supermind Execution',
-            score: data.supermind_execution_score,
-            x: 450,
-            y: 300,
-            color: 'rgb(217, 70, 239)', // fuchsia-500
-            radius: 30 + (data.supermind_execution_score * 3)
+            score: safeScore(data.supermind_execution_score),
+            x: 200,
+            y: 275,
+            color: 'rgb(236, 72, 153)', // fuchsia-500
+            radius: 30 + (safeScore(data.supermind_execution_score) * 3)
           }
         ];
         
@@ -196,19 +200,19 @@ export default function IntegrationMap() {
         connectionData.push({ 
           source: 'personal.health', 
           target: 'personal.wealth', 
-          strength: (data.personal_health_score + data.personal_wealth_score) / 20,
+          strength: (safeScore(data.personal_health_score) + safeScore(data.personal_wealth_score)) / 20,
           opportunity: false
         });
         connectionData.push({ 
           source: 'personal.wealth', 
           target: 'personal.peace', 
-          strength: (data.personal_wealth_score + data.personal_peace_score) / 20,
+          strength: (safeScore(data.personal_wealth_score) + safeScore(data.personal_peace_score)) / 20,
           opportunity: false
         });
         connectionData.push({ 
           source: 'personal.peace', 
           target: 'personal.health', 
-          strength: (data.personal_peace_score + data.personal_health_score) / 20,
+          strength: (safeScore(data.personal_peace_score) + safeScore(data.personal_health_score)) / 20,
           opportunity: false
         });
         
@@ -216,19 +220,19 @@ export default function IntegrationMap() {
         connectionData.push({ 
           source: 'business.users', 
           target: 'business.admin', 
-          strength: (data.business_users_score + data.business_admin_score) / 20,
+          strength: (safeScore(data.business_users_score) + safeScore(data.business_admin_score)) / 20,
           opportunity: false
         });
         connectionData.push({ 
           source: 'business.admin', 
           target: 'business.profit', 
-          strength: (data.business_admin_score + data.business_profit_score) / 20,
+          strength: (safeScore(data.business_admin_score) + safeScore(data.business_profit_score)) / 20,
           opportunity: false
         });
         connectionData.push({ 
           source: 'business.profit', 
           target: 'business.users', 
-          strength: (data.business_profit_score + data.business_users_score) / 20,
+          strength: (safeScore(data.business_profit_score) + safeScore(data.business_users_score)) / 20,
           opportunity: false
         });
         
@@ -236,19 +240,19 @@ export default function IntegrationMap() {
         connectionData.push({ 
           source: 'supermind.vision', 
           target: 'supermind.planning', 
-          strength: (data.supermind_vision_score + data.supermind_planning_score) / 20,
+          strength: (safeScore(data.supermind_vision_score) + safeScore(data.supermind_planning_score)) / 20,
           opportunity: false
         });
         connectionData.push({ 
           source: 'supermind.planning', 
           target: 'supermind.execution', 
-          strength: (data.supermind_planning_score + data.supermind_execution_score) / 20,
+          strength: (safeScore(data.supermind_planning_score) + safeScore(data.supermind_execution_score)) / 20,
           opportunity: false
         });
         connectionData.push({ 
           source: 'supermind.execution', 
           target: 'supermind.vision', 
-          strength: (data.supermind_execution_score + data.supermind_vision_score) / 20,
+          strength: (safeScore(data.supermind_execution_score) + safeScore(data.supermind_vision_score)) / 20,
           opportunity: false
         });
         

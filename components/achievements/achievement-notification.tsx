@@ -22,13 +22,18 @@ export function AchievementNotification({
 }: {
   children: React.ReactNode;
 }) {
-  const { supabase, user } = useSupabase() as any;
+  const { supabase } = useSupabase();
   const { claimAchievementReward, trackActivity } = useTokens();
   
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [displayedAchievement, setDisplayedAchievement] = useState<Achievement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+  }, [supabase]);
 
   useEffect(() => {
     if (!user) return;
@@ -69,7 +74,7 @@ export function AchievementNotification({
     return () => {
       subscription.unsubscribe();
     };
-  }, [user, supabase, trackActivity, displayedAchievement]);
+  }, [user, supabase, trackActivity]);
 
   const handleClaim = async (achievementId: string) => {
     setClaimingId(achievementId);

@@ -1,0 +1,14 @@
+{
+  "scenario": "Normal Growth",
+  "num_users": 100,
+  "sim_days": 21,
+  "stats": {
+    "xp_events": 0,
+    "tokens": {},
+    "invites": 0,
+    "onboarded": 0,
+    "group_quests": 0,
+    "badges": 0
+  },
+  "timestamp": "2025-04-18T23:54:02.250Z"
+}

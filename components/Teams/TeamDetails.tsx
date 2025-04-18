@@ -83,7 +83,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
 
   useEffect(() => {
     loadTeamAndUser();
-  }, [teamId, supabase, loadTeamAndUser]);
+  }, [teamId, supabase]);
 
   const handleJoinTeam = async () => {
     if (!currentUser) {
@@ -160,7 +160,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
-        <AlertDescription>Team not found or you don't have access to view it.</AlertDescription>
+        <AlertDescription>Team not found or you don&apos;t have access to view it.</AlertDescription>
       </Alert>
     );
   }

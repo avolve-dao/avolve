@@ -11,11 +11,30 @@ import { getActivityFeed, getUserActivity, getGlobalActivityFeed } from "@/lib/a
 interface ActivityFeedProps {
   userId?: string
   type: "user" | "following" | "global"
-  initialActivities?: any[]
+  initialActivities?: Activity[]
+}
+
+interface Activity {
+  id: string
+  // Add other activity properties here
+}
+
+function mapToActivityItem(activity: any): any {
+  return {
+    id: activity.id ?? '',
+    user_id: activity.user_id ?? '',
+    user_name: activity.user_name ?? '',
+    user_avatar: activity.user_avatar ?? null,
+    action_type: activity.action_type ?? 'unknown',
+    entity_type: activity.entity_type ?? '',
+    entity_id: activity.entity_id ?? '',
+    metadata: activity.metadata ?? {},
+    created_at: activity.created_at ?? '',
+  };
 }
 
 export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityFeedProps) {
-  const [activities, setActivities] = useState<any[]>(initialActivities)
+  const [activities, setActivities] = useState<Activity[]>(initialActivities)
   const [loading, setLoading] = useState(!initialActivities.length)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(initialActivities.length ? 1 : 0)
@@ -31,7 +50,7 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
       setError(null)
 
       const pageToLoad = reset ? 0 : page
-      let data: any[] = []
+      let data: Activity[] = []
 
       if (type === "user" && userId) {
         data = await getUserActivity(userId, 10, pageToLoad)
@@ -61,14 +80,14 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
     if (inView && !loading) {
       loadActivities()
     }
-  }, [inView])
+  }, [inView, loading])
 
   // Initial load if no activities were provided
   useEffect(() => {
     if (initialActivities.length === 0) {
       loadActivities()
     }
-  }, [])
+  }, [initialActivities])
 
   if (loading && activities.length === 0) {
     return (
@@ -113,7 +132,10 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
   return (
     <div className="space-y-4">
       {activities.map((activity) => (
-        <ActivityItem key={activity.id} activity={activity} />
+        <ActivityItem
+          key={activity.id}
+          activity={mapToActivityItem(activity)}
+        />
       ))}
 
       {hasMore && (
@@ -128,4 +150,3 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
     </div>
   )
 }
-

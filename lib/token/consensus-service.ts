@@ -42,49 +42,9 @@ export interface ConsensusParticipantData {
   updated_at: string;
 }
 
-/**
- * Interface for pending respect data
- */
-export interface PendingRespectData {
-  id: string;
-  user_id: string;
-  token_id: string;
-  amount: number;
-  source: string;
-  source_id?: string;
-  can_claim_at: string;
-  created_at: string;
-  claimed_at?: string;
-}
-
-/**
- * Interface for token allocation proposal data
- */
-export interface TokenAllocationProposalData {
-  id: string;
-  title: string;
-  description: string;
-  proposed_by: string;
-  token_id: string;
-  allocation_amount: number;
-  recipient_id?: string;
-  recipient_team_id?: string;
-  status: 'active' | 'approved' | 'rejected' | 'executed';
-  voting_ends_at: string;
-  created_at: string;
-  updated_at: string;
-}
-
-/**
- * Interface for token allocation vote data
- */
-export interface TokenAllocationVoteData {
-  id: string;
-  proposal_id: string;
-  user_id: string;
-  vote: 'approve' | 'reject';
-  created_at: string;
-}
+// Import new types/services for circles, peer review, and reputation
+import { Circle, CircleMember } from '@/lib/governance/types';
+import { PeerReview, Reputation } from '@/lib/governance/types';
 
 /**
  * Service for managing the consensus mechanism
@@ -313,222 +273,6 @@ export class ConsensusService {
   }
 
   /**
-   * Get pending respect for the current user
-   * @returns Array of pending respect
-   */
-  async getPendingRespect(): Promise<PendingRespectData[]> {
-    try {
-      const userId = await this.getCurrentUserId();
-      
-      const { data, error } = await this.client
-        .from('pending_respect')
-        .select('*')
-        .eq('user_id', userId)
-        .is('claimed_at', null)
-        .lte('can_claim_at', new Date().toISOString())
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error getting pending respect:', error);
-        return [];
-      }
-
-      return data as PendingRespectData[];
-    } catch (error) {
-      console.error('Unexpected error getting pending respect:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Claim pending respect
-   * @param pendingRespectId ID of the pending respect
-   * @returns True if claiming was successful, false otherwise
-   */
-  async claimPendingRespect(pendingRespectId: string): Promise<boolean> {
-    try {
-      const { data, error } = await this.client.rpc('claim_pending_respect', {
-        p_pending_respect_id: pendingRespectId,
-      });
-
-      if (error) {
-        console.error('Error claiming pending respect:', error);
-        return false;
-      }
-
-      return data as boolean;
-    } catch (error) {
-      console.error('Unexpected error claiming pending respect:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Create a token allocation proposal
-   * @param title Title of the proposal
-   * @param description Description of the proposal
-   * @param tokenId ID of the token
-   * @param allocationAmount Amount to allocate
-   * @param recipientId ID of the recipient user (optional)
-   * @param recipientTeamId ID of the recipient team (optional)
-   * @param votingDurationDays Duration of voting in days
-   * @returns ID of the created proposal or null if there was an error
-   */
-  async createTokenAllocationProposal(
-    title: string,
-    description: string,
-    tokenId: string,
-    allocationAmount: number,
-    recipientId?: string,
-    recipientTeamId?: string,
-    votingDurationDays = 7
-  ): Promise<string | null> {
-    try {
-      const { data, error } = await this.client.rpc('create_token_allocation_proposal', {
-        p_title: title,
-        p_description: description,
-        p_token_id: tokenId,
-        p_allocation_amount: allocationAmount,
-        p_recipient_id: recipientId,
-        p_recipient_team_id: recipientTeamId,
-        p_voting_duration_days: votingDurationDays,
-      });
-
-      if (error) {
-        console.error('Error creating token allocation proposal:', error);
-        return null;
-      }
-
-      return data as string;
-    } catch (error) {
-      console.error('Unexpected error creating token allocation proposal:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get all active token allocation proposals
-   * @returns Array of active proposals
-   */
-  async getActiveProposals(): Promise<TokenAllocationProposalData[]> {
-    try {
-      const { data, error } = await this.client
-        .from('token_allocation_proposals')
-        .select('*')
-        .eq('status', 'active')
-        .order('voting_ends_at', { ascending: true });
-
-      if (error) {
-        console.error('Error getting active token allocation proposals:', error);
-        return [];
-      }
-
-      return data as TokenAllocationProposalData[];
-    } catch (error) {
-      console.error('Unexpected error getting active token allocation proposals:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Get a token allocation proposal by ID
-   * @param proposalId ID of the proposal
-   * @returns The proposal data or null if not found
-   */
-  async getProposalById(proposalId: string): Promise<TokenAllocationProposalData | null> {
-    try {
-      const { data, error } = await this.client
-        .from('token_allocation_proposals')
-        .select('*')
-        .eq('id', proposalId)
-        .single();
-
-      if (error) {
-        console.error('Error getting token allocation proposal:', error);
-        return null;
-      }
-
-      return data as TokenAllocationProposalData;
-    } catch (error) {
-      console.error('Unexpected error getting token allocation proposal:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Vote on a token allocation proposal
-   * @param proposalId ID of the proposal
-   * @param vote 'approve' or 'reject'
-   * @returns True if voting was successful, false otherwise
-   */
-  async voteOnProposal(
-    proposalId: string,
-    vote: 'approve' | 'reject'
-  ): Promise<boolean> {
-    try {
-      const { data, error } = await this.client.rpc('vote_on_token_allocation_proposal', {
-        p_proposal_id: proposalId,
-        p_vote: vote,
-      });
-
-      if (error) {
-        console.error('Error voting on token allocation proposal:', error);
-        return false;
-      }
-
-      return data as boolean;
-    } catch (error) {
-      console.error('Unexpected error voting on token allocation proposal:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Get votes for a proposal
-   * @param proposalId ID of the proposal
-   * @returns Array of votes
-   */
-  async getVotesForProposal(proposalId: string): Promise<TokenAllocationVoteData[]> {
-    try {
-      const { data, error } = await this.client
-        .from('token_allocation_votes')
-        .select('*')
-        .eq('proposal_id', proposalId)
-        .order('created_at', { ascending: true });
-
-      if (error) {
-        console.error('Error getting votes for token allocation proposal:', error);
-        return [];
-      }
-
-      return data as TokenAllocationVoteData[];
-    } catch (error) {
-      console.error('Unexpected error getting votes for token allocation proposal:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Process token allocation proposals
-   * @returns Number of processed proposals
-   */
-  async processProposals(): Promise<number> {
-    try {
-      const { data, error } = await this.client.rpc('process_token_allocation_proposals');
-
-      if (error) {
-        console.error('Error processing token allocation proposals:', error);
-        return 0;
-      }
-
-      return data as number;
-    } catch (error) {
-      console.error('Unexpected error processing token allocation proposals:', error);
-      return 0;
-    }
-  }
-
-  /**
    * Get the current user ID
    * @returns The current user ID
    */
@@ -540,5 +284,54 @@ export class ConsensusService {
       console.error('Unexpected error getting current user ID:', error);
       return '';
     }
+  }
+}
+
+// ============================
+// REFACTORED FOR FRACTAL GOVERNANCE
+// ============================
+// Legacy token allocation proposal, voting, and respect logic removed.
+// New flows: circle-based governance, peer review, and merit-based reputation.
+
+export class GovernanceService {
+  private client: SupabaseClient;
+
+  constructor(client: SupabaseClient) {
+    this.client = client;
+  }
+
+  // Circles
+  async getCircles(): Promise<Circle[]> {
+    const { data, error } = await this.client.from('circles').select('*');
+    if (error) throw error;
+    return data as Circle[];
+  }
+  async joinCircle(circleId: string): Promise<void> {
+    await this.client.from('circle_members').insert({ circle_id: circleId });
+  }
+  async leaveCircle(circleId: string): Promise<void> {
+    await this.client.from('circle_members').delete().eq('circle_id', circleId);
+  }
+  async getCircleMembers(circleId: string): Promise<CircleMember[]> {
+    const { data, error } = await this.client.from('circle_members').select('*').eq('circle_id', circleId);
+    if (error) throw error;
+    return data as CircleMember[];
+  }
+
+  // Peer Reviews
+  async submitPeerReview({ circleId, revieweeId, feedback, score }: { circleId: string; revieweeId: string; feedback: string; score: number }): Promise<void> {
+    await this.client.from('peer_reviews').insert({ circle_id: circleId, reviewee_id: revieweeId, feedback, score });
+  }
+  async getPeerReviews(circleId: string): Promise<PeerReview[]> {
+    const { data, error } = await this.client.from('peer_reviews').select('*').eq('circle_id', circleId);
+    if (error) throw error;
+    return data as PeerReview[];
+  }
+
+  // Reputation
+  async getReputation(userId: string): Promise<Reputation> {
+    const { data, error } = await this.client.from('user_reputation').select('*').eq('user_id', userId).single();
+    if (error) throw error;
+    return data as Reputation;
   }
 }

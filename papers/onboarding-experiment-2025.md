@@ -1,4 +1,6 @@
-# 🧪 2025 Onboarding Experiment: Magnetic User Delight
+# Magnetic Onboarding for DAOs: Real-Time, Data-Driven Transformation at Avolve
+
+**Authors:** Joshua Seymour and the Avolve DAO
 
 ![Status: In Progress](https://img.shields.io/badge/status-in--progress-yellow) ![Living Paper](https://img.shields.io/badge/living--document-true-blue)
 
@@ -6,6 +8,24 @@
 > **Last updated: 2025-04-19**
 >
 > **Peer review and feedback are welcome at any time:** [Open an Issue](https://github.com/avolve-dao/avolve.io/issues/new?title=Peer+Review+Onboarding+2025)
+
+## Abstract
+This living paper documents the real-time evolution of onboarding at Avolve—a platform and movement dedicated to accelerating the journey from “Degen” (follower in a zero-sum Anticivilization) to “Regen” (self-leader and value creator in a positive-sum Supercivilization). Avolve’s onboarding is the gateway to a three-pillar transformation: Superachiever (individual), Superachievers (collective), and Supercivilization (ecosystem). By integrating gamified “success puzzles” and “superpuzzles,” Avolve empowers users to enhance their quality of life and co-create a regenerative future. Our approach, grounded in data and community feedback, aims to set a new standard for DAO onboarding—inviting all to join the Regeneration Awakening and help build a better civilization for all.
+
+## Introduction
+Civilization is shaped by the mentality of its people. In today’s world, most are “Degens”—locked in a following-mode that sustains the Anticivilization, marked by zero-sum competition and value usurpation by the few. Avolve exists to entertain, enlighten, and empower the users and admins of the Regen Supercivilization that exists in parallel to the Degen Anticivilization. Avolve’s mission is to awaken and empower “Regens”—self-leaders, integrated thinkers, and value creators—who drive the shift to a positive-sum Supercivilization. Through the lens of the Superachiever (individual), Superachievers (collective), and Supercivilization (ecosystem), Avolve’s onboarding is designed to catalyze this transformation, guiding users to build their personal and collective “success puzzles” and “superpuzzles” for a better world.
+
+Avolve’s intention is to further the evolution from Degen to Regen, faster and together, by enabling individuals to create their own success puzzle for a better quality of life, and collectives to co-create the superpuzzle for a better standard of living. The onboarding process is not merely an entry-point, but an invitation to join the Regeneration Awakening, relieve the pains of the Anticivilization, and co-create the gains of the Supercivilization—anchored in the platform’s three main values:
+
+- **Superachiever**: For the individual journey of transformation.
+- **Superachievers**: For the collective journey of transformation.
+- **Supercivilization**: For the ecosystem journey of transformation.
+
+Avolve’s narrative and architecture are further structured by:
+- **One Focus:** Supercivilization (GEN token)
+- **Two Views:** Superachiever & Superachievers
+- **Three Keys:** Personal Success Puzzle (PSP), Business Success Puzzle (BSP), Supermind Superpowers (SMS)
+- **Four Cores:** Superpuzzle Developments (SPD), Superhuman Enhancements (SHE), Supersociety Advancements (SSA), Supergenius Breakthroughs (SBG)
 
 ## Overview
 In early 2025, Avolve DAO set out to radically improve the onboarding experience for first-time users, aiming to maximize delight, reduce drop-off, and accelerate engagement. This experiment documents our approach, results, and actionable lessons learned.

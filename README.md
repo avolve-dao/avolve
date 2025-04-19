@@ -1,8 +1,14 @@
 # Avolve: Regenerative Platform for Transformation
 
-## 🚀 Company One-Pager
+> Avolve is a next-generation, tokenized platform empowering individuals and communities to co-create a regenerative future through gamified engagement, transparent governance, and real-time data.
 
-### Company Purpose
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Join the Community](https://img.shields.io/badge/Community-Discussions-blue)](https://github.com/avolve-dao/avolve.io/discussions)
+
+---
+
+## 🚀 One-Pager
+
+### Purpose
 Avolve empowers individuals, communities, and ecosystems to co-create a regenerative future through transparent research, gamified engagement, and fractal governance.
 
 ### Problem
@@ -31,6 +37,21 @@ Available upon request.
 
 ### Vision
 In five years, Avolve will be the leading platform for regenerative transformation, powering a global network of Superachievers, Superachievers, and Supercivilizations—demonstrating that positive-sum systems can outcompete extractive models at scale.
+
+---
+
+## 📑 Table of Contents
+- [Avolve DAO: Transparent Research & Documentation Hub](#-avolve-dao-transparent-research--documentation-hub)
+- [Platform Overview](#-platform-overview)
+- [Token System & Sacred Geometry](#-token-system--sacred-geometry)
+- [User Journeys](#-user-journeys)
+- [Feature Unlocking & Gamification](#-feature-unlocking--gamification)
+- [Onboarding Flow](#-onboarding-flow)
+- [Security & Data Integrity](#-security--data-integrity)
+- [Featured Papers & Case Studies](#-featured-papers--case-studies)
+- [Supporting Data](#-supporting-data)
+- [Feedback, Suggestions, & Peer Review](#-feedback-suggestions--peer-review)
+- [Repo Navigation](#-repo-navigation)
 
 ---
 
@@ -74,34 +95,59 @@ Avolve’s token system is inspired by sacred geometry and fractal patterns:
 
 **Learn more:** [Token System Paper](./docs/TOKEN-SYSTEM.md)
 
+<!--
+```mermaid
+flowchart TD
+  GEN[GEN: Supercivilization]
+  SAP[SAP: Superachiever]
+  SCQ[SCQ: Superachievers]
+  PSP[PSP]
+  BSP[BSP]
+  SMS[SMS]
+  SPD[SPD]
+  SHE[SHE]
+  SSA[SSA]
+  SBG[SBG]
+  GEN --> SAP
+  GEN --> SCQ
+  SAP --> PSP
+  SAP --> BSP
+  SAP --> SMS
+  SCQ --> SPD
+  SCQ --> SHE
+  SCQ --> SSA
+  SCQ --> SBG
+```
+-->
+
 ## 🧬 User Journeys
 - **Superachiever (Individual):** Personal and business transformation quests.
 - **Superachievers (Collective):** Team and community co-creation.
 - **Supercivilization (Ecosystem):** Impact at scale and regenerative governance.
 
 Each journey features:
-- WCAG 2.2 AA compliant design
-- Dark mode with journey-themed gradients
-- Real-time engagement tracking
-- Token-gated progressive features
-- AI-enhanced interaction prompts
+- **WCAG 2.2 AA** compliant design
+- **Dark mode** with journey-themed gradients
+- **Real-time engagement tracking**
+- **Token-gated progressive features**
+- **AI-enhanced interaction prompts**
 
 ## 🔓 Feature Unlocking & Gamification
 Features are progressively unlocked based on participation and metrics:
-- Teams: Unlocked by progress milestones
-- Governance: Unlocked after accumulating 100 GEN tokens
-- Marketplace: Unlocked after engagement milestones
-- Token Utility: Unlocked after completing component progress milestones
+- **Teams:** Unlocked by progress milestones
+- **Governance:** Unlocked after accumulating 100 GEN tokens
+- **Marketplace:** Unlocked after engagement milestones
+- **Token Utility:** Unlocked after completing component progress milestones
 
 **Metrics Tracked:**
 - DAU/MAU Ratio, Retention, ARPU, NPS, Engagement
 
 ## 🧭 Onboarding Flow
 Avolve delivers a magnetic onboarding experience:
-- Personalized Welcome: Custom banner and checklist
-- Guided Actions: Step-by-step onboarding checklist
-- Progress Tracking: Live in `user_onboarding` table
-- Celebratory Milestones: Confetti, tooltips, and badges
+- **Personalized Welcome:** Custom banner and checklist
+- **Guided Actions:** Step-by-step onboarding checklist
+- **Progress Tracking:** Live in `user_onboarding` table
+- **Celebratory Milestones:** Confetti, tooltips, and badges
 
 **Onboarding Table Schema:**
 | Column           | Type        | Description                                     |
@@ -117,9 +163,9 @@ Avolve delivers a magnetic onboarding experience:
 - **Admin Controls:** Admins can view and manage onboarding progress for all users.
 
 ## 🛡️ Security & Data Integrity
-- Row Level Security (RLS) on all user data tables
-- Role-Based Access Control (RBAC) for admin actions
-- Token gating for advanced features
+- **Row Level Security (RLS)** on all user data tables
+- **Role-Based Access Control (RBAC)** for admin actions
+- **Token gating** for advanced features
 - All data is live, real, and production-grade
 
 **See:** [Database Docs](./docs/database.md)

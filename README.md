@@ -1,3 +1,33 @@
+# 🌱 Avolve DAO: Transparent Research & Documentation Hub
+
+Avolve DAO is an evolving, open research and documentation hub dedicated to personal, collective, and ecosystem transformation. Our mission is to transparently share experiments, user journeys, governance lessons, and real-world impact—empowering all stakeholders to co-create the future of regenerative organizations.
+
+## 🧭 Purpose & Approach
+- **Purpose:** To transform individuals, communities, and ecosystems through open research, gamified engagement, and transparent governance.
+- **Approach:** We document every major experiment, user story, and governance learning—sharing both successes and failures.
+- **Impact:** Real-world case studies, anonymized data, and actionable insights drive continuous improvement and collective wisdom.
+
+## 📄 Featured Papers & Case Studies
+- [2025 Onboarding Experiment: Magnetic User Delight](./papers/onboarding-experiment-2025.md)
+- [DAO Governance: Real-World Lessons from Token Voting (2024)](./papers/governance-lessons-2024.md)
+- See more in [`/papers`](./papers/README.md)
+
+## 📊 Supporting Data
+- [Onboarding 2025 Metrics](./data/onboarding-2025.json)
+- [Governance Logs 2024](./data/governance-logs-2024.json)
+- [Knowledge Graph](./data/knowledge-graph.jsonld)
+
+## 🤝 Feedback, Suggestions, & Peer Review
+- [Open an issue](https://github.com/avolve-dao/avolve.io/issues/new/choose) for feedback, suggestions, or to propose new research.
+- Email [admin@avolve.io](mailto:admin@avolve.io) for collaboration or peer review.
+- Join our [Community Discussions](https://github.com/avolve-dao/avolve.io/discussions) to help shape the future of Avolve DAO.
+
+## 🗺️ Repo Navigation
+- **[Papers & Case Studies](./papers/README.md):** Experiments, user stories, and lessons learned
+- **[Data](./data/):** Anonymized metrics, governance logs, and supporting research
+- **[Docs](./docs/):** Technical, onboarding, and governance documentation
+- **[Implementation Guide](./IMPLEMENTATION-GUIDE.md):** How to contribute, update, and evolve this repo
+
 # 🚀 Avolve Platform
 
 > *"Transform yourself, transform the world."*

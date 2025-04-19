@@ -79,19 +79,31 @@ async function seedUsers(n: number, userTypes: any[]) {
     const email = `simuser${i}_${Math.floor(Math.random() * 1e9)}@avolve.ai`;
     const full_name = `Sim User ${i}`;
     const userType = userTypeList[i] || userTypes[0];
-    const { data: userData, error: userError } = await (supabase as any).auth.admin.createUser({
-      email,
-      password: 'SimUserPassword123!',
-      email_confirm: true
-    });
-    if (userError || !userData?.user?.id) {
-      failedRegistrations.push({ email, error: userError, userData });
-      continue;
+    try {
+      console.log(`[SEED] Attempting user creation: ${email}`);
+      const { data: userData, error: userError } = await (supabase as any).auth.admin.createUser({
+        email,
+        password: 'SimUserPassword123!',
+        email_confirm: true
+      });
+      if (userError || !userData?.user?.id) {
+        console.error(`[SEED] User creation failed: ${email}`);
+        failedRegistrations.push({ email, error: userError, userData });
+        continue;
+      }
+      const user_id = userData?.user?.id;
+      const { data: profileData, error: profileError } = await supabase.from('profiles').insert({ id: user_id, user_email: email, full_name, user_type: userType.type }).select();
+      if (profileError) {
+        console.error(`[SEED] Profile creation failed for: ${email}`);
+        failedRegistrations.push({ email, error: profileError, userData });
+        continue;
+      }
+      users.push({ ...profileData[0], userType });
+      console.log(`[SEED] User created: ${email}`);
+    } catch (e) {
+      console.error(`[SEED] Exception during user creation: ${email}`, e);
+      failedRegistrations.push({ email, error: e });
     }
-    const user_id = userData?.user?.id;
-    const { data: profileData, error: profileError } = await supabase.from('profiles').insert({ id: user_id, full_name, email, user_type: userType.type }).select();
-    if (profileError) continue;
-    users.push({ ...profileData[0], userType });
   }
   return { users, failedRegistrations };
 }
@@ -140,47 +152,52 @@ function simDate(day: number) {
 
 // --- Main Simulation Loop ---
 (async function main() {
-  console.log('Seeding users...');
-  const { users, failedRegistrations } = await seedUsers(NUM_USERS, USER_TYPES);
-  console.log(`Seeded ${users.length} users.`);
-  if (failedRegistrations.length > 0) {
-    console.error(`\n[SUMMARY] ${failedRegistrations.length} user registrations failed.`);
-    failedRegistrations.forEach((fail, idx) => {
-      console.error(`\n#${idx + 1} Email: ${fail.email}`);
-      console.error('Error:', JSON.stringify(fail.error, null, 2));
-      console.error('UserData:', JSON.stringify(fail.userData, null, 2));
-    });
-  }
-  // Always attempt to write registration errors, even if empty
   try {
-    fs.writeFileSync('results/registration-errors.json', JSON.stringify(failedRegistrations, null, 2), 'utf-8');
+    console.log('Seeding users...');
+    const { users, failedRegistrations } = await seedUsers(NUM_USERS, USER_TYPES);
+    console.log(`Seeded ${users.length} users.`);
     if (failedRegistrations.length > 0) {
-      console.error('[INFO] Registration errors written to results/registration-errors.json');
-    } else {
-      console.log('[INFO] No registration errors. registration-errors.json written as empty.');
+      console.error(`\n[SUMMARY] ${failedRegistrations.length} user registrations failed.`);
+      failedRegistrations.forEach((fail, idx) => {
+        console.error(`\n#${idx + 1} Email: ${fail.email}`);
+        console.error('Error:', JSON.stringify(fail.error, null, 2));
+        console.error('UserData:', JSON.stringify(fail.userData, null, 2));
+      });
     }
+    // Always attempt to write registration errors, even if empty
+    try {
+      fs.writeFileSync('results/registration-errors.json', JSON.stringify(failedRegistrations, null, 2), 'utf-8');
+      if (failedRegistrations.length > 0) {
+        console.error('[INFO] Registration errors written to results/registration-errors.json');
+      } else {
+        console.log('[INFO] No registration errors. registration-errors.json written as empty.');
+      }
+    } catch (e) {
+      console.error('[ERROR] Could not write registration errors to file:', e);
+    }
+    // Stats for summary output
+    const stats: any = { xp_events: 0, tokens: {}, invites: 0, onboarded: 0, group_quests: 0, badges: 0 };
+    for (let day = 0; day < SIM_DAYS; day++) {
+      console.log(`Simulating day ${day + 1}/${SIM_DAYS}...`);
+      await simulateDay(users, day, scenario, stats);
+    }
+    // Write summary report
+    const summary = {
+      scenario: scenario.name || 'default',
+      num_users: NUM_USERS,
+      sim_days: SIM_DAYS,
+      stats,
+      timestamp: new Date().toISOString()
+    };
+    if (outputPath) {
+      fs.writeFileSync(path.resolve(outputPath), JSON.stringify(summary, null, 2), 'utf-8');
+      console.log(`[INFO] Summary written to ${outputPath}`);
+    } else {
+      console.log('[SUMMARY]', JSON.stringify(summary, null, 2));
+    }
+    console.log('Simulation complete. Review results in your admin dashboard, analytics, or summary output.');
   } catch (e) {
-    console.error('[ERROR] Could not write registration errors to file:', e);
+    console.error('[FATAL] Uncaught error in main simulation loop:', e);
+    process.exit(1);
   }
-  // Stats for summary output
-  const stats: any = { xp_events: 0, tokens: {}, invites: 0, onboarded: 0, group_quests: 0, badges: 0 };
-  for (let day = 0; day < SIM_DAYS; day++) {
-    console.log(`Simulating day ${day + 1}/${SIM_DAYS}...`);
-    await simulateDay(users, day, scenario, stats);
-  }
-  // Write summary report
-  const summary = {
-    scenario: scenario.name || 'default',
-    num_users: NUM_USERS,
-    sim_days: SIM_DAYS,
-    stats,
-    timestamp: new Date().toISOString()
-  };
-  if (outputPath) {
-    fs.writeFileSync(path.resolve(outputPath), JSON.stringify(summary, null, 2), 'utf-8');
-    console.log(`[INFO] Summary written to ${outputPath}`);
-  } else {
-    console.log('[SUMMARY]', JSON.stringify(summary, null, 2));
-  }
-  console.log('Simulation complete. Review results in your admin dashboard, analytics, or summary output.');
 })();

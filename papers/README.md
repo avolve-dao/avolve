@@ -93,6 +93,20 @@ Avolve is built around three main values:
 
 ---
 
+## 🧪 Experiments: Accelerating Success, Co-Creation, and Regeneration
+
+Avolve is a living laboratory for transformation at every scale. Our experiments are designed to:
+
+- **Individual Superachiever Experiments:** Empower individuals to create their personal success puzzle faster—through new tools, mindsets, and peer learning.
+- **Collective Superachievers Experiments:** Enable groups to co-create our superpuzzle faster—solving foundational and moonshot problems for individuals, collectives, and the ecosystem.
+- **Supercivilization Ecosystem Experiments:** Advance Avolve from surviving/striving (Degen Mentality/Anticivilization) to thriving (Regen Mentality/Supercivilization) sooner than later, for the benefit of all.
+
+Each experiment is documented with clear hypotheses, methods, results, and learnings. We invite you to explore, contribute, and propose new experiments that further our journey from Degen to Regen.
+
+See the [Avolve DAO Experiment Registry](./experiments.md) for a living index of all major experiments, pilots, and research studies.
+
+---
+
 ## 🌟 Featured Papers & Case Studies
 
 | Title & Link                                                                 | Author(s)        | Year | Abstract                                                                                                                         | Status/Version    | Citation/DOI           | Peer Review/Feedback                   |

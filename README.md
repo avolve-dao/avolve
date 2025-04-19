@@ -43,7 +43,7 @@ In five years, Avolve will be the leading platform for regenerative transformati
 ## Table of Contents
 - [Avolve DAO: Transparent Research and Documentation Hub](#avolve-dao-transparent-research-and-documentation-hub)
 - [Platform Overview](#platform-overview)
-- [Token System and Sacred Geometry](#token-system-and-sacred-geometry)
+- [Token System and Mathematical Patterns](#token-system-and-mathematical-patterns)
 - [User Journeys](#user-journeys)
 - [Feature Unlocking and Gamification](#feature-unlocking-and-gamification)
 - [Onboarding Flow](#onboarding-flow)
@@ -72,8 +72,8 @@ Avolve is a next-generation, tokenized platform designed to guide users and coll
 - **Real-Time Engagement:** Live dashboards, notifications, and feedback loops.
 - **Regenerative Governance:** Transparent, data-driven, and participatory decision-making.
 
-### Token System and Sacred Geometry
-Avolve’s token system is inspired by sacred geometry and fractal patterns:
+### Token System and Mathematical Patterns
+Avolve’s token system is inspired by mathematically significant patterns such as the golden ratio and the Fibonacci sequence. These patterns are used in the design and structure of the platform to promote balance, scalability, and aesthetic coherence:
 - **GEN (Supercivilization):** Ecosystem journey (Zinc gradient)
 - **SAP (Superachiever):** Individual journey (Stone gradient)
   - **PSP:** Personal Success Puzzle (Amber-Yellow)

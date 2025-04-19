@@ -2,7 +2,7 @@
 
 > Avolve is a next-generation, tokenized platform empowering individuals and communities to co-create a regenerative future through gamified engagement, transparent governance, and real-time data.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) [![Join the Community](https://img.shields.io/badge/Community-Discussions-blue)](https://github.com/avolve-dao/avolve.io/discussions)
+[![License: Avolve DAO](https://img.shields.io/badge/License-Avolve%20DAO-purple)](./LICENSE) [![Join the Community](https://img.shields.io/badge/Community-Discussions-blue)](https://github.com/avolve-dao/avolve.io/discussions)
 
 ---
 

@@ -30,6 +30,19 @@ This guide will help new contributors, admins, and future DAO members understand
 ## 6. DAO Roadmap
 - See [Governance Guide](./governance.md#transition-to-full-dao-governance) for the decentralization plan and upcoming milestones.
 
+## Supabase Schema Permissions: Critical Note
+
+> **Important:** For all multi-role Supabase projects (including those using RLS, service_role, authenticated, anon, and automation/simulation flows), you **must** grant `USAGE` on the `public` schema to the special Postgres role `public`:
+>
+> ```sql
+> grant usage on schema public to public;
+> ```
+>
+> Without this, even if you grant table privileges and RLS policies, Supabase API and automation roles will encounter `permission denied for schema public` errors during onboarding, profile creation, or simulation. This is a best practice for all production and staging environments using Supabase.
+
+- After every migration or role change, verify this grant is still present.
+- Document this in your onboarding and admin guides for future maintainers.
+
 ---
 
 Welcome aboard! Together, we’re building a platform for transformation, transparency, and collective success.

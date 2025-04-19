@@ -111,7 +111,22 @@ For advanced analysis, import the JSON summary into your analytics tool or sprea
 
 ---
 
-## 6. Onboarding New Admins/Devs
+## 6. Supabase Schema Permissions: Critical Note
+
+> **Important:** For all multi-role Supabase projects (including those using RLS, service_role, authenticated, anon, and automation/simulation flows), you **must** grant `USAGE` on the `public` schema to the special Postgres role `public`:
+>
+> ```sql
+> grant usage on schema public to public;
+> ```
+>
+> Without this, even if you grant table privileges and RLS policies, Supabase API and automation roles will encounter `permission denied for schema public` errors during onboarding, profile creation, or simulation. This is a best practice for all production and staging environments using Supabase.
+
+- After every migration or role change, verify this grant is still present.
+- Document this in your onboarding and admin guides for future maintainers.
+
+---
+
+## 7. Onboarding New Admins/Devs
 
 - **Guide Sharing:** Ensure all new admins/devs read this onboarding document.
 - **Database & API Documentation Review:** Familiarization with the schema, RPCs, and security policies.

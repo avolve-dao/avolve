@@ -146,8 +146,16 @@ Avolve delivers a magnetic onboarding experience:
 **See:** [Database Docs](./docs/database.md)
 
 ### Featured Papers and Case Studies
-- [2025 Onboarding Experiment: Magnetic User Delight](./papers/onboarding-experiment-2025.md)
-- [DAO Governance: Real-World Lessons from Token Voting (2024)](./papers/governance-lessons-2024.md)
+- [GEN: Supercivilization](./papers/gen-supercivilization.md)
+- [SAP: Superachiever](./papers/sap-superachiever.md)
+- [SCQ: Superachievers](./papers/scq-superachievers.md)
+- [PSP: Personal Success Puzzle](./papers/psp-personal-success.md)
+- [BSP: Business Success Puzzle](./papers/bsp-business-success.md)
+- [SMS: Supermind Superpowers](./papers/sms-supermind-superpowers.md)
+- [SPD: Superpuzzle Developments](./papers/spd-superpuzzle-developments.md)
+- [SHE: Superhuman Enhancements](./papers/she-superhuman-enhancements.md)
+- [SSA: Supersociety Advancements](./papers/ssa-supersociety-advancements.md)
+- [SBG: Supergenius Breakthroughs](./papers/sbg-supergenius-breakthroughs.md)
 - See more in [`/papers`](./papers/README.md)
 
 ### Supporting Data

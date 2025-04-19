@@ -1,6 +1,6 @@
 # Avolve Database Structure
 
-This directory contains the database structure for the Avolve platform, implemented using Supabase PostgreSQL following the declarative schema approach with sacred geometry principles and Tesla's 3-6-9 patterns integrated throughout.
+This directory contains the database structure for the Avolve platform, implemented using Supabase PostgreSQL following the declarative schema approach with mathematical principles and patterns integrated throughout.
 
 ## Directory Structure
 
@@ -12,13 +12,13 @@ This directory contains the database structure for the Avolve platform, implemen
     - `/functions/` - Function modules
       - `role_functions.sql` - Role management functions
       - `token_functions.sql` - Token operations and access control
-      - `sacred_geometry_functions.sql` - Functions for sacred geometry calculations
-      - `gamification_functions.sql` - Achievements and progress tracking [UPDATED: Only progress tracking remains.]
+      - `mathematical_functions.sql` - Functions for mathematical calculations
+      - `gamification_functions.sql` - Achievements and progress tracking
   - `schema.sql` - Main schema file
 - `/migrations/` - Migration files to be applied to the database
-  - `20240906123045_enhance_tokenomics_with_sacred_geometry.sql` - Sacred geometry enhancements
-  - `20240906123046_seed_token_hierarchy.sql` - Token hierarchy based on sacred principles
-  - `20240906123047_create_token_utility_functions.sql` - Sacred geometry utility functions
+  - `20240906123045_enhance_tokenomics_with_mathematical_patterns.sql` - Mathematical pattern enhancements
+  - `20240906123046_seed_token_hierarchy.sql` - Token hierarchy based on mathematical principles
+  - `20240906123047_create_token_utility_functions.sql` - Mathematical utility functions
 - `/seed/` - Seed data for development
 
 ## Schema Organization
@@ -31,48 +31,40 @@ The database schema follows Supabase's declarative schema approach, which provid
 4. **Simplified deployment** - Schema can be applied in a consistent order
 5. **Improved documentation** - Code is self-documenting with comments and structure
 
-## Sacred Geometry Integration: Rationale and Value
+## Mathematical Patterns Integration: Rationale and Value
 
-Our database schema incorporates sacred geometry principles and Tesla's 3-6-9 patterns for several important reasons:
+Our database schema incorporates mathematically significant patterns (such as the golden ratio, Fibonacci sequence, and digital root calculations) for several important reasons:
 
 ### Why Mathematical Harmony Matters in Database Design
 
-1. **Natural Balance**: Sacred geometry principles create naturally balanced relationships between database entities, leading to more intuitive data structures and relationships.
-
-2. **Scalable Architecture**: The fractal nature of these mathematical patterns ensures the database can scale infinitely while maintaining its proportional relationships.
-
+1. **Natural Balance**: Mathematical patterns create naturally balanced relationships between database entities, leading to more intuitive data structures and relationships.
+2. **Scalable Architecture**: The fractal nature of these mathematical patterns ensures the database can scale while maintaining proportional relationships.
 3. **Simplified Decision-Making**: Rather than making arbitrary decisions about token values and relationships, we follow mathematical principles that have stood the test of time.
+4. **Optimized Data Flow**: These patterns optimize the flow of data and value through the system.
+5. **Enhanced Pattern Recognition**: Mathematical patterns make it easier to recognize trends and relationships in the data.
 
-4. **Optimized Data Flow**: Tesla's 3-6-9 patterns optimize the flow of data and value through the system, similar to how Tesla believed these numbers optimized energy flow.
+### Key Mathematical Database Features
 
-5. **Enhanced Pattern Recognition**: These mathematical patterns make it easier to recognize trends and relationships in the data.
-
-### Key Sacred Geometry Database Features
-
-1. **Token Level Hierarchy (3-6-9)**: Tokens are organized into three levels (3, 6, 9) representing creation, harmony, and completion.
-
-2. **Digital Root Calculations**: Tokens have digital roots calculated using vortex mathematics, categorizing them into families.
-
-3. **Golden Ratio Exchange Rates**: Token exchange rates follow the golden ratio (1.618), creating naturally balanced economic relationships.
-
+1. **Token Level Hierarchy**: Tokens are organized into levels representing creation, harmony, and completion.
+2. **Digital Root Calculations**: Tokens have digital roots calculated using modular arithmetic, categorizing them into families.
+3. **Golden Ratio Exchange Rates**: Token exchange rates follow the golden ratio (1.618), creating balanced economic relationships.
 4. **Fibonacci-Based Rewards**: Token rewards follow the Fibonacci sequence for natural progression.
-
-5. **Tesla Multipliers**: Special multipliers for tokens with digital roots of 3, 6, or 9.
+5. **Mathematical Multipliers**: Special multipliers for tokens based on digital root families.
 
 ## Core Tables
 
 - **roles** - Defines user and admin roles with their permissions
 - **user_roles** - Assigns roles to users with optional expiration
-- **tokens** - Defines all token types in the platform with sacred geometry attributes
-  - `token_level` - Level in the hierarchy (3, 6, or 9)
-  - `digital_root` - Calculated using vortex mathematics
-  - `is_tesla_369` - Whether the token belongs to Tesla's special numbers
+- **tokens** - Defines all token types in the platform with mathematical attributes
+  - `token_level` - Level in the hierarchy
+  - `digital_root` - Calculated using modular arithmetic
+  - `is_golden_ratio_token` - Whether the token belongs to the golden ratio sequence
   - `fibonacci_weight` - Weight based on the Fibonacci sequence
   - `golden_ratio_multiplier` - Multiplier based on the golden ratio
-  - `token_family` - Family based on digital root (family_369, family_147, family_258)
+  - `token_family` - Family based on digital root
 - **user_tokens** - Tracks token ownership for each user
 - **token_transactions** - Records token transfers and rewards
-- **token_exchange_rates** - Defines exchange rates between tokens based on sacred ratios
+- **token_exchange_rates** - Defines exchange rates between tokens based on mathematical ratios
 - **pillars** - The three main content pillars of the platform
 - **sections** - Subdivisions within each pillar
 - **components** - Individual content pieces within sections
@@ -85,23 +77,23 @@ The migrations are applied in the following order:
 
 1. `20240406154125_add_user_and_admin_roles.sql` - Implements role-based access control
 2. `20240406154500_implement_declarative_schema.sql` - Reorganizes database structure
-3. `20240906123045_enhance_tokenomics_with_sacred_geometry.sql` - Adds sacred geometry attributes to tokens
-4. `20240906123046_seed_token_hierarchy.sql` - Seeds the token hierarchy based on 3-6-9 patterns
-5. `20240906123047_create_token_utility_functions.sql` - Adds utility functions for sacred geometry calculations
+3. `20240906123045_enhance_tokenomics_with_mathematical_patterns.sql` - Adds mathematical pattern attributes to tokens
+4. `20240906123046_seed_token_hierarchy.sql` - Seeds the token hierarchy based on mathematical principles
+5. `20240906123047_create_token_utility_functions.sql` - Adds utility functions for mathematical calculations
 
-## Benefits of Sacred Geometry in Database Design
+## Benefits of Mathematical Patterns in Database Design
 
 ### For Users
 1. **Intuitive Token Values**: Token values and relationships feel natural and balanced
 2. **Predictable Rewards**: Rewards follow natural mathematical progressions
 3. **Meaningful Patterns**: Users can recognize patterns in token relationships
 4. **Fair Economics**: The system feels fair due to its mathematical foundation
-5. **Enhanced Engagement**: The mathematical harmony creates a more engaging experience
+5. **Enhanced Engagement**: Mathematical harmony creates a more engaging experience
 
 ### For Administrators
 1. **Self-Balancing Economics**: The token economy naturally balances itself
 2. **Reduced Complexity**: Despite sophisticated mathematics, the system is simpler to manage
-3. **Scalable Architecture**: The system can grow infinitely while maintaining its proportions
+3. **Scalable Architecture**: The system can grow while maintaining its proportions
 4. **Simplified Decision-Making**: Many decisions are guided by mathematical principles
 5. **Universal Appeal**: The principles resonate across cultural and educational backgrounds
 
@@ -167,11 +159,11 @@ The following key functions are available:
 - `has_section_access(section_id, user_id)` - Checks if a user has access to a specific section
 - `has_component_access(component_id, user_id)` - Checks if a user has access to a specific component
 
-### Sacred Geometry Functions
-- `get_digital_root(num)` - Calculates the digital root of a number using vortex mathematics
-- `is_tesla_369_number(num)` - Checks if a number belongs to Tesla's 3-6-9 pattern
+### Mathematical Functions
+- `get_digital_root(num)` - Calculates the digital root of a number using modular arithmetic
+- `is_golden_ratio_number(num)` - Checks if a number belongs to the golden ratio sequence
 - `get_token_family(num)` - Returns the token family based on digital root
-- `calculate_token_value(token_id, reference_token_id)` - Calculates token value based on sacred geometry principles
+- `calculate_token_value(token_id, reference_token_id)` - Calculates token value based on mathematical principles
 
 ### Gamification Functions
 - `complete_content(content_id)` - Marks content as completed and grants any associated rewards
@@ -179,7 +171,7 @@ The following key functions are available:
 - `track_user_activity(activity_type, entity_type, entity_id, metadata)` - Records user activity for analytics and gamification
 - `get_user_experience_phase()` - Determines which phase a user is in based on their progress
 - `get_next_recommended_actions()` - Suggests personalized next steps based on user progress
-- `reward_user_activity(user_id, activity_type, activity_details)` - Rewards user activity with tokens based on Tesla multipliers
+- `reward_user_activity(user_id, activity_type, activity_details)` - Rewards user activity with tokens based on mathematical multipliers
 
 ## TypeScript Integration
 
@@ -191,4 +183,4 @@ supabase gen types typescript --project-id <your-project-id> --schema public > l
 
 ## Conclusion
 
-Our database schema integrates sacred geometry principles and Tesla's 3-6-9 patterns to create a mathematically harmonious foundation for the Avolve platform. This approach not only creates a more balanced and intuitive system but also simplifies decision-making, enhances scalability, and creates a more engaging user experience. By following these timeless mathematical principles, we create a database structure that is both technically sound and philosophically aligned with Avolve's mission of personal and collective transformation.
+Our database schema integrates mathematical principles and patterns to create a mathematically harmonious foundation for the Avolve platform. This approach not only creates a more balanced and intuitive system but also simplifies decision-making, enhances scalability, and creates a more engaging user experience. By following these timeless mathematical principles, we create a database structure that is both technically sound and philosophically aligned with Avolve's mission of personal and collective transformation.

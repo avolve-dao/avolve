@@ -2,7 +2,7 @@
 
 _Last updated: 2025-04-16_
 
-> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-dao/avolve.io/issues/new/choose) to help us make these docs even better!
 
 # Welcome to Avolve Docs
 

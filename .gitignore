@@ -52,3 +52,8 @@ coverage/
 dist/
 build/
 __snapshots__/
+
+# Tool-specific and local state
+.cursor/
+.husky/_/
+.windsurf/

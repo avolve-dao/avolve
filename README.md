@@ -1,6 +1,6 @@
 # Avolve: Regenerative Platform for Transformation
 
-> Avolve is a next-generation, tokenized platform empowering individuals and communities to co-create a regenerative future through gamified engagement, transparent governance, and real-time data.
+> Avolve is a next-generation, tokenized platform empowering individuals, collectives, and ecosystems to co-create a regenerative future through gamified engagement, transparent governance, and real-time data.
 
 [![License: Avolve DAO](https://img.shields.io/badge/License-Avolve%20DAO-purple)](./LICENSE) [![Join the Community](https://img.shields.io/badge/Community-Discussions-blue)](https://github.com/avolve-dao/avolve.io/discussions)
 
@@ -9,7 +9,7 @@
 ## One-Pager
 
 ### Purpose
-Avolve empowers individuals, communities, and ecosystems to co-create a regenerative future through transparent research, gamified engagement, and fractal governance.
+Avolve empowers individuals, collectives, and ecosystems to co-create a regenerative future through transparent research, gamified engagement, and fractal governance.
 
 ### Problem
 Most people and organizations are stuck in zero-sum, extractive systems (“Anticivilization”), leading to burnout, disengagement, and systemic stagnation. Current platforms focus on features, not transformation, and fail to align incentives or foster genuine collaboration.
@@ -21,7 +21,7 @@ Avolve is a positive-sum, tokenized platform that transforms the journey from �
 The convergence of Web3, real-time data, and regenerative economics makes it possible to build platforms that reward positive-sum behavior. The world is seeking new models for collaboration, belonging, and impact—Avolve meets this need with a proven, ready-to-launch product.
 
 ### Market Potential
-Avolve targets individuals, DAOs, communities, and organizations seeking transformation, engagement, and regenerative impact. The market for regenerative platforms and digital communities is growing rapidly, with new markets emerging for tokenized governance and collective intelligence.
+Avolve targets individuals, DAOs, collectives, and organizations seeking transformation, engagement, and regenerative impact. The market for regenerative platforms and digital communities is growing rapidly, with new markets emerging for tokenized governance and collective intelligence.
 
 ### Competition / Alternatives
 Alternatives include traditional social networks, legacy DAO platforms, and gamified learning tools. Avolve’s unique combination of real-time feedback, tokenized governance, and regenerative economics sets it apart. The fractal, multi-token model is unmatched by competitors.
@@ -60,12 +60,12 @@ In five years, Avolve will be the leading platform for regenerative transformati
 Avolve DAO is an evolving, open research and documentation hub dedicated to personal, collective, and ecosystem transformation. Our mission is to transparently share experiments, user journeys, governance lessons, and real-world impact—empowering all stakeholders to co-create the future of regenerative organizations.
 
 ## Purpose & Approach
-- **Purpose:** To transform individuals, communities, and ecosystems through open research, gamified engagement, and transparent governance.
+- **Purpose:** To transform individuals, collectives, and ecosystems through open research, gamified engagement, and transparent governance.
 - **Approach:** We document every major experiment, user story, and governance learning—sharing both successes and failures.
 - **Impact:** Real-world case studies, anonymized data, and actionable insights drive continuous improvement and collective wisdom.
 
 ## Platform Overview
-Avolve is a next-generation, tokenized platform designed to guide users and communities from their current state to their highest potential. The platform is built around:
+Avolve is a next-generation, tokenized platform designed to guide users and collectives from their current state to their highest potential. The platform is built around:
 - **Magnetic Onboarding:** Personalized, gamified onboarding flows that celebrate every milestone.
 - **Fractal Token System:** A 10-token architecture aligning incentives at individual, collective, and ecosystem levels.
 - **Progressive Feature Unlocking:** Features become available as users and teams demonstrate engagement and impact.
@@ -122,7 +122,7 @@ flowchart TD
 
 ## User Journeys
 - **Superachiever (Individual):** Personal and business transformation quests.
-- **Superachievers (Collective):** Team and community co-creation.
+- **Superachievers (Collective):** Team and collective co-creation.
 - **Supercivilization (Ecosystem):** Impact at scale and regenerative governance.
 
 Each journey features:

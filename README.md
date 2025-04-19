@@ -6,7 +6,7 @@
 
 ---
 
-## 🚀 One-Pager
+## One-Pager
 
 ### Purpose
 Avolve empowers individuals, communities, and ecosystems to co-create a regenerative future through transparent research, gamified engagement, and fractal governance.
@@ -40,31 +40,31 @@ In five years, Avolve will be the leading platform for regenerative transformati
 
 ---
 
-## 📑 Table of Contents
-- [Avolve DAO: Transparent Research & Documentation Hub](#-avolve-dao-transparent-research--documentation-hub)
-- [Platform Overview](#-platform-overview)
-- [Token System & Sacred Geometry](#-token-system--sacred-geometry)
-- [User Journeys](#-user-journeys)
-- [Feature Unlocking & Gamification](#-feature-unlocking--gamification)
-- [Onboarding Flow](#-onboarding-flow)
-- [Security & Data Integrity](#-security--data-integrity)
-- [Featured Papers & Case Studies](#-featured-papers--case-studies)
-- [Supporting Data](#-supporting-data)
-- [Feedback, Suggestions, & Peer Review](#-feedback-suggestions--peer-review)
-- [Repo Navigation](#-repo-navigation)
+## Table of Contents
+- [Avolve DAO: Transparent Research & Documentation Hub](#avolve-dao-transparent-research--documentation-hub)
+- [Platform Overview](#platform-overview)
+- [Token System & Sacred Geometry](#token-system--sacred-geometry)
+- [User Journeys](#user-journeys)
+- [Feature Unlocking & Gamification](#feature-unlocking--gamification)
+- [Onboarding Flow](#onboarding-flow)
+- [Security & Data Integrity](#security--data-integrity)
+- [Featured Papers & Case Studies](#featured-papers--case-studies)
+- [Supporting Data](#supporting-data)
+- [Feedback, Suggestions, & Peer Review](#feedback-suggestions--peer-review)
+- [Repo Navigation](#repo-navigation)
 
 ---
 
-# 🌱 Avolve DAO: Transparent Research & Documentation Hub
+# Avolve DAO: Transparent Research & Documentation Hub
 
 Avolve DAO is an evolving, open research and documentation hub dedicated to personal, collective, and ecosystem transformation. Our mission is to transparently share experiments, user journeys, governance lessons, and real-world impact—empowering all stakeholders to co-create the future of regenerative organizations.
 
-## 🧭 Purpose & Approach
+## Purpose & Approach
 - **Purpose:** To transform individuals, communities, and ecosystems through open research, gamified engagement, and transparent governance.
 - **Approach:** We document every major experiment, user story, and governance learning—sharing both successes and failures.
 - **Impact:** Real-world case studies, anonymized data, and actionable insights drive continuous improvement and collective wisdom.
 
-## 🗺️ Platform Overview
+## Platform Overview
 Avolve is a next-generation, tokenized platform designed to guide users and communities from their current state to their highest potential. The platform is built around:
 - **Magnetic Onboarding:** Personalized, gamified onboarding flows that celebrate every milestone.
 - **Fractal Token System:** A 10-token architecture aligning incentives at individual, collective, and ecosystem levels.
@@ -72,7 +72,7 @@ Avolve is a next-generation, tokenized platform designed to guide users and comm
 - **Real-Time Engagement:** Live dashboards, notifications, and feedback loops.
 - **Regenerative Governance:** Transparent, data-driven, and participatory decision-making.
 
-## 🪙 Token System & Sacred Geometry
+## Token System & Sacred Geometry
 Avolve’s token system is inspired by sacred geometry and fractal patterns:
 - **GEN (Supercivilization):** Ecosystem journey (Zinc gradient)
 - **SAP (Superachiever):** Individual journey (Stone gradient)
@@ -120,7 +120,7 @@ flowchart TD
 ```
 -->
 
-## 🧬 User Journeys
+## User Journeys
 - **Superachiever (Individual):** Personal and business transformation quests.
 - **Superachievers (Collective):** Team and community co-creation.
 - **Supercivilization (Ecosystem):** Impact at scale and regenerative governance.
@@ -132,7 +132,7 @@ Each journey features:
 - **Token-gated progressive features**
 - **AI-enhanced interaction prompts**
 
-## 🔓 Feature Unlocking & Gamification
+## Feature Unlocking & Gamification
 Features are progressively unlocked based on participation and metrics:
 - **Teams:** Unlocked by progress milestones
 - **Governance:** Unlocked after accumulating 100 GEN tokens
@@ -142,7 +142,7 @@ Features are progressively unlocked based on participation and metrics:
 **Metrics Tracked:**
 - DAU/MAU Ratio, Retention, ARPU, NPS, Engagement
 
-## 🧭 Onboarding Flow
+## Onboarding Flow
 Avolve delivers a magnetic onboarding experience:
 - **Personalized Welcome:** Custom banner and checklist
 - **Guided Actions:** Step-by-step onboarding checklist
@@ -162,7 +162,7 @@ Avolve delivers a magnetic onboarding experience:
 - **Row Level Security:** Only the user (and admins) can view or update their onboarding row.
 - **Admin Controls:** Admins can view and manage onboarding progress for all users.
 
-## 🛡️ Security & Data Integrity
+## Security & Data Integrity
 - **Row Level Security (RLS)** on all user data tables
 - **Role-Based Access Control (RBAC)** for admin actions
 - **Token gating** for advanced features
@@ -170,27 +170,31 @@ Avolve delivers a magnetic onboarding experience:
 
 **See:** [Database Docs](./docs/database.md)
 
-## 📄 Featured Papers & Case Studies
+## Featured Papers & Case Studies
 - [2025 Onboarding Experiment: Magnetic User Delight](./papers/onboarding-experiment-2025.md)
 - [DAO Governance: Real-World Lessons from Token Voting (2024)](./papers/governance-lessons-2024.md)
 - See more in [`/papers`](./papers/README.md)
 
-## 📊 Supporting Data
+## Supporting Data
 - [Onboarding 2025 Metrics](./data/onboarding-2025.json)
 - [Governance Logs 2024](./data/governance-logs-2024.json)
 - [Knowledge Graph](./data/knowledge-graph.jsonld)
 
-## 🤝 Feedback, Suggestions, & Peer Review
+## Feedback, Suggestions, & Peer Review
 - [Open an issue](https://github.com/avolve-dao/avolve.io/issues/new/choose) for feedback, suggestions, or to propose new research.
 - Email [admin@avolve.io](mailto:admin@avolve.io) for collaboration or peer review.
 - Join our [Community Discussions](https://github.com/avolve-dao/avolve.io/discussions) to help shape the future of Avolve DAO.
 
-## 🗺️ Repo Navigation
+## Repo Navigation
 - `/papers` — Token papers, experiments, and governance lessons
 - `/docs` — Technical docs, tokenomics, architecture, and onboarding
 - `/supabase` — Database schema, migrations, and security policies
 - `/hooks`, `/components`, `/pages` — App source code
 
 ---
+
+## License
+
+This software and documentation are proprietary and confidential to Avolve DAO. All rights reserved. See [LICENSE](./LICENSE) for details.
 
 *For more, see the [Avolve website](https://avolve.io) or reach out directly. Together, we can co-create a regenerative future!*

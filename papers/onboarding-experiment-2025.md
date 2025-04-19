@@ -1,5 +1,12 @@
 # 🧪 2025 Onboarding Experiment: Magnetic User Delight
 
+![Status: In Progress](https://img.shields.io/badge/status-in--progress-yellow) ![Living Paper](https://img.shields.io/badge/living--document-true-blue)
+
+> 🚧 **This is a living, real-time research paper. Results, data, and analysis are updated as the experiment progresses.**  
+> **Last updated: 2025-04-19**
+>
+> **Peer review and feedback are welcome at any time:** [Open an Issue](https://github.com/avolve-dao/avolve.io/issues/new?title=Peer+Review+Onboarding+2025)
+
 ## Overview
 In early 2025, Avolve DAO set out to radically improve the onboarding experience for first-time users, aiming to maximize delight, reduce drop-off, and accelerate engagement. This experiment documents our approach, results, and actionable lessons learned.
 

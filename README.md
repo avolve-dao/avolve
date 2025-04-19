@@ -157,7 +157,6 @@ Avolve delivers a magnetic onboarding experience:
 
 ### Feedback, Suggestions, and Peer Review
 - [Open an issue](https://github.com/avolve-dao/avolve.io/issues/new/choose) for feedback, suggestions, or to propose new research.
-- Email [admin@avolve.io](mailto:admin@avolve.io) for collaboration or peer review.
 - Join our [Community Discussions](https://github.com/avolve-dao/avolve.io/discussions) to help shape the future of Avolve DAO.
 
 ### Repo Navigation

@@ -16,7 +16,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/avolve-dao/avolve.git
+git clone https://github.com/avolve-dao/avolve.io.git
 cd avolve
 ```
 
@@ -151,6 +151,6 @@ Your application should now be running at [http://localhost:3000](http://localho
 ### Getting Help
 
 If you encounter any issues not covered here, please:
-1. Check the [GitHub Issues](https://github.com/avolve-dao/avolve/issues) for similar problems
+1. Check the [GitHub Issues](https://github.com/avolve-dao/avolve.io/issues) for similar problems
 2. Create a new issue with detailed information about your problem
 3. Reach out to the development team for assistance

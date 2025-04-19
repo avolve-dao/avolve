@@ -258,7 +258,7 @@ Avolve is built with modern technologies to ensure a robust, scalable, and delig
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/avolve-dao/avolve.git
+git clone https://github.com/avolve-dao/avolve.io.git
 cd avolve
 ```
 

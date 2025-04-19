@@ -78,12 +78,12 @@ Our community is dedicated to providing a welcoming and inclusive environment fo
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/avolve.git
-   cd avolve
+   git clone https://github.com/YOUR-USERNAME/avolve.io.git
+   cd avolve.io
    ```
 3. Add the upstream repository:
    ```bash
-   git remote add upstream https://github.com/avolve-dao/avolve.git
+   git remote add upstream https://github.com/avolve-dao/avolve.io.git
    ```
 4. Install dependencies:
    ```bash

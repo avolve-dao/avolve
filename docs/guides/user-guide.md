@@ -1,6 +1,6 @@
 # Avolve Platform User Guide
 
-> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+> **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
 
 This guide explains how to engage with the Avolve platform's regenerative gamified system, including subscribing, participating through daily claims, contributing, and unlocking features through metrics improvements.
 
@@ -316,7 +316,7 @@ New to Avolve? Follow these simple steps to get up and running quickly:
 
 ### 1. Redeem Your Invitation Code
 
-![Redeeming an invitation code](https://github.com/avolve-dao/avolve/assets/images/invitation-redemption.png)
+![Redeeming an invitation code](https://github.com/avolve-dao/avolve.io/assets/images/invitation-redemption.png)
 
 1. Visit [avolve.io/join](https://avolve.io/join)
 2. Enter your invitation code in the field
@@ -325,7 +325,7 @@ New to Avolve? Follow these simple steps to get up and running quickly:
 
 ### 2. Create Your Account
 
-![Creating your account](https://github.com/avolve-dao/avolve/assets/images/account-creation.png)
+![Creating your account](https://github.com/avolve-dao/avolve.io/assets/images/account-creation.png)
 
 1. Fill in your name, email, and password
 2. Accept the terms of service
@@ -334,7 +334,7 @@ New to Avolve? Follow these simple steps to get up and running quickly:
 
 ### 3. Claim Your First Token
 
-![Claiming your first token](https://github.com/avolve-dao/avolve/assets/images/token-claim.png)
+![Claiming your first token](https://github.com/avolve-dao/avolve.io/assets/images/token-claim.png)
 
 1. From your dashboard, navigate to "Daily Challenge"
 2. Read the day's challenge (based on the current day of the week)
@@ -344,7 +344,7 @@ New to Avolve? Follow these simple steps to get up and running quickly:
 
 ### 4. Complete Your First Challenge
 
-![Completing a challenge](https://github.com/avolve-dao/avolve/assets/images/challenge-completion.png)
+![Completing a challenge](https://github.com/avolve-dao/avolve.io/assets/images/challenge-completion.png)
 
 1. Go to the "Challenges" section
 2. Select today's challenge card
@@ -354,7 +354,7 @@ New to Avolve? Follow these simple steps to get up and running quickly:
 
 ### 5. Check Your Progress
 
-![Checking your progress](https://github.com/avolve-dao/avolve/assets/images/progress-check.png)
+![Checking your progress](https://github.com/avolve-dao/avolve.io/assets/images/progress-check.png)
 
 1. Visit your profile dashboard
 2. View your token balances
@@ -400,7 +400,7 @@ Avolve offers different invitation tiers, each with unique benefits:
 
 After creating your account, you'll go through a structured onboarding process:
 
-![Onboarding Process](https://github.com/avolve-dao/avolve/assets/images/onboarding-flow.png)
+![Onboarding Process](https://github.com/avolve-dao/avolve.io/assets/images/onboarding-flow.png)
 
 1. **Enter Invitation Code**: If you haven't already, enter your invitation code to begin
    - Your code will be validated in real-time
@@ -431,7 +431,7 @@ Once you complete the onboarding process, you'll be directed to your personalize
 
 Your dashboard will automatically display today's challenge based on the current day of the week:
 
-![Today's Challenge](https://github.com/avolve-dao/avolve/assets/images/todays-challenge.png)
+![Today's Challenge](https://github.com/avolve-dao/avolve.io/assets/images/todays-challenge.png)
 
 1. **View Today's Challenge**: On your dashboard, you'll see the day's token type and challenge
    - For example, on Wednesday you'll see an SSA (Supersociety Advancements) challenge with a Lime-Green-Emerald gradient
@@ -545,7 +545,7 @@ Each day of the week is associated with a specific token:
 
 The weekly token schedule is designed to create a balanced experience across different aspects of personal and collective growth:
 
-![Weekly Token Schedule](https://github.com/avolve-dao/avolve/assets/images/weekly-token-schedule.png)
+![Weekly Token Schedule](https://github.com/avolve-dao/avolve.io/assets/images/weekly-token-schedule.png)
 
 | Day | Token | Visual Identity | Focus Area |
 |-----|-------|-----------------|------------|
@@ -620,7 +620,7 @@ The Avolve platform provides comprehensive tools to track your contributions, im
 
 The Census Dashboard provides a visual representation of your contributions and impact within the Avolve network state. You can access it at `/dashboard/census`.
 
-![Census Dashboard](https://github.com/avolve-dao/avolve/assets/images/census-dashboard.png)
+![Census Dashboard](https://github.com/avolve-dao/avolve.io/assets/images/census-dashboard.png)
 
 The Census Dashboard includes:
 
@@ -642,7 +642,7 @@ The Census Dashboard includes:
 
 The Contribution Analytics section provides detailed insights into your specific contributions:
 
-![Contribution Analytics](https://github.com/avolve-dao/avolve/assets/images/contribution-analytics.png)
+![Contribution Analytics](https://github.com/avolve-dao/avolve.io/assets/images/contribution-analytics.png)
 
 1. **Contribution Types**: Breakdown of your contributions by category
    - Content creation
@@ -666,7 +666,7 @@ The Contribution Analytics section provides detailed insights into your specific
 
 The Impact Metrics section helps you understand the effect of your contributions on the Avolve network state:
 
-![Impact Metrics](https://github.com/avolve-dao/avolve/assets/images/impact-metrics.png)
+![Impact Metrics](https://github.com/avolve-dao/avolve.io/assets/images/impact-metrics.png)
 
 1. **Reach**: Number of community members who have engaged with your contributions
 2. **Influence**: How your contributions have shaped governance decisions
@@ -677,7 +677,7 @@ The Impact Metrics section helps you understand the effect of your contributions
 
 The Governance Dashboard provides a dedicated view of your impact on the platform's governance:
 
-![Governance Dashboard](https://github.com/avolve-dao/avolve/assets/images/governance-dashboard.png)
+![Governance Dashboard](https://github.com/avolve-dao/avolve.io/assets/images/governance-dashboard.png)
 
 Here you can track:
 

@@ -129,7 +129,8 @@ export function StakingPanel() {
   const getEffectiveAPY = (rule: StakingRule) => {
     if (!userProfile) return rule.apy_percentage
 
-    const boost = rule.bonus_features[`${userProfile.focus}_boost`] || 1
+    const boostKey = `${userProfile.focus}_boost` as keyof typeof rule.bonus_features;
+    const boost = (rule.bonus_features[boostKey] ?? 1) as number;
     const zincBonus = userProfile.zinc_gradient * 0.001 // 0.1% per gradient point
     
     return rule.apy_percentage * boost * (1 + zincBonus)

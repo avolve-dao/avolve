@@ -18,6 +18,11 @@ export interface Token {
   total_supply?: number;
   circulating_supply?: number;
   burn_rate?: number;
+  gradient_class?: string;
+  staked_balance?: number;
+  parent_token_id?: string;
+  parent_token_symbol?: string;
+  pending_release?: number;
 }
 
 export interface TokenTransaction {
@@ -480,6 +485,26 @@ export function useTokens() {
     }
   }, [supabase]);
 
+  /**
+   * Get all pillars progress for the current user
+   */
+  const getAllPillarsProgress = useCallback(async () => {
+    if (!supabase || !session?.user) {
+      return { data: null, error: 'Not authenticated' };
+    }
+    try {
+      // Assuming there is a 'pillar_progress' table with user_id, pillar_id, progress_percentage
+      const { data, error } = await supabase
+        .from('pillar_progress')
+        .select('*')
+        .eq('user_id', session.user.id);
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+    }
+  }, [supabase, session]);
+
   // --- Legacy compatibility methods (from useToken) ---
 
   /**
@@ -638,6 +663,7 @@ export function useTokens() {
     getTokenBalanceById,
     getAllTokenTypes,
     getUserTokenBalance,
+    getAllPillarsProgress,
     claimAchievementReward, // stub
     trackActivity // stub
   };

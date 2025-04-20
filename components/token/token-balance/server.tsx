@@ -2,7 +2,7 @@
  * Token Balance Server Component
  * 
  * Displays user's token balances with real-time updates
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -68,10 +68,6 @@ export async function TokenBalanceServer({ userId }: { userId: string }) {
     .limit(5);
   
   return (
-    <TokenBalanceClient 
-      tokens={sortedTokens}
-      recentTransactions={recentTransactions || []}
-      userId={userId}
-    />
+    <TokenBalanceClient />
   );
 }

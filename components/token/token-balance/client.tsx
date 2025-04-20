@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { useToast } from '@/components/ui/use-toast';
-import { TokenIcon } from '@/components/tokens/token-icon';
+import { TokenIcon } from '@/components/token/token-icon';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface TokenBalance {

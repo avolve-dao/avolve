@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
@@ -206,8 +206,8 @@ export function ConsensusManager() {
       </div>
       
       <Tabs 
-        selectedKey={selectedTab} 
-        onSelectionChange={(key) => setSelectedTab(key as string)}
+        value={selectedTab} 
+        onValueChange={setSelectedTab}
       >
         <TabsList>
           <TabsTrigger value="meetings">Consensus Meetings</TabsTrigger>
@@ -343,7 +343,9 @@ export function ConsensusManager() {
                                         {Array.isArray(groupParticipants[group.id]) && groupParticipants[group.id].map((participant) => (
                                           <div key={participant.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
                                             <div className="flex items-center gap-2">
-                                              <Avatar name={participant.user_id} size="sm" />
+                                              <Avatar>
+                                                <AvatarFallback>{participant.user_id ? participant.user_id[0] : '?'}</AvatarFallback>
+                                              </Avatar>
                                               <span>{participant.user_id.substring(0, 8)}...</span>
                                             </div>
                                             <div className="flex items-center gap-2">

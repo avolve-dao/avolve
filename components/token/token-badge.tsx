@@ -151,7 +151,7 @@ export function TokenBadge({
         
         // Check if user has access via this token
         const access = await hasTokenPermission(tokenCode.toLowerCase(), 'access')
-        setHasAccess(access)
+        setHasAccess(!!access)
       } catch (error) {
         console.error('Error fetching token data:', error)
       }

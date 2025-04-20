@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useSupabase } from '@/components/supabase/provider';
+import { createBrowserClient } from '@supabase/ssr';
+import { useUser } from './use-user';
 import { useToast } from '@/components/ui/use-toast';
 import { TokenService } from '@/lib/token/TokenService';
 
@@ -60,7 +61,11 @@ export type TokenSpendPurpose =
  * Follows 2025 best practices for React hooks and Supabase integration
  */
 export function useTokens() {
-  const { supabase, session } = useSupabase();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { user } = useUser();
   const { toast } = useToast();
   
   const [tokens, setTokens] = useState<Token[]>([]);
@@ -105,7 +110,7 @@ export function useTokens() {
    * Fetch user token balances
    */
   const fetchUserBalances = useCallback(async () => {
-    if (!supabase || !session?.user) return;
+    if (!supabase || !user) return;
     
     try {
       setIsLoading(true);
@@ -126,7 +131,7 @@ export function useTokens() {
             pillar
           )
         `)
-        .eq('user_id', session.user.id);
+        .eq('user_id', user.id);
       
       if (fetchError) throw fetchError;
       
@@ -150,13 +155,13 @@ export function useTokens() {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session, toast]);
+  }, [supabase, user, toast]);
 
   /**
    * Fetch user token transactions with pagination
    */
   const fetchUserTransactions = useCallback(async (limit = 10, offset = 0) => {
-    if (!supabase || !session?.user) return;
+    if (!supabase || !user) return;
     
     try {
       setIsLoading(true);
@@ -164,7 +169,7 @@ export function useTokens() {
       
       const { data, error: fetchError } = await supabase
         .rpc('get_user_transactions', { 
-          p_user_id: session.user.id,
+          p_user_id: user.id,
           p_limit: limit,
           p_offset: offset
         });
@@ -182,7 +187,7 @@ export function useTokens() {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session, toast]);
+  }, [supabase, user, toast]);
 
   /**
    * Transfer tokens to another user
@@ -193,7 +198,7 @@ export function useTokens() {
     amount: number, 
     reason: string
   ): Promise<{ success: boolean; message?: string; error?: string }> => {
-    if (!supabase || !session?.user) {
+    if (!supabase || !user) {
       return { 
         success: false, 
         error: 'You must be logged in to transfer tokens' 
@@ -232,7 +237,7 @@ export function useTokens() {
       // Perform transfer using RPC function for atomic transaction
       const { data, error: transferError } = await supabase
         .rpc('transfer_tokens', {
-          p_from_user_id: session.user.id,
+          p_from_user_id: user.id,
           p_to_user_id: recipientId,
           p_token_id: token.id,
           p_amount: amount,
@@ -271,7 +276,7 @@ export function useTokens() {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session, tokens, userBalances, toast, fetchUserBalances, fetchUserTransactions]);
+  }, [supabase, user, tokens, userBalances, toast, fetchUserBalances, fetchUserTransactions]);
 
   /**
    * Spend GEN tokens for utility purposes
@@ -282,7 +287,7 @@ export function useTokens() {
     amount: number, 
     purpose: TokenSpendPurpose
   ): Promise<{ success: boolean; burnAmount?: number; error?: string }> => {
-    if (!supabase || !session?.user) {
+    if (!supabase || !user) {
       return { 
         success: false, 
         error: 'You must be logged in to spend GEN tokens' 
@@ -312,7 +317,7 @@ export function useTokens() {
       // Spend GEN using RPC function
       const { data, error: spendError } = await supabase
         .rpc('spend_gen_tokens', {
-          p_user_id: session.user.id,
+          p_user_id: user.id,
           p_amount: amount,
           p_purpose: purpose
         });
@@ -351,7 +356,7 @@ export function useTokens() {
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session, userBalances, toast, fetchUserBalances, fetchUserTransactions]);
+  }, [supabase, user, userBalances, toast, fetchUserBalances, fetchUserTransactions]);
 
   /**
    * Award tokens to the current user (e.g., for completing an assessment or exercise)
@@ -365,7 +370,7 @@ export function useTokens() {
       amount: number,
       reason: string
     ): Promise<{ success: boolean; message?: string; error?: string }> => {
-      if (!supabase || !session?.user) {
+      if (!supabase || !user) {
         return {
           success: false,
           error: 'You must be logged in to receive tokens',
@@ -390,7 +395,7 @@ export function useTokens() {
         }
         // Call Supabase RPC to award tokens atomically
         const { data, error: rpcError } = await supabase.rpc('award_tokens', {
-          p_user_id: session.user.id,
+          p_user_id: user.id,
           p_token_id: token.id,
           p_amount: amount,
           p_reason: reason,
@@ -423,7 +428,7 @@ export function useTokens() {
         setIsLoading(false);
       }
     },
-    [supabase, session, tokens, toast, fetchUserBalances, fetchUserTransactions]
+    [supabase, user, tokens, toast, fetchUserBalances, fetchUserTransactions]
   );
 
   /**
@@ -491,7 +496,7 @@ export function useTokens() {
    * Get all pillars progress for the current user
    */
   const getAllPillarsProgress = useCallback(async () => {
-    if (!supabase || !session?.user) {
+    if (!supabase || !user) {
       return { data: null, error: 'Not authenticated' };
     }
     try {
@@ -499,13 +504,13 @@ export function useTokens() {
       const { data, error } = await supabase
         .from('pillar_progress')
         .select('*')
-        .eq('user_id', session.user.id);
+        .eq('user_id', user.id);
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
       return { data: null, error };
     }
-  }, [supabase, session]);
+  }, [supabase, user]);
 
   // --- Legacy compatibility methods (from useToken) ---
 
@@ -523,16 +528,16 @@ export function useTokens() {
    * Get a user's token by token ID
    */
   const getUserToken = useCallback(async (tokenId: string): Promise<any | null> => {
-    if (!supabase || !session?.user) return null;
+    if (!supabase || !user) return null;
     const { data, error } = await supabase
       .from('user_tokens')
       .select('*')
-      .eq('user_id', session.user.id)
+      .eq('user_id', user.id)
       .eq('token_id', tokenId)
       .single();
     if (error) return null;
     return data;
-  }, [supabase, session]);
+  }, [supabase, user]);
 
   /**
    * Get a user's balance for a given tokenId
@@ -556,7 +561,7 @@ export function useTokens() {
    * Get a user's token balance by token code
    */
   const getUserTokenBalance = useCallback(async (tokenCode: string): Promise<{ data: number, error: any }> => {
-    if (!supabase || !session?.user) return { data: 0, error: 'Not authenticated' };
+    if (!supabase || !user) return { data: 0, error: 'Not authenticated' };
     const { data: tokenTypes, error: tokenTypesError } = await supabase.from('token_types').select('*');
     if (tokenTypesError) return { data: 0, error: tokenTypesError };
     const tokenType = (tokenTypes || []).find((tt: any) => tt.code === tokenCode);
@@ -566,7 +571,7 @@ export function useTokens() {
     if (!tokens || tokens.length === 0) return { data: 0, error: null };
     const userToken = await getUserToken(tokens[0].id);
     return { data: userToken ? userToken.balance : 0, error: null };
-  }, [supabase, session, getUserToken]);
+  }, [supabase, user, getUserToken]);
 
   // --- Achievement & Activity helpers (stubs, to be implemented as needed) ---
   const claimAchievementReward = async (..._args: any[]) => {
@@ -578,7 +583,7 @@ export function useTokens() {
 
   // Set up real-time subscription for token balance updates
   useEffect(() => {
-    if (!supabase || !session?.user) return;
+    if (!supabase || !user) return;
     
     const channel = supabase
       .channel('token_balance_changes')
@@ -588,7 +593,7 @@ export function useTokens() {
           event: '*',
           schema: 'public',
           table: 'user_tokens',
-          filter: `user_id=eq.${session.user.id}`
+          filter: `user_id=eq.${user.id}`
         },
         (payload: { new?: { token_id: string; balance: number }; old?: { token_id: string; balance: number } }) => {
           // Update balances in real-time
@@ -634,7 +639,7 @@ export function useTokens() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [supabase, session, tokens, fetchAllTokens, fetchUserBalances, fetchUserTransactions, toast]);
+  }, [supabase, user, tokens, fetchAllTokens, fetchUserBalances, fetchUserTransactions, toast]);
 
   return {
     // State

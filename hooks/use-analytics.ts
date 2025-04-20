@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { analyticsService } from '@/lib/analytics/analytics-service'
-import { useSupabase } from '@/components/supabase/provider'
+import { createBrowserClient } from '@supabase/ssr';
+import { useUser } from './use-user';
 
 /**
  * Hook for interacting with the Avolve platform's analytics and real-time features.
@@ -10,7 +11,11 @@ import { useSupabase } from '@/components/supabase/provider'
  * and fetching analytics data.
  */
 export function useAnalytics() {
-  const { supabase } = useSupabase()
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false)
   const [leaderboard, setLeaderboard] = useState<any[]>([])
   const [userPosition, setUserPosition] = useState<any>(null)

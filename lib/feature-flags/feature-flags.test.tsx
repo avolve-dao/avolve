@@ -69,18 +69,24 @@ vi.mock('@/lib/supabase/use-supabase', () => ({
 // Mock process.env
 const originalEnv = { ...process.env };
 
+// Helper to safely mock process.env vars
+function setEnvVar(key: string, value: string) {
+  Object.defineProperty(process.env, key, {
+    value,
+    configurable: true,
+    writable: true,
+    enumerable: true
+  });
+}
+
 describe('Feature Flags', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorageMock.clear();
     
     // Mock environment variables
-    process.env.NEXT_PUBLIC_FEATURE_NEW_CHALLENGE_TYPES = 'true';
-    // Use Object.defineProperty instead of direct assignment for NODE_ENV
-    Object.defineProperty(process.env, 'NODE_ENV', {
-      value: 'development',
-      configurable: true
-    });
+    setEnvVar('NEXT_PUBLIC_FEATURE_NEW_CHALLENGE_TYPES', 'true');
+    setEnvVar('NODE_ENV', 'development');
   });
   
   afterEach(() => {

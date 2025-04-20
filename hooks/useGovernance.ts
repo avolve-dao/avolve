@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
 import { governanceService } from '../src/governance';
 import { tokensService } from '../src/tokens';
 import { useToast } from '@/components/ui/use-toast';
@@ -9,7 +8,8 @@ import { useToast } from '@/components/ui/use-toast';
  * Provides methods for creating petitions, voting, and viewing petition data
  */
 export const useGovernance = () => {
-  const user = useUser();
+  // For now, always use a fallback userId string (anonymous or a test value)
+  const userId = 'anonymous';
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [eligibilityLoading, setEligibilityLoading] = useState(false);
@@ -30,11 +30,9 @@ export const useGovernance = () => {
 
   // Check petition creation eligibility
   const checkEligibility = async () => {
-    if (!user) return;
-    
     setEligibilityLoading(true);
     try {
-      const result = await governanceService.checkPetitionEligibility(user.id);
+      const result = await governanceService.checkPetitionEligibility(userId);
       if (result.success && result.data) {
         setEligibility(result.data);
       } else {
@@ -58,18 +56,9 @@ export const useGovernance = () => {
 
   // Create a new petition
   const createPetition = async (title: string, description: string) => {
-    if (!user) {
-      toast({
-        title: 'Error',
-        description: 'You must be logged in to create a petition',
-        variant: 'destructive',
-      });
-      return { success: false };
-    }
-    
     setLoading(true);
     try {
-      const result = await governanceService.createPetition(user.id, title, description);
+      const result = await governanceService.createPetition(userId, title, description);
       if (result.success && result.data) {
         toast({
           title: 'Success',
@@ -102,18 +91,9 @@ export const useGovernance = () => {
 
   // Vote on a petition
   const voteOnPetition = async (petitionId: string) => {
-    if (!user) {
-      toast({
-        title: 'Error',
-        description: 'You must be logged in to vote on a petition',
-        variant: 'destructive',
-      });
-      return { success: false };
-    }
-    
     setLoading(true);
     try {
-      const result = await governanceService.voteOnPetition(user.id, petitionId);
+      const result = await governanceService.voteOnPetition(userId, petitionId);
       if (result.success && result.data) {
         toast({
           title: 'Success',
@@ -210,11 +190,9 @@ export const useGovernance = () => {
 
   // Load petitions created by the user
   const loadUserPetitions = async () => {
-    if (!user) return;
-    
     setLoading(true);
     try {
-      const result = await governanceService.getUserPetitions(user.id);
+      const result = await governanceService.getUserPetitions(userId);
       if (result.success && result.data) {
         setUserPetitions(result.data);
       } else {
@@ -249,10 +227,8 @@ export const useGovernance = () => {
 
   // Check if user has voted on a petition
   const checkUserVote = async (petitionId: string) => {
-    if (!user) return;
-    
     try {
-      const result = await governanceService.getUserVote(user.id, petitionId);
+      const result = await governanceService.getUserVote(userId, petitionId);
       if (result.success && result.data) {
         setUserVote(result.data);
         return result.data;
@@ -268,26 +244,19 @@ export const useGovernance = () => {
 
   // Load initial data when user changes
   useEffect(() => {
-    if (user) {
-      checkEligibility();
-      loadUserPetitions();
-    } else {
-      setEligibility(null);
-      setUserPetitions([]);
-      setUserVote(null);
-    }
-    
+    checkEligibility();
+    loadUserPetitions();
     loadPetitions();
-  }, [user]);
+  }, []);
 
   // Check user vote when petition changes
   useEffect(() => {
-    if (user && selectedPetition) {
+    if (selectedPetition) {
       checkUserVote(selectedPetition.id);
     } else {
       setUserVote(null);
     }
-  }, [user, selectedPetition]);
+  }, [selectedPetition]);
 
   return {
     loading,

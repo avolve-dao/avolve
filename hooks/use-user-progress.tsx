@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSupabase } from '@/components/supabase/provider';
+import { createBrowserClient } from '@supabase/ssr';
+import { useUser } from './use-user';
 
 export type ExperiencePhase = 'discover' | 'onboard' | 'scaffold' | 'endgame';
 export type PillarType = 'superachiever' | 'superachievers' | 'supercivilization';
@@ -20,14 +21,18 @@ export interface UserProgressData {
 }
 
 export function useUserProgress() {
-  const { supabase, session } = useSupabase();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { user } = useUser();
   const [userProgress, setUserProgress] = useState<UserProgressData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchUserProgress = async () => {
-      if (!session?.user?.id) {
+      if (!user?.id) {
         setIsLoading(false);
         return;
       }
@@ -37,7 +42,7 @@ export function useUserProgress() {
         const { data, error } = await supabase
           .from('user_pillar_progress')
           .select('*')
-          .eq('user_id', session.user.id);
+          .eq('user_id', user.id);
 
         if (error) throw error;
 
@@ -96,7 +101,7 @@ export function useUserProgress() {
           event: '*',
           schema: 'public',
           table: 'user_pillar_progress',
-          filter: `user_id=eq.${session?.user?.id}`
+          filter: `user_id=eq.${user?.id}`
         },
         () => {
           fetchUserProgress();
@@ -107,20 +112,20 @@ export function useUserProgress() {
     return () => {
       supabase.removeChannel(progressSubscription);
     };
-  }, [supabase, session]);
+  }, [supabase, user]);
 
   // Function to update user progress
   const updateProgress = async (
     pillar: PillarType,
     updates: Partial<UserPillarProgress>
   ) => {
-    if (!session?.user?.id) return null;
+    if (!user?.id) return null;
 
     try {
       const { data, error } = await supabase
         .from('user_pillar_progress')
         .update(updates)
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id)
         .eq('pillar', pillar)
         .select()
         .single();
@@ -135,7 +140,7 @@ export function useUserProgress() {
 
   // Function to advance to the next phase
   const advanceToNextPhase = async (pillar: PillarType) => {
-    if (!userProgress || !session?.user?.id) return null;
+    if (!userProgress || !user?.id) return null;
 
     const currentPhase = userProgress[pillar].current_phase;
     const phaseOrder: ExperiencePhase[] = ['discover', 'onboard', 'scaffold', 'endgame'];

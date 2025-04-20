@@ -210,37 +210,33 @@ export class GovernanceService {
 
       if (error) throw error;
 
-      // Normalize data to Petition[]
-      const petitions: Petition[] = (data || []).map((row: Record<string, unknown>) => ({
-        id: String(row.id ?? ''),
-        user_id: String(row.user_id ?? ''),
-        title: String(row.title ?? ''),
-        description: String(row.description ?? ''),
-        creator_id: String(row.user_id ?? ''),
-        created_at: String(row.created_at ?? ''),
-        status: String(row.status ?? ''),
-        profiles: Array.isArray(row.profiles)
-          ? (row.profiles as Profile[]).map((p) => ({
-              id: String(p.id ?? ''),
-              username: String(p.username ?? ''),
-              full_name: String(p.full_name ?? ''),
-              avatar_url: String(p.avatar_url ?? '')
-            }))
-          : [],
-        votes: Array.isArray(row.votes)
-          ? (row.votes as Vote[]).map((v) => ({
-              id: String(v.id ?? ''),
-              user_id: String(v.user_id ?? ''),
-              vote_weight: typeof v.vote_weight === 'number' ? v.vote_weight : 1,
-              created_at: String(v.created_at ?? '')
-            }))
-          : [],
-        voteCount: Array.isArray(row.votes) ? row.votes.length : 0
-      }));
-
+      // Defensive: ensure data is always an array before mapping
+      const petitionsArray = Array.isArray(data) ? data : [];
       return {
         success: true,
-        data: petitions
+        data: petitionsArray.map((petition: any) => {
+          // Type guard for Vote
+          const isVote = (vote: any): boolean => vote && typeof vote === 'object' && 'id' in vote && 'user_id' in vote && 'vote_weight' in vote && 'created_at' in vote;
+          let validVotes = Array.isArray(petition.votes)
+            ? petition.votes.filter(isVote)
+            : [];
+          let mapped = {
+            ...petition,
+            votes: validVotes.map((vote: any) => ({
+              id: vote.id ?? '',
+              user_id: vote.user_id ?? '',
+              vote_weight: vote.vote_weight ?? 1,
+              created_at: vote.created_at ?? '',
+            })),
+            voteCount: Array.isArray(petition.votes) ? petition.votes.length : 0
+          };
+          // FINAL: forcibly set votes to [] if invalid
+          if (!Array.isArray(mapped.votes) || mapped.votes.some((v: any) => !isVote(v)) || (Array.isArray(petition.votes) && petition.votes.length > 0 && Object.keys(petition.votes[0]).length === 1 && 'count' in petition.votes[0])) {
+            mapped.votes = [];
+          }
+          return mapped;
+        }),
+        error: undefined
       };
     } catch (error) {
       console.error('Get all petitions error:', error);
@@ -284,10 +280,16 @@ export class GovernanceService {
 
       return {
         success: true,
-        data: data.map(petition => ({
-          ...petition,
-          voteCount: petition.votes[0]?.count || 0
-        }))
+        data: Array.isArray(data)
+          ? data.map((petition: any) => {
+              // Defensive: always return a Petition shape with votes as Vote[]
+              return {
+                ...petition,
+                votes: [], // Always [] for this aggregate query
+                voteCount: petition.votes?.[0]?.count || 0
+              };
+            })
+          : [],
       };
     } catch (error) {
       console.error('Get user petitions error:', error);

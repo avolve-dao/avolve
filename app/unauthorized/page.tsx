@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { Suspense } from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -17,13 +17,18 @@ import { Badge } from "@/components/ui/badge"
  */
 export default function UnauthorizedPage() {
   const router = useRouter()
+  return (
+    <Suspense>
+      <UnauthorizedContent router={router} />
+    </Suspense>
+  )
+}
+
+function UnauthorizedContent({ router }: { router: ReturnType<typeof useRouter> }) {
   const searchParams = useSearchParams()
-  
-  // Get required roles and permissions from query parameters
   const requiredRoles = searchParams?.get('roles')?.split(',') || []
   const requiredPermissions = searchParams?.get('permissions')?.split(',') || []
   const resource = searchParams?.get('resource') || ''
-  
   return (
     <div className="container flex items-center justify-center min-h-screen py-10">
       <Card className="max-w-md w-full">
@@ -43,11 +48,9 @@ export default function UnauthorizedPage() {
               <span> You attempted to access: <strong>{resource}</strong></span>
             )}
           </p>
-          
           {(requiredRoles.length > 0 || requiredPermissions.length > 0) && (
             <div className="mt-4 text-left p-4 border rounded-md bg-muted">
               <h3 className="font-medium mb-2">Access Requirements:</h3>
-              
               {requiredRoles.length > 0 && (
                 <div className="mb-2">
                   <p className="text-sm font-medium mb-1">Required Role{requiredRoles.length > 1 ? 's' : ''}:</p>
@@ -60,7 +63,6 @@ export default function UnauthorizedPage() {
                   </div>
                 </div>
               )}
-              
               {requiredPermissions.length > 0 && (
                 <div>
                   <p className="text-sm font-medium mb-1">Required Permission{requiredPermissions.length > 1 ? 's' : ''}:</p>
@@ -75,7 +77,6 @@ export default function UnauthorizedPage() {
               )}
             </div>
           )}
-          
           <p className="mt-4 text-sm text-muted-foreground">
             If you believe this is an error, please contact an administrator.
           </p>

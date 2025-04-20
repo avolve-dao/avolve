@@ -83,13 +83,11 @@ export class TokenBalanceService {
         }
         
         balances.push({
-          token_id: token.id,
-          token_name: token.name,
-          token_symbol: token.symbol,
-          amount: ownership.amount,
-          is_locked: ownership.is_locked,
-          level: Math.floor(ownership.amount / 100) + 1, // Level increases every 100 tokens
-          last_claimed: ownership.last_claimed
+          id: token.id,
+          user_id: ownership.user_id,
+          token_type_id: token.token_type_id,
+          balance: ownership.balance,
+          last_updated: ownership.updated_at ?? new Date().toISOString()
         });
       }
       

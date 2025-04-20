@@ -86,16 +86,20 @@ export class TokenClaimService {
     
     try {
       // Get token details
-      const { data: token, error: tokenError } = await retryOperation(() => 
-        this.supabase
+      const tokenResult = await retryOperation(async () =>
+        await this.supabase
           .from('tokens')
           .select('*')
           .eq('id', tokenId)
           .single()
-      );
+      ) as { data?: any; error?: any };
+      const token = tokenResult.data;
+      const tokenError = tokenResult.error;
       
-      if (tokenError || !token) {
+      if (tokenError && tokenError instanceof Error) {
         this.logger.error('Get token error:', tokenError, { toUserId, tokenId });
+      }
+      if (tokenError || !token) {
         return { 
           success: false,
           data: { success: false, message: 'Failed to get token details' }, 
@@ -108,8 +112,8 @@ export class TokenClaimService {
       }
       
       // Create transaction
-      const { data: transaction, error: transactionError } = await retryOperation(() => 
-        this.supabase
+      const transactionResult = await retryOperation(async () =>
+        await this.supabase
           .from('token_transactions')
           .insert({
             token_id: tokenId,
@@ -121,10 +125,14 @@ export class TokenClaimService {
           })
           .select('id')
           .single()
-      );
+      ) as { data?: any; error?: any };
+      const transaction = transactionResult.data;
+      const transactionError = transactionResult.error;
       
-      if (transactionError) {
+      if (transactionError && transactionError instanceof Error) {
         this.logger.error('Create transaction error:', transactionError, { toUserId, tokenId });
+      }
+      if (transactionError) {
         return { 
           success: false,
           data: { success: false, message: 'Failed to create transaction' }, 
@@ -137,8 +145,8 @@ export class TokenClaimService {
       }
       
       // Update user token balance
-      const { error: updateError } = await retryOperation(() => 
-        this.supabase
+      const updateResult = await retryOperation(async () =>
+        await this.supabase
           .from('user_balances')
           .upsert({
             user_id: toUserId,
@@ -148,10 +156,13 @@ export class TokenClaimService {
             onConflict: 'user_id,token_id',
             ignoreDuplicates: false
           })
-      );
+      ) as { data?: any; error?: any };
+      const updateError = updateResult.error;
       
-      if (updateError) {
+      if (updateError && updateError instanceof Error) {
         this.logger.error('Update user token balance error:', updateError, { toUserId, tokenId });
+      }
+      if (updateError) {
         return { 
           success: false,
           data: { success: false, message: 'Failed to update user balance' }, 
@@ -173,7 +184,9 @@ export class TokenClaimService {
         error: undefined
       };
     } catch (error) {
-      this.logger.error('Unexpected mint tokens error:', error as Error, { toUserId, tokenId });
+      if (error instanceof Error) {
+        this.logger.error('Unexpected mint tokens error:', error, { toUserId, tokenId });
+      }
       return { 
         success: false,
         data: { success: false, message: 'An unexpected error occurred while minting tokens' }, 
@@ -214,8 +227,10 @@ export class TokenClaimService {
         p_multiplier: multiplier
       });
 
-      if (error) {
+      if (error && error instanceof Error) {
         this.logger.error('Error claiming daily token', error, { userId, challengeId });
+      }
+      if (error) {
         return {
           success: false,
           data: {
@@ -236,7 +251,9 @@ export class TokenClaimService {
         error: undefined
       };
     } catch (error) {
-      this.logger.error('Unexpected error claiming daily token', error as Error, { userId, challengeId });
+      if (error instanceof Error) {
+        this.logger.error('Unexpected error claiming daily token', error, { userId, challengeId });
+      }
       return {
         success: false,
         data: {
@@ -267,13 +284,11 @@ export class TokenClaimService {
         return {
           success: false,
           data: {
-            id: '',
-            user_id: '',
             current_streak: 0,
             longest_streak: 0,
-            last_claim_date: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            last_claim_date: '',
+            next_milestone: 0,
+            days_until_milestone: 0
           },
           error: {
             code: 'INVALID_USER',
@@ -289,18 +304,18 @@ export class TokenClaimService {
         .eq('user_id', userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      if (error && error.code !== 'PGRST116' && error instanceof Error) { // PGRST116 is "no rows returned"
         this.logger.error('Error getting user streak', error, { userId });
+      }
+      if (error && error.code !== 'PGRST116') {
         return {
           success: false,
           data: {
-            id: '',
-            user_id: userId,
             current_streak: 0,
             longest_streak: 0,
-            last_claim_date: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
+            last_claim_date: '',
+            next_milestone: 0,
+            days_until_milestone: 0
           },
           error: {
             code: 'DATABASE_ERROR',
@@ -318,23 +333,23 @@ export class TokenClaimService {
             user_id: userId,
             current_streak: 0,
             longest_streak: 0,
-            last_claim_date: null
+            last_claim_date: ''
           })
           .select('*')
           .single();
 
-        if (createError) {
+        if (createError && createError instanceof Error) {
           this.logger.error('Error creating user streak', createError, { userId });
+        }
+        if (createError) {
           return {
             success: false,
             data: {
-              id: '',
-              user_id: userId,
               current_streak: 0,
               longest_streak: 0,
-              last_claim_date: null,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
+              last_claim_date: '',
+              next_milestone: 0,
+              days_until_milestone: 0
             },
             error: {
               code: 'CREATE_ERROR',
@@ -357,17 +372,17 @@ export class TokenClaimService {
         error: undefined
       };
     } catch (error) {
-      this.logger.error('Unexpected error getting user streak', error as Error, { userId });
+      if (error instanceof Error) {
+        this.logger.error('Unexpected error getting user streak', error, { userId });
+      }
       return {
         success: false,
         data: {
-          id: '',
-          user_id: userId,
           current_streak: 0,
           longest_streak: 0,
-          last_claim_date: null,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          last_claim_date: '',
+          next_milestone: 0,
+          days_until_milestone: 0
         },
         error: {
           code: 'UNEXPECTED_ERROR',
@@ -421,8 +436,10 @@ export class TokenClaimService {
         .select('id')
         .single();
 
-      if (error) {
+      if (error && error instanceof Error) {
         this.logger.error('Error recording challenge completion', error, { userId, challengeId });
+      }
+      if (error) {
         return {
           success: false,
           data: { id: '' },
@@ -440,7 +457,9 @@ export class TokenClaimService {
         error: undefined
       };
     } catch (error) {
-      this.logger.error('Unexpected error recording challenge completion', error as Error, { userId, challengeId });
+      if (error instanceof Error) {
+        this.logger.error('Unexpected error recording challenge completion', error, { userId, challengeId });
+      }
       return {
         success: false,
         data: { id: '' },
@@ -524,14 +543,20 @@ export class TokenClaimService {
       }
 
       // Get token details
-      const { data: token, error: tokenError } = await this.supabase
-        .from('tokens')
-        .select('*')
-        .eq('id', tokenId)
-        .single();
-
-      if (tokenError || !token) {
+      const tokenResult = await retryOperation(async () =>
+        await this.supabase
+          .from('tokens')
+          .select('*')
+          .eq('id', tokenId)
+          .single()
+      ) as { data?: any; error?: any };
+      const token = tokenResult.data;
+      const tokenError = tokenResult.error;
+      
+      if (tokenError && tokenError instanceof Error) {
         this.logger.error('Error getting token details', tokenError, { tokenId });
+      }
+      if (tokenError || !token) {
         return {
           success: false,
           data: { success: false, message: 'Failed to get token details' },
@@ -559,8 +584,10 @@ export class TokenClaimService {
           : 'Challenge reward'
       );
       
-      if (!mintResult.success || mintResult.error) {
-        this.logger.error('Error minting tokens', mintResult.error, { userId, challengeId });
+      if (!mintResult.success || mintResult.error || !mintResult.data) {
+        if (mintResult.error && mintResult.error instanceof Error) {
+          this.logger.error('Error minting tokens', mintResult.error, { userId, challengeId });
+        }
         return {
           success: false,
           data: { success: false, message: 'Failed to mint tokens' },
@@ -593,7 +620,9 @@ export class TokenClaimService {
         error: undefined
       };
     } catch (error) {
-      this.logger.error('Unexpected error claiming challenge reward', error as Error, { userId, challengeId });
+      if (error instanceof Error) {
+        this.logger.error('Unexpected error claiming challenge reward', error, { userId, challengeId });
+      }
       return {
         success: false,
         data: { success: false, message: 'An unexpected error occurred while claiming reward' },

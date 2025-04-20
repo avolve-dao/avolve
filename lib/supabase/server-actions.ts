@@ -9,7 +9,7 @@ import { Database } from '@/lib/database.types';
  * This is separate from the server.ts file to avoid 'use server' directive issues
  */
 export async function createServerActionClient() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

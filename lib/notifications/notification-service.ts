@@ -75,8 +75,7 @@ export class NotificationService {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
-        .limit(limit)
-        .offset(offset);
+        .range(offset, offset + limit - 1);
       
       if (unreadOnly) {
         query = query.eq('is_read', false);

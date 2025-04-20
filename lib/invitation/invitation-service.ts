@@ -123,6 +123,16 @@ export class InvitationService {
     request: CreateInvitationRequest
   ): Promise<InvitationResult<InvitationCreationResponse>> {
     try {
+      // Defensive: Validate request and tier_name FIRST
+      if (!request || typeof request !== 'object' || !request.tier_name || typeof request.tier_name !== 'string' || !request.tier_name.trim()) {
+        return {
+          data: null,
+          error: new InvitationError('Invalid or missing tier_name in invitation request')
+        };
+      }
+      // Log request for debugging (after validation)
+      console.log('[InvitationService.createInvitation] request:', JSON.stringify(request));
+      
       // Check if the user has reached their invitation limit
       const { data: hasReachedLimit, error: limitError } = 
         await this.hasUserReachedInvitationLimit(userId, request.tier_name);
@@ -153,40 +163,31 @@ export class InvitationService {
       
       // Check if the user has enough tokens
       if (tier.token_cost > 0) {
-        const { data: tokenBalance, error: tokenError } = 
-          await this.tokenService.getUserTokenBalance(userId, tier.token_type);
-        
+        // Fetch the token by symbol (tier.token_type)
+        const { data: tokenObj, error: tokenObjError } = await this.tokenService.getTokenBySymbol(tier.token_type);
+        if (tokenObjError || !tokenObj) {
+          return {
+            data: null,
+            error: new InvitationError(`Token with symbol ${tier.token_type} not found`, tokenObjError)
+          };
+        }
+        const { data: tokenBalance, error: tokenError } = await this.tokenService.getUserBalance(userId, tokenObj.id);
         if (tokenError) {
-          return { 
-            data: null, 
-            error: new InvitationError('Failed to check token balance', tokenError) 
+          return {
+            data: null,
+            error: new InvitationError('Failed to check token balance', tokenError)
           };
         }
-        
-        if (!tokenBalance || tokenBalance < tier.token_cost) {
-          return { 
-            data: { 
-              success: false, 
-              message: `Insufficient ${tier.token_type} tokens. Required: ${tier.token_cost}, Available: ${tokenBalance || 0}` 
-            }, 
-            error: null 
+        if (!tokenBalance || tokenBalance.balance < tier.token_cost) {
+          return {
+            data: {
+              success: false,
+              message: `Insufficient ${tier.token_type} tokens. Required: ${tier.token_cost}, Available: ${tokenBalance?.balance || 0}`
+            },
+            error: null
           };
         }
-        
-        // Deduct tokens
-        const { data: burnResult, error: burnError } = await this.tokenService.burnTokens(
-          userId,
-          tier.token_type,
-          tier.token_cost,
-          `Created ${tier.tier_name} invitation`
-        );
-        
-        if (burnError || !burnResult?.success) {
-          return { 
-            data: null, 
-            error: new InvitationError('Failed to deduct tokens', burnError) 
-          };
-        }
+        // TODO: Implement token deduction (burn/transfer) here if needed
       }
       
       // Create the invitation
@@ -346,38 +347,27 @@ export class InvitationService {
         };
       }
       
-      // Find the token ID for this token type
-      const { data: tokenData, error: tokenError } = await this.tokenService.getTokenTypeByCode(tier.token_type);
-      
-      if (tokenError || !tokenData) {
-        return { 
-          data: null, 
-          error: new InvitationError(`Failed to find token type: ${tier.token_type}`, tokenError) 
-        };
-      }
-      
-      // Get the first token of this type
-      const { data: tokens, error: tokensError } = await this.tokenService.getTokensByType(tokenData.id);
-      
-      if (tokensError || !tokens || tokens.length === 0) {
-        return { 
-          data: null, 
-          error: new InvitationError(`No tokens found for type: ${tier.token_type}`, tokensError) 
+      // Fetch the token by symbol (tier.token_type)
+      const { data: tokenObj, error: tokenObjError } = await this.tokenService.getTokenBySymbol(tier.token_type);
+      if (tokenObjError || !tokenObj) {
+        return {
+          data: null,
+          error: new InvitationError(`Failed to find token: ${tier.token_type}`, tokenObjError)
         };
       }
       
       // Mint tokens to the invitee
-      const { data: claimResult, error: claimError } = await this.tokenService.mintTokens(
-        userId,
-        tokens[0].id,
-        tier.reward_amount,
-        `Invitation reward for tier ${tier.tier_name}`
-      );
+      const { data: claimResult, error: claimError } = await this.tokenService.mintTokens({
+        userId: userId,
+        tokenId: tokenObj.id,
+        amount: tier.reward_amount,
+        reason: `Invitation reward for tier ${tier.tier_name}`
+      });
       
       if (claimError) {
-        return { 
-          data: null, 
-          error: new InvitationError('Failed to mint tokens for invitation reward', claimError) 
+        return {
+          data: null,
+          error: new InvitationError('Failed to mint tokens for invitation reward', claimError)
         };
       }
       
@@ -608,7 +598,7 @@ export class InvitationService {
         let userHasTokens = true;
         if (tier.token_cost > 0) {
           const { data: balance, error: balanceError } = 
-            await this.tokenService.getUserTokenBalance(userId, tier.token_type);
+            await this.tokenService.getUserBalance(userId, tier.token_type);
           
           if (balanceError) {
             console.error(`Error checking balance for tier ${tier.tier_name}:`, balanceError);

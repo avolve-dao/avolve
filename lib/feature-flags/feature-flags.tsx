@@ -14,9 +14,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode, Fragment } from 'react';
-import { useSupabase } from '@/lib/supabase/use-supabase';
-import { User } from '@supabase/supabase-js';
-import { UseSupabaseResult } from '@/lib/supabase/types';
+import { createBrowserClient } from '@supabase/ssr';
 
 // Define feature flag names as constants to avoid typos
 export const FEATURE_FLAGS = {
@@ -147,11 +145,13 @@ export const FeatureFlagProvider = ({
   children, 
   initialFlags 
 }: FeatureFlagProviderProps) => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabase = createBrowserClient(supabaseUrl, supabaseKey);
   const [flags, setFlags] = useState<FeatureFlags>(initializeFeatureFlags(initialFlags));
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const { supabase, user } = useSupabase() as UseSupabaseResult;
-  
+
   // Check if a feature is enabled
   const isEnabled = (flag: FeatureFlagName): boolean => {
     return flags[flag] === true;
@@ -175,14 +175,10 @@ export const FeatureFlagProvider = ({
   };
   
   // Fetch remote feature flags from Supabase
-  const fetchRemoteFlags = async (currentUser: User | null): Promise<Partial<FeatureFlags>> => {
-    if (!supabase) {
-      return {};
-    }
-    
+  const fetchRemoteFlags = async (): Promise<Partial<FeatureFlags>> => {
     try {
       // Fetch all feature flags from Supabase
-      const { data: remoteFlags, error } = await supabase
+      const { data, error } = await supabase
         .from('feature_flags')
         .select('*');
       
@@ -190,14 +186,14 @@ export const FeatureFlagProvider = ({
         throw error;
       }
       
-      if (!remoteFlags || remoteFlags.length === 0) {
+      if (!data || data.length === 0) {
         return {};
       }
       
       // Process flags
       const processedFlags: Partial<FeatureFlags> = {};
       
-      remoteFlags.forEach((flag: any) => {
+      data.forEach((flag: any) => {
         // Only process flags that match our known feature flag names
         const flagName = flag.name as string;
         if (!(flagName in FEATURE_FLAGS)) {
@@ -209,31 +205,11 @@ export const FeatureFlagProvider = ({
         
         // Apply percentage rollout if defined
         if (isEnabledForUser && flag.percentage_rollout !== undefined) {
-          if (currentUser?.id) {
-            // Generate a consistent hash from user ID + flag name
-            const hash = hashString(`${currentUser.id}-${flagName}`);
-            const normalizedHash = hash % 100; // 0-99
-            
-            isEnabledForUser = normalizedHash < (flag.percentage_rollout as number);
-          } else {
-            // No user, so not in rollout
-            isEnabledForUser = false;
-          }
-        }
-        
-        // Check user groups if defined
-        if (isEnabledForUser && flag.user_group_ids && flag.user_group_ids.length > 0 && currentUser?.id) {
-          // Fetch user groups
-          // This would normally be cached or stored in user session
-          // For this example, we'll make a separate query
-          // In a real app, this would be optimized
-          isEnabledForUser = false; // Default to false until we confirm user is in a group
+          // Generate a consistent hash from user ID + flag name
+          const hash = hashString(`${flagName}`);
+          const normalizedHash = hash % 100; // 0-99
           
-          // This would be replaced with an actual check against user groups
-          // For now, we'll assume all authenticated users are in the default group
-          if (currentUser) {
-            isEnabledForUser = true;
-          }
+          isEnabledForUser = normalizedHash < (flag.percentage_rollout as number);
         }
         
         processedFlags[typedFlagName] = isEnabledForUser;
@@ -261,10 +237,11 @@ export const FeatureFlagProvider = ({
       
       // Apply remote flags if available
       try {
-        const remoteFlags = await fetchRemoteFlags(user);
+        const remoteFlags = await fetchRemoteFlags();
         Object.assign(newFlags, remoteFlags);
       } catch (remoteError) {
         console.error('Error fetching remote flags:', remoteError);
+        setError(remoteError instanceof Error ? remoteError : new Error('Failed to fetch remote feature flags'));
         // Continue with other flag sources
       }
       
@@ -288,12 +265,11 @@ export const FeatureFlagProvider = ({
     }
   };
   
-  // Fetch remote flags on mount and when user changes
+  // Fetch remote flags on mount
   useEffect(() => {
     refreshFlags();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
-  
+  }, []);
+
   const contextValue: FeatureFlagContextType = {
     flags,
     isEnabled,

@@ -1,33 +1,27 @@
-"use client";
-
 import { useState, useEffect, useCallback } from 'react';
-import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react';
 import { FeaturesService } from '@/src/features';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// For now, always use a fallback userId string (anonymous or a test value)
+const userId = 'anonymous';
 
 /**
  * Hook for managing feature unlocks
  * Provides methods for checking if features are unlocked based on user progress and metrics
  */
 export function useFeatures() {
-  const user = useUser();
-  const supabase = useSupabaseClient();
   const [loading, setLoading] = useState(true);
   const [featureStatus, setFeatureStatus] = useState<any | null>(null);
   
   // Initialize the features service
-  const featuresService = new FeaturesService(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
-  );
+  const featuresService = new FeaturesService();
 
   // Load all feature statuses
   const checkAllFeatures = useCallback(async () => {
-    if (!user) {
-      setFeatureStatus(null);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     try {
       const statuses = await featuresService.getUserFeatureStatuses();
@@ -37,22 +31,15 @@ export function useFeatures() {
     } finally {
       setLoading(false);
     }
-  }, [user, featuresService]);
+  }, [featuresService]);
 
   // Load features on mount and when user changes
   useEffect(() => {
     checkAllFeatures();
-  }, [user, checkAllFeatures]);
+  }, [checkAllFeatures]);
 
   // Check if a specific feature is unlocked
   const checkFeatureUnlock = useCallback(async (featureName: string): Promise<any> => {
-    if (!user) {
-      return {
-        isUnlocked: false,
-        unlockReason: 'You need to be logged in to access this feature'
-      };
-    }
-
     try {
       return await featuresService.checkFeatureUnlock(featureName);
     } catch (error) {
@@ -62,25 +49,10 @@ export function useFeatures() {
         unlockReason: `Error checking feature: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
-  }, [user, featuresService]);
+  }, [featuresService]);
 
   // Check if a day token is unlocked
   const checkDayTokenUnlock = useCallback(async (dayName: string): Promise<any> => {
-    if (!user) {
-      return {
-        isUnlocked: false,
-        unlockReason: 'You need to be logged in to claim tokens',
-        tokenInfo: {
-          symbol: '',
-          name: '',
-          description: '',
-          day: dayName,
-          dayOfWeek: -1,
-          gradient: ''
-        }
-      };
-    }
-
     try {
       return await featuresService.checkDayTokenUnlock(dayName);
     } catch (error) {
@@ -98,17 +70,10 @@ export function useFeatures() {
         }
       };
     }
-  }, [user, featuresService]);
+  }, [featuresService]);
 
   // Claim a day token
   const claimDayToken = useCallback(async (tokenSymbol: string): Promise<any> => {
-    if (!user) {
-      return {
-        success: false,
-        message: 'You need to be logged in to claim tokens'
-      };
-    }
-
     try {
       const result = await featuresService.claimDayToken(tokenSymbol);
       
@@ -125,7 +90,7 @@ export function useFeatures() {
         message: `Error claiming token: ${error instanceof Error ? error.message : 'Unknown error'}`
       };
     }
-  }, [user, featuresService, checkAllFeatures]);
+  }, [featuresService, checkAllFeatures]);
 
   // Get day token info
   const getDayTokenInfo = useCallback((dayOfWeek: number) => {

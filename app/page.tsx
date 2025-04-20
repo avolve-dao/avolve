@@ -1,7 +1,6 @@
 import { Suspense } from 'react'
 import { cookies } from 'next/headers'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Metadata } from 'next'
 
 // Components
 import { HeroSection } from '@/components/marketing/hero-section'
@@ -10,22 +9,6 @@ import { SocialProof } from '@/components/marketing/social-proof'
 import { ValueProposition } from '@/components/marketing/value-proposition'
 import { CTASection } from '@/components/marketing/cta-section'
 import LoadingSpinner from '@/components/ui/loading-spinner'
-
-export const metadata: Metadata = {
-  title: 'Avolve - Evolve Your Potential',
-  description: 'Join Avolve to unlock your full potential through personalized growth, collaborative challenges, and meaningful achievements.',
-  openGraph: {
-    title: 'Avolve - Evolve Your Potential',
-    description: 'Join Avolve to unlock your full potential through personalized growth, collaborative challenges, and meaningful achievements.',
-    images: ['/og-image.png'],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Avolve - Evolve Your Potential',
-    description: 'Join Avolve to unlock your full potential through personalized growth, collaborative challenges, and meaningful achievements.',
-    images: ['/twitter-image.png'],
-  },
-}
 
 // Get personalized content based on user's location and referral
 async function getPersonalizedContent() {
@@ -46,7 +29,7 @@ async function getPersonalizedContent() {
   let location = null;
   try {
     const { data } = await supabase.functions.invoke('get-geo-location');
-    location = data.location;
+    location = data?.location;
   } catch (error) {
     console.warn('Failed to get location:', error instanceof Error ? error.message : 'Unknown error');
   }

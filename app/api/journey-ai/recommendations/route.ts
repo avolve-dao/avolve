@@ -11,11 +11,23 @@ import { NextRequest, NextResponse } from 'next/server';
 // import { Database } from '@/types/supabase'; // Temporarily removed due to missing export
 import { OpenAI } from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Only instantiate OpenAI if the API key is present
+const openaiApiKey = process.env.OPENAI_API_KEY;
+if (!openaiApiKey) {
+  console.warn('[Avolve] OPENAI_API_KEY is not set. AI recommendations endpoint will return 503.');
+}
 
 export async function POST(request: NextRequest) {
+  if (!openaiApiKey) {
+    return NextResponse.json({
+      success: false,
+      error: 'OPENAI_API_KEY is not set. This endpoint is unavailable.',
+      data: null,
+    }, { status: 503 });
+  }
+
+  const openai = new OpenAI({ apiKey: openaiApiKey });
+
   try {
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });

@@ -61,7 +61,7 @@ export function ConsensusManager() {
   } = useConsensus(supabaseClient, userId);
   
   // Only tokens and setTokens are available from useTokenService
-  const { tokens, setTokens } = useTokenService();
+  const tokenService = useTokenService();
   
   // Explicit types for all state variables
   const [selectedTab, setSelectedTab] = useState<string>('meetings');

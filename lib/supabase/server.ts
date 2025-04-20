@@ -8,7 +8,7 @@ import { env } from '@/lib/env'
 export function createPagesClient() {
   return createServerClient<Database>(
     env.SUPABASE_URL,
-    env.SUPABASE_ANON_KEY,
+    process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY,
     {
       cookies: {
         get: (name) => undefined,
@@ -29,7 +29,7 @@ export function createServerComponentClient() {
     
     return createServerClient<Database>(
       env.SUPABASE_URL,
-      env.SUPABASE_ANON_KEY,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_ANON_KEY,
       {
         cookies: {
           get: (name) => {

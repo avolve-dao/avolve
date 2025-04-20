@@ -27,7 +27,7 @@ export const trackUserAction = async (
   properties: Record<string, any> = {}
 ) => {
   // Get A/B test variant
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const variant = cookieStore.get('avolve-onboarding-variant')?.value || 'unknown'
 
   // Prepare metric data
@@ -102,7 +102,7 @@ export const trackOnboarding = async (
   action: 'start' | 'complete' | 'drop',
   properties: Record<string, any> = {}
 ) => {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const variant = cookieStore.get('avolve-onboarding-variant')?.value || 'unknown'
 
   const metric: Metric = {

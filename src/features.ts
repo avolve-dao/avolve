@@ -32,7 +32,7 @@ export class FeaturesService {
       dayTokensClaimed: number;
     };
   }> {
-    const { data, error } = await this.supabase.rpc('check_feature_unlock', featureName);
+    const { data, error } = await this.supabase.rpc('check_feature_unlock');
 
     if (error) {
       console.error('Error checking feature unlock:', error);
@@ -62,7 +62,7 @@ export class FeaturesService {
       gradient: string;
     };
   }> {
-    const { data, error } = await this.supabase.rpc('check_day_token_unlock', dayName);
+    const { data, error } = await this.supabase.rpc('check_day_token_unlock');
 
     if (error) {
       console.error('Error checking day token unlock:', error);
@@ -144,7 +144,7 @@ export class FeaturesService {
     message: string;
     amount?: number;
   }> {
-    const { data, error } = await this.supabase.rpc('claim_day_token', tokenSymbol);
+    const { data, error } = await this.supabase.rpc('claim_day_token');
 
     if (error) {
       console.error('Error claiming day token:', error);
@@ -170,7 +170,7 @@ export class FeaturesService {
     dayOfWeek: number;
     gradient: string;
   }> {
-    const { data, error } = await this.supabase.rpc('get_day_token_info', dayOfWeek);
+    const { data, error } = await this.supabase.rpc('get_day_token_info');
 
     if (error) {
       console.error('Error getting day token info:', error);

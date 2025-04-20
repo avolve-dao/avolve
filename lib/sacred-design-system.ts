@@ -295,7 +295,11 @@ export const TIMING_FUNCTION = {
  * Avolve platform specific design tokens
  * Based on the three pillars: Superachiever, Superachievers, Supercivilization
  */
-export const AVOLVE_DESIGN = {
+export const AVOLVE_DESIGN: {
+  [pillar: string]: {
+    [category: string]: any;
+  };
+} = {
   // Superachiever - Individual journey (Stone gradient)
   superachiever: {
     spacing: {
@@ -393,7 +397,7 @@ export function getSize(key: keyof typeof SIZE): number | string {
  */
 export function getAvolveDesign(
   pillar: keyof typeof AVOLVE_DESIGN,
-  category: 'spacing' | 'sizing' | 'radius' | 'ratio' | 'grid',
+  category: string,
   key?: string
 ): number | string | number[] {
   if (category === 'radius' || category === 'ratio') {

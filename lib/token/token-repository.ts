@@ -658,6 +658,16 @@ export class TokenRepository {
 
   public async createCommunityMilestone(milestone: Partial<any>): Promise<TokenResult<any>> {
     try {
+      // Validate required fields for production readiness
+      const requiredFields = ['name', 'target', 'current', 'reward', 'description', 'updated_at'];
+      for (const field of requiredFields) {
+        if (!(field in milestone)) {
+          return {
+            data: null,
+            error: new TokenError(`Missing required field: ${field}`, { code: 'MISSING_FIELD', message: `Field ${field} is required.` })
+          };
+        }
+      }
       const { data, error } = await this.client
         .from('community_milestones')
         .insert(milestone)
@@ -671,7 +681,13 @@ export class TokenRepository {
           error: new TokenError('Failed to create community milestone', error) 
         };
       }
-      
+      // Ensure the response always includes the id if available
+      if (!data || !data.id) {
+        return {
+          data: null,
+          error: new TokenError('Milestone creation succeeded but no ID was returned', { code: 'NO_ID', message: 'Insert did not return an ID.' })
+        };
+      }
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected create community milestone error:', error);

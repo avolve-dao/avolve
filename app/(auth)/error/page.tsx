@@ -4,8 +4,17 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react';
 
 export default function AuthErrorPage() {
+  return (
+    <Suspense>
+      <AuthErrorContent />
+    </Suspense>
+  );
+}
+
+function AuthErrorContent() {
   const errorMessages: Record<string, string> = {
     default: "An error occurred during authentication",
     "invalid-email": "The email address is invalid",

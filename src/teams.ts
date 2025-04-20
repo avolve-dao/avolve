@@ -580,12 +580,12 @@ export class TeamsService {
             role: membership.role,
             joinedAt: membership.joined_at ?? new Date().toISOString(), // Provide default for null
             team: {
-              id: team.id,
-              name: team.name,
-              description: team.description ?? '', // Provide default for null
-              leader_id: team.leader_id,
-              created_at: team.created_at ?? new Date().toISOString(), // Provide default for null
-              memberCount: team.memberCount
+              id: team?.id ?? '',
+              name: team?.name ?? '',
+              description: team?.description ?? '', 
+              leader_id: team?.leader_id ?? '',
+              created_at: team?.created_at ?? new Date().toISOString(), 
+              memberCount: team?.memberCount ?? 0
             }
           };
         });
@@ -679,7 +679,7 @@ export class TeamsService {
             id: userId,
             username: `user_${userId}`,
             fullName: `User ${userId}`,
-            avatarUrl: undefined
+            avatarUrl: teamData?.avatarUrl ?? null
           };
           
           profileMap.set(userId, profile);

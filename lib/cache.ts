@@ -15,6 +15,10 @@ const redis = process.env.REDIS_URL ? new Redis({
   password: (env as any).REDIS_PASSWORD || undefined,
 }) : null;
 
+if (!process.env.REDIS_URL) {
+  console.warn('[Avolve] Redis is not configured (REDIS_URL missing). Falling back to in-memory cache. This is not recommended for production.');
+}
+
 // Fallback to in-memory cache if Redis is not configured
 const inMemoryCache = new Map<string, { data: string; expiry: number | null }>(); 
 

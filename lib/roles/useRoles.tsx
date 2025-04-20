@@ -1,14 +1,10 @@
-import { useCallback, useState } from 'react';
-import { useSupabase } from '@/lib/supabase/use-supabase';
+import { useEffect, useState } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
 
 export type Role = {
   id: string;
   name: string;
-  roleType: 'subscriber' | 'participant' | 'contributor' | 'associate' | 'builder' | 'partner';
-  isAdmin: boolean;
-  permissions: Record<string, boolean>;
-  assignedAt: string;
-  expiresAt?: string;
+  description: string;
 };
 
 export type RoleResult<T> = {
@@ -16,174 +12,147 @@ export type RoleResult<T> = {
   error: Error | null;
 };
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createBrowserClient(supabaseUrl, supabaseKey);
+
 /**
  * Hook for role-related functionality
  */
-export function useRoles() {
-  const { supabase, session, user } = useSupabase();
+export function useRoles(userId: string) {
   const [isLoading, setIsLoading] = useState(false);
 
   /**
-   * Get all user roles
+   * Get all roles for a user
    */
-  const getUserRoles = useCallback(async (): Promise<RoleResult<Role[]>> => {
-    if (!session?.user) {
+  const getUserRoles = async (): Promise<RoleResult<Role[]>> => {
+    if (!userId) {
       return { data: null, error: new Error('User not authenticated') };
     }
-
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .rpc('get_user_roles');
-      
-      if (error) throw error;
-      
-      const roles = data.map((role: any) => ({
-        id: role.role_id,
-        name: role.role_name,
-        roleType: role.role_type,
-        isAdmin: role.is_admin,
-        permissions: role.permissions,
-        assignedAt: role.assigned_at,
-        expiresAt: role.expires_at
-      }));
-      
+        .from('user_roles')
+        .select('role:roles(id, name, description)')
+        .eq('user_id', userId);
+      if (error) {
+        return { data: null, error };
+      }
+      const roles = (data || []).map((r: any) => r.role).filter(Boolean);
       return { data: roles, error: null };
-    } catch (error) {
-      console.error('Error getting user roles:', error);
-      return { data: null, error: error as Error };
+    } catch (err: any) {
+      return { data: null, error: err };
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session]);
+  };
 
   /**
    * Check if user has a specific role
    */
-  const hasRole = useCallback(async (roleName: string): Promise<boolean> => {
-    if (!session?.user) return false;
-
+  const hasRole = async (roleName: string): Promise<boolean> => {
+    if (!userId) return false;
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .rpc('has_role', { p_role_name: roleName });
-      
-      if (error) throw error;
-      
+        .from('user_roles')
+        .select('role:roles(name)')
+        .eq('user_id', userId)
+        .eq('roles.name', roleName)
+        .single();
+      if (error) return false;
       return !!data;
-    } catch (error) {
-      console.error('Error checking role:', error);
+    } catch {
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session]);
+  };
 
   /**
    * Check if user is an admin
    */
-  const isAdmin = useCallback(async (): Promise<boolean> => {
-    if (!session?.user) return false;
-
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .rpc('is_admin');
-      
-      if (error) throw error;
-      
-      return !!data;
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [supabase, session]);
+  const isAdmin = async (): Promise<boolean> => {
+    return hasRole('admin');
+  };
 
   /**
    * Check if user has a specific permission
    */
-  const hasPermission = useCallback(async (permission: string): Promise<boolean> => {
-    if (!session?.user) return false;
-
+  const hasPermission = async (permission: string): Promise<boolean> => {
+    if (!userId) return false;
     try {
       setIsLoading(true);
       // Get all roles and check if any has the required permission
-      const rolesResult = await getUserRoles();
-      if (rolesResult.error) throw rolesResult.error;
-      
-      const roles = rolesResult.data || [];
-      
-      // Check if any role has the required permission
-      return roles.some(role => role.permissions[permission] === true);
-    } catch (error) {
-      console.error('Error checking permission:', error);
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role:roles(permissions)')
+        .eq('user_id', userId);
+      if (error) return false;
+      const roles = (data || []).map((r: any) => r.role).filter(Boolean);
+      for (const role of roles) {
+        if (role.permissions && Array.isArray(role.permissions)) {
+          if (role.permissions.some((p: any) => p.name === permission)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    } catch {
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session, getUserRoles]);
+  };
 
   /**
    * Assign a role to a user (admin only)
    */
-  const assignRole = useCallback(async (
-    userId: string,
+  const assignRole = async (
+    targetUserId: string,
     roleName: string,
     expiresAt?: Date,
-    metadata?: any
   ): Promise<boolean> => {
-    if (!session?.user) return false;
-
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .rpc('assign_role', { 
-          p_user_id: userId,
-          p_role_name: roleName,
-          p_expires_at: expiresAt?.toISOString(),
-          p_metadata: metadata
-        });
-      
-      if (error) throw error;
-      
-      return !!data;
-    } catch (error) {
-      console.error('Error assigning role:', error);
+        .from('user_roles')
+        .insert([
+          {
+            user_id: targetUserId,
+            role_name: roleName,
+            expires_at: expiresAt ? expiresAt.toISOString() : null,
+          },
+        ]);
+      return !error;
+    } catch {
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session]);
+  };
 
   /**
    * Remove a role from a user (admin only)
    */
-  const removeRole = useCallback(async (
-    userId: string,
+  const removeRole = async (
+    targetUserId: string,
     roleName: string
   ): Promise<boolean> => {
-    if (!session?.user) return false;
-
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .rpc('remove_role', { 
-          p_user_id: userId,
-          p_role_name: roleName
-        });
-      
-      if (error) throw error;
-      
-      return !!data;
-    } catch (error) {
-      console.error('Error removing role:', error);
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', targetUserId)
+        .eq('role_name', roleName);
+      return !error;
+    } catch {
       return false;
     } finally {
       setIsLoading(false);
     }
-  }, [supabase, session]);
+  };
 
   return {
     isLoading,
@@ -192,6 +161,6 @@ export function useRoles() {
     isAdmin,
     hasPermission,
     assignRole,
-    removeRole
+    removeRole,
   };
 }

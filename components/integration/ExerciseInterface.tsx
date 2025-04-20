@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +7,14 @@ import { Progress } from '@/components/ui/progress';
 import { Database } from '@/types/supabase';
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock, Dumbbell } from 'lucide-react';
 import { useTokens } from '@/hooks/use-tokens';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// For now, always use a fallback userId string (anonymous or a test value)
+const userId = 'anonymous';
 
 type Exercise = {
   id: string;
@@ -43,8 +50,6 @@ type ExerciseProgress = {
 };
 
 export default function ExerciseInterface({ exerciseId }: { exerciseId: string }) {
-  const supabase = useSupabaseClient<Database>();
-  const user = useUser();
   const { addTokens } = useTokens();
   
   const [exercise, setExercise] = useState<Exercise | null>(null);
@@ -59,8 +64,6 @@ export default function ExerciseInterface({ exerciseId }: { exerciseId: string }
   // Fetch exercise and progress
   useEffect(() => {
     async function fetchExerciseData() {
-      if (!user) return;
-      
       try {
         setLoading(true);
         
@@ -78,7 +81,7 @@ export default function ExerciseInterface({ exerciseId }: { exerciseId: string }
         const { data: progressData, error: progressError } = await supabase
           .from('user_exercise_progress')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', userId)
           .eq('exercise_id', exerciseId)
           .single();
         
@@ -102,11 +105,9 @@ export default function ExerciseInterface({ exerciseId }: { exerciseId: string }
     }
     
     async function initializeProgress() {
-      if (!user) return;
-      
       try {
         const { data, error } = await supabase.rpc('track_exercise_progress', {
-          p_user_id: user.id,
+          p_user_id: userId,
           p_exercise_id: exerciseId,
           p_status: 'in_progress',
           p_progress_data: {
@@ -133,34 +134,32 @@ export default function ExerciseInterface({ exerciseId }: { exerciseId: string }
     }
     
     fetchExerciseData();
-  }, [supabase, user, exerciseId]);
+  }, [exerciseId]);
   
   // Save progress
   const saveProgress = async (newStatus?: string, completedStep?: number) => {
-    if (!user || !progress) return;
-    
     try {
       setSaving(true);
       
       // Update progress data
       const progressData = {
-        ...progress.progress_data,
+        ...progress?.progress_data,
         current_step: currentStep,
         notes: stepNotes
       };
       
       // Add completed step if provided
       if (completedStep !== undefined) {
-        const completedSteps = progress.progress_data?.completed_steps || [];
+        const completedSteps = progress?.progress_data?.completed_steps || [];
         if (!completedSteps.includes(completedStep)) {
           progressData.completed_steps = [...completedSteps, completedStep];
         }
       }
       
-      const status = newStatus || progress.status;
+      const status = newStatus || progress?.status;
       
       const { data, error } = await supabase.rpc('track_exercise_progress', {
-        p_user_id: user.id,
+        p_user_id: userId,
         p_exercise_id: exerciseId,
         p_status: status,
         p_progress_data: progressData,
@@ -180,7 +179,7 @@ export default function ExerciseInterface({ exerciseId }: { exerciseId: string }
       setProgress(updatedProgress as ExerciseProgress);
       
       // Award tokens if exercise is completed
-      if (status === 'completed' && progress.status !== 'completed') {
+      if (status === 'completed' && progress?.status !== 'completed') {
         // Award tokens based on exercise difficulty
         const tokenAmount = exercise?.difficulty === 'advanced' ? 15 : 
                            exercise?.difficulty === 'intermediate' ? 10 : 5;

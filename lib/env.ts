@@ -11,8 +11,6 @@ import { z } from 'zod'
 const requiredEnvVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'REDIS_URL',
-  'REDIS_TOKEN',
 ] as const;
 
 // Define optional environment variables with defaults

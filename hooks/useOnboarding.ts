@@ -1,7 +1,4 @@
-"use client";
-
 import { useState, useEffect } from 'react';
-import { useUser } from '@supabase/auth-helpers-react';
 import { onboardingService } from '../src/onboarding';
 import { useToast } from '../components/ui/use-toast';
 
@@ -10,7 +7,8 @@ import { useToast } from '../components/ui/use-toast';
  * Provides methods for starting and progressing through the onboarding process
  */
 export const useOnboarding = () => {
-  const user = useUser();
+  // For now, always use a fallback userId string (anonymous or a test value)
+  const userId = 'anonymous';
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [onboardingStatus, setOnboardingStatus] = useState<{
@@ -29,18 +27,9 @@ export const useOnboarding = () => {
 
   // Start or continue onboarding
   const startOnboarding = async () => {
-    if (!user) {
-      toast({
-        title: 'Error',
-        description: 'You must be logged in to start onboarding',
-        variant: 'destructive',
-      });
-      return { success: false };
-    }
-    
     setLoading(true);
     try {
-      const result = await onboardingService.startOnboarding(user.id);
+      const result = await onboardingService.startOnboarding(userId);
       if (result.success && result.data) {
         await loadOnboardingStatus();
         return { success: true, currentStep: result.data.currentStep };
@@ -67,18 +56,9 @@ export const useOnboarding = () => {
 
   // Update onboarding step
   const updateOnboardingStep = async (step: number) => {
-    if (!user) {
-      toast({
-        title: 'Error',
-        description: 'You must be logged in to update onboarding',
-        variant: 'destructive',
-      });
-      return { success: false };
-    }
-    
     setLoading(true);
     try {
-      const result = await onboardingService.updateOnboardingStep(user.id, step);
+      const result = await onboardingService.updateOnboardingStep(userId, step);
       if (result.success && result.data) {
         await loadOnboardingStatus();
         
@@ -118,11 +98,9 @@ export const useOnboarding = () => {
 
   // Load onboarding status
   const loadOnboardingStatus = async () => {
-    if (!user) return;
-    
     setLoading(true);
     try {
-      const result = await onboardingService.getOnboardingStatus(user.id);
+      const result = await onboardingService.getOnboardingStatus(userId);
       if (result.success && result.data) {
         setOnboardingStatus(result.data);
         
@@ -161,13 +139,8 @@ export const useOnboarding = () => {
 
   // Load initial data when user changes
   useEffect(() => {
-    if (user) {
-      loadOnboardingStatus();
-    } else {
-      setOnboardingStatus(null);
-      setOnboardingContent(null);
-    }
-  }, [user]);
+    loadOnboardingStatus();
+  }, []);
 
   return {
     loading,

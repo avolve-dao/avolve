@@ -75,7 +75,10 @@ export function usePermissions() {
       setState({
         isLoading: false,
         permissions: permissions || [],
-        roles: roles || [],
+        roles: (roles || []).map((r: any) => ({
+          ...r,
+          name: r.name || '' // or map from another property if needed
+        })),
         error: null
       });
     } catch (error) {

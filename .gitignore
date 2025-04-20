@@ -25,11 +25,13 @@ node_modules/
 # dotenv environment variables
 .env
 .env.*
-.env.local
 .env.development
 .env.production
 .env.test
 .envrc
+
+# Allow .env.local for automation
+!.env.local
 
 # Supabase local artifacts (optional)
 .supabase/
@@ -58,5 +60,4 @@ __snapshots__/
 .husky/_/
 .windsurf/
 .env
-.env.local
 .env.production

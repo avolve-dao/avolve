@@ -6,7 +6,7 @@
  */
 
 import { useCallback } from 'react';
-import { useTokenService } from './token-service';
+import { useTokenService } from './use-token-service';
 import { useRBAC } from '../auth/use-rbac';
 
 export function useTokenRBAC() {

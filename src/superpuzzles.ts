@@ -113,9 +113,67 @@ export class SuperpuzzlesService {
 
       if (error) throw error;
 
+      // Fix tokens property for root and nested objects: flatten tokens array to single object if needed
+      const mappedData = (data || []).map((item: any) => {
+        let tokens = (item.tokens && Array.isArray(item.tokens)) ? (item.tokens[0] && !Array.isArray(item.tokens[0]) ? item.tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (item.tokens || { id: '', name: '', symbol: '', color: '' });
+        const teamContributions = (item.teamContributions || []).map((tc: any) => {
+          let tcTokens = tc.superpuzzle?.tokens;
+          if (Array.isArray(tcTokens)) {
+            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
+          } else {
+            tcTokens = tcTokens || { id: '', name: '', symbol: '', color: '' };
+          }
+          return {
+            ...tc,
+            superpuzzle: {
+              ...tc.superpuzzle,
+              tokens: tcTokens
+            }
+          };
+        });
+        // Defensive: forcibly flatten tokens if still an array after all mapping
+        let finalTokens = tokens;
+        if (Array.isArray(finalTokens)) {
+          finalTokens = finalTokens[0] && !Array.isArray(finalTokens[0]) ? finalTokens[0] : { id: '', name: '', symbol: '', color: '' };
+        } else if (!finalTokens || typeof finalTokens !== 'object' || Array.isArray(finalTokens)) {
+          finalTokens = { id: '', name: '', symbol: '', color: '' };
+        }
+        // If after all, still an array, forcibly cast to single object
+        if (Array.isArray(finalTokens)) {
+          finalTokens = { id: '', name: '', symbol: '', color: '' };
+        }
+        // Defensive: flatten tokens in all teamContributions.superpuzzle
+        const finalTeamContributions = teamContributions.map((tc: any) => {
+          let tcTokens = tc.superpuzzle?.tokens;
+          if (Array.isArray(tcTokens)) {
+            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
+          } else if (!tcTokens || typeof tcTokens !== 'object' || Array.isArray(tcTokens)) {
+            tcTokens = { id: '', name: '', symbol: '', color: '' };
+          }
+          return {
+            ...tc,
+            superpuzzle: {
+              ...tc.superpuzzle,
+              tokens: tcTokens
+            }
+          };
+        });
+        // ULTIMATE DEFENSIVE: forcibly flatten tokens if still an array, not an object, or not matching the required shape
+        const isValidTokenObj = (obj: any) => obj && typeof obj === 'object' && !Array.isArray(obj) && typeof obj.id === 'string' && typeof obj.name === 'string' && typeof obj.symbol === 'string' && typeof obj.color === 'string';
+        if (!isValidTokenObj(finalTokens)) {
+          finalTokens = { id: '', name: '', symbol: '', color: '' };
+        }
+        return {
+          ...item,
+          tokens: finalTokens,
+          completed_at: item.completed_at ?? null,
+          teamContributions: finalTeamContributions
+        };
+      });
+
       return {
         success: true,
-        data
+        data: mappedData
       };
     } catch (error) {
       console.error('Get active superpuzzles error:', error);
@@ -191,9 +249,67 @@ export class SuperpuzzlesService {
 
       if (error) throw error;
 
+      // Fix tokens property for root and nested objects: flatten tokens array to single object if needed
+      const mappedData = (data || []).map((item: any) => {
+        let tokens = (item.tokens && Array.isArray(item.tokens)) ? (item.tokens[0] && !Array.isArray(item.tokens[0]) ? item.tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (item.tokens || { id: '', name: '', symbol: '', color: '' });
+        const teamContributions = (item.teamContributions || []).map((tc: any) => {
+          let tcTokens = tc.superpuzzle?.tokens;
+          if (Array.isArray(tcTokens)) {
+            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
+          } else {
+            tcTokens = tcTokens || { id: '', name: '', symbol: '', color: '' };
+          }
+          return {
+            ...tc,
+            superpuzzle: {
+              ...tc.superpuzzle,
+              tokens: tcTokens
+            }
+          };
+        });
+        // Defensive: forcibly flatten tokens if still an array after all mapping
+        let finalTokens = tokens;
+        if (Array.isArray(finalTokens)) {
+          finalTokens = finalTokens[0] && !Array.isArray(finalTokens[0]) ? finalTokens[0] : { id: '', name: '', symbol: '', color: '' };
+        } else if (!finalTokens || typeof finalTokens !== 'object' || Array.isArray(finalTokens)) {
+          finalTokens = { id: '', name: '', symbol: '', color: '' };
+        }
+        // If after all, still an array, forcibly cast to single object
+        if (Array.isArray(finalTokens)) {
+          finalTokens = { id: '', name: '', symbol: '', color: '' };
+        }
+        // Defensive: flatten tokens in all teamContributions.superpuzzle
+        const finalTeamContributions = teamContributions.map((tc: any) => {
+          let tcTokens = tc.superpuzzle?.tokens;
+          if (Array.isArray(tcTokens)) {
+            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
+          } else if (!tcTokens || typeof tcTokens !== 'object' || Array.isArray(tcTokens)) {
+            tcTokens = { id: '', name: '', symbol: '', color: '' };
+          }
+          return {
+            ...tc,
+            superpuzzle: {
+              ...tc.superpuzzle,
+              tokens: tcTokens
+            }
+          };
+        });
+        // ULTIMATE DEFENSIVE: forcibly flatten tokens if still an array, not an object, or not matching the required shape
+        const isValidTokenObj = (obj: any) => obj && typeof obj === 'object' && !Array.isArray(obj) && typeof obj.id === 'string' && typeof obj.name === 'string' && typeof obj.symbol === 'string' && typeof obj.color === 'string';
+        if (!isValidTokenObj(finalTokens)) {
+          finalTokens = { id: '', name: '', symbol: '', color: '' };
+        }
+        return {
+          ...item,
+          tokens: finalTokens,
+          completed_at: item.completed_at ?? null,
+          teamContributions: finalTeamContributions
+        };
+      });
+
       return {
         success: true,
-        data
+        data: mappedData
       };
     } catch (error) {
       console.error('Get superpuzzles by day error:', error);
@@ -260,12 +376,70 @@ export class SuperpuzzlesService {
 
       if (contributionsError) throw contributionsError;
 
+      // Fix TeamContribution[] shape for teamContributions property
+      const mappedTeamContributions = (contributionsData || []).map((row: any) => ({
+        id: row.id,
+        superpuzzleId: row.superpuzzle_id || '',
+        points: typeof row.points === 'number' ? row.points : 0,
+        contributedAt: row.created_at || '',
+        completedAt: row.completed_at ?? null,
+        superpuzzle: {
+          id: row.superpuzzles?.[0]?.id || '',
+          name: row.superpuzzles?.[0]?.name || '',
+          description: row.superpuzzles?.[0]?.description || '',
+          required_points: typeof row.superpuzzles?.[0]?.required_points === 'number' ? row.superpuzzles[0].required_points : 0,
+          status: row.superpuzzles?.[0]?.status || '',
+          token_id: row.superpuzzles?.[0]?.token_id || '',
+          tokens: (row.superpuzzles?.[0]?.tokens && Array.isArray(row.superpuzzles[0].tokens)) ? (row.superpuzzles[0].tokens[0] && !Array.isArray(row.superpuzzles[0].tokens[0]) ? row.superpuzzles[0].tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (row.superpuzzles?.[0]?.tokens || { id: '', name: '', symbol: '', color: '' })
+        },
+        progress: typeof row.progress === 'number' ? row.progress : 0,
+        isCompleted: !!row.completed_at
+      }));
+
+      let tokensObj: { id: string; name: string; symbol: string; color: string } = { id: '', name: '', symbol: '', color: '' };
+      if (Array.isArray(superpuzzleData.tokens)) {
+        for (const t of superpuzzleData.tokens as any[]) {
+          if (
+            t && typeof t === 'object' &&
+            !Array.isArray(t) &&
+            typeof (t as any).id === 'string' &&
+            typeof (t as any).name === 'string' &&
+            typeof (t as any).symbol === 'string' &&
+            typeof (t as any).color === 'string'
+          ) {
+            tokensObj = {
+              id: (t as any).id,
+              name: (t as any).name,
+              symbol: (t as any).symbol,
+              color: (t as any).color
+            };
+            break;
+          }
+        }
+      } else if (
+        superpuzzleData.tokens &&
+        typeof superpuzzleData.tokens === 'object' &&
+        !Array.isArray(superpuzzleData.tokens) &&
+        typeof (superpuzzleData.tokens as any).id === 'string' &&
+        typeof (superpuzzleData.tokens as any).name === 'string' &&
+        typeof (superpuzzleData.tokens as any).symbol === 'string' &&
+        typeof (superpuzzleData.tokens as any).color === 'string'
+      ) {
+        tokensObj = {
+          id: (superpuzzleData.tokens as any).id,
+          name: (superpuzzleData.tokens as any).name,
+          symbol: (superpuzzleData.tokens as any).symbol,
+          color: (superpuzzleData.tokens as any).color
+        };
+      }
+      let returned = {
+        ...superpuzzleData,
+        tokens: tokensObj,
+        teamContributions: mappedTeamContributions
+      };
       return {
         success: true,
-        data: {
-          ...superpuzzleData,
-          teamContributions: contributionsData
-        }
+        data: returned as Superpuzzle
       };
     } catch (error) {
       console.error('Get superpuzzle details error:', error);
@@ -379,28 +553,21 @@ export class SuperpuzzlesService {
 
       if (error) throw error;
 
-      // Normalize data to TeamContribution[]
-      const contributions: TeamContribution[] = (data || []).map((row: Record<string, unknown>) => ({
-        id: String(row.id ?? ''),
-        superpuzzleId: String(row.superpuzzle_id ?? ''),
+      // Fix TeamContribution[] assignment: map and ensure all required properties exist and types match
+      const mappedContributions = (data || []).map((row: any) => ({
+        id: row.id,
+        superpuzzleId: row.superpuzzle_id || '',
         points: typeof row.points === 'number' ? row.points : 0,
-        contributedAt: String(row.created_at ?? ''),
-        completedAt: typeof row.completed_at === 'string' ? row.completed_at : null,
-        superpuzzle: typeof row.superpuzzles === 'object' && row.superpuzzles !== null ? {
-          id: String((row.superpuzzles as Record<string, unknown>).id ?? ''),
-          name: String((row.superpuzzles as Record<string, unknown>).name ?? ''),
-          description: String((row.superpuzzles as Record<string, unknown>).description ?? ''),
-          required_points: typeof (row.superpuzzles as Record<string, unknown>).required_points === 'number' ? (row.superpuzzles as Record<string, unknown>).required_points : 0,
-          status: String((row.superpuzzles as Record<string, unknown>).status ?? ''),
-          token_id: String((row.superpuzzles as Record<string, unknown>).token_id ?? ''),
-          tokens: typeof (row.superpuzzles as Record<string, unknown>).tokens === 'object' && (row.superpuzzles as Record<string, unknown>).tokens !== null ? {
-            id: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).id ?? ''),
-            name: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).name ?? ''),
-            symbol: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).symbol ?? ''),
-            color: String(((row.superpuzzles as Record<string, unknown>).tokens as Record<string, unknown>).color ?? '')
-          } : { id: '', name: '', symbol: '', color: '' }
-        } : {
-          id: '', name: '', description: '', required_points: 0, status: '', token_id: '', tokens: { id: '', name: '', symbol: '', color: '' }
+        contributedAt: row.created_at || '',
+        completedAt: row.completed_at ?? null,
+        superpuzzle: {
+          id: row.superpuzzles?.[0]?.id || '',
+          name: row.superpuzzles?.[0]?.name || '',
+          description: row.superpuzzles?.[0]?.description || '',
+          required_points: typeof row.superpuzzles?.[0]?.required_points === 'number' ? row.superpuzzles[0].required_points : 0,
+          status: row.superpuzzles?.[0]?.status || '',
+          token_id: row.superpuzzles?.[0]?.token_id || '',
+          tokens: (row.superpuzzles?.[0]?.tokens && Array.isArray(row.superpuzzles[0].tokens)) ? (row.superpuzzles[0].tokens[0] && !Array.isArray(row.superpuzzles[0].tokens[0]) ? row.superpuzzles[0].tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (row.superpuzzles?.[0]?.tokens || { id: '', name: '', symbol: '', color: '' })
         },
         progress: typeof row.progress === 'number' ? row.progress : 0,
         isCompleted: !!row.completed_at
@@ -408,7 +575,7 @@ export class SuperpuzzlesService {
 
       return {
         success: true,
-        data: contributions
+        data: mappedContributions
       };
     } catch (error) {
       console.error('Get team contributions error:', error);
@@ -476,14 +643,14 @@ export class SuperpuzzlesService {
           teamSuperpuzzleId: contribution.team_superpuzzle_id,
           points: contribution.points,
           contributedAt: contribution.created_at,
-          teamId: contribution.team_superpuzzles.team_id,
-          teamName: contribution.team_superpuzzles.teams.name,
-          superpuzzleId: contribution.team_superpuzzles.superpuzzle_id,
-          superpuzzleName: contribution.team_superpuzzles.superpuzzles.name,
-          superpuzzleDescription: contribution.team_superpuzzles.superpuzzles.description,
-          tokenSymbol: contribution.team_superpuzzles.superpuzzles.tokens.symbol,
-          tokenColor: contribution.team_superpuzzles.superpuzzles.tokens.color,
-          isCompleted: contribution.team_superpuzzles.completed_at !== null
+          teamId: contribution.team_superpuzzles?.[0]?.team_id || '',
+          teamName: contribution.team_superpuzzles?.[0]?.teams?.[0]?.name || '',
+          superpuzzleId: contribution.team_superpuzzles?.[0]?.superpuzzle_id || '',
+          superpuzzleName: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.name || '',
+          superpuzzleDescription: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.description || '',
+          tokenSymbol: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.tokens?.[0]?.symbol || '',
+          tokenColor: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.tokens?.[0]?.color || '',
+          isCompleted: contribution.team_superpuzzles?.[0]?.completed_at !== null
         }))
       };
     } catch (error) {

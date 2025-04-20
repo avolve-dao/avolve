@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
+import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useTokens } from '@/hooks/use-tokens';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+
+// For now, always use a fallback userId string (anonymous or a test value)
+const userId = 'anonymous';
 
 type Question = {
   id: string;
@@ -24,8 +31,6 @@ type Response = {
 };
 
 export default function AssessmentQuestionnaire() {
-  const supabase = useSupabaseClient<Database>();
-  const user = useUser();
   const { addTokens } = useTokens();
   
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -51,33 +56,31 @@ export default function AssessmentQuestionnaire() {
         setQuestions(data || []);
 
         // Check if user has existing responses
-        if (user) {
-          const { data: responseData, error: responseError } = await supabase
-            .from('integration_assessment_responses')
-            .select('question_id, response_value')
-            .eq('user_id', user.id);
+        const { data: responseData, error: responseError } = await supabase
+          .from('integration_assessment_responses')
+          .select('question_id, response_value')
+          .eq('user_id', userId);
 
-          if (responseError) throw responseError;
-          
-          const responseMap: Record<string, any> = {};
-          responseData?.forEach((response: Response) => {
-            responseMap[response.question_id] = response.response_value;
-          });
-          setResponses(responseMap);
+        if (responseError) throw responseError;
+        
+        const responseMap: Record<string, any> = {};
+        responseData?.forEach((response: Response) => {
+          responseMap[response.question_id] = response.response_value;
+        });
+        setResponses(responseMap);
 
-          // Check if assessment is already completed
-          const { data: profileData, error: profileError } = await supabase
-            .from('integration_profiles')
-            .select('*')
-            .eq('user_id', user.id)
-            .single();
+        // Check if assessment is already completed
+        const { data: profileData, error: profileError } = await supabase
+          .from('integration_profiles')
+          .select('*')
+          .eq('user_id', userId)
+          .single();
 
-          if (profileError && profileError.code !== 'PGRST116') throw profileError;
-          
-          if (profileData && profileData.assessment_completed) {
-            setCompleted(true);
-            setProfile(profileData);
-          }
+        if (profileError && profileError.code !== 'PGRST116') throw profileError;
+        
+        if (profileData && profileData.assessment_completed) {
+          setCompleted(true);
+          setProfile(profileData);
         }
       } catch (error) {
         console.error('Error fetching assessment data:', error);
@@ -87,17 +90,15 @@ export default function AssessmentQuestionnaire() {
     }
 
     fetchQuestions();
-  }, [supabase, user]);
+  }, [supabase, userId]);
 
   // Save response and update profile
   const saveResponse = async (questionId: string, value: any) => {
-    if (!user) return;
-    
     try {
       setSaving(true);
       
       const { data, error } = await supabase.rpc('save_assessment_response', {
-        p_user_id: user.id,
+        p_user_id: userId,
         p_question_id: questionId,
         p_response_value: { value }
       });
@@ -114,7 +115,7 @@ export default function AssessmentQuestionnaire() {
       const { data: profileData, error: profileError } = await supabase
         .from('integration_profiles')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .single();
 
       if (profileError) throw profileError;

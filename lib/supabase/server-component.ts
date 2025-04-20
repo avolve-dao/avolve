@@ -12,34 +12,34 @@ import { cache } from 'react'
  * 
  * IMPORTANT: This can only be used in Server Components!
  */
-export const createClient = cache(() => {
+export const createClient = cache(async () => {
   // This will only be used in server components
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name) {
-          const cookie = cookieStore.get(name)
+        async get(name) {
+          const cookie = await cookieStore.get(name)
           return cookie?.value
         },
-        set(name, value, options) {
+        async set(name, value, options) {
           try {
-            cookieStore.set(name, value, options)
+            await cookieStore.set(name, value, options)
           } catch (error) {
             // This might happen in middleware or other contexts
             console.error('Error setting cookie:', error)
           }
         },
-        remove(name, options) {
+        async remove(name, options) {
           try {
-            cookieStore.set(name, '', { ...options, maxAge: 0 })
+            await cookieStore.delete({ name, ...options });
           } catch (error) {
-            console.error('Error removing cookie:', error)
+            console.error('Error removing cookie:', error);
           }
-        }
+        },
       },
       auth: {
         detectSessionInUrl: true,

@@ -314,42 +314,34 @@ export class RoleService {
     try {
       const { data, error } = await this.client
         .from('role_permissions')
-        .select(`
-          permission_id,
-          permissions:permission_id (
-            id,
-            name,
-            resource,
-            action,
-            description
-          )
-        `)
+        .select('*, permissions:permission_id (*)')
         .eq('role_id', roleId);
-      
       if (error) {
         console.error('Get role permissions error:', error);
         return { data: null, error: convertError(error) };
       }
-      
       // Normalize permissions: handle both array and object cases
       const permissions: Permission[] = (data || [])
-        .map(item => {
+        .map((item: any) => {
           if (Array.isArray(item.permissions)) {
-            // If array, extract the first element or flatten if needed
-            return item.permissions[0] as Permission | undefined;
-          } else if (item.permissions && typeof item.permissions === 'object') {
+            // Defensive: ensure the array is not empty and element is valid
+            const perm = item.permissions[0];
+            if (perm && typeof perm === 'object' && 'id' in perm) {
+              return perm as Permission;
+            }
+            return undefined;
+          } else if (item.permissions && typeof item.permissions === 'object' && 'id' in item.permissions) {
             return item.permissions as Permission;
           }
           return undefined;
         })
-        .filter((p): p is Permission => p !== undefined);
-      
+        .filter(Boolean) as Permission[];
       return { data: permissions, error: null };
     } catch (error) {
       console.error('Unexpected get role permissions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting role permissions') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting role permissions')
       };
     }
   }

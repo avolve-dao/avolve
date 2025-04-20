@@ -238,8 +238,13 @@ export class MetricsService {
       const dauMauRatio = dau / mau;
       const retention = retentionData?.[0]?.value || 0;
       const arpu = arpuData?.[0]?.value || 0;
-      const nps = npsData?.[0]?.avg || 0;
-
+      // Defensive: extract nps value from nested avg array if present and ensure it's a number
+      let nps = 0;
+      if (Array.isArray(npsData) && npsData.length > 0) {
+        if ('avg' in npsData[0] && Array.isArray(npsData[0].avg) && typeof npsData[0].avg[0]?.value === 'number') {
+          nps = npsData[0].avg[0].value;
+        }
+      }
       return {
         success: true,
         data: {

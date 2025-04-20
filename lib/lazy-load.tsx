@@ -23,14 +23,14 @@ const DefaultError = ({ error }: { error: Error }) => {
 export function lazyLoad<T>(
   importFunc: () => Promise<{ default: ComponentType<T> }>,
   options: {
-    loading?: ComponentType;
+    loading?: () => ReactNode;
     error?: ComponentType<{ error: Error }>;
     ssr?: boolean;
     suspense?: boolean;
   } = {},
 ) {
   const {
-    loading = DefaultLoading,
+    loading = () => <div>Loading...</div>,
     error = DefaultError,
     ssr = false,
     suspense = false

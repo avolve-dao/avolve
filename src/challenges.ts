@@ -66,6 +66,7 @@ export class ChallengesService {
       console.error('Challenge completion error:', error);
       return {
         success: false,
+        data: { points: 0, tokenSymbol: '' as TokenSymbol, unlocked: false, totalPoints: 0 },
         error: error instanceof Error ? error.message : 'Unknown challenge completion error'
       };
     }
@@ -116,23 +117,24 @@ export class ChallengesService {
 
       return {
         success: true,
-        data: data.map((challenge) => ({
-          id: challenge.id,
-          name: challenge.name,
-          description: challenge.description,
-          token_id: challenge.token_id,
-          tokens: {
-            symbol: challenge.tokens.symbol,
-            name: challenge.tokens.name
-          },
-          points: challenge.points,
-          active: challenge.active
-        }))
+        data: (data || []).map((challenge) => {
+          const tokens = Array.isArray(challenge.tokens) ? (challenge.tokens[0] || { symbol: '', name: '' }) : (challenge.tokens || { symbol: '', name: '' });
+          return {
+            id: challenge.id,
+            name: challenge.name,
+            description: challenge.description,
+            token_id: challenge.token_id,
+            tokens,
+            points: challenge.points,
+            active: challenge.active
+          };
+        })
       };
     } catch (error) {
       console.error('Get challenges error:', error);
       return {
         success: false,
+        data: [],
         error: error instanceof Error ? error.message : 'Unknown error getting challenges'
       };
     }
@@ -171,26 +173,28 @@ export class ChallengesService {
 
       return {
         success: true,
-        data: data.map((completion) => ({
-          id: completion.id,
-          challenge_id: completion.challenge_id,
-          challenges: {
-            name: completion.challenges.name,
-            description: completion.challenges.description,
-            points: completion.challenges.points,
-            token_id: completion.challenges.token_id,
-            tokens: {
-              symbol: completion.challenges.tokens.symbol,
-              name: completion.challenges.tokens.name
-            }
-          },
-          completed_at: completion.completed_at
-        }))
+        data: (data || []).map((completion) => {
+          const ch = Array.isArray(completion.challenges) ? (completion.challenges[0] || {}) : (completion.challenges || {});
+          const chTokens = ch && 'tokens' in ch ? (Array.isArray(ch.tokens) ? (ch.tokens[0] || { symbol: '', name: '' }) : (ch.tokens || { symbol: '', name: '' })) : { symbol: '', name: '' };
+          return {
+            id: completion.id,
+            challenge_id: completion.challenge_id,
+            challenges: {
+              name: ch.name || '',
+              description: ch.description || '',
+              points: ch.points || 0,
+              token_id: ch.token_id || '',
+              tokens: chTokens
+            },
+            completed_at: completion.completed_at
+          };
+        })
       };
     } catch (error) {
       console.error('Get user completed challenges error:', error);
       return {
         success: false,
+        data: [],
         error: error instanceof Error ? error.message : 'Unknown error getting completed challenges'
       };
     }
@@ -223,22 +227,19 @@ export class ChallengesService {
 
       return {
         success: true,
-        data: data.map((progress) => ({
-          id: progress.id,
-          token_id: progress.token_id,
-          tokens: {
-            symbol: progress.tokens.symbol,
-            name: progress.tokens.name,
-            is_locked: progress.tokens.is_locked
-          },
-          points: progress.points,
-          level: progress.level
-        }))
+        data: (data || []).map((progress) => {
+          const tokens = Array.isArray(progress.tokens) ? (progress.tokens[0] || { symbol: '', name: '', is_locked: false }) : (progress.tokens || { symbol: '', name: '', is_locked: false });
+          return {
+            ...progress,
+            tokens
+          };
+        })
       };
     } catch (error) {
       console.error('Get user progress error:', error);
       return {
         success: false,
+        data: [],
         error: error instanceof Error ? error.message : 'Unknown error getting user progress'
       };
     }
@@ -262,17 +263,17 @@ export class ChallengesService {
       // Get the day of the week
       const dayOfWeek = new Date().toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
       
-      // Map day to token symbol
+      // Map day to token symbol using value enum
       let dayToken;
       switch (dayOfWeek) {
-        case 'SUN': dayToken = TokenSymbol.SPD; break;
-        case 'MON': dayToken = TokenSymbol.SHE; break;
-        case 'TUE': dayToken = TokenSymbol.PSP; break;
-        case 'WED': dayToken = TokenSymbol.SSA; break;
-        case 'THU': dayToken = TokenSymbol.BSP; break;
-        case 'FRI': dayToken = TokenSymbol.SGB; break;
-        case 'SAT': dayToken = TokenSymbol.SMS; break;
-        default: dayToken = TokenSymbol.SAP; // Fallback
+        case 'SUN': dayToken = TokenSymbolEnum.SPD; break;
+        case 'MON': dayToken = TokenSymbolEnum.SHE; break;
+        case 'TUE': dayToken = TokenSymbolEnum.PSP; break;
+        case 'WED': dayToken = TokenSymbolEnum.SSA; break;
+        case 'THU': dayToken = TokenSymbolEnum.BSP; break;
+        case 'FRI': dayToken = TokenSymbolEnum.SGB; break;
+        case 'SAT': dayToken = TokenSymbolEnum.SMS; break;
+        default: dayToken = TokenSymbolEnum.SAP; // Fallback
       }
 
       // Get token ID for the day's token
@@ -329,39 +330,57 @@ export class ChallengesService {
       return {
         success: true,
         data: {
-          challenges: challenges.map((challenge) => ({
-            id: challenge.id,
-            name: challenge.name,
-            description: challenge.description,
-            token_id: challenge.token_id,
-            tokens: {
-              symbol: challenge.tokens.symbol,
-              name: challenge.tokens.name
-            },
-            points: challenge.points,
-            active: challenge.active
-          })),
-          completedToday: completedToday.map((completion) => ({
-            id: completion.id,
-            challenge_id: completion.challenge_id,
-            challenges: {
-              name: completion.challenges.name,
-              description: completion.challenges.description,
-              points: completion.challenges.points,
-              token_id: completion.challenges.token_id
-            },
-            completed_at: completion.completed_at
-          }))
+          challenges: (challenges || []).map((challenge) => {
+            const tokens = Array.isArray(challenge.tokens) ? (challenge.tokens[0] || { symbol: '', name: '' }) : (challenge.tokens || { symbol: '', name: '' });
+            return {
+              id: challenge.id,
+              name: challenge.name,
+              description: challenge.description,
+              token_id: challenge.token_id,
+              tokens,
+              points: challenge.points,
+              active: challenge.active
+            };
+          }),
+          completedToday: (completedToday || []).map((completion) => {
+            const ch = Array.isArray(completion.challenges) ? (completion.challenges[0] || {}) : (completion.challenges || {});
+            const chTokens = ch && 'tokens' in ch ? (Array.isArray(ch.tokens) ? (ch.tokens[0] || { symbol: '', name: '' }) : (ch.tokens || { symbol: '', name: '' })) : { symbol: '', name: '' };
+            return {
+              id: completion.id,
+              challenge_id: completion.challenge_id,
+              challenges: {
+                name: ch.name || '',
+                description: ch.description || '',
+                points: ch.points || 0,
+                token_id: ch.token_id || '',
+                tokens: chTokens
+              },
+              completed_at: completion.completed_at
+            };
+          })
         }
       };
     } catch (error) {
       console.error('Get today\'s challenges error:', error);
       return {
         success: false,
+        data: { challenges: [], completedToday: [] },
         error: error instanceof Error ? error.message : 'Unknown error getting today\'s challenges'
       };
     }
   }
+}
+
+// If TokenSymbol is only a type, define a value enum here for runtime use
+export enum TokenSymbolEnum {
+  SPD = 'SPD',
+  SHE = 'SHE',
+  PSP = 'PSP',
+  SSA = 'SSA',
+  BSP = 'BSP',
+  SGB = 'SGB',
+  SMS = 'SMS',
+  SAP = 'SAP',
 }
 
 interface Challenge {

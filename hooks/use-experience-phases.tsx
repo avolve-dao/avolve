@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { useSupabase } from '@/components/supabase/provider';
+import { createBrowserClient } from '@supabase/ssr';
+import { useUser } from './use-user';
 import { useToast } from '@/components/ui/use-toast';
 import { useRouter } from 'next/navigation';
 
@@ -84,7 +85,11 @@ export const pillarNames = {
 };
 
 export const useExperiencePhases = () => {
-  const { supabase, session } = useSupabase();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { user } = useUser();
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -100,7 +105,7 @@ export const useExperiencePhases = () => {
 
   // Function to fetch user progress
   const fetchUserProgress = useCallback(async () => {
-    if (!session?.user) return;
+    if (!user) return;
 
     try {
       setIsLoading(true);
@@ -162,11 +167,11 @@ export const useExperiencePhases = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [session?.user, supabase]);
+  }, [user, supabase]);
 
   // Function to complete a milestone
   const completeMilestone = useCallback(async (milestoneId: string) => {
-    if (!session?.user) {
+    if (!user) {
       toast({
         title: 'Authentication required',
         description: 'Please sign in to track your progress',
@@ -220,17 +225,17 @@ export const useExperiencePhases = () => {
       });
       return false;
     }
-  }, [session?.user, supabase, toast, fetchUserProgress]);
+  }, [user, supabase, toast, fetchUserProgress]);
 
   // Function to update milestone progress
   const updateMilestoneProgress = useCallback(async (milestoneId: string, progress: number) => {
-    if (!session?.user || progress < 0 || progress > 100) return false;
+    if (!user || progress < 0 || progress > 100) return false;
 
     try {
       const { data, error } = await supabase
         .from('user_milestone_progress')
         .upsert({
-          user_id: session.user.id,
+          user_id: user.id,
           milestone_id: milestoneId,
           progress,
           is_completed: progress >= 100,
@@ -255,7 +260,7 @@ export const useExperiencePhases = () => {
       console.error('Error updating milestone progress:', err);
       return false;
     }
-  }, [session?.user, supabase, completeMilestone, fetchUserProgress]);
+  }, [user, supabase, completeMilestone, fetchUserProgress]);
 
   // Function to get current phase for a specific pillar
   const getCurrentPhase = useCallback((pillar: Pillar): ExperiencePhase => {
@@ -325,7 +330,7 @@ export const useExperiencePhases = () => {
 
   // Subscribe to phase transitions
   useEffect(() => {
-    if (!session?.user || !supabase) return;
+    if (!user || !supabase) return;
 
     const channel = supabase
       .channel('phase-transitions')
@@ -335,7 +340,7 @@ export const useExperiencePhases = () => {
           event: 'INSERT',
           schema: 'public',
           table: 'user_phase_transitions',
-          filter: `user_id=eq.${session.user.id}`
+          filter: `user_id=eq.${user.id}`
         },
         (payload) => {
           // When a new phase transition occurs, refresh user progress
@@ -354,16 +359,16 @@ export const useExperiencePhases = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [session?.user, supabase, fetchUserProgress]);
+  }, [user, supabase, fetchUserProgress]);
 
   // Initial data fetch
   useEffect(() => {
-    if (session?.user) {
+    if (user) {
       fetchUserProgress();
     } else {
       setIsLoading(false);
     }
-  }, [session?.user, fetchUserProgress]);
+  }, [user, fetchUserProgress]);
 
   return {
     isLoading,

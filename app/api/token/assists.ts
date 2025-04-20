@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TokenService } from '@/lib/token/token-service';
-import { createSupabaseServerClient } from '@/lib/supabase/server-client';
+import { createClient } from '@/lib/supabase/client';
 
 export async function POST(req: NextRequest) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createClient();
   const service = new TokenService(supabase);
   const { helperId, recipientId, description } = await req.json();
   const result = await service.logAssist(helperId, recipientId, description);
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = createSupabaseServerClient();
+  const supabase = createClient();
   const service = new TokenService(supabase);
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');

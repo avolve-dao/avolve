@@ -447,10 +447,10 @@ export class PermissionService {
         return { data: null, error: convertError(error) };
       }
       
-      // Extract permissions from the nested structure
-      const permissions = data.map(item => item.permissions);
+      // Fix: Flatten permissions array if nested (any[][] to Permission[])
+      const flatPermissions = Array.isArray(data[0].permissions) ? data.map(item => item.permissions).flat() : data.map(item => item.permissions);
       
-      return { data: permissions, error: null };
+      return { data: flatPermissions, error: null };
     } catch (error) {
       console.error('Unexpected get permissions in group error:', error);
       return { 
@@ -686,10 +686,10 @@ export class PermissionService {
         return { data: null, error: convertError(error) };
       }
       
-      // Extract permissions from the nested structure
-      const permissions = data.map(item => item.permissions);
+      // Fix: Flatten permissions array if nested (any[][] to Permission[])
+      const flatPermissions = Array.isArray(data[0].permissions) ? data.map(item => item.permissions).flat() : data.map(item => item.permissions);
       
-      return { data: permissions, error: null };
+      return { data: flatPermissions, error: null };
     } catch (error) {
       console.error('Unexpected get role permissions error:', error);
       return { 

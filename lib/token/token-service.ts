@@ -15,6 +15,7 @@
  */
 
 import { SupabaseClient } from '@supabase/supabase-js'
+import { TokenRepository } from './token-repository';
 
 interface TokenClaimOptions {
   userId: string
@@ -45,9 +46,10 @@ interface TokenResult<T> {
  * including claiming, transferring, and querying token data.
  */
 export class TokenService {
-  private repository: any; // Assuming this is defined elsewhere
+  private repository: TokenRepository; // Assuming this is defined elsewhere
 
   constructor(private supabase: SupabaseClient) {
+    this.repository = new TokenRepository(supabase);
     // Initialize logger if needed
   }
 
@@ -788,10 +790,10 @@ export class TokenService {
   public async contributeToMilestone(milestoneId: string, userId: string, amount: number) {
     // 1. Add contribution
     const contributionResult = await this.repository.contributeToMilestone(milestoneId, userId, amount);
-    if (!contributionResult.success) return contributionResult;
+    if (!contributionResult || contributionResult.error) return contributionResult;
     // 2. Update milestone progress
     const milestoneResult = await this.repository.getCommunityMilestoneById(milestoneId);
-    if (!milestoneResult.success || !milestoneResult.data) return contributionResult;
+    if (!milestoneResult || milestoneResult.error || !milestoneResult.data) return contributionResult;
     const newCurrent = (milestoneResult.data.current || 0) + amount;
     await this.repository.updateCommunityMilestone(milestoneId, { current: newCurrent });
     return contributionResult;
@@ -826,16 +828,13 @@ export class TokenService {
   }
 }
 
-import { useState } from 'react';
-import { useSupabase } from '../supabase/use-supabase';
-
-/**
- * useTokenService hook
- * 
- * Provides a TokenService instance with the current Supabase client
- */
-export function useTokenService(): TokenService {
-  const { supabase } = useSupabase();
-  const [tokenService] = useState(() => new TokenService(supabase));
-  return tokenService;
-}
+// --- CLIENT HOOKS (must be in a separate file for Next.js App Router) ---
+// Move the following code to a new file: lib/token/use-token-service.ts
+// import { useState } from 'react';
+// import { useSupabase } from '../supabase/use-supabase';
+//
+// export function useTokenService(): TokenService {
+//   const { supabase } = useSupabase();
+//   const [tokenService] = useState(() => new TokenService(supabase));
+//   return tokenService;
+// }

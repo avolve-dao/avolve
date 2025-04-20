@@ -23,8 +23,6 @@ export const TeamsList: React.FC<TeamsListProps> = ({
   const { 
     loading, 
     userTeams, 
-    allTeams, 
-    loadAllTeams, 
     loadUserTeams,
     eligibility
   } = useTeams();
@@ -32,20 +30,28 @@ export const TeamsList: React.FC<TeamsListProps> = ({
   useEffect(() => {
     if (userTeamsOnly) {
       loadUserTeams();
-    } else {
-      loadAllTeams();
     }
-  }, [userTeamsOnly, loadAllTeams, loadUserTeams]);
+  }, [userTeamsOnly, loadUserTeams]);
 
   const handleCreateTeam = () => {
     router.push('/teams/create');
   };
 
+  // Fix for property 'team' does not exist on type 'UserTeam'. Adjust as per actual UserTeam shape.
   const teamsToDisplay = userTeamsOnly 
-    ? userTeams.map(membership => membership.team)
-    : allTeams;
+    ? userTeams.map(membership => {
+        if (typeof membership === 'object' && membership !== null && 'team' in membership) {
+          return (membership as { team: unknown }).team;
+        }
+        return null;
+      }).filter(Boolean)
+    : [];
 
-  if (loading && teamsToDisplay.length === 0) {
+  if (!userTeamsOnly && eligibility && typeof eligibility.isEligible !== 'boolean') {
+    return null;
+  }
+
+  if (loading && (!teamsToDisplay || teamsToDisplay.length === 0)) {
     return (
       <div className="space-y-4">
         {[1, 2, 3].map((i) => (
@@ -70,7 +76,7 @@ export const TeamsList: React.FC<TeamsListProps> = ({
           <h2 className="text-2xl font-bold">Teams</h2>
           <Button 
             onClick={handleCreateTeam}
-            disabled={loading || (eligibility && !eligibility.isEligible)}
+            disabled={loading || (eligibility ? !eligibility.isEligible : false)}
             className="bg-gradient-to-r from-slate-700 to-slate-900 text-white"
           >
             <PlusIcon className="mr-2 h-4 w-4" />
@@ -100,13 +106,26 @@ export const TeamsList: React.FC<TeamsListProps> = ({
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {teamsToDisplay.map((team) => (
-            <TeamCard 
-              key={team.id} 
-              team={team} 
-              showJoinButton={showJoinButtons && !userTeamsOnly}
-            />
-          ))}
+          {teamsToDisplay.map((team, idx) => {
+            if (
+              typeof team === 'object' &&
+              team !== null &&
+              'id' in team &&
+              'name' in team &&
+              'leader_id' in team &&
+              'created_at' in team &&
+              'memberCount' in team
+            ) {
+              return (
+                <TeamCard
+                  key={(team as { id: string }).id}
+                  team={team as { id: string; name: string; description?: string; leader_id: string; created_at: string; memberCount: number }}
+                  showJoinButton={!!showJoinButtons && !userTeamsOnly}
+                />
+              );
+            }
+            return null;
+          })}
         </div>
       )}
     </div>

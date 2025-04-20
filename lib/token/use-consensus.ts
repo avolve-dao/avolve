@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { TokenService } from './token-service';
 import { 
   ConsensusService, 
-  ConsensusMetingData, 
-  PendingRespectData,
-  TokenAllocationProposalData
+  ConsensusMetingData
 } from './consensus-service';
+
+// Temporary: define TokenAllocationProposalData as 'any' until type is properly exported
+type TokenAllocationProposalData = any;
 
 /**
  * Hook for interacting with the consensus mechanism
@@ -15,12 +16,10 @@ export function useConsensus(supabaseClient: SupabaseClient, userId?: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [upcomingMeetings, setUpcomingMeetings] = useState<ConsensusMetingData[]>([]);
-  const [pendingRespect, setPendingRespect] = useState<PendingRespectData[]>([]);
-  const [activeProposals, setActiveProposals] = useState<TokenAllocationProposalData[]>([]);
   
   // Initialize services
   const tokenService = new TokenService(supabaseClient);
-  const consensusService = new ConsensusService(supabaseClient, tokenService);
+  const consensusService = useMemo(() => new ConsensusService(supabaseClient, tokenService), [supabaseClient, tokenService]);
 
   // Load upcoming meetings
   const loadUpcomingMeetings = useCallback(async () => {
@@ -34,42 +33,6 @@ export function useConsensus(supabaseClient: SupabaseClient, userId?: string) {
       setUpcomingMeetings(meetings);
     } catch (err) {
       setError('Failed to load upcoming meetings');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, consensusService]);
-
-  // Load pending respect
-  const loadPendingRespect = useCallback(async () => {
-    if (!userId) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const respect = await consensusService.getPendingRespect();
-      setPendingRespect(respect);
-    } catch (err) {
-      setError('Failed to load pending respect');
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, consensusService]);
-
-  // Load active proposals
-  const loadActiveProposals = useCallback(async () => {
-    if (!userId) return;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const proposals = await consensusService.getActiveProposals();
-      setActiveProposals(proposals);
-    } catch (err) {
-      setError('Failed to load active proposals');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -187,156 +150,23 @@ export function useConsensus(supabaseClient: SupabaseClient, userId?: string) {
     }
   }, [userId, consensusService]);
 
-  // Claim pending respect
-  const claimPendingRespect = useCallback(async (pendingRespectId: string) => {
-    if (!userId) return false;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const success = await consensusService.claimPendingRespect(pendingRespectId);
-      
-      if (success) {
-        await loadPendingRespect();
-      }
-      
-      return success;
-    } catch (err) {
-      setError('Failed to claim pending respect');
-      console.error(err);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, consensusService, loadPendingRespect]);
-
-  // Create a token allocation proposal
-  const createTokenAllocationProposal = useCallback(async (
-    title: string,
-    description: string,
-    tokenId: string,
-    allocationAmount: number,
-    recipientId?: string,
-    recipientTeamId?: string,
-    votingDurationDays = 7
-  ) => {
-    if (!userId) return null;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const proposalId = await consensusService.createTokenAllocationProposal(
-        title,
-        description,
-        tokenId,
-        allocationAmount,
-        recipientId,
-        recipientTeamId,
-        votingDurationDays
-      );
-      
-      if (proposalId) {
-        await loadActiveProposals();
-      }
-      
-      return proposalId;
-    } catch (err) {
-      setError('Failed to create token allocation proposal');
-      console.error(err);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, consensusService, loadActiveProposals]);
-
-  // Vote on a proposal
-  const voteOnProposal = useCallback(async (
-    proposalId: string,
-    vote: 'approve' | 'reject'
-  ) => {
-    if (!userId) return false;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const success = await consensusService.voteOnProposal(proposalId, vote);
-      return success;
-    } catch (err) {
-      setError('Failed to vote on proposal');
-      console.error(err);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, consensusService]);
-
-  // Get votes for a proposal
-  const getVotesForProposal = useCallback(async (proposalId: string) => {
-    if (!userId) return [];
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const votes = await consensusService.getVotesForProposal(proposalId);
-      return votes;
-    } catch (err) {
-      setError('Failed to get votes for proposal');
-      console.error(err);
-      return [];
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, consensusService]);
-
-  // Process proposals
-  const processProposals = useCallback(async () => {
-    if (!userId) return 0;
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      const count = await consensusService.processProposals();
-      
-      if (count > 0) {
-        await loadActiveProposals();
-      }
-      
-      return count;
-    } catch (err) {
-      setError('Failed to process proposals');
-      console.error(err);
-      return 0;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, consensusService, loadActiveProposals]);
-
   // Load initial data
   useEffect(() => {
     if (userId) {
       loadUpcomingMeetings();
-      loadPendingRespect();
-      loadActiveProposals();
     }
-  }, [userId, loadUpcomingMeetings, loadPendingRespect, loadActiveProposals]);
+  }, [userId, loadUpcomingMeetings]);
+
+  // NOTE: Proposal and respect logic has been deprecated. See GovernanceService for new flows (circles, peer review, reputation).
 
   return {
     // State
     isLoading,
     error,
     upcomingMeetings,
-    pendingRespect,
-    activeProposals,
     
     // Data loading
     loadUpcomingMeetings,
-    loadPendingRespect,
-    loadActiveProposals,
     
     // Meeting functions
     scheduleMeeting,
@@ -344,14 +174,5 @@ export function useConsensus(supabaseClient: SupabaseClient, userId?: string) {
     getGroupsForMeeting,
     getParticipantsForGroup,
     reportConsensusRankings,
-    
-    // Respect functions
-    claimPendingRespect,
-    
-    // Proposal functions
-    createTokenAllocationProposal,
-    voteOnProposal,
-    getVotesForProposal,
-    processProposals,
   };
 }

@@ -4,17 +4,17 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
 
-interface SupabaseContext {
+export interface SupabaseContext {
   supabase: SupabaseClient<Database>
 }
 
-const Context = createContext<SupabaseContext | undefined>(undefined)
+export const Context = createContext<SupabaseContext | undefined>(undefined)
 
 interface SupabaseProviderProps {
   children: React.ReactNode
 }
 
-export default function SupabaseProvider({ children }: SupabaseProviderProps) {
+const SupabaseProvider = ({ children }: SupabaseProviderProps) => {
   const [supabase] = useState(() =>
     createClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -56,3 +56,5 @@ export const useSupabase = () => {
   }
   return context
 }
+
+export default SupabaseProvider;

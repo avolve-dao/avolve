@@ -32,6 +32,11 @@ function calculateStreakBonus(streak: number): number {
   }
 }
 
+// Helper for floating point comparison
+function expectFloatEqual(received: number, expected: number) {
+  expect(Math.abs(received - expected)).toBeLessThan(1e-9);
+}
+
 describe('calculateStreakBonus', () => {
   // Test cases for invalid inputs
   it('should return 1.0 for negative streaks', () => {
@@ -74,12 +79,12 @@ describe('calculateStreakBonus', () => {
   });
   
   it('should return 2.2 for a streak of 12 days', () => {
-    expect(calculateStreakBonus(12)).toBe(2.2);
+    expectFloatEqual(calculateStreakBonus(12), 2.2);
   });
   
   it('should return 2.2 for streaks of 13-14 days', () => {
-    expect(calculateStreakBonus(13)).toBe(2.2);
-    expect(calculateStreakBonus(14)).toBe(2.2);
+    expectFloatEqual(calculateStreakBonus(13), 2.2);
+    expectFloatEqual(calculateStreakBonus(14), 2.2);
   });
   
   it('should return 2.5 for a streak of 15 days', () => {

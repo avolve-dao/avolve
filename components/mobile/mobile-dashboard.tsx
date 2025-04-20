@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { useSupabase, hasUser } from '@/lib/supabase/use-supabase';
 import { 
   Award, 
   Coins, 
@@ -40,17 +40,20 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
     superpuzzles: []
   });
   const [activeTab, setActiveTab] = useState('overview');
-  const supabase = createClientComponentClient();
+  const supabaseHook = useSupabase();
+  const { supabase, user } = supabaseHook;
 
   // Fetch user data
   useEffect(() => {
     async function fetchUserData() {
       try {
+        if (!hasUser(supabaseHook)) return;
+
         // Fetch user profile
         const { data: profile } = await supabase
           .from('user_profiles')
           .select('*')
-          .eq('user_id', userId)
+          .eq('user_id', supabaseHook.user!.id)
           .single();
         
         if (profile) {
@@ -61,7 +64,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
         const { data: tokens } = await supabase
           .from('user_tokens')
           .select('token_type, amount')
-          .eq('user_id', userId);
+          .eq('user_id', supabaseHook.user!.id);
         
         if (tokens) {
           setUserTokens(tokens);
@@ -71,14 +74,14 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
         const { data: components } = await supabase
           .from('component_progress')
           .select('status')
-          .eq('user_id', userId);
+          .eq('user_id', supabaseHook.user!.id);
         
         if (components) {
           const completedCount = components.filter(c => c.status === 'completed').length;
           const totalCount = components.length;
           const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
           
-          setUserProgress(prev => ({
+          setUserProgress((prev: typeof userProgress) => ({
             ...prev,
             journeyProgress: progress
           }));
@@ -88,9 +91,9 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
         const { count: achievementsCount } = await supabase
           .from('user_achievements')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId);
+          .eq('user_id', supabaseHook.user!.id);
         
-        setUserProgress(prev => ({
+        setUserProgress((prev: typeof userProgress) => ({
           ...prev,
           achievementsCount: achievementsCount || 0
         }));
@@ -104,7 +107,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           .limit(1);
         
         if (events && events.length > 0) {
-          setUserProgress(prev => ({
+          setUserProgress((prev: typeof userProgress) => ({
             ...prev,
             nextEvent: events[0]
           }));
@@ -114,10 +117,10 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
         const { count: invitesCount } = await supabase
           .from('team_invitations')
           .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
+          .eq('user_id', supabaseHook.user!.id)
           .eq('status', 'pending');
         
-        setUserProgress(prev => ({
+        setUserProgress((prev: typeof userProgress) => ({
           ...prev,
           teamInvites: invitesCount || 0
         }));
@@ -135,13 +138,13 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
             status,
             completion_percentage
           `)
-          .eq('user_id', userId)
+          .eq('user_id', supabaseHook.user!.id)
           .in('status', ['started', 'in_progress'])
           .order('updated_at', { ascending: false })
           .limit(3);
         
         if (superpuzzles) {
-          setUserProgress(prev => ({
+          setUserProgress((prev: typeof userProgress) => ({
             ...prev,
             superpuzzles: superpuzzles
           }));
@@ -152,7 +155,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
     }
 
     fetchUserData();
-  }, [userId, supabase]);
+  }, [supabase, supabaseHook]);
 
   // Get token amount by type
   const getTokenAmount = (type: string) => {
@@ -284,7 +287,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-bold">Your Tokens</h2>
-                <ContextualTooltip type="utility_tokens" userId={userId}>
+                <ContextualTooltip type="gen_token">
                   <span className="text-sm text-blue-500 underline">About Tokens</span>
                 </ContextualTooltip>
               </div>
@@ -425,7 +428,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-bold">Superpuzzles</h2>
-                <ContextualTooltip type="superpuzzles" userId={userId}>
+                <ContextualTooltip type="superpuzzles">
                   <span className="text-sm text-blue-500 underline">What are these?</span>
                 </ContextualTooltip>
               </div>

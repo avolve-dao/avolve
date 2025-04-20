@@ -124,11 +124,9 @@ export function SacredGrid({
           : {};
         
         return React.cloneElement(child, {
-          ...child.props,
-          style: {
-            ...child.props.style,
-            ...childStyle,
-          },
+          ...(typeof child.props === 'object' && child.props !== null ? (child.props as React.HTMLAttributes<HTMLElement>) : {}),
+          // Only add style if supported by the element
+          ...(typeof child.props === 'object' && child.props && 'style' in child.props && typeof child.props.style === 'object' && child.props.style !== null ? { style: { ...child.props.style, ...childStyle } } : { style: childStyle }),
         });
       })}
     </div>

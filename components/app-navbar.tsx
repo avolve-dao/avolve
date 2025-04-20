@@ -1,8 +1,5 @@
 "use client"
-import { Bell, Home, PanelLeft, MessageSquare, Search, Command } from "lucide-react"
-import { usePathname } from "next/navigation"
-import { useState, useEffect } from "react"
-import type { User } from "@supabase/supabase-js"
+import { Bell, Home, PanelLeft, MessageSquare, Search } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -17,46 +14,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { useSidebar } from "@/components/ui/sidebar"
+import type { User } from '@supabase/supabase-js';
+
+// Removed unused User type import
 
 interface AppNavbarProps {
   user: User;
 }
 
-// Helper function to get gradient class based on pathname
-const getGradientClass = (pathname: string) => {
-  if (pathname.includes('/super/personal')) return 'from-amber-500 to-yellow-500';
-  if (pathname.includes('/super/business')) return 'from-teal-500 to-cyan-500';
-  if (pathname.includes('/super/mind')) return 'from-violet-500 via-purple-500 to-fuchsia-500';
-  if (pathname.includes('/super/human')) return 'from-rose-500 via-red-500 to-orange-500';
-  if (pathname.includes('/super/society')) return 'from-lime-500 via-green-500 to-emerald-500';
-  if (pathname.includes('/super/genius')) return 'from-sky-500 via-blue-500 to-indigo-500';
-  return 'from-blue-500 to-blue-700'; // Default for dashboard
-};
-
-// Helper function to get section title based on pathname
-const getSectionTitle = (pathname: string) => {
-  if (pathname.includes('/super/personal')) return 'Personal Growth';
-  if (pathname.includes('/super/business')) return 'Business';
-  if (pathname.includes('/super/mind')) return 'Mind';
-  if (pathname.includes('/super/puzzle')) return 'Puzzle';
-  if (pathname.includes('/super/human')) return 'Human';
-  if (pathname.includes('/super/society')) return 'Society';
-  if (pathname.includes('/super/genius')) return 'Genius';
-  if (pathname.includes('/super/civilization')) return 'Civilization';
-  return 'Dashboard'; // Default
-};
-
 export function AppNavbar({ user }: AppNavbarProps) {
   const { toggleSidebar } = useSidebar()
-  const pathname = usePathname()
-  const [gradientClass, setGradientClass] = useState(getGradientClass(pathname || ''))
-  const [sectionTitle, setSectionTitle] = useState(getSectionTitle(pathname || ''))
-
-  // Update gradient class and section title when pathname changes
-  useEffect(() => {
-    setGradientClass(getGradientClass(pathname || ''))
-    setSectionTitle(getSectionTitle(pathname || ''))
-  }, [pathname])
 
   return (
     <div className="sticky top-0 z-30 flex h-14 items-center justify-between w-full apple-blur px-4 border-b border-zinc-200/50 dark:border-zinc-700/50">

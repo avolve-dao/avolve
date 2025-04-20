@@ -46,7 +46,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   // Handle next step
   const handleNext = async () => {
     const result = await goToNextStep();
-    if (result.success && result.isCompleted) {
+    if (result.success && 'isCompleted' in result && result.isCompleted) {
       // Close modal when onboarding is completed
       onOpenChange(false);
     }

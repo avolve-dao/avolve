@@ -86,7 +86,7 @@ export interface Token {
   /** Optional description of the token's purpose and usage */
   description?: string;
   /** Additional metadata for the token */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** Whether the token can be transferred between users */
   is_transferable?: boolean;
   /** Whether the token is currently active */
@@ -129,7 +129,7 @@ export interface TokenType {
   /** Whether this is a system-defined token type */
   is_system?: boolean;
   /** Additional metadata for the token type */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** When the token type was created */
   created_at?: string;
   /** When the token type was last updated */
@@ -156,7 +156,7 @@ export interface TokenOwnership {
   /** When the ownership record was last updated */
   updated_at?: string;
   /** Additional metadata for the ownership */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** The token being owned (for joined queries) */
   tokens?: Token;
 }
@@ -200,7 +200,7 @@ export interface TokenTransaction {
   /** Optional reason for the transaction */
   reason?: string;
   /** Additional metadata for the transaction */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** When the transaction was created */
   created_at?: string;
   /** The token involved in the transaction (for joined queries) */
@@ -235,7 +235,7 @@ export interface TokenBalance {
   /** When the balance was last updated */
   last_updated: string;
   /** Additional metadata for the balance */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** The token type being owned (for joined queries) */
   token_type?: TokenType;
 }
@@ -274,7 +274,7 @@ export interface ConsensusMeeting {
   /** When the meeting record was last updated */
   updated_at?: string;
   /** Additional metadata for the meeting */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** The user who created the meeting (for joined queries) */
   creator?: {
     id: string;
@@ -303,7 +303,7 @@ export interface ConsensusGroup {
   /** When the group was last updated */
   updated_at?: string;
   /** Additional metadata for the group */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** The user who created the group (for joined queries) */
   created_by_user?: {
     id: string;
@@ -334,7 +334,7 @@ export interface ConsensusParticipant {
   /** When the participant record was last updated */
   updated_at?: string;
   /** Additional metadata for the participant */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   /** The user who is participating (for joined queries) */
   user?: {
     id: string;

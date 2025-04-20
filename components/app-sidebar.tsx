@@ -1,26 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import {
-  BookOpen,
-  Home,
-  BarChart,
-  Briefcase,
-  Users,
-  DollarSign,
-  TrendingUp,
-  Zap,
-  Lightbulb,
-  GraduationCap,
-  Wind,
-  Settings,
-  HelpCircle,
-  Target,
-  Calendar
-} from "lucide-react"
-
 import { NavMain } from "./nav-main"
-import { NavProjects } from "./nav-projects"
 import { NavUser } from "./nav-user"
 import { NavSwitcher } from "./nav-switcher"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
@@ -28,18 +9,6 @@ import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { TokenSidebarDisplay } from "@/components/token/token-sidebar-display"; // Import the TokenSidebarDisplay component
 import { cn } from "@/lib/utils"; // Import the cn function
-
-// Define the NavItem interface to match the one in nav-main.tsx
-interface NavItem {
-  id: string;
-  title: string;
-  label: string;
-  href: string;
-  items?: NavItem[];
-  category?: string;
-  gradientClass?: string;
-  isDashboard?: boolean;
-}
 
 // Avolve platform structure data
 const avolveData = {

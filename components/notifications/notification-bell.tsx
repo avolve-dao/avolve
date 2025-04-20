@@ -54,7 +54,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         
         if (data) {
           setNotifications(data)
-          setUnreadCount(data.filter(n => !n.is_read).length)
+          setUnreadCount(data.filter((n: { is_read: boolean }) => !n.is_read).length)
         }
       } catch (error) {
         console.error("Error loading notifications:", error)
@@ -79,8 +79,10 @@ export function NotificationBell({ userId }: NotificationBellProps) {
           event: 'INSERT',
           schema: 'public',
           table: 'user_feedback',
+          filter: 'user_id=eq.$1',
+          params: [userId],
         },
-        (payload) => {
+        (payload: any) => {
           // Only notify admins or the user who submitted the feedback
           if (payload.new && (payload.new.user_id === userId)) {
             const newNotification: Notification = {
@@ -110,7 +112,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
           table: 'events',
           filter: 'is_completed=eq.true',
         },
-        (payload) => {
+        (payload: any) => {
           if (payload.new) {
             const newNotification: Notification = {
               id: crypto.randomUUID(),

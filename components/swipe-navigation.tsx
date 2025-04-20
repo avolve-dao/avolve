@@ -58,6 +58,7 @@ export function SwipeNavigation({
   
   // Find the current route index
   const currentRouteIndex = React.useMemo(() => {
+    if (!pathname) return -1;
     return routes.findIndex(route => pathname.startsWith(route.path))
   }, [pathname, routes])
 

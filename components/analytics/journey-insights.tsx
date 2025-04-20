@@ -12,6 +12,29 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
+interface JourneyData {
+  name: string;
+  immersion: number;
+  users: number;
+  activities: number;
+  tesla369: number;
+}
+
+interface FocusAreaData {
+  name: string;
+  value: number;
+}
+
+interface JourneyAnalytics {
+  token_type: string;
+  total_immersion: number;
+  unique_users: number;
+  total_activities: number;
+  journey_completion_rate: number;
+  popular_focus_areas: FocusAreaData[];
+  last_refreshed: string;
+}
+
 export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyType?: string; tokenType?: string }) {
   const {
     isLoading,
@@ -32,10 +55,11 @@ export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyTyp
     fetchTesla369Streak()
 
     // Subscribe to real-time updates
-    const subscription = subscribeToEventUpdates((payload) => {
+    const subscription = subscribeToEventUpdates(() => {
       // Refresh data when new events are completed
       fetchJourneyAnalytics(journeyType, tokenType)
       fetchCommunityInsights(tokenType)
+      fetchTesla369Streak()
     })
 
     return () => {
@@ -51,18 +75,18 @@ export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyTyp
   ])
 
   // Format journey analytics data for charts
-  const journeyData = journeyAnalytics?.map(item => ({
+  const journeyData: JourneyData[] = journeyAnalytics?.map((item: JourneyAnalytics) => ({
     name: item.token_type || 'Unknown',
     immersion: item.total_immersion,
     users: item.unique_users,
     activities: item.total_activities,
-    tesla369: item.tesla_369_users
+    tesla369: item.journey_completion_rate,
   })) || []
 
   // Format focus area data for pie chart
-  const focusAreaData = journeyAnalytics?.[0]?.popular_focus_areas?.map((area: { focus_area: string; user_count: number }) => ({
-    name: area.focus_area,
-    value: area.user_count
+  const focusAreaData: FocusAreaData[] = journeyAnalytics?.[0]?.popular_focus_areas?.map((area: FocusAreaData) => ({
+    name: area.name,
+    value: area.value
   })) || []
 
   return (
@@ -162,7 +186,7 @@ export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyTyp
                             fill="#8884d8"
                             dataKey="value"
                           >
-                            {focusAreaData.map((entry: { name: string; value: number }, index: number) => (
+                            {focusAreaData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
@@ -320,7 +344,7 @@ export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyTyp
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {communityInsights?.[0]?.journey_distribution?.map((journey: any, index: number) => (
+                      {communityInsights?.[0]?.journey_distribution?.map((journey: { journey: string; user_count: number; percentage: number }, index: number) => (
                         <div key={index} className="space-y-2">
                           <div className="flex items-center justify-between">
                             <div className="font-medium">{journey.journey}</div>
@@ -341,7 +365,7 @@ export function JourneyInsights({ journeyType = "SAP", tokenType }: { journeyTyp
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-3 gap-4">
-                      {communityInsights?.[0]?.tesla_369_activity?.map((day: any, index: number) => (
+                      {communityInsights?.[0]?.tesla_369_activity?.map((day: { day_of_week: string; unique_users: number; total_immersion: number }, index: number) => (
                         <div key={index} className="flex flex-col items-center">
                           <div className="text-lg font-semibold">{day.day_of_week}</div>
                           <div className="text-3xl font-bold mt-2">

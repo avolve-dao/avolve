@@ -147,7 +147,8 @@ export function Breadcrumbs() {
               .single();
             
             if (data && !error) {
-              label = data[labelColumn];
+              const rawLabel = data && typeof labelColumn === 'string' ? data[labelColumn as keyof typeof data] : undefined;
+              label = typeof rawLabel === 'string' ? rawLabel : String(rawLabel ?? segment.charAt(0).toUpperCase() + segment.slice(1));
             } else {
               label = segment.charAt(0).toUpperCase() + segment.slice(1);
             }

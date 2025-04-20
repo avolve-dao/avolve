@@ -252,7 +252,8 @@ export function QuickStartGuide({ userId }: QuickStartGuideProps) {
           {completedTasks.length} tasks completed
         </div>
         <Badge variant="outline">
-          {phaseLabels[userPhase]} Phase
+          {/* userPhase should be a key of phaseLabels, fallback to 'onboarding' if not found */}
+          {phaseLabels[userPhase as keyof typeof phaseLabels] ?? phaseLabels['onboarding']} Phase
         </Badge>
       </CardFooter>
     </Card>

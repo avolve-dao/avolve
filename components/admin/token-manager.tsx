@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth/use-auth';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Button } from '@/components/ui/button';
@@ -21,12 +21,12 @@ import { toast } from 'sonner';
 // Native window size hook replacement
 function useWindowSize() {
   const isClient = typeof window === 'object';
-  function getSize() {
+  const getSize = useCallback(() => {
     return {
       width: isClient ? window.innerWidth : undefined,
       height: isClient ? window.innerHeight : undefined
     };
-  }
+  }, [isClient]);
   const [windowSize, setWindowSize] = React.useState(getSize);
   React.useEffect(() => {
     if (!isClient) return;
@@ -35,8 +35,31 @@ function useWindowSize() {
     }
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isClient]);
+  }, [isClient, getSize]);
   return windowSize;
+}
+
+interface TokenType {
+  id: string;
+  name: string;
+  symbol: string;
+  description: string;
+  total_supply: number;
+}
+
+interface Token {
+  id: string;
+  token_type_id: string;
+  amount: number;
+  created_at: string;
+}
+
+interface TokenOwnership {
+  id: string;
+  token_id: string;
+  user_id: string;
+  balance: number;
+  updated_at: string;
 }
 
 // TokenManager component for admin dashboard
@@ -47,15 +70,15 @@ export default function TokenManager() {
   const supabase = createClientComponentClient();
 
   // State for token types
-  const [tokenTypes, setTokenTypes] = useState<any[]>([]);
+  const [tokenTypes, setTokenTypes] = useState<TokenType[]>([]);
   const [loadingTokenTypes, setLoadingTokenTypes] = useState(true);
 
   // State for tokens
-  const [tokens, setTokens] = useState<any[]>([]);
+  const [tokens, setTokens] = useState<Token[]>([]);
   const [loadingTokens, setLoadingTokens] = useState(true);
 
   // State for token ownership
-  const [tokenOwnership, setTokenOwnership] = useState<any[]>([]);
+  const [tokenOwnership, setTokenOwnership] = useState<TokenOwnership[]>([]);
   const [loadingOwnership, setLoadingOwnership] = useState(true);
 
   // Form state for creating token types
@@ -101,7 +124,7 @@ export default function TokenManager() {
       setLoadingTokenTypes(false);
     };
     fetchTokenTypes();
-  }, []);
+  }, [supabase]);
 
   // Fetch tokens on component mount
   useEffect(() => {
@@ -120,7 +143,7 @@ export default function TokenManager() {
       setLoadingTokens(false);
     };
     fetchTokens();
-  }, []);
+  }, [supabase]);
 
   // Fetch token ownership on component mount
   useEffect(() => {
@@ -139,7 +162,7 @@ export default function TokenManager() {
       setLoadingOwnership(false);
     };
     fetchTokenOwnership();
-  }, []);
+  }, [supabase]);
 
   // Handle creating a new token type
   async function handleCreateTokenType(e: React.FormEvent) {
@@ -460,7 +483,7 @@ export default function TokenManager() {
             {tokenOwnership.map((ownership) => (
               <Card key={ownership.id} className="p-4 border rounded shadow-sm">
                 <h3 className="font-medium text-lg">User: {ownership.user_id}</h3>
-                <p className="text-sm text-gray-600">Token: {getTokenTypeName(ownership.token_type_id)}</p>
+                <p className="text-sm text-gray-600">Token: {getTokenTypeName(ownership.token_id)}</p>
                 <p className="text-sm text-gray-600">Balance: {ownership.balance}</p>
                 <p className="text-sm text-gray-600">Updated: {new Date(ownership.updated_at || '').toLocaleString()}</p>
               </Card>

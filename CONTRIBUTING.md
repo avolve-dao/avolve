@@ -165,7 +165,9 @@ All contributors are expected to run these before submitting a PR. See [README.m
 ## 🎨 Design Guidelines
 
 ### UI Components
-- Use shadcn/ui components
+- Use shadcn/ui components from `/components/ui` **exclusively**
+- Do **not** use or install any other UI libraries (NextUI, MUI, Chakra, etc.) unless you have explicit written permission from the project owner
+- Refactor any legacy or custom UI to shadcn/ui for consistency
 - Follow Tailwind CSS best practices
 - Maintain consistent spacing
 - Support dark mode

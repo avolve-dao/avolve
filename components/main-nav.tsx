@@ -60,6 +60,7 @@ export const MainNav: React.FC = async () => {
 
   // Extract the current context from the pathname
   const getContextFromPathname = () => {
+    if (!pathname) return '';
     const parts = pathname.split('/');
     if (parts.length > 1 && parts[1]) {
       return parts[1];

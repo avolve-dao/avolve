@@ -335,3 +335,8 @@ export class GovernanceService {
     return data as Reputation;
   }
 }
+
+// --- Export PendingRespectData type for use-consensus and other consumers ---
+// PendingRespectData is an alias for PendingRespect (from token-types)
+import type { PendingRespect } from './token-types';
+export type PendingRespectData = PendingRespect;

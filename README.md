@@ -6,6 +6,16 @@
 
 ---
 
+## ⚠️ UI Library Policy: Shadcn/ui Only
+
+> **Important:** This project uses [Shadcn/ui](https://ui.shadcn.com/) as the **exclusive** UI component library. Do not add, use, or install any other UI libraries (including NextUI, MUI, Chakra, etc.) without explicit, written permission from the project owner.
+>
+> - All UI primitives (Button, Card, Tabs, Badge, Avatar, Input, Textarea, etc.) must come from `/components/ui` (Shadcn/ui).
+> - If you find a legacy or custom UI component, refactor it to use Shadcn/ui for consistency.
+> - This policy ensures a modern, maintainable, and delightful user/admin experience.
+
+---
+
 ## One-Pager
 
 ### Purpose
@@ -179,6 +189,12 @@ Avolve delivers a magnetic onboarding experience:
 - All data is live, real, and production-grade
 
 **See:** [Database Docs](./docs/database.md)
+
+### Security
+
+- **Secrets & Environment Variables**: All sensitive keys (Supabase, API keys, etc.) are stored in environment variables and never committed to the repo. Ensure your `.env*` files are never tracked by git (see `.gitignore`).
+- **Reporting Vulnerabilities**: If you discover a security vulnerability, please report it privately to the maintainers. Do not open a public issue.
+- **RLS & Database Security**: Row Level Security (RLS) is enabled on all tables. Policies are granular and reviewed regularly for least-privilege access.
 
 ### Featured Papers and Case Studies
 - [GEN: Supercivilization](./papers/gen-supercivilization.md)

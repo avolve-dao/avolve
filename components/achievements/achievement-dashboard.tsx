@@ -57,7 +57,7 @@ export default function AchievementDashboard({
   const [lockedAchievements, setLockedAchievements] = useState<UserAchievement[]>([]);
   const [activeTab, setActiveTab] = useState<string>('all');
   const [claimingId, setClaimingId] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Achievement stats
@@ -70,9 +70,12 @@ export default function AchievementDashboard({
       setLoading(true);
       const {
         data: { user: currentUser },
-        error
       } = await supabase.auth.getUser();
-      setUser(currentUser);
+      if (currentUser && typeof currentUser.id === 'string') {
+        setUser({ id: currentUser.id });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     };
     fetchUser();
@@ -80,8 +83,8 @@ export default function AchievementDashboard({
 
   useEffect(() => {
     const fetchAchievements = async () => {
-      if (!user) {
-        console.error('User not available');
+      if (!user || typeof user.id !== 'string') {
+        console.error('User not available or missing id');
         return;
       }
       setLoading(true);
@@ -93,33 +96,41 @@ export default function AchievementDashboard({
           ?.from('achievements')
           .select('*');
         if (userAchievements && allAchievements) {
-          const typedUserAchievements: UserAchievement[] = userAchievements.map((a: any) => ({
-            id: a.id,
-            title: a.title,
-            description: a.description,
-            category: a.category,
-            reward_type: a.reward_type,
-            claimed_at: a.claimed_at ?? null,
-            earned_at: a.earned_at ?? null,
-            reward_amount: a.reward_amount ?? 0,
-            reward_token_symbol: a.reward_token_symbol ?? ''
-          }));
+          const typedUserAchievements: UserAchievement[] = userAchievements.map((a: Partial<UserAchievement>) => {
+            if (!a.id) {
+              throw new Error('User achievement is missing id property');
+            }
+            return {
+              id: a.id,
+              title: a.title ?? '',
+              description: a.description ?? '',
+              category: (a.category ?? 'personal') as AchievementCategory,
+              reward_type: a.reward_type ?? '',
+              claimed_at: a.claimed_at ?? null,
+              earned_at: a.earned_at ?? null,
+              reward_amount: a.reward_amount ?? 0,
+              reward_token_symbol: a.reward_token_symbol ?? ''
+            };
+          });
           setUnlockedAchievements(typedUserAchievements);
-          const unlockedIds = typedUserAchievements.map((a: UserAchievement) => a.id);
+          const unlockedIds = typedUserAchievements.map((a) => a.id);
           const locked: UserAchievement[] = allAchievements
-            .filter((a: any) => !unlockedIds.includes(a.id))
-            .map((a: any) => {
+            .filter((a: Partial<UserAchievement>) => !!a.id && !unlockedIds.includes(a.id))
+            .map((a: Partial<UserAchievement>) => {
+              if (!a.id) {
+                throw new Error('Achievement is missing id property');
+              }
               return {
                 id: a.id,
-                title: a.title,
-                description: a.description,
-                category: a.category,
-                reward_type: a.reward_type,
-                earned_at: null,
-                claimed_at: null,
-                reward_amount: 0,
-                reward_token_symbol: ''
-              } as UserAchievement;
+                title: a.title ?? '',
+                description: a.description ?? '',
+                category: (a.category ?? 'personal') as AchievementCategory,
+                reward_type: a.reward_type ?? '',
+                claimed_at: a.claimed_at ?? null,
+                earned_at: a.earned_at ?? null,
+                reward_amount: a.reward_amount ?? 0,
+                reward_token_symbol: a.reward_token_symbol ?? ''
+              };
             });
           setLockedAchievements(locked);
           setTotalAchievements(allAchievements.length);
@@ -134,12 +145,12 @@ export default function AchievementDashboard({
         setLoading(false);
       }
     };
-    if (user) fetchAchievements();
+    if (user && typeof user.id === 'string') fetchAchievements();
   }, [supabase, trackActivity, user]);
 
   const handleClaimReward = async (achievementId: string) => {
-    if (!user) {
-      console.error('User not available');
+    if (!user || typeof user.id !== 'string') {
+      console.error('User not available or missing id');
       return;
     }
     setClaimingId(achievementId);
@@ -149,17 +160,22 @@ export default function AchievementDashboard({
       const { data: userAchievements } = await supabase
         ?.rpc('get_user_achievements', { p_user_id: user.id });
       if (userAchievements) {
-        const typedUserAchievements: UserAchievement[] = userAchievements.map((a: any) => ({
-          id: a.id,
-          title: a.title,
-          description: a.description,
-          category: a.category,
-          reward_type: a.reward_type,
-          claimed_at: a.claimed_at ?? null,
-          earned_at: a.earned_at ?? null,
-          reward_amount: a.reward_amount ?? 0,
-          reward_token_symbol: a.reward_token_symbol ?? ''
-        }));
+        const typedUserAchievements: UserAchievement[] = userAchievements.map((a: Partial<UserAchievement>) => {
+          if (!a.id) {
+            throw new Error('User achievement is missing id property');
+          }
+          return {
+            id: a.id,
+            title: a.title ?? '',
+            description: a.description ?? '',
+            category: (a.category ?? 'personal') as AchievementCategory,
+            reward_type: a.reward_type ?? '',
+            claimed_at: a.claimed_at ?? null,
+            earned_at: a.earned_at ?? null,
+            reward_amount: a.reward_amount ?? 0,
+            reward_token_symbol: a.reward_token_symbol ?? ''
+          };
+        });
         setUnlockedAchievements(typedUserAchievements);
       }
     } catch (err) {
@@ -239,7 +255,7 @@ export default function AchievementDashboard({
           
           <TabsContent value="all">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...unlockedAchievements, ...lockedAchievements].map((achievement: any) => (
+              {[...unlockedAchievements, ...lockedAchievements].map((achievement: UserAchievement) => (
                 <div 
                   key={achievement.id} 
                   className={`border rounded-lg p-4 ${
@@ -331,7 +347,7 @@ export default function AchievementDashboard({
           
           <TabsContent value="unlocked">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {unlockedAchievements.map((achievement: any) => (
+              {unlockedAchievements.map((achievement: UserAchievement) => (
                 <div 
                   key={achievement.id} 
                   className="border rounded-lg p-4 bg-white border-gray-200"
@@ -409,7 +425,7 @@ export default function AchievementDashboard({
           
           <TabsContent value="locked">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {lockedAchievements.map((achievement: any) => (
+              {lockedAchievements.map((achievement: UserAchievement) => (
                 <div 
                   key={achievement.id} 
                   className="border rounded-lg p-4 bg-gray-50 border-gray-300 opacity-60"

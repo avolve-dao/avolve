@@ -5,8 +5,7 @@ import { Alert } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table } from '@/components/ui/table';
 import { RoleService, Role, RoleHierarchy } from '@/lib/auth/role-service';
-import { ChevronUp, ChevronDown, Trash2, Plus } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Trash2, Plus } from 'lucide-react';
 
 /**
  * RoleHierarchyManager Component
@@ -48,15 +47,16 @@ export default function RoleHierarchyManager() {
           throw new Error(hierarchiesResult.error.message);
         }
         setHierarchies(hierarchiesResult.data || []);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load data');
+      } catch (err) {
+        const error = err as { message?: string };
+        setError(error.message || 'Failed to load data');
       } finally {
         setLoading(false);
       }
     };
     
     loadData();
-  }, []);
+  }, [roleService]);
   
   // Handle form submission to create a new hierarchy
   const handleAddRoleHierarchy = async () => {
@@ -88,8 +88,9 @@ export default function RoleHierarchyManager() {
       // Reset form
       setSelectedRoleId('');
       setSelectedChildRoleId('');
-    } catch (err: any) {
-      setError(err.message || 'Failed to create hierarchy');
+    } catch (err) {
+      const error = err as { message?: string };
+      setError(error.message || 'Failed to create hierarchy');
     } finally {
       setLoading(false);
     }
@@ -116,8 +117,9 @@ export default function RoleHierarchyManager() {
       
       setHierarchies(hierarchiesResult.data || []);
       setSuccess(`Successfully removed hierarchy: ${hierarchy.parent_role_id} > ${hierarchy.child_role_id}`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to remove hierarchy');
+    } catch (err) {
+      const error = err as { message?: string };
+      setError(error.message || 'Failed to remove hierarchy');
     } finally {
       setLoading(false);
     }

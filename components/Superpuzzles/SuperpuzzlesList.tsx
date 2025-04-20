@@ -77,22 +77,22 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
   const formattedSuperpuzzles: FormattedSuperpuzzleItem[] = contributions 
     ? contributions.map(contribution => ({
         contribution: {
-          id: contribution.id,
-          points: contribution.points,
-          isCompleted: contribution.isCompleted,
-          progress: contribution.progress
+          id: (contribution as any)?.id,
+          points: (contribution as any)?.points,
+          isCompleted: (contribution as any)?.isCompleted,
+          progress: (contribution as any)?.progress
         },
-        superpuzzle: contribution.superpuzzle
+        superpuzzle: (contribution as any)?.superpuzzle
       }))
     : superpuzzlesToDisplay.map((superpuzzle: unknown) => ({ superpuzzle }));
 
   // Split into active and completed
   const activeItems = formattedSuperpuzzles.filter(item => 
-    !(item.contribution?.isCompleted ?? false) && item.superpuzzle.status !== 'completed'
+    !(item.contribution?.isCompleted ?? false) && (item.superpuzzle as any)?.status !== 'completed'
   );
   
   const completedItems = formattedSuperpuzzles.filter(item => 
-    (item.contribution?.isCompleted ?? false) || item.superpuzzle.status === 'completed'
+    (item.contribution?.isCompleted ?? false) || (item.superpuzzle as any)?.status === 'completed'
   );
 
   return (
@@ -158,8 +158,8 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {activeItems.map((item) => (
                   <SuperpuzzleCard 
-                    key={item.superpuzzle.id} 
-                    superpuzzle={item.superpuzzle} 
+                    key={(item.superpuzzle as any)?.id} 
+                    superpuzzle={item.superpuzzle as any} 
                     contribution={item.contribution}
                     showContributeButton={showContributeButton}
                     teamId={teamId}
@@ -182,8 +182,8 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {completedItems.map((item) => (
                   <SuperpuzzleCard 
-                    key={item.superpuzzle.id} 
-                    superpuzzle={item.superpuzzle} 
+                    key={(item.superpuzzle as any)?.id} 
+                    superpuzzle={item.superpuzzle as any} 
                     contribution={item.contribution}
                     teamId={teamId}
                   />

@@ -30,7 +30,7 @@ export type TokenResult<T> = {
   error?: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
   };
 };
 
@@ -42,7 +42,7 @@ export type TokenClaimOptions = {
   tokenId: string;
   amount: number;
   reason?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 };
 
 /**
@@ -184,9 +184,9 @@ export type UserConsent = {
   consent_id: string;
   user_id: string;
   interaction_type: string;
-  terms: Record<string, any>;
+  terms: Record<string, unknown>;
   status: 'approved' | 'revoked' | 'pending';
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 };
@@ -199,6 +199,42 @@ export type ConsentResult = {
   consent_id?: string;
   message?: string;
   error?: string;
+};
+
+/**
+ * Token action
+ */
+export type TokenAction = {
+  id: string;
+  type: string;
+  userId: string;
+  tokenId: string;
+  amount: number;
+  createdAt: string;
+  [key: string]: unknown;
+};
+
+/**
+ * Token event
+ */
+export type TokenEvent = {
+  id: string;
+  actionId: string;
+  eventType: string;
+  timestamp: string;
+  [key: string]: unknown;
+};
+
+/**
+ * Token history
+ */
+export type TokenHistory = {
+  id: string;
+  tokenId: string;
+  userId: string;
+  change: number;
+  timestamp: string;
+  [key: string]: unknown;
 };
 
 /**

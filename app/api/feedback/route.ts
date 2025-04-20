@@ -23,7 +23,7 @@ type SuccessResponse = {
 
 type ErrorResponse = {
   error: string;
-  details?: ZodFormattedError<any, string> | ZodIssue[];
+  details?: ZodFormattedError<unknown, string> | ZodIssue[];
 }
 
 export const runtime = 'edge'
@@ -56,22 +56,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
     
     // Parse the request body
-    const body: z.infer<typeof feedbackSchema> = await req.json()
+    const body = await req.json();
     
-    // Validate the request body
-    const validationResult = feedbackSchema.safeParse(body)
-    
+    // Explicit runtime type checks
+    if (
+      typeof body !== 'object' ||
+      typeof body.category !== 'string' ||
+      (body.rating !== undefined && typeof body.rating !== 'number') ||
+      (body.comment !== undefined && typeof body.comment !== 'string') ||
+      (body.worthTime !== undefined && typeof body.worthTime !== 'boolean') ||
+      (body.metadata !== undefined && typeof body.metadata !== 'object')
+    ) {
+      return NextResponse.json<ErrorResponse>({ error: 'Invalid request body' }, { status: 400 });
+    }
+
+    const validationResult = feedbackSchema.safeParse(body);
     if (!validationResult.success) {
       return NextResponse.json<ErrorResponse>(
         { 
           error: 'Invalid feedback data', 
-          details: validationResult.error.format() 
+          details: validationResult.error.format()
         },
         { status: 400 }
       )
     }
     
-    const validatedData = validationResult.data
+    const validatedData = feedbackSchema.parse(body)
     
     // Sanitize the comment to prevent XSS
     const sanitizedComment = sanitizeHtml(validatedData.comment)

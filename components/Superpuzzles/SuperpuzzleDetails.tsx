@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
+import type { User } from '@supabase/supabase-js';
 import { useSuperpuzzles } from '@/hooks/useSuperpuzzles';
 import { useTeams } from '@/hooks/useTeams';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -25,6 +26,19 @@ interface SuperpuzzleDetailsProps {
   superpuzzleId: string;
 }
 
+type TeamContribution = {
+  id: string;
+  points: number;
+  teams?: {
+    id: string;
+    name: string;
+    [key: string]: unknown;
+  };
+  completed_at?: string;
+  created_at?: string;
+  team_id?: string;
+};
+
 export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuzzleId }) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -44,13 +58,13 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
     loadUserTeams
   } = useTeams();
   
-  const [user, setUser] = useState<unknown>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string>('');
   
   useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      setUser(user as User | null);
       if (user) {
         loadUserTeams();
       }
@@ -135,9 +149,9 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
   const gradientClass = getGradientClass(selectedSuperpuzzle.tokens.symbol);
   const isCompleted = selectedSuperpuzzle.status === 'completed';
   
-  // Calculate total points from all team contributions
-  const totalPoints = selectedSuperpuzzle.teamContributions?.reduce(
-    (sum: number, contribution: unknown) => sum + contribution.points, 0
+  const teamContributions = selectedSuperpuzzle.teamContributions as TeamContribution[] | undefined;
+  const totalPoints = teamContributions?.reduce(
+    (sum, contribution) => sum + (contribution?.points ?? 0), 0
   ) || 0;
   
   const progress = Math.min(
@@ -198,7 +212,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
                 </Button>
               </div>
             </div>
-          )}
+          ) as React.ReactNode}
           
           {!user && (
             <Alert>
@@ -218,7 +232,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
                 You need to be part of a team to contribute to this superpuzzle.
               </AlertDescription>
             </Alert>
-          )}
+          ) as React.ReactNode}
           
           <div className="space-y-6">
             <h3 className="text-xl font-bold flex items-center">
@@ -226,7 +240,7 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
               Team Contributions
             </h3>
             
-            {selectedSuperpuzzle.teamContributions?.length === 0 ? (
+            {teamContributions?.length === 0 ? (
               <div className="text-center py-8 border rounded-lg bg-slate-50">
                 <Trophy className="mx-auto h-12 w-12 text-slate-400" />
                 <h3 className="mt-4 text-lg font-medium">No contributions yet</h3>
@@ -236,12 +250,12 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
               </div>
             ) : (
               <div className="space-y-4">
-                {selectedSuperpuzzle.teamContributions?.sort((a: unknown, b: unknown) => b.points - a.points).map((contribution: unknown) => (
+                {teamContributions?.sort((a, b) => b.points - a.points).map((contribution) => (
                   <div key={contribution.id} className="border rounded-lg p-4">
                     <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center">
                         <Users className="mr-2 h-4 w-4 text-slate-500" />
-                        <h4 className="font-medium">{contribution.teams.name}</h4>
+                        <h4 className="font-medium">{contribution.teams?.name}</h4>
                       </div>
                       <Badge variant={contribution.completed_at ? "default" : "outline"} className={contribution.completed_at ? `bg-gradient-to-r ${gradientClass} text-white` : ''}>
                         {contribution.completed_at ? "Completed" : "In Progress"}
@@ -263,7 +277,9 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
                       <span>
                         {contribution.completed_at 
                           ? `Completed ${formatDistanceToNow(new Date(contribution.completed_at), { addSuffix: true })}` 
-                          : `Started ${formatDistanceToNow(new Date(contribution.created_at), { addSuffix: true })}`}
+                          : contribution.created_at
+                            ? `Started ${formatDistanceToNow(new Date(contribution.created_at), { addSuffix: true })}`
+                            : 'Start date unknown'}
                       </span>
                       <Button 
                         variant="ghost" 
@@ -273,6 +289,14 @@ export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuz
                       >
                         View Team <ArrowRight className="ml-1 h-3 w-3" />
                       </Button>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <span>Points: {contribution.points}</span>
+                      {contribution.teams && <span>Teams: {JSON.stringify(contribution.teams)}</span>}
+                      {contribution.completed_at && <span>Completed: {new Date(contribution.completed_at).toLocaleString()}</span>}
+                      {contribution.created_at && <span>Created: {new Date(contribution.created_at).toLocaleString()}</span>}
+                      {contribution.team_id && <span>Team ID: {contribution.team_id}</span>}
                     </div>
                   </div>
                 ))}

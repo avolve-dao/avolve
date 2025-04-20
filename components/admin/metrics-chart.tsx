@@ -11,16 +11,21 @@ import {
   ResponsiveContainer,
 } from 'recharts'
 
+interface ChartData {
+  date: string;
+  value: number;
+}
+
 interface MetricsChartProps {
   title: string
-  data?: any[]
+  data?: ChartData[]
   type?: 'line' | 'bar' | 'area' | 'heatmap'
 }
 
 export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartProps) {
   // Format data for the chart
   const chartData = useMemo(() => {
-    return data.map((item: any) => ({
+    return data.map((item: ChartData) => ({
       ...item,
       value: typeof item.value === 'number' ? item.value : 0,
     }))
@@ -46,9 +51,9 @@ export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartPr
       <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
         <h3 className="text-sm font-medium text-zinc-100">{title}</h3>
         <div className="mt-4 grid grid-cols-7 gap-1">
-          {data.map((week: any, weekIndex: number) => (
+          {data.map((week: ChartData, weekIndex: number) => (
             <div key={weekIndex} className="space-y-1">
-              {week.values.map((day: any, dayIndex: number) => {
+              {[week].flat().map((day: ChartData, dayIndex: number) => {
                 const intensity = Math.min(Math.max(day.value / 100, 0), 1)
                 const alpha = Math.round(intensity * 100)
                 return (
@@ -106,7 +111,7 @@ export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartPr
               fontSize={12}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(value) => value.toLocaleString()}
+              tickFormatter={(value: number) => value.toLocaleString()}
             />
             <Tooltip
               contentStyle={{

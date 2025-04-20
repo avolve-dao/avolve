@@ -120,17 +120,22 @@ export function getDayForToken(tokenSymbol: string): string {
  * @returns The bonus multiplier
  */
 export function calculateStreakBonus(streakLength: number): number {
-  if (streakLength >= 9 && streakLength % 9 === 0) {
-    // Every 9th day is a 3x bonus (9, 18, 27, etc.)
-    return 3;
-  } else if (streakLength >= 6 && streakLength % 6 === 0) {
-    // Every 6th day is a 2x bonus (6, 12, 18, etc.)
-    return 2;
-  } else if (streakLength >= 3 && streakLength % 3 === 0) {
-    // Every 3rd day is a 1.5x bonus (3, 6, 9, etc.)
-    return 1.5;
+  if (streakLength <= 0) {
+    return 1.0;
   }
-  return 1;
+  if (streakLength >= 9) {
+    // For streaks of 9 or more: 1.9x + 0.3x for each additional 3 days
+    return parseFloat((1.9 + (Math.floor((streakLength - 9) / 3) * 0.3)).toFixed(1));
+  } else if (streakLength >= 6) {
+    // For streaks of 6-8: 1.6x
+    return 1.6;
+  } else if (streakLength >= 3) {
+    // For streaks of 3-5: 1.3x
+    return 1.3;
+  } else {
+    // For streaks of 1-2: 1.0x (no bonus)
+    return 1.0;
+  }
 }
 
 /**

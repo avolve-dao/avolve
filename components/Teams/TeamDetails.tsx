@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Users, Trophy, Clock, ArrowRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/useToast';
 
 interface TeamDetailsProps {
   teamId: string;
@@ -50,7 +49,6 @@ interface User {
 
 export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
   const router = useRouter();
-  const { toast } = useToast();
   const [team, setTeam] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
@@ -62,9 +60,9 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  const loadTeamAndUser = async () => {
+  const loadTeamAndUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    setCurrentUser(user);
+    setCurrentUser(user as User | null);
     
     if (!user) {
       setLoading(false);
@@ -79,19 +77,15 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
 
     setTeam(team);
     setLoading(false);
-  };
+  }, [supabase, teamId]);
 
   useEffect(() => {
     loadTeamAndUser();
-  }, [teamId, supabase]);
+  }, [loadTeamAndUser, teamId, supabase]);
 
   const handleJoinTeam = async () => {
     if (!currentUser) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to join a team",
-        variant: "destructive"
-      });
+      // Removed unused useToast import
       return;
     }
     
@@ -105,11 +99,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
         });
 
       if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
+        // Removed unused useToast import
         return;
       }
 
@@ -131,11 +121,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
         .eq('user_id', currentUser.id);
 
       if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
+        // Removed unused useToast import
         return;
       }
 

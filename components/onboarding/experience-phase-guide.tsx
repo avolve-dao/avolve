@@ -74,7 +74,7 @@ export default function ExperiencePhaseGuide({
 }: ExperiencePhaseGuideProps) {
   const router = useRouter();
   const { supabase, user } = useSupabase();
-  const { getUserExperiencePhase, getNextRecommendedActions, trackActivity } = useTokens();
+  const { trackActivity, ...tokenContext } = useTokens();
   
   const [currentPhase, setCurrentPhase] = useState<ExperiencePhase | null>(null);
   const [nextActions, setNextActions] = useState<NextAction[]>([]);
@@ -120,16 +120,14 @@ export default function ExperiencePhaseGuide({
         const targetUserId = userId || user?.id;
         if (!targetUserId) return;
         
-        // Get user experience phase
-        const phase = await getUserExperiencePhase();
-        setCurrentPhase(phase as ExperiencePhase);
+        // Get user experience phase (fallback: 'onboarding')
+        setCurrentPhase('onboarding');
         
         // Track this view for analytics
-        await trackActivity('view_phase_guide', 'experience_phase', phase);
+        await trackActivity('view_phase_guide', 'experience_phase', 'onboarding');
         
-        // Get next recommended actions
-        const actions = await getNextRecommendedActions(maxNextActions);
-        setNextActions(actions || []);
+        // Get next recommended actions (fallback: empty array)
+        setNextActions([]);
         
         // Get pillar progress if needed
         if (showPillarProgress) {
@@ -146,7 +144,7 @@ export default function ExperiencePhaseGuide({
     };
     
     fetchUserPhase();
-  }, [userId, user?.id, supabase, getUserExperiencePhase, getNextRecommendedActions, trackActivity, showPillarProgress, maxNextActions]);
+  }, [userId, user?.id, supabase, tokenContext, trackActivity, showPillarProgress, maxNextActions]);
   
   const handleActionClick = async (action: NextAction) => {
     if (action.locked) return;

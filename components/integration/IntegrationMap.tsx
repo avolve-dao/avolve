@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react';
+import { useSupabase, hasUser } from '@/lib/supabase/use-supabase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Database } from '@/types/supabase';
@@ -43,8 +43,8 @@ type Connection = {
 };
 
 export default function IntegrationMap() {
-  const supabase = useSupabaseClient<Database>();
-  const user = useUser();
+  const supabaseHook = useSupabase();
+  const { supabase, user } = supabaseHook;
   const [profile, setProfile] = useState<IntegrationProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [domains, setDomains] = useState<Domain[]>([]);
@@ -54,17 +54,21 @@ export default function IntegrationMap() {
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!hasUser(supabaseHook)) return;
 
     async function fetchProfile() {
       try {
         setLoading(true);
-        
+        if (!hasUser(supabaseHook)) {
+          setLoading(false);
+          return;
+        }
         // Fetch user's integration profile
+        // At this point, hasUser(supabaseHook) guarantees user is not null
         const { data, error } = await supabase
           .from('integration_profiles')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', supabaseHook.user!.id)
           .single();
 
         if (error) {
@@ -274,10 +278,11 @@ export default function IntegrationMap() {
         setConnections(connectionData);
         
         // Fetch recommended exercises
-        if (user) {
+        if (hasUser(supabaseHook)) {
+          // At this point, hasUser(supabaseHook) guarantees user is not null
           const { data: exercisesData, error: exercisesError } = await supabase.rpc(
             'get_recommended_exercises',
-            { p_user_id: user.id }
+            { p_user_id: supabaseHook.user!.id }
           );
           
           if (exercisesError) throw exercisesError;
@@ -291,7 +296,7 @@ export default function IntegrationMap() {
     }
 
     fetchProfile();
-  }, [supabase, user]);
+  }, [supabase, user, supabaseHook]);
 
   const handleDomainClick = (domain: Domain) => {
     setSelectedDomain(domain);

@@ -9,8 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Spinner } from "@/components/ui/spinner"
-import { Copy, AlertTriangle, ShieldCheck, Smartphone, KeyRound, LogOut } from "lucide-react"
-import { TotpFactor, RecoveryCodes, UserSession } from "@/lib/auth/auth-service"
+import { Copy, AlertTriangle, ShieldCheck, Smartphone, LogOut } from "lucide-react"
+import { TotpFactor, UserSession } from "@/lib/auth/auth-service"
 import { toast } from "@/components/ui/use-toast"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { format } from "date-fns"
@@ -73,14 +73,6 @@ export function MfaSetup() {
   
   const hasMfa = user?.hasMfa || false
 
-  // Load sessions when the sessions tab is active
-  useEffect(() => {
-    if (activeTab === "sessions") {
-      loadSessions()
-    }
-  }, [activeTab])
-
-  // Load user sessions
   const loadSessions = async () => {
     setIsLoading(true)
     try {
@@ -100,6 +92,12 @@ export function MfaSetup() {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (activeTab === "sessions") {
+      loadSessions()
+    }
+  }, [activeTab])
 
   // Initialize TOTP setup
   const handleSetupTotp = async () => {

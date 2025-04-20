@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/sonner'
 import Link from 'next/link'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'; 
-import { SupabaseClientProvider } from '@/components/supabase-client-provider'; 
+import SupabaseProvider from '@/lib/supabase/supabase-provider';
 
 // TODO: Import authentication context or hook from your auth system
 // import { useAuth } from '@/contexts/AuthContext'; // Placeholder import
@@ -35,14 +35,10 @@ export default function RootLayout({
 
   return (
     <>
-      {/* 
-        Supabase client is now initialized in a client component (SupabaseClientProvider)
-        to avoid serialization issues in server components
-      */}
       <Toaster richColors closeButton position="bottom-right" />
       {isAuthenticated ? (
         // Authenticated layout with navbar and sidebar
-        <SupabaseClientProvider>
+        <SupabaseProvider>
           <SidebarProvider>
             <div className="flex min-h-screen flex-col">
               <div className="flex flex-1">
@@ -132,7 +128,7 @@ export default function RootLayout({
               </div>
             </div>
           </SidebarProvider>
-        </SupabaseClientProvider>
+        </SupabaseProvider>
       ) : (
         // Unauthenticated layout with marketing-focused navbar
         <>

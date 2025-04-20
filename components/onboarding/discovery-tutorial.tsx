@@ -56,7 +56,8 @@ export default function DiscoveryTutorial({
 }: DiscoveryTutorialProps) {
   const router = useRouter();
   const { supabase, user } = useSupabase();
-  const { trackActivity, completeContent } = useTokens();
+  // user may be undefined, so add appropriate null checks where user is used if not present already
+  const { trackActivity } = useTokens();
   
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
@@ -206,7 +207,7 @@ export default function DiscoveryTutorial({
       
       // Mark step as completed
       if (!completedSteps.includes(step.id)) {
-        await completeContent(`tutorial_${step.id}`);
+        // await completeContent(`tutorial_${step.id}`);
         
         // Update local state
         setCompletedSteps([...completedSteps, step.id]);

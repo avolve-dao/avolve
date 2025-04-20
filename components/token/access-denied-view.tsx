@@ -13,6 +13,32 @@ interface AccessDeniedViewProps {
   userPhase?: string;
 }
 
+// --- TYPES ---
+interface TokenDetails {
+  symbol: string;
+  name: string;
+  description?: string;
+  gradient_class?: string;
+}
+
+interface UserTokenBalance {
+  symbol: string;
+  balance: number;
+}
+
+interface ResourceDetails {
+  title?: string;
+  name?: string;
+  description?: string;
+}
+
+interface Recommendation {
+  url: string;
+  title: string;
+  description: string;
+  action: string;
+}
+
 export default function AccessDeniedView({
   requiredToken,
   resourceType,
@@ -21,27 +47,34 @@ export default function AccessDeniedView({
 }: AccessDeniedViewProps) {
   const { tokens, userBalances } = useTokens();
   
-  const [tokenDetails, setTokenDetails] = useState(null);
-  const [userTokens, setUserTokens] = useState([]);
-  const [resourceDetails, setResourceDetails] = useState(null);
-  const [recommendations, setRecommendations] = useState([]);
-  const [progress, setProgress] = useState(0);
+  // Fix: provide explicit types for state
+  const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null);
+  const [userTokens, setUserTokens] = useState<UserTokenBalance[]>([]);
+  const [resourceDetails, setResourceDetails] = useState<ResourceDetails | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [progress, setProgress] = useState<number>(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Get token details if a token is required
         if (requiredToken) {
-          const details = tokens.find(token => token.symbol === requiredToken);
+          const details = tokens.find(
+            (token: any) => typeof token === 'object' && 'symbol' in token && token.symbol === requiredToken
+          );
           if (details) {
-            setTokenDetails(details);
+            setTokenDetails(details as TokenDetails);
           }
         }
         
         // Get user tokens to calculate progress
-        const userTokensResult = userBalances.filter(balance => balance.symbol);
+        const userTokensResult = Array.isArray(userBalances)
+          ? userBalances.filter(
+              (balance: any) => balance && typeof balance === 'object' && 'symbol' in balance && typeof balance.symbol === 'string'
+            )
+          : [];
         if (userTokensResult) {
-          setUserTokens(userTokensResult);
+          setUserTokens(userTokensResult as UserTokenBalance[]);
         }
         
         // Get resource details if available
@@ -73,7 +106,7 @@ export default function AccessDeniedView({
     
     // Calculate progress toward earning the required token
     const calculateProgress = () => {
-      if (!requiredToken || userTokens.length === 0) {
+      if (!requiredToken || !userTokens.length) {
         setProgress(0);
         return;
       }
@@ -83,7 +116,7 @@ export default function AccessDeniedView({
         // For primary tokens, progress is based on number of child tokens owned
         const totalChildTokens = requiredToken === 'SAP' ? 3 : 
                                 requiredToken === 'SCQ' ? 4 : 2;
-        const ownedChildTokens = userTokens.filter(t => 
+        const ownedChildTokens = userTokens.filter(t =>
           (requiredToken === 'SAP' && ['PSP', 'BSP', 'SMS'].includes(t.symbol)) ||
           (requiredToken === 'SCQ' && ['SPD', 'SHE', 'SSA', 'SGB'].includes(t.symbol)) ||
           (requiredToken === 'GEN' && ['SAP', 'SCQ'].includes(t.symbol))
@@ -103,40 +136,34 @@ export default function AccessDeniedView({
 
   // Get title and description based on the resource or token
   const getTitle = () => {
-    if (resourceDetails?.title || resourceDetails?.name) {
+    if (resourceDetails && (resourceDetails.title || resourceDetails.name)) {
       return resourceDetails.title || resourceDetails.name;
     }
-    
-    if (tokenDetails?.name) {
+    if (tokenDetails && tokenDetails.name) {
       return tokenDetails.name;
     }
-    
     return 'This Content';
   };
-  
+
   const getDescription = () => {
-    if (resourceDetails?.description) {
+    if (resourceDetails && resourceDetails.description) {
       return resourceDetails.description;
     }
-    
-    if (tokenDetails?.description) {
+    if (tokenDetails && tokenDetails.description) {
       return tokenDetails.description;
     }
-    
     return 'You need to unlock more tokens to access this content.';
   };
-  
+
   // Get gradient class for styling
   const getGradientClass = () => {
-    if (tokenDetails?.gradient_class) {
+    if (tokenDetails && tokenDetails.gradient_class) {
       return tokenDetails.gradient_class;
     }
-    
     // Default gradients based on resource type
     if (resourceType === 'pillar') return 'from-zinc-500 to-zinc-900';
     if (resourceType === 'section') return 'from-stone-500 to-stone-900';
     if (resourceType === 'component') return 'from-slate-500 to-slate-900';
-    
     return 'from-gray-500 to-gray-900';
   };
 

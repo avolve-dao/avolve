@@ -60,7 +60,7 @@ export function NavSwitcher({ activeTeam, onTeamChange }: NavSwitcherProps) {
 
   // Get the active route based on the pathname or activeTeam prop
   const getActiveRoute = () => {
-    const path = activeTeam || getPathFromPathname(pathname);
+    const path = activeTeam || (pathname ? getPathFromPathname(pathname) : undefined);
     return superRoutes.find((route) => route.path === path) || superRoutes[0];
   };
 

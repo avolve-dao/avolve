@@ -16,15 +16,13 @@ This guide will help new contributors, admins, and future DAO members understand
 ## 3. How to Contribute
 - Propose changes via Pull Request (PR) following the [Schema Changes Guide](./schema-changes.md).
 - All changes are reviewed by the DAO steward (Joshua Seymour) and/or DAO members.
-- As the DAO matures, community voting will be enabled for proposals.
 
 ## 4. Community & Support
-- For questions, contact admin@avolve.io.
+- For questions or support, open an issue or join our [GitHub Discussions](https://github.com/avolve-dao/avolve.io/discussions).
 - Join the DAO community to participate in governance and platform evolution.
 
 ## 5. Where to Get Help
-- Email: admin@avolve.io
-- Join the community chat (see project README for invite)
+- Open an issue in the repo for support or suggestions.
 - See the [DAO Governance Guide](./governance.md) for more
 
 ## 6. DAO Roadmap

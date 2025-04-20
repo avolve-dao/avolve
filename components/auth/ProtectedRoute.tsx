@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { Loader2 } from 'lucide-react';
-import { Database } from '@/lib/database.types';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

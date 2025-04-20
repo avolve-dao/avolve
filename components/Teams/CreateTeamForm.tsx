@@ -89,7 +89,7 @@ export const CreateTeamForm: React.FC = () => {
                 placeholder="Enter a unique team name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                disabled={loading || (eligibility && !eligibility.isEligible)}
+                disabled={loading || (eligibility ? !eligibility.isEligible : false)}
                 required
               />
             </div>
@@ -101,7 +101,7 @@ export const CreateTeamForm: React.FC = () => {
                 placeholder="Describe your team&apos;s mission and goals"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                disabled={loading || (eligibility && !eligibility.isEligible)}
+                disabled={loading || (eligibility ? !eligibility.isEligible : false)}
                 rows={4}
               />
             </div>
@@ -126,7 +126,7 @@ export const CreateTeamForm: React.FC = () => {
         <Button
           type="submit"
           onClick={handleSubmit}
-          disabled={loading || (eligibility && !eligibility.isEligible)}
+          disabled={loading || (eligibility ? !eligibility.isEligible : false)}
           className="bg-gradient-to-r from-slate-700 to-slate-900 text-white"
         >
           {loading ? 'Creating...' : 'Create Team'}

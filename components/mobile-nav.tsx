@@ -46,8 +46,9 @@ export function MobileNav({ routes }: MobileNavProps) {
 
   // Extract the current context from the pathname
   const getContextFromPathname = () => {
-    const currentRoute = routes.find(route => pathname.startsWith(route.path))
-    return currentRoute?.label || "Dashboard"
+    if (!pathname) return "Dashboard";
+    const currentRoute = routes.find(route => pathname.startsWith(route.path));
+    return currentRoute?.label || "Dashboard";
   }
 
   const currentContext = getContextFromPathname()
@@ -70,7 +71,7 @@ export function MobileNav({ routes }: MobileNavProps) {
                     href={route.path} 
                     className={cn(
                       "p-3 rounded-md flex flex-col items-center text-center",
-                      pathname.startsWith(route.path) ? "bg-primary/10 text-primary" : "hover:bg-accent"
+                      pathname && pathname.startsWith(route.path) ? "bg-primary/10 text-primary" : "hover:bg-accent"
                     )}
                     onClick={() => setShowAreaSelector(false)}
                   >

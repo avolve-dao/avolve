@@ -31,7 +31,7 @@ function RouteTransitionContent({
       }, 500) // Match this with the animation duration
       return () => clearTimeout(timer)
     }
-    setPrevPathname(pathname)
+    setPrevPathname(pathname ?? '')
   }, [pathname, prevPathname])
 
   return (

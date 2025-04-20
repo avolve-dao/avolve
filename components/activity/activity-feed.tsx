@@ -1,40 +1,41 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useInView } from "react-intersection-observer"
 import { ActivityItem } from "@/components/activity/activity-item"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { RefreshCcw } from "lucide-react"
 import { getActivityFeed, getUserActivity, getGlobalActivityFeed } from "@/lib/activity-logger"
+import type { Database } from '@/types/supabase';
 
 interface ActivityFeedProps {
   userId?: string
   type: "user" | "following" | "global"
-  initialActivities?: Activity[]
+  initialActivities?: Database['public']['Tables']['activity_feed']['Row'][]
 }
 
-interface Activity {
-  id: string
-  // Add other activity properties here
+function isActivity(obj: Record<string, unknown>): obj is Database['public']['Tables']['activity_feed']['Row'] {
+  return (
+    obj && typeof obj === 'object' &&
+    typeof obj.id === 'string' &&
+    typeof obj.user_id === 'string' &&
+    typeof obj.action_type === 'string' &&
+    typeof obj.entity_type === 'string' &&
+    typeof obj.created_at === 'string'
+  );
 }
 
-function mapToActivityItem(activity: any): any {
-  return {
-    id: activity.id ?? '',
-    user_id: activity.user_id ?? '',
-    user_name: activity.user_name ?? '',
-    user_avatar: activity.user_avatar ?? null,
-    action_type: activity.action_type ?? 'unknown',
-    entity_type: activity.entity_type ?? '',
-    entity_id: activity.entity_id ?? '',
-    metadata: activity.metadata ?? {},
-    created_at: activity.created_at ?? '',
-  };
+function mapToActivityItem(activity: unknown): Database['public']['Tables']['activity_feed']['Row'] {
+  const record = activity as Record<string, unknown>;
+  if (!isActivity(record)) {
+    throw new Error('Invalid activity object');
+  }
+  return record as Database['public']['Tables']['activity_feed']['Row'];
 }
 
 export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityFeedProps) {
-  const [activities, setActivities] = useState<Activity[]>(initialActivities)
+  const [activities, setActivities] = useState<Database['public']['Tables']['activity_feed']['Row'][]>(initialActivities)
   const [loading, setLoading] = useState(!initialActivities.length)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(initialActivities.length ? 1 : 0)
@@ -42,7 +43,7 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
 
   const { ref, inView } = useInView()
 
-  const loadActivities = async (reset = false) => {
+  const loadActivities = useCallback(async (reset: boolean = false) => {
     if (!hasMore && !reset) return
 
     try {
@@ -50,7 +51,7 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
       setError(null)
 
       const pageToLoad = reset ? 0 : page
-      let data: Activity[] = []
+      let data: Database['public']['Tables']['activity_feed']['Row'][] = []
 
       if (type === "user" && userId) {
         data = await getUserActivity(userId, 10, pageToLoad)
@@ -73,21 +74,21 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
     } finally {
       setLoading(false)
     }
-  }
+  }, [hasMore, page, type, userId])
 
   // Load more activities when scrolling to the bottom
   useEffect(() => {
     if (inView && !loading) {
       loadActivities()
     }
-  }, [inView, loading])
+  }, [inView, loading, loadActivities])
 
   // Initial load if no activities were provided
   useEffect(() => {
     if (initialActivities.length === 0) {
       loadActivities()
     }
-  }, [initialActivities])
+  }, [initialActivities, loadActivities])
 
   if (loading && activities.length === 0) {
     return (
@@ -131,12 +132,15 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
 
   return (
     <div className="space-y-4">
-      {activities.map((activity) => (
-        <ActivityItem
-          key={activity.id}
-          activity={mapToActivityItem(activity)}
-        />
-      ))}
+      {activities.map((activity) => {
+        const record = activity as Record<string, unknown>;
+        return isActivity(record) ? (
+          <ActivityItem
+            key={activity.id}
+            activity={mapToActivityItem(activity)}
+          />
+        ) : null
+      })}
 
       {hasMore && (
         <div ref={ref} className="flex justify-center p-4">

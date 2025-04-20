@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import FeedbackWidget from './FeedbackWidget';
 import Confetti from 'react-confetti';
 import { useRealtimeCelebration } from '../hooks/useRealtimeCelebration';
+import { useOnboarding } from './onboarding/OnboardingProvider';
+import { createBrowserClient } from '@supabase/ssr';
 
 const steps = [
   {
@@ -42,20 +44,6 @@ function getOnboardingVariant() {
   return variant;
 }
 
-// Helper: Store journey selection in localStorage (replace with Supabase update in production)
-function setUserJourney(journey: string) {
-  if (typeof window !== 'undefined') {
-    window.localStorage.setItem('user_journey', journey);
-  }
-}
-
-// Helper: Simulate badge minting (replace with Supabase insert in production)
-function mintBadge(journey: string) {
-  if (typeof window !== 'undefined') {
-    window.localStorage.setItem('onboarding_badge', `${journey}_first_steps`);
-  }
-}
-
 export default function OnboardingWizard({ onComplete }: { onComplete?: () => void }) {
   const [step, setStep] = useState(0);
   const [feedbackGiven, setFeedbackGiven] = useState(false);
@@ -64,46 +52,87 @@ export default function OnboardingWizard({ onComplete }: { onComplete?: () => vo
   const [badge, setBadge] = useState<string | null>(null);
   const onboardingVariant = getOnboardingVariant();
 
-  // TODO: Replace with actual user ID from auth context/session
-  const userId = typeof window !== 'undefined' ? window.localStorage.getItem('user_id') : null;
+  // Supabase client for direct DB updates
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // Use onboarding context for step and completion
+  useOnboarding();
+
+  // Authenticated user ID from Supabase
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    async function fetchUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUserId(user?.id || null);
+    }
+    fetchUser();
+  }, [supabase]);
 
   // Celebrate in real-time when user joins a team during onboarding
   useRealtimeCelebration('team_memberships', payload => {
     if (payload.new.user_id === userId) {
       setShowConfetti(true);
-      // toast.push('You joined a team! 🎉', { variant: 'success' });
     }
   });
 
-  // Handle journey selection
-  const handleJourneySelect = (selected: string) => {
+  // Load journey and badge from Supabase on mount
+  useEffect(() => {
+    async function fetchJourneyAndBadge() {
+      if (!userId) return;
+      const { data } = await supabase
+        .from('user_onboarding')
+        .select('journey,badge')
+        .eq('user_id', userId)
+        .single();
+      if (data) {
+        if (data.journey) setJourney(data.journey);
+        if (data.badge) setBadge(data.badge);
+      }
+    }
+    fetchJourneyAndBadge();
+  }, [userId, supabase]);
+
+  // Handle journey selection and persist to Supabase
+  const handleJourneySelect = async (selected: string) => {
     setJourney(selected);
-    setUserJourney(selected);
     setStep(s => Math.min(s + 1, steps.length - 1));
+    if (userId) {
+      await supabase.from('user_onboarding').upsert({
+        user_id: userId,
+        journey: selected,
+      });
+    }
   };
 
-  // On finish, mint badge and celebrate
-  const finish = () => {
-    if (journey) {
-      mintBadge(journey);
-      setBadge(`${journey}_first_steps`);
+  // On finish, mint badge, assign token, and celebrate
+  const finish = async () => {
+    if (journey && userId) {
+      const badgeValue = `${journey}_first_steps`;
+      setBadge(badgeValue);
+      setShowConfetti(true);
+      // Save badge and mark onboarding complete
+      await supabase.from('user_onboarding').upsert({
+        user_id: userId,
+        badge: badgeValue,
+        is_complete: true,
+        current_step: steps.length,
+        total_steps: steps.length,
+        journey,
+      });
+      // Assign token/role (example: insert into user_tokens)
+      await supabase.from('user_tokens').upsert({
+        user_id: userId,
+        token: journey,
+        source: 'onboarding',
+        awarded_at: new Date().toISOString(),
+      });
     }
     setShowConfetti(true);
-    // toast.push('Welcome to Avolve, Superachiever!', { variant: 'success' });
     if (onComplete) onComplete();
-    // Optional: Play celebration sound
-    // new Audio('/sounds/celebrate.mp3').play();
   };
-
-  // On mount, load badge if exists
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const badge = window.localStorage.getItem('onboarding_badge');
-      if (badge) setBadge(badge);
-      const storedJourney = window.localStorage.getItem('user_journey');
-      if (storedJourney) setJourney(storedJourney);
-    }
-  }, []);
 
   const next = () => setStep(s => Math.min(s + 1, steps.length - 1));
   const prev = () => setStep(s => Math.max(s - 1, 0));

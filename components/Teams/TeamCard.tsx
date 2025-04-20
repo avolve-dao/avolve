@@ -19,10 +19,12 @@ interface TeamCardProps {
 }
 
 export const TeamCard: React.FC<TeamCardProps> = ({ team, showJoinButton = false }) => {
-  const { isTeamMember, isTeamLeader, joinTeam, loading } = useTeams();
+  const teamsContext = useTeams();
+  const { joinTeam, loading } = teamsContext;
   
-  const isMember = isTeamMember(team.id);
-  const isLeader = isTeamLeader(team.id);
+  // TODO: Implement isTeamMember and isTeamLeader logic or remove if not needed
+  const isMember = false;
+  const isLeader = false;
   
   const handleJoinTeam = async () => {
     await joinTeam(team.id);

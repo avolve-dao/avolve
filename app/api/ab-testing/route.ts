@@ -23,7 +23,7 @@ type SuccessResponse = {
 
 type ErrorResponse = {
   error: string;
-  details?: ZodFormattedError<any, string> | ZodIssue[];
+  details?: ZodFormattedError<unknown, string> | ZodIssue[];
 };
 
 export const runtime = 'edge';
@@ -71,6 +71,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // Parse the request body
     const body = await req.json();
     
+    // Explicit runtime type checks
+    if (
+      typeof body !== 'object' ||
+      typeof body.testId !== 'string' ||
+      typeof body.variant !== 'string' ||
+      typeof body.action !== 'string' ||
+      (body.metadata !== undefined && typeof body.metadata !== 'object')
+    ) {
+      return NextResponse.json<ErrorResponse>({ error: 'Invalid request body' }, { status: 400 });
+    }
+
     // Validate the request body
     const validationResult = abTestingSchema.safeParse(body);
     

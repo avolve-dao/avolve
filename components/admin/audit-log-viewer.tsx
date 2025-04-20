@@ -85,7 +85,7 @@ export function AuditLogViewer() {
     }
     
     loadAuditLogs()
-  }, [activeTab, filter, user])
+  }, [activeTab, filter, user, auditService])
   
   // Filter logs based on search query
   const filteredLogs = auditLogs.filter(log => 

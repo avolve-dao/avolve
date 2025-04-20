@@ -61,8 +61,8 @@ export function ProtectedRoute({
       if (!isAuthenticated) {
         // Add the current path as a query parameter to redirect back after login
         const redirectPath = redirectTo.includes("?")
-          ? `${redirectTo}&redirectTo=${encodeURIComponent(pathname)}`
-          : `${redirectTo}?redirectTo=${encodeURIComponent(pathname)}`
+          ? `${redirectTo}&redirectTo=${encodeURIComponent(pathname ?? '')}`
+          : `${redirectTo}?redirectTo=${encodeURIComponent(pathname ?? '')}`
         
         router.push(redirectPath)
         return

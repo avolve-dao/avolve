@@ -1,21 +1,38 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, ChangeEvent } from "react"
 import { useAuth } from "@/lib/hooks/use-auth"
-import { RoleService, Role, Permission } from "@/lib/auth/role-service"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Role } from "@/lib/auth/role-service"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Spinner } from "@/components/ui/spinner"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, UserPlus, UserCheck, UserX, Shield } from "lucide-react"
-import { Authorized } from "@/components/auth/authorized"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ProtectedPage } from "@/components/auth/protected-page"
+
+interface User {
+  id: string
+  email: string
+  first_name: string
+  last_name: string
+}
+
+interface UserRoleManagerState {
+  users: User[]
+  loading: boolean
+  roles: Role[]
+  loadingRoles: boolean
+  selectedUser: User | null
+  selectedUserRoles: string[]
+  userRoles: { [key: string]: string[] }
+  loadingUserRoles: boolean
+  selectedRoleId: string
+  assigningRole: boolean
+  removingRole: boolean
+  searchQuery: string
+  error: string | null
+  success: string | null
+}
 
 /**
  * User Role Manager Component
@@ -27,52 +44,43 @@ export function UserRoleManager() {
   const { user } = useAuth()
   const isAdmin = user?.role === 'admin'
 
-  // State for users
-  const [users, setUsers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  // State for roles
-  const [roles, setRoles] = useState<Role[]>([])
-  const [loadingRoles, setLoadingRoles] = useState(true)
-
-  // State for selected user and their roles
-  const [selectedUser, setSelectedUser] = useState<any | null>(null)
-  const [selectedUserRoles, setSelectedUserRoles] = useState<string[]>([])
-  const [userRoles, setUserRoles] = useState<{ [key: string]: string[] }>({})
-  const [loadingUserRoles, setLoadingUserRoles] = useState(false)
-
-  // State for role selection
-  const [selectedRoleId, setSelectedRoleId] = useState('')
-  const [assigningRole, setAssigningRole] = useState(false)
-  const [removingRole, setRemovingRole] = useState(false)
-
-  // State for search
-  const [searchQuery, setSearchQuery] = useState('')
-
-  // State for error and success messages
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-
-  const roleService = RoleService.getBrowserInstance()
+  const [state, setState] = useState<UserRoleManagerState>({
+    users: [],
+    loading: true,
+    roles: [],
+    loadingRoles: true,
+    selectedUser: null,
+    selectedUserRoles: [],
+    userRoles: {},
+    loadingUserRoles: false,
+    selectedRoleId: '',
+    assigningRole: false,
+    removingRole: false,
+    searchQuery: '',
+    error: null,
+    success: null,
+  })
 
   // Fetch roles on component mount
   useEffect(() => {
     const fetchRoles = async () => {
-      setLoadingRoles(true)
-      setError(null)
+      setState((prevState) => ({ ...prevState, loadingRoles: true, error: null }))
       try {
         // Use dummy data since actual method is not available
-        const rolesData = [
+        const rolesData: Role[] = [
           { id: 'role1', name: 'Admin', description: 'Administrator with full access', is_system: true },
           { id: 'role2', name: 'Editor', description: 'Editor with content management permissions', is_system: false },
           { id: 'role3', name: 'Viewer', description: 'Viewer with read-only access', is_system: false },
         ]
-        setRoles(rolesData)
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch roles')
-        setRoles([])
+        setState((prevState) => ({ ...prevState, roles: rolesData }))
+      } catch (error) {
+        if (error instanceof Error) {
+          setState((prevState) => ({ ...prevState, error: error.message }));
+        } else {
+          setState((prevState) => ({ ...prevState, error: 'An unknown error occurred' }));
+        }
       } finally {
-        setLoadingRoles(false)
+        setState((prevState) => ({ ...prevState, loadingRoles: false }))
       }
     }
 
@@ -81,16 +89,15 @@ export function UserRoleManager() {
 
   // Fetch users and their roles
   const fetchUsers = async () => {
-    setLoading(true)
-    setError(null)
+    setState((prevState) => ({ ...prevState, loading: true, error: null }))
     try {
       // Use dummy data since actual method is not available
-      const usersData = [
+      const usersData: User[] = [
         { id: 'user1', email: 'user1@example.com', first_name: 'User', last_name: 'One' },
         { id: 'user2', email: 'user2@example.com', first_name: 'User', last_name: 'Two' },
         { id: 'user3', email: 'user3@example.com', first_name: 'User', last_name: 'Three' },
       ]
-      setUsers(usersData)
+      setState((prevState) => ({ ...prevState, users: usersData }))
 
       // Simulate user roles data
       const userRolesData = {
@@ -98,12 +105,15 @@ export function UserRoleManager() {
         user2: ['role2'],
         user3: ['role1', 'role3'],
       }
-      setUserRoles(userRolesData)
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch users')
-      setUsers([])
+      setState((prevState) => ({ ...prevState, userRoles: userRolesData }))
+    } catch (error) {
+      if (error instanceof Error) {
+        setState((prevState) => ({ ...prevState, error: error.message }));
+      } else {
+        setState((prevState) => ({ ...prevState, error: 'An unknown error occurred' }));
+      }
     } finally {
-      setLoading(false)
+      setState((prevState) => ({ ...prevState, loading: false }))
     }
   }
 
@@ -113,120 +123,124 @@ export function UserRoleManager() {
 
   // Fetch user roles when a user is selected
   useEffect(() => {
-    if (selectedUser) {
+    if (state.selectedUser && state.selectedUser.id) {
       const fetchUserRoles = async () => {
-        setLoadingUserRoles(true)
-        setError(null)
+        setState((prevState) => ({ ...prevState, loadingUserRoles: true, error: null }))
         try {
           // Use dummy data since actual method is not available
-          const userRolesData = userRoles[selectedUser.id] || []
-          setSelectedUserRoles(userRolesData)
-        } catch (err: any) {
-          setError(err.message || 'Failed to fetch user roles')
-          setSelectedUserRoles([])
+          if (state.selectedUser) {
+            const userRolesData = state.userRoles[state.selectedUser.id] || [];
+            setState((prevState) => ({ ...prevState, selectedUserRoles: userRolesData }));
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            setState((prevState) => ({ ...prevState, error: error.message }));
+          } else {
+            setState((prevState) => ({ ...prevState, error: 'An unknown error occurred' }));
+          }
         } finally {
-          setLoadingUserRoles(false)
+          setState((prevState) => ({ ...prevState, loadingUserRoles: false }))
         }
       }
       fetchUserRoles()
+    } else {
+      setState((prevState) => ({ ...prevState, selectedUserRoles: [] }));
     }
-  }, [selectedUser, userRoles])
+  }, [state.selectedUser, state.userRoles])
 
   // Filter users based on search query
-  const filteredUsers = users.filter(user => 
-    user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.last_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = state.users.filter((user: User) => 
+    user.email?.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+    user.first_name?.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+    user.last_name?.toLowerCase().includes(state.searchQuery.toLowerCase())
   )
-
-  // Handle role toggle
-  const handleToggleRole = async (role: Role) => {
-    if (!selectedUser) {
-      setError('No user selected')
-      return
-    }
-
-    setLoadingUserRoles(true)
-    setError(null)
-    
-    try {
-      // Simulate role assignment since actual method is not available
-      const updatedUserRoles = { ...userRoles }
-      if (!updatedUserRoles[selectedUser.id].includes(role.id)) {
-        updatedUserRoles[selectedUser.id].push(role.id)
-      } else {
-        updatedUserRoles[selectedUser.id] = updatedUserRoles[selectedUser.id].filter(id => id !== role.id)
-      }
-      setUserRoles(updatedUserRoles)
-      setSelectedUserRoles(updatedUserRoles[selectedUser.id])
-    } catch (err: any) {
-      setError(err.message || 'Failed to assign role')
-    } finally {
-      setLoadingUserRoles(false)
-    }
-  }
 
   // Handle role assignment
   const handleAssignRole = async () => {
-    if (!selectedUser || !selectedRoleId) {
-      setError('User and role are required')
-      return
+    if (!state.selectedRoleId || !state.selectedUser) {
+      setState((prevState) => ({ ...prevState, error: 'Please select a user and a role.' }));
+      return;
     }
 
-    setAssigningRole(true)
-    setError(null)
-    setSuccess(null)
+    setState((prevState) => ({ ...prevState, assigningRole: true, error: null, success: null }))
 
     try {
       // Simulate role assignment since actual method is not available
-      const updatedUserRoles = { ...userRoles }
-      if (!updatedUserRoles[selectedUser.id].includes(selectedRoleId)) {
-        updatedUserRoles[selectedUser.id].push(selectedRoleId)
+      const userId = state.selectedUser?.id;
+      if (userId) {
+        const updatedUserRoles = { ...state.userRoles };
+        if (!updatedUserRoles[userId]) {
+          updatedUserRoles[userId] = [];
+        }
+        updatedUserRoles[userId].push(state.selectedRoleId);
+        if (userId && userId in updatedUserRoles) {
+          setState((prevState) => ({ ...prevState, userRoles: updatedUserRoles, selectedUserRoles: updatedUserRoles[userId] }));
+        }
       }
-      setUserRoles(updatedUserRoles)
-      setSelectedUserRoles(updatedUserRoles[selectedUser.id])
 
-      setSuccess(`Successfully assigned role to ${selectedUser.email}`)
-      setSelectedRoleId('')
-    } catch (err: any) {
-      setError(err.message || 'Failed to assign role')
+      setState((prevState) => ({ ...prevState, success: `Successfully assigned role to ${state.selectedUser?.email}`, selectedRoleId: '' }))
+    } catch (error) {
+      if (error instanceof Error) {
+        setState((prevState) => ({ ...prevState, error: error.message }));
+      } else {
+        setState((prevState) => ({ ...prevState, error: 'An unknown error occurred' }));
+      }
     } finally {
-      setAssigningRole(false)
+      setState((prevState) => ({ ...prevState, assigningRole: false }))
     }
   }
 
   // Handle role removal
   const handleRemoveRole = async (roleId: string) => {
-    if (!selectedUser) {
-      setError('User is required')
-      return
+    if (!state.selectedUser) {
+      setState((prevState) => ({ ...prevState, error: 'Please select a user.' }));
+      return;
     }
 
-    setRemovingRole(true)
-    setError(null)
-    setSuccess(null)
+    setState((prevState) => ({ ...prevState, removingRole: true, error: null, success: null }))
 
     try {
       // Simulate role removal since actual method is not available
-      const updatedUserRoles = { ...userRoles }
-      updatedUserRoles[selectedUser.id] = updatedUserRoles[selectedUser.id].filter(id => id !== roleId)
-      setUserRoles(updatedUserRoles)
-      setSelectedUserRoles(updatedUserRoles[selectedUser.id])
-
-      setSuccess(`Successfully removed role from ${selectedUser.email}`)
-    } catch (err: any) {
-      setError(err.message || 'Failed to remove role')
+      const userId = state.selectedUser?.id;
+      if (userId) {
+        const updatedUserRoles = { ...state.userRoles };
+        if (updatedUserRoles[userId].includes(roleId)) {
+          updatedUserRoles[userId] = updatedUserRoles[userId].filter(id => id !== roleId);
+        }
+        if (userId && userId in updatedUserRoles) {
+          setState((prevState) => ({ ...prevState, userRoles: updatedUserRoles, selectedUserRoles: updatedUserRoles[userId] }));
+        }
+      }
+      setState((prevState) => ({ ...prevState, success: `Successfully removed role from ${state.selectedUser?.email}` }));
+    } catch (error) {
+      if (error instanceof Error) {
+        setState((prevState) => ({ ...prevState, error: error.message }));
+      } else {
+        setState((prevState) => ({ ...prevState, error: 'An unknown error occurred' }));
+      }
     } finally {
-      setRemovingRole(false)
+      setState((prevState) => ({ ...prevState, removingRole: false }))
     }
+  }
+
+  const handleSearchQueryChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setState((prevState) => ({ ...prevState, searchQuery: event.target.value }))
+  }
+
+  const handleSelectChange = (value: string) => {
+    setState((prevState) => ({ ...prevState, selectedRoleId: value }))
+  }
+
+  const handleUserSelect = (user: User) => {
+    setState((prevState) => ({ ...prevState, selectedUser: user }))
   }
 
   if (!isAdmin) {
     return (
       <Card title="Access Denied" className="mb-6">
-        <Alert variant="destructive" className="mb-4">
-          You do not have permission to access this page.
-        </Alert>
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">You do not have permission to access this page.</span>
+        </div>
       </Card>
     )
   }
@@ -236,15 +250,15 @@ export function UserRoleManager() {
       <h1 className="text-2xl font-bold">User Role Manager</h1>
 
       {/* Error/Success Messages */}
-      {error && (
-        <Alert variant="destructive" className="mb-4">
-          {error}
-        </Alert>
+      {state.error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">{state.error}</span>
+        </div>
       )}
-      {success && (
-        <Alert variant="default" className="mb-4">
-          {success}
-        </Alert>
+      {state.success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+          <span className="block sm:inline">{state.success}</span>
+        </div>
       )}
 
       {/* User Selection */}
@@ -253,24 +267,24 @@ export function UserRoleManager() {
           <Label htmlFor="search">Search Users</Label>
           <Input
             id="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={state.searchQuery}
+            onChange={handleSearchQueryChange}
             placeholder="Search by email or name..."
             className="w-full"
           />
         </div>
-        {loading ? (
+        {state.loading ? (
           <div className="text-center py-6">Loading users...</div>
         ) : filteredUsers.length === 0 ? (
           <div className="text-center py-6">No users found.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {filteredUsers.map((user) => (
+            {filteredUsers.map((user: User) => (
               <Button
                 key={user.id}
-                variant={selectedUser?.id === user.id ? 'default' : 'outline'}
+                variant={state.selectedUser?.id === user.id ? 'default' : 'outline'}
                 className="w-full text-left justify-start"
-                onClick={() => setSelectedUser(user)}
+                onClick={() => handleUserSelect(user)}
               >
                 <div className="flex flex-col overflow-hidden">
                   <span className="font-medium truncate">{user.first_name} {user.last_name}</span>
@@ -283,19 +297,19 @@ export function UserRoleManager() {
       </Card>
 
       {/* Role Assignment for Selected User */}
-      {selectedUser && (
-        <Card title={`Manage Roles for ${selectedUser.email}`} className="mb-6">
+      {state.selectedUser && (
+        <Card title={`Manage Roles for ${state.selectedUser?.email}`} className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="md:col-span-2">
               <Label htmlFor="roleSelect">Assign New Role</Label>
-              <Select value={selectedRoleId} onValueChange={setSelectedRoleId}>
+              <Select value={state.selectedRoleId} onValueChange={handleSelectChange}>
                 <SelectTrigger id="roleSelect" className="w-full">
                   <SelectValue placeholder="Select a role to assign" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles
-                    .filter(role => !selectedUserRoles.includes(role.id))
-                    .map(role => (
+                  {state.roles
+                    .filter((role: Role) => !state.selectedUserRoles.includes(role.id))
+                    .map((role: Role) => (
                       <SelectItem key={role.id} value={role.id}>
                         {role.name}
                       </SelectItem>
@@ -306,17 +320,17 @@ export function UserRoleManager() {
             <div className="flex items-end">
               <Button
                 onClick={handleAssignRole}
-                disabled={assigningRole || !selectedRoleId}
+                disabled={state.assigningRole || !state.selectedRoleId || !state.selectedUser}
                 className="w-full"
               >
-                {assigningRole ? 'Assigning...' : 'Assign Role'}
+                {state.assigningRole ? 'Assigning...' : 'Assign Role'}
               </Button>
             </div>
           </div>
           
-          {loadingUserRoles ? (
+          {state.loadingUserRoles ? (
             <div className="text-center py-6">Loading roles...</div>
-          ) : selectedUserRoles.length === 0 ? (
+          ) : state.selectedUserRoles.length === 0 ? (
             <div className="text-center p-4 bg-muted rounded-md">
               <p className="text-muted-foreground">This user has no roles assigned</p>
             </div>
@@ -330,7 +344,7 @@ export function UserRoleManager() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {roles.filter(role => selectedUserRoles.includes(role.id)).map((role) => (
+                {state.roles.filter((role: Role) => state.selectedUserRoles.includes(role.id)).map((role: Role) => (
                   <TableRow key={role.id}>
                     <TableCell className="font-medium">
                       {role.name}
@@ -343,7 +357,7 @@ export function UserRoleManager() {
                         variant="destructive"
                         size="sm"
                         onClick={() => handleRemoveRole(role.id)}
-                        disabled={removingRole}
+                        disabled={state.removingRole}
                       >
                         Remove
                       </Button>
@@ -358,9 +372,9 @@ export function UserRoleManager() {
 
       {/* All Roles */}
       <Card title="All Roles" className="mb-6">
-        {loadingRoles ? (
+        {state.loadingRoles ? (
           <div className="text-center py-6">Loading roles...</div>
-        ) : roles.length === 0 ? (
+        ) : state.roles.length === 0 ? (
           <div className="text-center py-6">No roles found.</div>
         ) : (
           <Table>
@@ -371,7 +385,7 @@ export function UserRoleManager() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {roles.map((role) => (
+              {state.roles.map((role: Role) => (
                 <TableRow key={role.id}>
                   <TableCell className="font-medium">{role.name}</TableCell>
                   <TableCell>{role.description || 'No description'}</TableCell>

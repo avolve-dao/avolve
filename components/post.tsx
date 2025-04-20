@@ -50,7 +50,8 @@ const Post = memo(function Post({ post, currentUserId, onLike }: PostProps) {
   const postRef = useRef<HTMLDivElement>(null)
 
   // Set up gesture handlers
-  useGestures(postRef, {
+  // useGestures expects RefObject<HTMLElement>, so cast postRef as needed
+  useGestures(postRef as React.RefObject<HTMLElement>, {
     onDoubleTap: () => {
       // Double tap to like
       if (!post.liked) {
@@ -235,4 +236,3 @@ const Post = memo(function Post({ post, currentUserId, onLike }: PostProps) {
 })
 
 export { Post }
-

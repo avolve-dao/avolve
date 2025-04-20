@@ -1,20 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
 import { useTokens } from '@/hooks/use-tokens';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { TrophyIcon, CoinsIcon } from 'lucide-react';
-import { Session } from '@supabase/supabase-js';
+import { Database } from '@/types/supabase';
 
-export type Achievement = {
+// Use the same type as dashboard for consistency
+type AchievementCategory = 'discovery' | 'onboarding' | 'scaffolding' | 'endgame' | 'special';
+type Achievement = Database['public']['Tables']['achievements']['Row'];
+type UserAchievement = {
   id: string;
   title: string;
   description: string;
-  category: string;
+  category: AchievementCategory | string;
   reward_type: string;
-  reward_amount?: number;
-  reward_token_symbol?: string;
-  earned_at?: string;
+  claimed_at?: string | null;
+  earned_at?: string | null;
+  reward_amount: number;
+  reward_token_symbol: string;
 };
 
 export function AchievementNotification({
@@ -25,74 +29,63 @@ export function AchievementNotification({
   const { supabase } = useSupabase();
   const { claimAchievementReward, trackActivity } = useTokens();
   
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [displayedAchievement, setDisplayedAchievement] = useState<Achievement | null>(null);
+  const [displayedAchievement, setDisplayedAchievement] = useState<UserAchievement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
+    if (!supabase?.auth?.getUser) return;
     supabase.auth.getUser().then(({ data }) => setUser(data.user));
   }, [supabase]);
 
-  useEffect(() => {
-    if (!user) return;
-
-    const fetchAchievements = async () => {
-      try {
-        const { data: userAchievements } = await supabase.rpc('get_user_achievements', {
-          p_user_id: user.id,
-        });
-
-        if (userAchievements) {
-          setAchievements(userAchievements);
-
-          // Check for unclaimed achievements
-          const unclaimed = userAchievements.find((a: Achievement) => !a.reward_token_symbol);
-          if (unclaimed && !displayedAchievement) {
-            setDisplayedAchievement(unclaimed);
-            setIsVisible(true);
-
-            // Track this view for analytics
+  const fetchAchievements = useCallback(async () => {
+    try {
+      const { data: userAchievements } = await supabase.rpc('get_user_achievements', {
+        p_user_id: user?.id,
+      });
+      if (userAchievements) {
+        const normalized: UserAchievement[] = userAchievements.map((a: Achievement) => ({
+          id: a.id,
+          title: a.title ?? '',
+          description: a.description ?? '',
+          category: a.category ?? 'personal',
+          reward_type: a.reward_type ?? '',
+          claimed_at: a.claimed_at ?? null,
+          earned_at: a.earned_at ?? null,
+          reward_amount: a.reward_amount ?? 0,
+          reward_token_symbol: a.reward_token_symbol ?? ''
+        }));
+        const unclaimed = normalized.find((a) => !a.reward_token_symbol);
+        if (unclaimed && !displayedAchievement) {
+          setDisplayedAchievement(unclaimed);
+          setIsVisible(true);
+          if (trackActivity) {
             await trackActivity('view_achievement_notification', 'notification', unclaimed.id);
           }
         }
-      } catch (error) {
-        console.error('Error fetching achievements:', error);
-      }
-    };
-
-    fetchAchievements();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event: string, session: Session | null) => {
-      if (event === 'SIGNED_IN' && session) {
-        fetchAchievements();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [user, supabase, trackActivity]);
-
-  const handleClaim = async (achievementId: string) => {
-    setClaimingId(achievementId);
-    try {
-      const success = await claimAchievementReward(achievementId);
-      if (success) {
-        // Track this action for analytics
-        await trackActivity('claim_achievement_notification', 'notification', achievementId);
-
-        // Update achievements state
-        const updatedAchievements = achievements.map((a) =>
-          a.id === achievementId ? { ...a, reward_token_symbol: a.reward_token_symbol || 'Claimed' } : a
-        );
-        setAchievements(updatedAchievements);
-        setIsVisible(false);
       }
     } catch (error) {
-      console.error('Error claiming achievement:', error);
+      console.error('Error fetching achievements:', error);
+    }
+  }, [user, trackActivity, displayedAchievement, supabase]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchAchievements();
+  }, [user, supabase, fetchAchievements]);
+
+  const handleClaim = async (achievementId: string) => {
+    if (!user || !displayedAchievement) return;
+    setClaimingId(achievementId);
+    try {
+      await claimAchievementReward(achievementId, user.id);
+      // Refresh achievements after claiming
+      await fetchAchievements();
+      setIsVisible(false);
+      setDisplayedAchievement(null);
+    } catch (error) {
+      console.error('Error claiming achievement reward:', error);
     } finally {
       setClaimingId(null);
     }

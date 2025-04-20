@@ -6,7 +6,7 @@ const supabase = createClient(
 );
 
 export async function getRolePoints() {
-  const user = supabase.auth.getUser ? (await supabase.auth.getUser()).data.user : supabase.auth.user();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
   // Use updated function/view for Fibonacci-based rewards if available
   const { data, error } = await supabase.rpc('get_role_points', { p_user_id: user.id });
@@ -15,7 +15,7 @@ export async function getRolePoints() {
 }
 
 export async function getRoleHistory() {
-  const user = supabase.auth.getUser ? (await supabase.auth.getUser()).data.user : supabase.auth.user();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
   // Use updated function/view for Fibonacci-based rewards if available
   const { data, error } = await supabase.rpc('get_role_history', { p_user_id: user.id, p_limit: 50 });

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { JSX, CSSProperties } from 'react';
 
 // Define consistent spacing scale
 export const spacing = {
@@ -318,13 +318,13 @@ export function Flex({
     evenly: 'space-evenly',
   };
   
-  const style = {
+  const style: React.CSSProperties = {
     display: 'flex',
     flexDirection: direction,
     alignItems: alignMap[align],
     justifyContent: justifyMap[justify],
     gap: spacing[gap],
-    flexWrap: wrap ? 'wrap' : 'nowrap',
+    flexWrap: wrap ? ('wrap' as React.CSSProperties['flexWrap']) : ('nowrap' as React.CSSProperties['flexWrap']),
   };
   
   return (

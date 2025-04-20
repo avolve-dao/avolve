@@ -37,6 +37,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+// TokenWithBalance type for dashboard selection
+import type { Token } from '@/hooks/use-tokens';
+type TokenWithBalance = Token & { staked_balance?: number };
+
 /**
  * Component that displays the user's tokens and allows them to manage them
  */
@@ -52,27 +56,13 @@ export function TokensDashboard() {
   const [recipientEmail, setRecipientEmail] = useState('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      // Get user tokens
-      const tokensResult = await tokens();
-      if (tokensResult.data) {
-        // setTokens(tokensResult.data);
-      }
-      
-      // Get all token types
-      const tokenTypesResult = await userBalances();
-      if (tokenTypesResult.data) {
-        // setAllTokenTypes(tokenTypesResult.data);
-      }
-    };
-    
-    fetchData();
+    // No changes needed here
   }, [tokens, userBalances]);
 
   // Handle token transfer
   const handleTransfer = () => {
     // In a real implementation, this would call the transferToken function
-    console.log('Transferring', transferAmount, selectedToken?.token_symbol, 'to', recipientEmail);
+    console.log('Transferring', transferAmount, selectedToken?.symbol, 'to', recipientEmail);
     setIsTransferDialogOpen(false);
     setTransferAmount('');
     setRecipientEmail('');
@@ -81,7 +71,7 @@ export function TokensDashboard() {
   // Handle token staking
   const handleStake = () => {
     // In a real implementation, this would call the stakeToken function
-    console.log('Staking', stakeAmount, selectedToken?.token_symbol);
+    console.log('Staking', stakeAmount, selectedToken?.symbol);
     setIsStakeDialogOpen(false);
     setStakeAmount('');
   };
@@ -141,13 +131,13 @@ export function TokensDashboard() {
         <TabsContent value="tokens" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tokens.map(token => (
-              <Card key={token.token_id}>
+              <Card key={token.id}>
                 <CardHeader className={`bg-gradient-to-r ${token.gradient_class} text-white rounded-t-lg`}>
                   <CardTitle className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                      {token.token_symbol}
+                      {token.symbol}
                     </div>
-                    <span>{token.token_name}</span>
+                    <span>{token.name}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4">
@@ -156,13 +146,13 @@ export function TokensDashboard() {
                       <span className="text-sm text-gray-500">Balance</span>
                       <span className="font-medium">{token.balance}</span>
                     </div>
-                    {token.staked_balance > 0 && (
+                    {typeof token.staked_balance === 'number' && token.staked_balance > 0 && (
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Staked</span>
                         <span className="font-medium">{token.staked_balance}</span>
                       </div>
                     )}
-                    {token.pending_release > 0 && (
+                    {typeof token.pending_release === 'number' && token.pending_release > 0 && (
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-500">Pending</span>
                         <span className="font-medium">{token.pending_release}</span>
@@ -198,7 +188,7 @@ export function TokensDashboard() {
                     }}
                     disabled={token.balance <= 0}
                   >
-                    {token.staked_balance > 0 ? (
+                    {typeof token.staked_balance === 'number' && token.staked_balance > 0 ? (
                       <>
                         <UnlockIcon className="mr-2 h-4 w-4" />
                         Unstake
@@ -507,16 +497,16 @@ export function TokensDashboard() {
           <DialogHeader>
             <DialogTitle>Transfer Token</DialogTitle>
             <DialogDescription>
-              Transfer {selectedToken?.token_name} to another user
+              Transfer {selectedToken?.name} to another user
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex items-center space-x-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${selectedToken?.gradient_class}`}>
-                {selectedToken?.token_symbol}
+                {selectedToken?.symbol}
               </div>
               <div>
-                <div className="font-medium">{selectedToken?.token_name}</div>
+                <div className="font-medium">{selectedToken?.name}</div>
                 <div className="text-sm text-gray-500">Balance: {selectedToken?.balance}</div>
               </div>
             </div>
@@ -543,7 +533,7 @@ export function TokensDashboard() {
                 max={selectedToken?.balance}
               />
               <div className="text-sm text-gray-500">
-                Maximum: {selectedToken?.balance} {selectedToken?.token_symbol}
+                Maximum: {selectedToken?.balance} {selectedToken?.symbol}
               </div>
             </div>
           </div>
@@ -574,24 +564,24 @@ export function TokensDashboard() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {selectedToken?.staked_balance > 0 ? 'Unstake Token' : 'Stake Token'}
+              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 ? 'Unstake Token' : 'Stake Token'}
             </DialogTitle>
             <DialogDescription>
-              {selectedToken?.staked_balance > 0 
-                ? `Unstake ${selectedToken?.token_name} to make it available for transfer`
-                : `Stake ${selectedToken?.token_name} to earn rewards over time`
+              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 
+                ? `Unstake ${selectedToken?.name} to make it available for transfer`
+                : `Stake ${selectedToken?.name} to earn rewards over time`
               }
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex items-center space-x-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${selectedToken?.gradient_class}`}>
-                {selectedToken?.token_symbol}
+                {selectedToken?.symbol}
               </div>
               <div>
-                <div className="font-medium">{selectedToken?.token_name}</div>
+                <div className="font-medium">{selectedToken?.name}</div>
                 <div className="text-sm text-gray-500">
-                  {selectedToken?.staked_balance > 0 
+                  {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 
                     ? `Staked: ${selectedToken?.staked_balance}`
                     : `Balance: ${selectedToken?.balance}`
                   }
@@ -608,21 +598,21 @@ export function TokensDashboard() {
                 onChange={(e) => setStakeAmount(e.target.value)}
                 placeholder="0"
                 min="0"
-                max={selectedToken?.staked_balance > 0 
-                  ? selectedToken?.staked_balance 
-                  : selectedToken?.balance
+                max={typeof selectedToken?.staked_balance === 'number' && selectedToken?.staked_balance && selectedToken.staked_balance > 0 
+                  ? selectedToken.staked_balance 
+                  : (selectedToken?.balance ?? 0)
                 }
               />
               <div className="text-sm text-gray-500">
                 Maximum: {
-                  selectedToken?.staked_balance > 0 
-                    ? selectedToken?.staked_balance 
-                    : selectedToken?.balance
-                } {selectedToken?.token_symbol}
+                  typeof selectedToken?.staked_balance === 'number' && selectedToken?.staked_balance && selectedToken.staked_balance > 0 
+                    ? selectedToken.staked_balance 
+                    : (selectedToken?.balance ?? 0)
+                } {selectedToken?.symbol}
               </div>
             </div>
             
-            {selectedToken?.staked_balance <= 0 && (
+            {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance <= 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm text-blue-800 dark:text-blue-300">
                 <div className="font-medium">Staking Benefits</div>
                 <ul className="list-disc list-inside mt-1 space-y-1">
@@ -646,13 +636,13 @@ export function TokensDashboard() {
                 !stakeAmount || 
                 parseFloat(stakeAmount) <= 0 || 
                 parseFloat(stakeAmount) > (
-                  selectedToken?.staked_balance > 0 
-                    ? selectedToken?.staked_balance 
-                    : selectedToken?.balance
+                  typeof selectedToken?.staked_balance === 'number' && selectedToken?.staked_balance && selectedToken.staked_balance > 0 
+                    ? selectedToken.staked_balance 
+                    : (selectedToken?.balance ?? 0)
                 )
               }
             >
-              {selectedToken?.staked_balance > 0 ? 'Unstake' : 'Stake'}
+              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 ? 'Unstake' : 'Stake'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -27,12 +27,12 @@ export function MessagingThemeProvider({
   children: React.ReactNode
 }) {
   // Use the app's theme system
-  const { theme, setTheme: setNextTheme } = useNextTheme()
+  const { theme: nextTheme, setTheme: setNextTheme } = useNextTheme()
   const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
-    setIsDark(theme === "dark")
-  }, [theme])
+    setIsDark(nextTheme === "dark")
+  }, [nextTheme])
 
   const toggleTheme = () => {
     setNextTheme(isDark ? "light" : "dark")
@@ -42,8 +42,7 @@ export function MessagingThemeProvider({
     setNextTheme(theme)
   }
 
-  return <ThemeContext.Provider value={{ isDark, toggleTheme, theme, setTheme }}>{children}</ThemeContext.Provider>
+  return <ThemeContext.Provider value={{ isDark, toggleTheme, theme: nextTheme ?? null, setTheme }}>{children}</ThemeContext.Provider>
 }
 
 export const useTheme = () => useContext(ThemeContext)
-

@@ -1,4 +1,6 @@
 // Minimal placeholder page for future implementation
-export default function PlaceholderPage() {
-  return <div>Coming soon...</div>;
+import OnboardingWizard from "@/app/components/OnboardingWizard";
+
+export default function OnboardingPage() {
+  return <OnboardingWizard />;
 }

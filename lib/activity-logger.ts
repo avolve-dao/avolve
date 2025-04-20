@@ -80,7 +80,9 @@ export async function getActivityFeed(userId: string, limit = 20, page = 0) {
     // First get the list of users this user follows
     const { data: followingData } = await supabase.from("follows").select("following_id").eq("follower_id", userId)
 
-    const followingIds = followingData?.map((f) => f.following_id) || []
+    const followingIds = Array.isArray(followingData)
+      ? followingData.map((f: { following_id: string }) => f.following_id)
+      : []
 
     // Include the user's own ID
     const userIds = [userId, ...followingIds]
@@ -129,4 +131,3 @@ export async function getGlobalActivityFeed(limit = 20, page = 0) {
     return []
   }
 }
-

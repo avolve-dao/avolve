@@ -287,11 +287,22 @@ export class ChallengeService {
         });
       }
       
-      // Get today's token
-      const { data: dailyToken, error: tokenError } = await this.tokenService.getDailyToken();
+      // getTokenForToday does not exist; use getTodayToken (async) instead
+      const { data: dailyToken, error: tokenError } = await this.tokenService.getTodayToken();
       
       if (tokenError) {
-        return { data: null, error: tokenError };
+        // Handle both ChallengeError and plain object errors
+        if (tokenError instanceof ChallengeError) {
+          return { data: null, error: tokenError };
+        } else if (typeof tokenError === 'object' && tokenError !== null) {
+          // If error has code/message, wrap in ChallengeError
+          const msg = tokenError.message || 'Token error';
+          const err = new ChallengeError(msg, tokenError);
+          return { data: null, error: err };
+        } else {
+          // Fallback generic error
+          return { data: null, error: new ChallengeError('Unknown token error') };
+        }
       }
       
       // Build dashboard data
@@ -378,13 +389,15 @@ export class ChallengeService {
         return { data: null, error: rewardError };
       }
       
+      // Find tokenId by symbol before minting
+      let tokenId = challenge.token_type;
+      if (!tokenId || tokenId.length !== 36) { // crude UUID v4 check
+        const tokenRes = await this.tokenService.getTokenBySymbol(challenge.token_type);
+        tokenId = tokenRes.data?.id || challenge.token_type;
+      }
+      
       // Award tokens to the user
-      const { data: mintResult, error: mintError } = await this.tokenService.mintTokensBySymbol(
-        userId,
-        challenge.token_type,
-        totalReward || challenge.reward_amount,
-        `Daily challenge completion: ${challenge.challenge_name}`
-      );
+      const { data: mintResult, error: mintError } = await this.tokenService.mintTokens({ userId, tokenId, amount: totalReward || challenge.reward_amount, reason: 'Daily challenge completion: ' + challenge.challenge_name });
       
       if (mintError) {
         console.error('Mint tokens error:', mintError);
@@ -476,13 +489,15 @@ export class ChallengeService {
           return { data: null, error: rewardError };
         }
         
+        // Find tokenId by symbol before minting
+        let tokenId = challenge.token_type;
+        if (!tokenId || tokenId.length !== 36) {
+          const tokenRes = await this.tokenService.getTokenBySymbol(challenge.token_type);
+          tokenId = tokenRes.data?.id || challenge.token_type;
+        }
+        
         // Award tokens to the user
-        const { data: mintResult, error: mintError } = await this.tokenService.mintTokensBySymbol(
-          userId,
-          challenge.token_type,
-          totalReward || challenge.reward_amount,
-          `Weekly challenge completion: ${challenge.challenge_name}`
-        );
+        const { data: mintResult, error: mintError } = await this.tokenService.mintTokens({ userId, tokenId, amount: totalReward || challenge.reward_amount, reason: 'Weekly challenge completion: ' + challenge.challenge_name });
         
         if (mintError) {
           console.error('Mint tokens error:', mintError);

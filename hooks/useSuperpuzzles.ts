@@ -159,7 +159,6 @@ export function useSuperpuzzles() {
     setLoading(true);
     
     try {
-      // This is a mock implementation - in a real app, you would fetch from Supabase
       const { data, error } = await supabase
         .from('superpuzzles')
         .select(`

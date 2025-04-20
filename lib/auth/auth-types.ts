@@ -49,6 +49,8 @@ export interface UserProfile {
   preferences: UserSettings;
   created_at: string;
   updated_at: string;
+  role?: Role;
+  hasMfa?: boolean;
 }
 
 /**

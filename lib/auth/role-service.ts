@@ -331,14 +331,18 @@ export class RoleService {
         return { data: null, error: convertError(error) };
       }
       
-      // Extract permissions from the nested structure and ensure proper typing
-      const permissions: Permission[] = data.map(item => ({
-        id: item.permissions?.id,
-        name: item.permissions?.name,
-        resource: item.permissions?.resource,
-        action: item.permissions?.action,
-        description: item.permissions?.description
-      } as Permission));
+      // Normalize permissions: handle both array and object cases
+      const permissions: Permission[] = (data || [])
+        .map(item => {
+          if (Array.isArray(item.permissions)) {
+            // If array, extract the first element or flatten if needed
+            return item.permissions[0] as Permission | undefined;
+          } else if (item.permissions && typeof item.permissions === 'object') {
+            return item.permissions as Permission;
+          }
+          return undefined;
+        })
+        .filter((p): p is Permission => p !== undefined);
       
       return { data: permissions, error: null };
     } catch (error) {
@@ -425,9 +429,11 @@ export class RoleService {
       
       // Extract users from the nested structure and ensure proper typing
       const users: { id: string, email: string }[] = data.map(item => ({
-        id: item.users?.id || '',
-        email: item.users?.email || ''
-      }));
+        // item.users may be an array or an object
+        ...(Array.isArray(item.users)
+          ? item.users[0] || {}
+          : (typeof item.users === 'object' && item.users !== null ? item.users : {}))
+      } as { id: string, email: string }));
       
       return { data: users, error: null };
     } catch (error) {

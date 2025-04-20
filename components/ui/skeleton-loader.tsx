@@ -5,13 +5,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
 interface SkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  isLoading?: boolean
-  children: React.ReactNode
+  isLoading?: boolean;
+  children?: React.ReactNode;
 }
 
 export function SkeletonCard({
   isLoading = true,
-  children,
+  children = null,
   className,
   ...props
 }: SkeletonCardProps) {

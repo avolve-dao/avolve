@@ -2,7 +2,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { getCachedData, setCachedData, generateCacheKey } from "@/lib/cache"
 
 /**
@@ -52,5 +52,23 @@ export async function GET() {
       { error: "Internal server error" },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * POST /api/user/engagement
+ * Record user engagement
+ */
+export async function POST(req: NextRequest) {
+  try {
+    // Your business logic here (e.g., record user engagement)
+  } catch (error) {
+    console.error(JSON.stringify({
+      route: '/api/user/engagement',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }

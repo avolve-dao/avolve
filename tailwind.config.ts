@@ -3,13 +3,10 @@ import { fontFamily } from "tailwindcss/defaultTheme"
 
 const config = {
   darkMode: ["class"],
-  mode: "jit", // Enable JIT mode for faster builds and smaller CSS
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
-    "*.{js,ts,jsx,tsx,mdx}",
   ],
   prefix: "",
   theme: {

@@ -79,10 +79,13 @@ export function showEnhancedToast({
   const config = toastConfigs[type];
   
   toast({
-    title: title || config.title,
+    title: `${title || config.title}`,
     description: (
       <div className="mt-2 space-y-3">
-        <p>{description}</p>
+        <span className="flex items-center gap-2">
+          {config.icon}
+          {description}
+        </span>
         {actionLink && (
           <Link href={actionLink || config.actionLink} className="inline-block">
             <Button variant="outline" size="sm">
@@ -94,7 +97,6 @@ export function showEnhancedToast({
           <div className="text-xs text-muted-foreground">
             <ContextualTooltip 
               type={tooltipType as any} 
-              userId={userId}
               showIcon={false}
               className="underline cursor-help"
             >
@@ -106,7 +108,6 @@ export function showEnhancedToast({
     ),
     duration: config.duration,
     className: config.className,
-    icon: config.icon,
   });
 }
 
@@ -186,14 +187,20 @@ export function ToastListener({ userId }: { userId: string }) {
           // Fetch component details
           const { data: component } = await supabase
             .from('components')
-            .select('name, pillar:pillar_id(name)')
+            .select('name, pillar:pillar_id!inner(name)')
             .eq('id', payload.new.component_id)
             .single();
             
-          if (component) {
+          if (component && component.pillar && typeof component.pillar === 'object' && 'name' in component.pillar) {
             showEnhancedToast({
               type: 'completion',
-              description: `You've completed "${component.name}" in the ${component.pillar.name} pillar!`,
+              description: `You've completed "${component.name}" in the ${(component.pillar as { name: string }).name} pillar!`,
+              userId,
+            });
+          } else if (component) {
+            showEnhancedToast({
+              type: 'completion',
+              description: `You've completed "${component.name}" in a pillar!`,
               userId,
             });
           }

@@ -29,9 +29,9 @@ export const useGovernanceQuery = () => {
       queryKeys.petitions,
       async () => {
         if (!userId) throw new Error('User not authenticated');
-        const result = await governanceService.getAllPetitions(userId);
+        const result = await governanceService.getAllPetitions();
         if (!result.success) {
-          throw new Error(result.error?.message || 'Failed to fetch petitions');
+          throw new Error(result.error || 'Failed to fetch petitions');
         }
         return result.data;
       },
@@ -52,9 +52,9 @@ export const useGovernanceQuery = () => {
         if (!userId) throw new Error('User not authenticated');
         if (!petitionId) throw new Error('Petition ID is required');
         
-        const result = await governanceService.getPetitionById(userId, petitionId);
+        const result = await governanceService.getPetitionDetails(petitionId);
         if (!result.success) {
-          throw new Error(result.error?.message || 'Failed to fetch petition');
+          throw new Error(result.error || 'Failed to fetch petition');
         }
         return result.data;
       },
@@ -74,9 +74,9 @@ export const useGovernanceQuery = () => {
       async () => {
         if (!userId) throw new Error('User not authenticated');
         
-        const result = await governanceService.checkEligibility(userId);
+        const result = await governanceService.checkPetitionEligibility(userId);
         if (!result.success) {
-          throw new Error(result.error?.message || 'Failed to check eligibility');
+          throw new Error(result.error || 'Failed to check eligibility');
         }
         return result.data;
       },
@@ -97,7 +97,7 @@ export const useGovernanceQuery = () => {
         
         const result = await governanceService.createPetition(userId, title, description);
         if (!result.success) {
-          throw new Error(result.error?.message || 'Failed to create petition');
+          throw new Error(result.error || 'Failed to create petition');
         }
         return result.data;
       },
@@ -121,9 +121,9 @@ export const useGovernanceQuery = () => {
         if (!userId) throw new Error('User not authenticated');
         if (!petitionId) throw new Error('Petition ID is required');
         
-        const result = await governanceService.voteOnPetition(userId, petitionId, voteType);
+        const result = await governanceService.voteOnPetition(userId, petitionId); // Only pass userId and petitionId as per GovernanceService API
         if (!result.success) {
-          throw new Error(result.error?.message || 'Failed to vote on petition');
+          throw new Error(result.error || 'Failed to vote on petition');
         }
         return result.data;
       },

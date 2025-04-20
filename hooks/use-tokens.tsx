@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSupabase } from '@/components/supabase/provider';
 import { useToast } from '@/components/ui/use-toast';
-import { tokensService } from '@/lib/tokens';
+import { TokenService } from '@/lib/token/TokenService';
 
 // Token type definitions
 export interface Token {
@@ -23,6 +23,7 @@ export interface Token {
   parent_token_id?: string;
   parent_token_symbol?: string;
   pending_release?: number;
+  is_transferable?: boolean;
 }
 
 export interface TokenTransaction {
@@ -132,8 +133,9 @@ export function useTokens() {
       // Transform to a more efficient lookup structure
       const balances: Record<string, number> = {};
       data?.forEach(item => {
-        if (item.tokens?.symbol) {
-          balances[item.tokens.symbol] = item.balance;
+        const tokenObj = Array.isArray(item.tokens) ? item.tokens[0] : item.tokens;
+        if (tokenObj?.symbol) {
+          balances[tokenObj.symbol] = item.balance;
         }
       });
       
@@ -581,14 +583,14 @@ export function useTokens() {
     const channel = supabase
       .channel('token_balance_changes')
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         {
           event: '*',
           schema: 'public',
           table: 'user_tokens',
           filter: `user_id=eq.${session.user.id}`
         },
-        (payload) => {
+        (payload: { new?: { token_id: string; balance: number }; old?: { token_id: string; balance: number } }) => {
           // Update balances in real-time
           fetchUserBalances();
           

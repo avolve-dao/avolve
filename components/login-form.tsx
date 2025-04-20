@@ -53,7 +53,7 @@ export function LoginForm({ className, message, csrfToken, redirectTo, ...props 
       }
 
       // Use the auth service to sign in
-      const { data, error: signInError, message: signInMessage } = await signIn(email, password)
+      const { data, error: signInError } = await signIn(email, password)
 
       if (signInError) {
         console.error("Login error:", signInError)
@@ -99,7 +99,7 @@ export function LoginForm({ className, message, csrfToken, redirectTo, ...props 
       console.log("Using resend confirmation redirect URL:", redirectUrl)
 
       // Use the auth service to resend confirmation email
-      const { error, message } = await resendConfirmationEmail(email, redirectUrl)
+      const { error } = await resendConfirmationEmail(email)
 
       if (error) throw error
 

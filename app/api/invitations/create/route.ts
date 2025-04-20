@@ -14,7 +14,12 @@ export async function POST(req: NextRequest) {
       p_email: email || null
     });
     if (error) {
-      console.error("Error creating invitation:", error);
+      console.error(JSON.stringify({
+        route: '/api/invitations/create',
+        supabaseError: error,
+        input: { email },
+        timestamp: new Date().toISOString(),
+      }));
       return NextResponse.json(
         { error: error.message || "Failed to create invitation" },
         { status: 500 }
@@ -22,10 +27,14 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json(data);
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'An unexpected error occurred';
-    console.error("Error in invitation create API:", err);
+    console.error(JSON.stringify({
+      route: '/api/invitations/create',
+      error: err instanceof Error ? err.message : err,
+      stack: err instanceof Error ? err.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
     return NextResponse.json(
-      { error: message },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }

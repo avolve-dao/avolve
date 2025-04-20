@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@supabase/auth-helpers-react';
 import { onboardingService } from '../src/onboarding';
-import { useToast } from './useToast';
+import { useToast } from '../components/ui/use-toast';
 
 /**
  * Hook for managing user onboarding
@@ -11,7 +11,7 @@ import { useToast } from './useToast';
  */
 export const useOnboarding = () => {
   const user = useUser();
-  const { showToast } = useToast();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [onboardingStatus, setOnboardingStatus] = useState<{
     step: number;
@@ -30,7 +30,11 @@ export const useOnboarding = () => {
   // Start or continue onboarding
   const startOnboarding = async () => {
     if (!user) {
-      showToast('error', 'You must be logged in to start onboarding');
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to start onboarding',
+        variant: 'destructive',
+      });
       return { success: false };
     }
     
@@ -41,12 +45,20 @@ export const useOnboarding = () => {
         await loadOnboardingStatus();
         return { success: true, currentStep: result.data.currentStep };
       } else {
-        showToast('error', result.error || 'Failed to start onboarding');
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to start onboarding',
+          variant: 'destructive',
+        });
         return { success: false, error: result.error };
       }
     } catch (error) {
       console.error('Error starting onboarding:', error);
-      showToast('error', 'An error occurred while starting onboarding');
+      toast({
+        title: 'Error',
+        description: 'An error occurred while starting onboarding',
+        variant: 'destructive',
+      });
       return { success: false, error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);
@@ -56,7 +68,11 @@ export const useOnboarding = () => {
   // Update onboarding step
   const updateOnboardingStep = async (step: number) => {
     if (!user) {
-      showToast('error', 'You must be logged in to update onboarding');
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to update onboarding',
+        variant: 'destructive',
+      });
       return { success: false };
     }
     
@@ -67,7 +83,11 @@ export const useOnboarding = () => {
         await loadOnboardingStatus();
         
         if (result.data.isCompleted) {
-          showToast('success', 'Onboarding completed! 🎉');
+          toast({
+            title: 'Success',
+            description: 'Onboarding completed! 🎉',
+            variant: 'default',
+          });
         }
         
         return { 
@@ -76,12 +96,20 @@ export const useOnboarding = () => {
           isCompleted: result.data.isCompleted
         };
       } else {
-        showToast('error', result.error || 'Failed to update onboarding step');
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to update onboarding step',
+          variant: 'destructive',
+        });
         return { success: false, error: result.error };
       }
     } catch (error) {
       console.error('Error updating onboarding step:', error);
-      showToast('error', 'An error occurred while updating onboarding');
+      toast({
+        title: 'Error',
+        description: 'An error occurred while updating onboarding',
+        variant: 'destructive',
+      });
       return { success: false, error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);

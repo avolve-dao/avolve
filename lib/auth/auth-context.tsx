@@ -131,7 +131,8 @@ export function ProtectedRoute({
   
   // Check if user has required role
   if (requiredRole) {
-    const hasRole = permissions.roles.some(r => r.role === requiredRole);
+    // Role interface only has id and name, so compare to name
+    const hasRole = permissions.roles.some(r => r.name === requiredRole);
     
     if (!hasRole) {
       return <div>You don't have the required role to access this page.</div>;
@@ -191,7 +192,8 @@ export function RoleGate({
 }: RoleGateProps) {
   const permissions = usePermissionContext();
   
-  const hasRole = permissions.roles.some(r => r.role === role);
+  // Role interface only has id and name, so compare to name
+  const hasRole = permissions.roles.some(r => r.name === role);
   
   if (!hasRole) {
     return <>{fallback}</>;

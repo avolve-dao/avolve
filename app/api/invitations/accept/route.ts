@@ -24,19 +24,23 @@ export async function POST(req: NextRequest) {
     })
     
     if (error) {
-      console.error("Error accepting invitation:", error)
-      return NextResponse.json(
-        { error: "Failed to accept invitation" },
-        { status: 500 }
-      )
+      console.error(JSON.stringify({
+        route: '/api/invitations/accept',
+        supabaseError: error,
+        input: { code },
+        timestamp: new Date().toISOString(),
+      }));
+      return NextResponse.json({ error: error.message || 'Failed to accept invitation' }, { status: 500 });
     }
     
     return NextResponse.json(data)
-  } catch (error) {
-    console.error("Error in invitation accept API:", error)
-    return NextResponse.json(
-      { error: "An unexpected error occurred" },
-      { status: 500 }
-    )
+  } catch (err) {
+    console.error(JSON.stringify({
+      route: '/api/invitations/accept',
+      error: err instanceof Error ? err.message : err,
+      stack: err instanceof Error ? err.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

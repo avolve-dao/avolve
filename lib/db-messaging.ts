@@ -4,12 +4,12 @@ import { PREDEFINED_GROUPS } from "@/lib/predefined-groups"
 // Messaging-specific database functions
 export const messagingDb = {
   // Get the Supabase client
-  getSupabaseClient() {
+  getSupabaseClient(): any {
     return createClientBrowser()
   },
 
   // Send a message
-  async sendMessage({ chatId, userId, content, type = "text", mediaUrl = null }) {
+  async sendMessage({ chatId, userId, content, type = "text", mediaUrl = null }: { chatId: string; userId: string; content: string; type?: string; mediaUrl?: string | null }) {
     const supabase = this.getSupabaseClient()
     const { data, error } = await supabase
       .from("messages")
@@ -43,7 +43,7 @@ export const messagingDb = {
   },
 
   // Get messages for a chat
-  async getMessages(chatId, limit = 50, before = null) {
+  async getMessages(chatId: string, limit: number = 50, before: string | null = null) {
     const supabase = this.getSupabaseClient()
 
     let query = supabase
@@ -76,11 +76,11 @@ export const messagingDb = {
   },
 
   // Mark messages as read
-  async markMessagesAsRead(chatId, userId, messageIds) {
+  async markMessagesAsRead(chatId: string, userId: string, messageIds: string[]) {
     const supabase = this.getSupabaseClient()
 
     // Create receipts for each message
-    const receipts = messageIds.map((messageId) => ({
+    const receipts = messageIds.map((messageId: string) => ({
       message_id: messageId,
       user_id: userId,
       read_at: new Date().toISOString(),
@@ -98,7 +98,7 @@ export const messagingDb = {
   },
 
   // Get read receipts for messages
-  async getReadReceipts(messageIds) {
+  async getReadReceipts(messageIds: string[]) {
     const supabase = this.getSupabaseClient()
 
     const { data, error } = await supabase
@@ -121,12 +121,13 @@ export const messagingDb = {
     }
 
     // Group receipts by message_id
-    const receiptsByMessage = {}
-    data.forEach((receipt) => {
-      if (!receiptsByMessage[receipt.message_id]) {
-        receiptsByMessage[receipt.message_id] = []
+    const receiptsByMessage: Record<string, { user: any; readAt: string }[]> = {}
+    data.forEach((receipt: any) => {
+      const messageId = String(receipt.message_id)
+      if (!receiptsByMessage[messageId]) {
+        receiptsByMessage[messageId] = []
       }
-      receiptsByMessage[receipt.message_id].push({
+      receiptsByMessage[messageId].push({
         user: receipt.profiles,
         readAt: receipt.read_at,
       })
@@ -136,7 +137,7 @@ export const messagingDb = {
   },
 
   // Set typing indicator
-  async setTypingIndicator(chatId, userId) {
+  async setTypingIndicator(chatId: string, userId: string) {
     const supabase = this.getSupabaseClient()
 
     const { error } = await supabase.from("typing_indicators").upsert(
@@ -155,7 +156,7 @@ export const messagingDb = {
   },
 
   // Clear typing indicator
-  async clearTypingIndicator(chatId, userId) {
+  async clearTypingIndicator(chatId: string, userId: string) {
     const supabase = this.getSupabaseClient()
 
     const { error } = await supabase.from("typing_indicators").delete().eq("chat_id", chatId).eq("user_id", userId)
@@ -167,7 +168,7 @@ export const messagingDb = {
   },
 
   // Get typing indicators for a chat
-  async getTypingIndicators(chatId, currentUserId) {
+  async getTypingIndicators(chatId: string, currentUserId: string) {
     const supabase = this.getSupabaseClient()
 
     // Get indicators that are less than 10 seconds old
@@ -192,17 +193,17 @@ export const messagingDb = {
       return []
     }
 
-    return data.map((item) => item.profiles)
+    return data.map((item: any) => item.profiles)
   },
 
   // Create a direct chat
-  async createDirectChat(userId, recipientId) {
+  async createDirectChat(userId: string, recipientId: string) {
     const supabase = this.getSupabaseClient()
 
     // Check if a chat already exists
     const existingChats = await this.getUserChats(userId)
     const existingChat = existingChats.find(
-      (chat) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === recipientId,
+      (chat: any) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === recipientId,
     )
 
     if (existingChat) {
@@ -243,7 +244,7 @@ export const messagingDb = {
   },
 
   // Join a group chat
-  async joinGroup(userId, groupId) {
+  async joinGroup(userId: string, groupId: string) {
     const supabase = this.getSupabaseClient()
 
     // Get group info
@@ -304,7 +305,7 @@ export const messagingDb = {
   },
 
   // Get user's chats
-  async getUserChats(userId) {
+  async getUserChats(userId: string) {
     const supabase = this.getSupabaseClient()
 
     const { data, error } = await supabase
@@ -348,7 +349,7 @@ export const messagingDb = {
         .eq("chat_id", chat.id)
         .neq("user_id", userId)
 
-      const otherParticipants = participantsData?.map((p) => p.profiles) || []
+      const otherParticipants = participantsData?.map((p: any) => p.profiles) || []
 
       // For 1-on-1 chats, use the other person's name
       if (!chat.is_group && otherParticipants.length > 0) {
@@ -385,7 +386,7 @@ export const messagingDb = {
   },
 
   // Get chat theme preference
-  async getChatTheme(userId) {
+  async getChatTheme(userId: string) {
     const supabase = this.getSupabaseClient()
 
     const { data, error } = await supabase.from("profiles").select("chat_theme").eq("id", userId).single()
@@ -399,7 +400,7 @@ export const messagingDb = {
   },
 
   // Update chat theme preference
-  async updateChatTheme(userId, theme) {
+  async updateChatTheme(userId: string, theme: string) {
     const supabase = this.getSupabaseClient()
 
     const { error } = await supabase.from("profiles").update({ chat_theme: theme }).eq("id", userId)
@@ -412,4 +413,3 @@ export const messagingDb = {
     return true
   },
 }
-

@@ -136,6 +136,16 @@ pnpm generate:types
 
 All contributors are expected to run these before submitting a PR. See [README.md](./README.md#developer--contributor-onboarding) for details.
 
+## Node 22, Logging, and Error Handling
+
+- All development and CI must use Node.js 22.x (see `package.json`).
+- All error handling and logging must use Vercel and Node 22 built-in features:
+  - Use `console.error`, `console.info` with JSON formatting for logs.
+  - Use `process.on('uncaughtException')` and `process.on('unhandledRejection')` in server code.
+  - Use Next.js error boundaries (`error.tsx` in each segment) for client-side errors.
+  - All Supabase errors must be logged with context.
+- See the main README for details on accessing logs.
+
 ## 🔄 Pull Request Process
 
 1. **Branch Naming**

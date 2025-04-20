@@ -72,7 +72,7 @@ export function PasswordResetForm({ className, message, csrfToken, ...props }: P
       const redirectUrl = `${cleanOrigin}/auth/reset-password/confirm`
 
       // Use the auth service to reset password
-      const { error: resetError, message: resetMessage } = await resetPassword(email, redirectUrl)
+      const { error: resetError } = await resetPassword(email)
 
       if (resetError) {
         console.error("Password reset error:", resetError)
@@ -220,7 +220,7 @@ export function PasswordResetConfirmForm({ className, message, csrfToken, ...pro
       }
 
       // Use the auth service to update password
-      const { error: updateError, message: updateMessage } = await updatePassword(password)
+      const { error: updateError } = await updatePassword(password)
 
       if (updateError) {
         console.error("Password update error:", updateError)

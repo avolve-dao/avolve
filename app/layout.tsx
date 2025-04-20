@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'; 
 import SupabaseProvider from '@/lib/supabase/supabase-provider';
+import ClientGlobalErrorBoundary from "@/app/components/ClientGlobalErrorBoundary";
+import ResumeOnboardingPrompt from "@/app/components/ResumeOnboardingPrompt";
 
 // TODO: Import authentication context or hook from your auth system
 // import { useAuth } from '@/contexts/AuthContext'; // Placeholder import
@@ -122,6 +124,8 @@ export default function RootLayout({
                     </div>
                   </header>
                   <main className="flex-1 overflow-auto p-4 mt-16">
+                    <ResumeOnboardingPrompt />
+                    <ClientGlobalErrorBoundary />
                     {children}
                   </main>
                 </div>
@@ -165,6 +169,7 @@ export default function RootLayout({
             </div>
           </header>
           <main className="mt-16">
+            <ClientGlobalErrorBoundary />
             {children}
           </main>
         </>

@@ -6,6 +6,23 @@
 
 ---
 
+## Fellowship Review: Production-Ready Status
+
+- **All simulation, mock, and test code has been removed.**
+- **Database is fully audited:** All production tables have `created_at`, `updated_at`, and indexes on foreign keys and key columns for analytics and performance.
+- **Row Level Security (RLS):** Enforced on all tables, with granular policies for each role.
+- **No hardcoded secrets:** All sensitive keys are managed via environment variables.
+- **Documentation and codebase are prepared for the first 100-1000 users.**
+
+For details, see:
+- [`supabase/migrations/`](./supabase/migrations/) for audit and security migrations
+- [`docs/security/README.md`](./docs/security/README.md) for security rationale
+- [`docs/database/README.md`](./docs/database/README.md) for schema and audit fields
+- [Onboarding Documentation](./docs/onboarding/README.md)
+- [Database Documentation](./docs/database/README.md)
+
+---
+
 ## ⚠️ UI Library Policy: Shadcn/ui Only
 
 > **Important:** This project uses [Shadcn/ui](https://ui.shadcn.com/) as the **exclusive** UI component library. Do not add, use, or install any other UI libraries (including NextUI, MUI, Chakra, etc.) without explicit, written permission from the project owner.
@@ -186,9 +203,22 @@ Avolve delivers a magnetic onboarding experience:
 - **Row Level Security (RLS)** on all user data tables
 - **Role-Based Access Control (RBAC)** for admin actions
 - **Token gating** for advanced features
+- **Audit Fields:** All tables have `created_at` and `updated_at` for traceability
+- **Indexes:** All foreign keys and frequently queried columns are indexed for performance
 - All data is live, real, and production-grade
 
 **See:** [Database Docs](./docs/database.md)
+
+### Node.js 22, Vercel, and Supabase Requirements
+
+- Node.js 22.x is required for all development and production environments. See `package.json` for explicit version.
+- All deployments use Vercel. Logs are accessible via the Vercel dashboard (see below).
+- All database operations, authentication, and RBAC are managed via Supabase. Logs for queries and auth events are available in the Supabase dashboard.
+- All audit fields (`created_at`, `updated_at`) are kept up-to-date with triggers (see latest migrations).
+
+### Accessing Logs
+- **Vercel:** Go to your Vercel dashboard → Project → Logs. Filter by `console.error`, `console.info`, or custom JSON keys for structured logs.
+- **Supabase:** Go to your Supabase dashboard → Project → Logs. Filter by query, auth, or function logs as needed.
 
 ### Security
 

@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server"
  * GET /api/token/permissions
  * Get token-based permissions for the authenticated user
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -35,11 +35,13 @@ export async function GET() {
 
     return NextResponse.json({ data: permissions })
   } catch (error) {
-    console.error('Unexpected error:', error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+    console.error(JSON.stringify({
+      route: '/api/token/permissions',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }
 

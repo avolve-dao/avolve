@@ -42,9 +42,12 @@ export function useHaptics() {
     // Conditionally trigger haptic feedback
     trigger: (pattern: keyof typeof hapticPatterns = "light") => {
       if (isEnabled && pattern in hapticPatterns) {
+        if (pattern === 'custom') {
+          // custom pattern expects an argument; skip if not provided
+          return;
+        }
         hapticPatterns[pattern]()
       }
     },
   }
 }
-

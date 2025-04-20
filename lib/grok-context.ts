@@ -50,7 +50,7 @@ Be helpful, conversational, and personalized to this specific user's context.
 }
 
 // Enhanced Grok model with context
-export async function getContextualGrokModel(userId: string, modelName: GrokModel = "grok-2-1212") {
+export async function getContextualGrokModel(userId: string, modelName: GrokModel = "grok-2") {
   const context = await getGrokContext(userId)
   const systemPrompt = generatePersonalizedPrompt(context)
 
@@ -60,4 +60,3 @@ export async function getContextualGrokModel(userId: string, modelName: GrokMode
     context,
   }
 }
-

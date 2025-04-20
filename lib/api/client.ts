@@ -7,7 +7,6 @@
 
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
-import { TypedSupabaseClient } from '@/lib/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 // Simple in-memory cache
@@ -82,10 +81,10 @@ export interface PaginatedResponse<T> {
  * Base API client
  */
 export class ApiClient {
-  protected client: TypedSupabaseClient;
+  protected client: any;
   protected activeSubscriptions: Map<string, RealtimeChannel> = new Map();
   
-  constructor(client: TypedSupabaseClient) {
+  constructor(client: any) {
     this.client = client;
   }
   

@@ -67,7 +67,7 @@ export function useRBAC() {
     if (!isAuthenticated || !user) return false;
     
     // Check if user is admin (admins have all roles)
-    if (user.isAdmin) return true;
+    if (await hasRole('admin')) return true;
     
     // Check cached roles first
     const hasRoleInCache = roles.some(role => role.name === roleName);
@@ -84,7 +84,7 @@ export function useRBAC() {
     if (!isAuthenticated || !user) return false;
     
     // Check if user is admin (admins have all permissions)
-    if (user.isAdmin) return true;
+    if (await hasRole('admin')) return true;
     
     // Check with the server (permissions are more dynamic, so we don't cache them)
     return await roleService.hasPermission(user.id, resource, action);
@@ -105,7 +105,7 @@ export function useRBAC() {
     if (!isAuthenticated || !user) return false;
     
     // Check if user is admin (admins have all roles)
-    if (user.isAdmin) return true;
+    if (await hasRole('admin')) return true;
     
     // Check each role
     for (const roleName of roleNames) {
@@ -124,7 +124,7 @@ export function useRBAC() {
     if (!isAuthenticated || !user) return false;
     
     // Check if user is admin (admins have all roles)
-    if (user.isAdmin) return true;
+    if (await hasRole('admin')) return true;
     
     // Check each role
     for (const roleName of roleNames) {

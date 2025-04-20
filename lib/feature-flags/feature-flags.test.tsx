@@ -1,8 +1,9 @@
 import React, { Fragment } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import { useFeatureFlags, FeatureFlagProvider, FEATURE_FLAGS } from './feature-flags';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { render } from '@testing-library/react';
+import { waitFor } from '@testing-library/dom';
 
 // Custom hook testing wrapper
 function renderHook<Result, Props>(

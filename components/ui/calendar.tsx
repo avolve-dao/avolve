@@ -16,7 +16,9 @@ function Calendar({
 }: CalendarProps) {
   // Placeholder: DayPicker removed for security and bloat reasons
   return (
-    <div className={className}>Calendar component unavailable (DayPicker dependency removed).</div>
+    <div className={typeof className === 'string' ? className : undefined}>
+      Calendar component unavailable (DayPicker dependency removed).
+    </div>
   );
 }
 

@@ -603,4 +603,344 @@ export class TokenRepository {
       };
     }
   }
+
+  // COMMUNITY MILESTONES
+  public async getAllCommunityMilestones(): Promise<TokenResult<any[]>> {
+    try {
+      const { data, error } = await this.client
+        .from('community_milestones')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Get all community milestones error:', error);
+        return { 
+          data: null, 
+          error: new TokenError('Failed to fetch community milestones', error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected get all community milestones error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting community milestones', error) 
+      };
+    }
+  }
+
+  public async getCommunityMilestoneById(id: string): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('community_milestones')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        console.error('Get community milestone by ID error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to fetch community milestone with ID: ${id}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected get community milestone by ID error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting community milestone', error) 
+      };
+    }
+  }
+
+  public async createCommunityMilestone(milestone: Partial<any>): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('community_milestones')
+        .insert(milestone)
+        .select('*')
+        .single();
+      
+      if (error) {
+        console.error('Create community milestone error:', error);
+        return { 
+          data: null, 
+          error: new TokenError('Failed to create community milestone', error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected create community milestone error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while creating community milestone', error) 
+      };
+    }
+  }
+
+  public async updateCommunityMilestone(id: string, updates: Partial<any>): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('community_milestones')
+        .update(updates)
+        .eq('id', id)
+        .select('*')
+        .single();
+      
+      if (error) {
+        console.error('Update community milestone error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to update community milestone with ID: ${id}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected update community milestone error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while updating community milestone', error) 
+      };
+    }
+  }
+
+  public async contributeToMilestone(milestoneId: string, userId: string, amount: number): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('milestone_contributions')
+        .insert({ milestone_id: milestoneId, user_id: userId, amount })
+        .select('*')
+        .single();
+      
+      if (error) {
+        console.error('Contribute to milestone error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to contribute to milestone with ID: ${milestoneId}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected contribute to milestone error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while contributing to milestone', error) 
+      };
+    }
+  }
+
+  public async getMilestoneContributions(milestoneId: string): Promise<TokenResult<any[]>> {
+    try {
+      const { data, error } = await this.client
+        .from('milestone_contributions')
+        .select('*')
+        .eq('milestone_id', milestoneId)
+        .order('contributed_at', { ascending: false });
+      
+      if (error) {
+        console.error('Get milestone contributions error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to fetch contributions for milestone ID: ${milestoneId}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected get milestone contributions error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting milestone contributions', error) 
+      };
+    }
+  }
+
+  // TEAMS
+  public async getAllTeams(): Promise<TokenResult<any[]>> {
+    try {
+      const { data, error } = await this.client
+        .from('teams')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Get all teams error:', error);
+        return { 
+          data: null, 
+          error: new TokenError('Failed to fetch teams', error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected get all teams error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting teams', error) 
+      };
+    }
+  }
+
+  public async getTeamById(id: string): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('teams')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) {
+        console.error('Get team by ID error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to fetch team with ID: ${id}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected get team by ID error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting team', error) 
+      };
+    }
+  }
+
+  public async createTeam(team: Partial<any>): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('teams')
+        .insert(team)
+        .select('*')
+        .single();
+      
+      if (error) {
+        console.error('Create team error:', error);
+        return { 
+          data: null, 
+          error: new TokenError('Failed to create team', error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected create team error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while creating team', error) 
+      };
+    }
+  }
+
+  public async joinTeam(teamId: string, userId: string): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('team_members')
+        .insert({ team_id: teamId, user_id: userId })
+        .select('*')
+        .single();
+      
+      if (error) {
+        console.error('Join team error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to join team with ID: ${teamId}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected join team error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while joining team', error) 
+      };
+    }
+  }
+
+  public async getTeamMembers(teamId: string): Promise<TokenResult<any[]>> {
+    try {
+      const { data, error } = await this.client
+        .from('team_members')
+        .select('*')
+        .eq('team_id', teamId)
+        .order('joined_at', { ascending: true });
+      
+      if (error) {
+        console.error('Get team members error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to fetch members for team ID: ${teamId}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected get team members error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting team members', error) 
+      };
+    }
+  }
+
+  // ASSISTS
+  public async logAssist(helperId: string, recipientId: string, description?: string): Promise<TokenResult<any>> {
+    try {
+      const { data, error } = await this.client
+        .from('assists')
+        .insert({ helper_id: helperId, recipient_id: recipientId, description })
+        .select('*')
+        .single();
+      
+      if (error) {
+        console.error('Log assist error:', error);
+        return { 
+          data: null, 
+          error: new TokenError('Failed to log assist', error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected log assist error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while logging assist', error) 
+      };
+    }
+  }
+
+  public async getAssistsForUser(userId: string): Promise<TokenResult<any[]>> {
+    try {
+      const { data, error } = await this.client
+        .from('assists')
+        .select('*')
+        .or(`helper_id.eq.${userId},recipient_id.eq.${userId}`)
+        .order('assisted_at', { ascending: false });
+      
+      if (error) {
+        console.error('Get assists for user error:', error);
+        return { 
+          data: null, 
+          error: new TokenError(`Failed to fetch assists for user ID: ${userId}`, error) 
+        };
+      }
+      
+      return { data, error: null };
+    } catch (error) {
+      console.error('Unexpected get assists for user error:', error);
+      return { 
+        data: null, 
+        error: new TokenError('An unexpected error occurred while getting assists for user', error) 
+      };
+    }
+  }
 }

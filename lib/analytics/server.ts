@@ -6,8 +6,7 @@
  */
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { Headers } from 'next/dist/compiled/@edge-runtime/primitives';
+import { cookies, headers } from 'next/headers';
 import type { Database } from '@/types/supabase';
 
 interface PageViewEvent {
@@ -40,6 +39,7 @@ interface UserBehaviorData {
 export async function trackPageView(event: PageViewEvent) {
   const supabase = createServerComponentClient<Database>({ cookies });
   
+  const h = await headers();
   // Record the page view in the analytics table
   await supabase
     .from('analytics_page_views')
@@ -47,8 +47,8 @@ export async function trackPageView(event: PageViewEvent) {
       user_id: event.userId,
       page: event.page,
       referrer: event.referrer,
-      user_agent: headers().get('user-agent') || '',
-      ip_address: headers().get('x-forwarded-for')?.split(',')[0] || '',
+      user_agent: h.get('user-agent') || '',
+      ip_address: h.get('x-forwarded-for')?.split(',')[0] || '',
       timestamp: new Date().toISOString()
     });
     

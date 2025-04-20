@@ -6,7 +6,7 @@ const supabase = createClient(
 );
 
 export async function getTokenBalances() {
-  const user = supabase.auth.user();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
   const { data, error } = await supabase
     .from('tokens')

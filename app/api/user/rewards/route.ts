@@ -2,7 +2,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { getCachedData, setCachedData, generateCacheKey } from "@/lib/cache"
 
 /**
@@ -35,7 +35,12 @@ export async function GET() {
       .rpc('calculate_user_rewards', { p_user_id: user.id });
 
     if (rewardsError) {
-      console.error('Error fetching rewards:', rewardsError)
+      console.error(JSON.stringify({
+        route: '/api/user/rewards',
+        supabaseError: rewardsError,
+        userId: user.id,
+        timestamp: new Date().toISOString(),
+      }));
       return NextResponse.json(
         { error: "Failed to fetch rewards" },
         { status: 500 }
@@ -47,10 +52,33 @@ export async function GET() {
     
     return NextResponse.json({ data: rewards })
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error(JSON.stringify({
+      route: '/api/user/rewards',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     )
+  }
+}
+
+/**
+ * POST /api/user/rewards
+ * Reward the authenticated user
+ */
+export async function POST(req: NextRequest) {
+  try {
+    // Your business logic here (e.g., reward user)
+  } catch (error) {
+    console.error(JSON.stringify({
+      route: '/api/user/rewards',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Spinner } from "@/components/ui/spinner"
 import { Copy, AlertTriangle, ShieldCheck, Smartphone, LogOut } from "lucide-react"
-import { TotpFactor, UserSession } from "@/lib/auth/auth-service"
+import { TotpFactor, UserSession } from "@/lib/auth/auth-types"
 import { toast } from "@/components/ui/use-toast"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { format } from "date-fns"
@@ -279,19 +279,19 @@ export function MfaSetup() {
 
   // Format device info for display
   const formatDeviceInfo = (session: UserSession) => {
-    const deviceInfo = session.deviceInfo || {}
-    const browser = deviceInfo.browser || "Unknown browser"
-    const os = deviceInfo.os || "Unknown OS"
-    const device = deviceInfo.device || "Unknown device"
+    const deviceInfo = (session as any).deviceInfo || {}
+    const browser = (deviceInfo as any).browser || "Unknown browser"
+    const os = (deviceInfo as any).os || "Unknown OS"
+    const device = (deviceInfo as any).device || "Unknown device"
     
     return `${browser} on ${os} (${device})`
   }
 
   // Format location info for display
   const formatLocationInfo = (session: UserSession) => {
-    const location = session.location || {}
-    const city = location.city || "Unknown"
-    const country = location.country || "Unknown"
+    const location = (session as any).location || {}
+    const city = (location as any).city || "Unknown"
+    const country = (location as any).country || "Unknown"
     
     return `${city}, ${country}`
   }
@@ -344,10 +344,10 @@ export function MfaSetup() {
             ) : totpFactor ? (
               <div className="space-y-6">
                 <div className="flex flex-col items-center justify-center space-y-4">
-                  <SimpleQRCode value={totpFactor.qrCode} />
+                  <SimpleQRCode value={(totpFactor as any).qrCode} />
                   <div className="text-center">
                     <p className="mt-2 text-sm font-medium">
-                      Or enter this code manually: <code className="bg-muted px-1 py-0.5 rounded">{totpFactor.secret}</code>
+                      Or enter this code manually: <code className="bg-muted px-1 py-0.5 rounded">{(totpFactor as any).secret}</code>
                     </p>
                   </div>
                 </div>
@@ -487,7 +487,7 @@ export function MfaSetup() {
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              onClick={() => handleRevokeSession(session.sessionId)}
+                              onClick={() => handleRevokeSession((session as any).sessionId)}
                               disabled={isLoading}
                             >
                               <LogOut className="h-4 w-4" />

@@ -42,13 +42,16 @@ export function UserProfile({ userId, isCurrentUser }: UserProfileProps) {
           const { data: currentUser } = await supabase.auth.getUser()
           if (currentUser?.user) {
             const isFollowing = await clientDb.isFollowing(currentUser.user.id, userId)
-            setIsFollowing(isFollowing)
+            setIsFollowing(Boolean(isFollowing))
           }
         }
 
         // Get follow counts
         const counts = await clientDb.getFollowCounts(userId)
-        setFollowCounts(counts)
+        setFollowCounts({
+          followers: (counts as any)?.followers ?? 0,
+          following: (counts as any)?.following ?? 0,
+        })
 
         // Get post count
         const { count: postCount } = await supabase
@@ -208,4 +211,3 @@ export function UserProfile({ userId, isCurrentUser }: UserProfileProps) {
     </Card>
   )
 }
-

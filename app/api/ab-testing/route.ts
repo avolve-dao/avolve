@@ -35,15 +35,15 @@ export const revalidate = 0;
  * Records impressions and conversions for A/B tests
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  // Check if A/B testing is enabled
-  if (!env.AB_TESTING_ENABLED_BOOL) {
-    return NextResponse.json<ErrorResponse>(
-      { error: 'A/B testing is disabled' },
-      { status: 403 }
-    );
-  }
-
   try {
+    // Check if A/B testing is enabled
+    if (!env.AB_TESTING_ENABLED_BOOL) {
+      return NextResponse.json<ErrorResponse>(
+        { error: 'A/B testing is disabled' },
+        { status: 403 }
+      );
+    }
+
     // Apply rate limiting
     const ip = req.headers.get('x-forwarded-for') || 'anonymous';
     const rateLimitResult = await rateLimit(req, {
@@ -155,19 +155,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     
     return response;
   } catch (error) {
-    console.error('Error processing A/B testing event:', error);
-    
-    // Handle validation errors
-    if (error instanceof ZodError) {
-      return NextResponse.json<ErrorResponse>(
-        { error: 'Invalid A/B testing data', details: error.errors },
-        { status: 400 }
-      );
-    }
-    
-    // Handle other errors
+    console.error(JSON.stringify({
+      route: '/api/ab-testing',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
     return NextResponse.json<ErrorResponse>(
-      { error: 'An unexpected error occurred' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }

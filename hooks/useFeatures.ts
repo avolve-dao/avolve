@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useUser, useSupabaseClient } from '@supabase/auth-helpers-react';
-import { FeaturesService, UserFeatureStatuses, FeatureStatus, DayTokenStatus, TokenClaimResult } from '@/src/features';
+import { FeaturesService } from '@/src/features';
 
 /**
  * Hook for managing feature unlocks
@@ -12,7 +12,7 @@ export function useFeatures() {
   const user = useUser();
   const supabase = useSupabaseClient();
   const [loading, setLoading] = useState(true);
-  const [featureStatus, setFeatureStatus] = useState<UserFeatureStatuses | null>(null);
+  const [featureStatus, setFeatureStatus] = useState<any | null>(null);
   
   // Initialize the features service
   const featuresService = new FeaturesService(
@@ -45,7 +45,7 @@ export function useFeatures() {
   }, [user, checkAllFeatures]);
 
   // Check if a specific feature is unlocked
-  const checkFeatureUnlock = useCallback(async (featureName: string): Promise<FeatureStatus> => {
+  const checkFeatureUnlock = useCallback(async (featureName: string): Promise<any> => {
     if (!user) {
       return {
         isUnlocked: false,
@@ -65,7 +65,7 @@ export function useFeatures() {
   }, [user, featuresService]);
 
   // Check if a day token is unlocked
-  const checkDayTokenUnlock = useCallback(async (dayName: string): Promise<DayTokenStatus> => {
+  const checkDayTokenUnlock = useCallback(async (dayName: string): Promise<any> => {
     if (!user) {
       return {
         isUnlocked: false,
@@ -101,7 +101,7 @@ export function useFeatures() {
   }, [user, featuresService]);
 
   // Claim a day token
-  const claimDayToken = useCallback(async (tokenSymbol: string): Promise<TokenClaimResult> => {
+  const claimDayToken = useCallback(async (tokenSymbol: string): Promise<any> => {
     if (!user) {
       return {
         success: false,

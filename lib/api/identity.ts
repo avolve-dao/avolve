@@ -6,12 +6,14 @@
  */
 
 import { ApiClient } from './client';
-import type { 
-  GeniusProfile, 
-  GeniusAchievement, 
-  GeniusLevelDefinition,
-  AchievementType
-} from '../types/database.types';
+import type { GeniusProfile } from '../types/database.types';
+
+// TEMP: Define GeniusLevelDefinition locally if not imported
+export type GeniusLevelDefinition = {
+  level_number: number;
+  points_threshold: number;
+  [key: string]: any;
+};
 
 export class IdentityApi extends ApiClient {
   /**
@@ -97,7 +99,7 @@ export class IdentityApi extends ApiClient {
    * @param userId The ID of the user
    * @returns Array of achievements
    */
-  async getUserAchievements(userId: string): Promise<GeniusAchievement[]> {
+  async getUserAchievements(userId: string): Promise<any[]> {
     const { data, error } = await this.client
       .from('genius_achievements')
       .select('*')
@@ -120,7 +122,7 @@ export class IdentityApi extends ApiClient {
    */
   async awardAchievement(
     userId: string, 
-    achievementType: AchievementType, 
+    achievementType: any, 
     title: string, 
     description?: string, 
     points?: number, 
@@ -148,9 +150,11 @@ export class IdentityApi extends ApiClient {
       .from('genius_level_definitions')
       .select('*')
       .order('level_number', { ascending: true });
-    
+
     this.handleError(error);
-    return data || [];
+    // Ensure the result is always properly typed
+    if (!Array.isArray(data)) return [];
+    return data as GeniusLevelDefinition[];
   }
 
   /**
@@ -180,26 +184,33 @@ export class IdentityApi extends ApiClient {
     const totalPoints = achievements.reduce((sum, achievement) => sum + (achievement.points || 0), 0);
     
     // Get all level definitions
-    const levelDefinitions = await this.getLevelDefinitions();
+    const levelDefinitions = (await this.getLevelDefinitions()) as unknown as GeniusLevelDefinition[];
+    
+    // Defensive: filter out any items missing the required fields
+    const validLevelDefinitions: GeniusLevelDefinition[] = (levelDefinitions as any[]).filter(
+      (def: any): def is GeniusLevelDefinition =>
+        typeof def === 'object' && def !== null &&
+        typeof (def as GeniusLevelDefinition).level_number === 'number' &&
+        typeof (def as GeniusLevelDefinition).points_threshold === 'number'
+    );
     
     // Find the user's current level
     let currentLevel = 1;
     let nextLevelThreshold = 0;
-    
-    for (let i = 0; i < levelDefinitions.length; i++) {
-      if (totalPoints >= levelDefinitions[i].points_threshold) {
-        currentLevel = levelDefinitions[i].level_number;
-        nextLevelThreshold = i < levelDefinitions.length - 1 
-          ? levelDefinitions[i + 1].points_threshold 
-          : levelDefinitions[i].points_threshold;
+    for (let i = 0; i < validLevelDefinitions.length; i++) {
+      if (totalPoints >= validLevelDefinitions[i].points_threshold) {
+        currentLevel = validLevelDefinitions[i].level_number;
+        nextLevelThreshold = i < validLevelDefinitions.length - 1 
+          ? validLevelDefinitions[i + 1].points_threshold 
+          : validLevelDefinitions[i].points_threshold;
       } else {
-        nextLevelThreshold = levelDefinitions[i].points_threshold;
+        nextLevelThreshold = validLevelDefinitions[i].points_threshold;
         break;
       }
     }
     
     // Calculate progress to next level
-    const currentLevelThreshold = levelDefinitions.find(def => def.level_number === currentLevel)?.points_threshold || 0;
+    const currentLevelThreshold = validLevelDefinitions.find(def => def.level_number === currentLevel)?.points_threshold || 0;
     const progress = nextLevelThreshold > currentLevelThreshold
       ? (totalPoints - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)
       : 1; // If at max level, progress is 100%

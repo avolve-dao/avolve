@@ -38,7 +38,7 @@ export function DateTimePicker({ date, setDate, className }: DateTimePickerProps
           <Calendar
             mode="single"
             selected={date}
-            onSelect={(newDate) => newDate && setDate(new Date(newDate.setHours(date.getHours(), date.getMinutes())))}
+            onSelect={(newDate: Date) => newDate && setDate(new Date(newDate.setHours(date.getHours(), date.getMinutes())))}
             initialFocus
           />
         </PopoverContent>

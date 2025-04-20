@@ -75,7 +75,7 @@ export function TokensOverview() {
         }
         
         // Format transaction data
-        const formattedTransactions = transactionData?.map(tx => {
+        const formattedTransactions = transactionData?.map((tx: any) => {
           // Fix the type issue by accessing the nested object correctly
           const tokenInfo = tx.tokens as unknown as { symbol: string; name: string };
           

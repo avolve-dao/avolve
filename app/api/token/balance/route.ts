@@ -8,7 +8,7 @@ import { getCachedData, setCachedData, generateCacheKey } from "@/lib/cache"
  * GET /api/token/balance
  * Get token balances for the authenticated user
  */
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -49,9 +49,14 @@ export async function GET() {
     
     return NextResponse.json({ data: balances })
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error(JSON.stringify({
+      route: '/api/token/balance',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal Server Error" },
       { status: 500 }
     )
   }

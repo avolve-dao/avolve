@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@supabase/auth-helpers-react';
 import { governanceService } from '../src/governance';
 import { tokensService } from '../src/tokens';
-import { useToast } from './useToast';
+import { useToast } from '@/components/ui/use-toast';
 
 /**
  * Hook for managing governance functionality
@@ -10,7 +10,7 @@ import { useToast } from './useToast';
  */
 export const useGovernance = () => {
   const user = useUser();
-  const { showToast } = useToast();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [eligibilityLoading, setEligibilityLoading] = useState(false);
   const [eligibility, setEligibility] = useState<{
@@ -38,11 +38,19 @@ export const useGovernance = () => {
       if (result.success && result.data) {
         setEligibility(result.data);
       } else {
-        showToast('error', result.error || 'Failed to check eligibility');
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to check eligibility',
+          variant: 'destructive',
+        });
       }
     } catch (error) {
       console.error('Error checking eligibility:', error);
-      showToast('error', 'An error occurred while checking eligibility');
+      toast({
+        title: 'Error',
+        description: 'An error occurred while checking eligibility',
+        variant: 'destructive',
+      });
     } finally {
       setEligibilityLoading(false);
     }
@@ -51,7 +59,11 @@ export const useGovernance = () => {
   // Create a new petition
   const createPetition = async (title: string, description: string) => {
     if (!user) {
-      showToast('error', 'You must be logged in to create a petition');
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to create a petition',
+        variant: 'destructive',
+      });
       return { success: false };
     }
     
@@ -59,16 +71,29 @@ export const useGovernance = () => {
     try {
       const result = await governanceService.createPetition(user.id, title, description);
       if (result.success && result.data) {
-        showToast('success', 'Petition created successfully!');
+        toast({
+          title: 'Success',
+          description: 'Petition created successfully!',
+          // shadcn/ui only supports 'default' or 'destructive' for variant
+          variant: 'default',
+        });
         await loadUserPetitions();
         return { success: true, petitionId: result.data.petitionId };
       } else {
-        showToast('error', result.error || 'Failed to create petition');
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to create petition',
+          variant: 'destructive',
+        });
         return { success: false, error: result.error };
       }
     } catch (error) {
       console.error('Error creating petition:', error);
-      showToast('error', 'An error occurred while creating the petition');
+      toast({
+        title: 'Error',
+        description: 'An error occurred while creating the petition',
+        variant: 'destructive',
+      });
       return { success: false, error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);
@@ -78,7 +103,11 @@ export const useGovernance = () => {
   // Vote on a petition
   const voteOnPetition = async (petitionId: string) => {
     if (!user) {
-      showToast('error', 'You must be logged in to vote on a petition');
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to vote on a petition',
+        variant: 'destructive',
+      });
       return { success: false };
     }
     
@@ -86,7 +115,12 @@ export const useGovernance = () => {
     try {
       const result = await governanceService.voteOnPetition(user.id, petitionId);
       if (result.success && result.data) {
-        showToast('success', result.data.message);
+        toast({
+          title: 'Success',
+          description: result.data.message,
+          // shadcn/ui only supports 'default' or 'destructive' for variant
+          variant: 'default',
+        });
         
         // Refresh petition details if we're viewing this petition
         if (selectedPetition && selectedPetition.id === petitionId) {
@@ -96,12 +130,20 @@ export const useGovernance = () => {
         await checkUserVote(petitionId);
         return { success: true, voteWeight: result.data.voteWeight };
       } else {
-        showToast('error', result.error || 'Failed to vote on petition');
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to vote on petition',
+          variant: 'destructive',
+        });
         return { success: false, error: result.error };
       }
     } catch (error) {
       console.error('Error voting on petition:', error);
-      showToast('error', 'An error occurred while voting');
+      toast({
+        title: 'Error',
+        description: 'An error occurred while voting',
+        variant: 'destructive',
+      });
       return { success: false, error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);
@@ -114,7 +156,12 @@ export const useGovernance = () => {
     try {
       const result = await governanceService.processPetition(petitionId, status);
       if (result.success) {
-        showToast('success', `Petition ${status} successfully!`);
+        toast({
+          title: 'Success',
+          description: `Petition ${status} successfully!`,
+          // shadcn/ui only supports 'default' or 'destructive' for variant
+          variant: 'default',
+        });
         
         // Refresh petition details
         if (selectedPetition && selectedPetition.id === petitionId) {
@@ -124,12 +171,20 @@ export const useGovernance = () => {
         await loadPetitions();
         return { success: true };
       } else {
-        showToast('error', result.error || `Failed to ${status} petition`);
+        toast({
+          title: 'Error',
+          description: result.error || `Failed to ${status} petition`,
+          variant: 'destructive',
+        });
         return { success: false, error: result.error };
       }
     } catch (error) {
       console.error(`Error ${status} petition:`, error);
-      showToast('error', `An error occurred while ${status === 'approved' ? 'approving' : 'rejecting'} the petition`);
+      toast({
+        title: 'Error',
+        description: `An error occurred while ${status === 'approved' ? 'approving' : 'rejecting'} the petition`,
+        variant: 'destructive',
+      });
       return { success: false, error: 'An unexpected error occurred' };
     } finally {
       setLoading(false);

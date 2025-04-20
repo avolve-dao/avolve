@@ -115,11 +115,13 @@ export class AccessControlTester {
         
         if (authError) throw authError;
         
+        // Get session data
+        const { data: sessionData } = await this.supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token || '';
+        const refreshToken = sessionData.session?.refresh_token || '';
+        
         // Create client with user session
-        const userClient = createClient<Database>(
-          this.supabase.auth.getSession().then(({ data }) => data.session?.access_token || ''),
-          this.supabase.auth.getSession().then(({ data }) => data.session?.refresh_token || '')
-        );
+        const userClient = createClient<Database>(accessToken, refreshToken);
         
         // Test has_role function
         const { data: hasRoleData, error: hasRoleError } = await userClient
@@ -178,11 +180,13 @@ export class AccessControlTester {
         
         if (authError) throw authError;
         
+        // Get session data
+        const { data: sessionData } = await this.supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token || '';
+        const refreshToken = sessionData.session?.refresh_token || '';
+        
         // Create client with user session
-        const userClient = createClient<Database>(
-          this.supabase.auth.getSession().then(({ data }) => data.session?.access_token || ''),
-          this.supabase.auth.getSession().then(({ data }) => data.session?.refresh_token || '')
-        );
+        const userClient = createClient<Database>(accessToken, refreshToken);
         
         // Test token access for each token
         const tokenAccess: Record<string, boolean> = {};
@@ -232,11 +236,13 @@ export class AccessControlTester {
       
       if (authError) throw authError;
       
+      // Get session data
+      const { data: sessionData } = await this.supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token || '';
+      const refreshToken = sessionData.session?.refresh_token || '';
+      
       // Create client with user session
-      const userClient = createClient<Database>(
-        this.supabase.auth.getSession().then(({ data }) => data.session?.access_token || ''),
-        this.supabase.auth.getSession().then(({ data }) => data.session?.refresh_token || '')
-      );
+      const userClient = createClient<Database>(accessToken, refreshToken);
       
       // Get content items
       const { data: content, error: contentError } = await this.adminSupabase

@@ -10,96 +10,107 @@ const routeLogger = logger.withContext({ route: "api/chat" })
 
 export async function POST(req: NextRequest) {
   try {
-    const { success } = await rateLimit(req)
+    try {
+      const { success } = await rateLimit(req)
 
-    if (!success) {
-      const response = new NextResponse("Too many requests", { status: 429 })
-      return applySecurityHeaders(response);
-    }
+      if (!success) {
+        const response = new NextResponse("Too many requests", { status: 429 })
+        return applySecurityHeaders(response);
+      }
 
-    const body = await req.json()
-    const validatedBody = safeValidateChatRequest(body)
+      const body = await req.json()
+      const validatedBody = safeValidateChatRequest(body)
 
-    if (!validatedBody || !validatedBody.success) {
-      routeLogger.warn("Invalid request data", { 
-        errors: validatedBody?.error?.errors 
+      if (!validatedBody || !validatedBody.success) {
+        routeLogger.warn("Invalid request data", { 
+          errors: validatedBody?.error?.errors 
+        })
+        const response = NextResponse.json(
+          { 
+            error: "Invalid request data", 
+            details: validatedBody?.error?.errors 
+          },
+          { 
+            status: 400, 
+          }
+        );
+        return applySecurityHeaders(response);
+      }
+
+      // Explicitly check validatedBody.data after success check
+      if (!validatedBody.data) {
+        routeLogger.error("Validation succeeded but data is missing", { body });
+        const response = new NextResponse("Internal Server Error: Invalid validation result", { status: 500 });
+        return applySecurityHeaders(response);
+      }
+
+      const { messages, model } = validatedBody.data
+      
+      // Use a string prefix and relevant parameters for the cache key
+      const cacheKey = generateCacheKey('chat_api', { 
+        model: model || 'default', // Use default if model is undefined
+      }); 
+      const cachedResponse = await getCachedResponse(cacheKey)
+      
+      if (cachedResponse) {
+        routeLogger.debug("Using cached response for chat request", { cacheKey })
+        const response = new NextResponse(cachedResponse, {
+          headers: {
+            "Content-Type": "text/plain",
+            "X-Cache-Hit": "true",
+          },
+        });
+        return applySecurityHeaders(response);
+      }
+
+      routeLogger.info("Processing chat request", { 
+        messageCount: messages.length,
+        model: model || "default",
+        lastMessageContent: messages[messages.length - 1].content.substring(0, 50) + 
+          (messages[messages.length - 1].content.length > 50 ? '...' : '')
       })
-      const response = NextResponse.json(
-        { 
-          error: "Invalid request data", 
-          details: validatedBody?.error?.errors 
-        },
-        { 
-          status: 400, 
-        }
-      );
-      return applySecurityHeaders(response);
-    }
+      
+      // Generate response stream and content
+      const { stream: responseStream, content: responseContent } = await generateText({ 
+        messages,
+        model
+      })
 
-    // Explicitly check validatedBody.data after success check
-    if (!validatedBody.data) {
-      routeLogger.error("Validation succeeded but data is missing", { body });
-      const response = new NextResponse("Internal Server Error: Invalid validation result", { status: 500 });
-      return applySecurityHeaders(response);
-    }
+      if (!responseStream) {
+        routeLogger.error("Failed to generate text response stream.");
+        const response = new NextResponse("Error generating response", { status: 500 });
+        return applySecurityHeaders(response);
+      }
 
-    const { messages, model } = validatedBody.data
-    
-    // Use a string prefix and relevant parameters for the cache key
-    const cacheKey = generateCacheKey('chat_api', { 
-      model: model || 'default', // Use default if model is undefined
-    }); 
-    const cachedResponse = await getCachedResponse(cacheKey)
-    
-    if (cachedResponse) {
-      routeLogger.debug("Using cached response for chat request", { cacheKey })
-      const response = new NextResponse(cachedResponse, {
-        headers: {
-          "Content-Type": "text/plain",
-          "X-Cache-Hit": "true",
-        },
+      // Cache the string content if available
+      if (responseContent) {
+        await setCachedResponse(cacheKey, responseContent)
+      }
+
+      // Create the streaming response
+      const streamingResponse = new StreamingTextResponse(responseStream)
+
+      // Apply security headers by copying from a dummy NextResponse
+      const dummyResponse = applySecurityHeaders(new NextResponse());
+      dummyResponse.headers.forEach((value, key) => {
+        streamingResponse.headers.set(key, value);
       });
+
+      return streamingResponse;
+
+    } catch (error) {
+      routeLogger.error("Error in chat API:", error)
+      const response = new NextResponse("An error occurred", { status: 500 })
       return applySecurityHeaders(response);
     }
-
-    routeLogger.info("Processing chat request", { 
-      messageCount: messages.length,
-      model: model || "default",
-      lastMessageContent: messages[messages.length - 1].content.substring(0, 50) + 
-        (messages[messages.length - 1].content.length > 50 ? '...' : '')
-    })
-    
-    // Generate response stream and content
-    const { stream: responseStream, content: responseContent } = await generateText({ 
-      messages,
-      model
-    })
-
-    if (!responseStream) {
-      routeLogger.error("Failed to generate text response stream.");
-      const response = new NextResponse("Error generating response", { status: 500 });
-      return applySecurityHeaders(response);
-    }
-
-    // Cache the string content if available
-    if (responseContent) {
-      await setCachedResponse(cacheKey, responseContent)
-    }
-
-    // Create the streaming response
-    const streamingResponse = new StreamingTextResponse(responseStream)
-
-    // Apply security headers by copying from a dummy NextResponse
-    const dummyResponse = applySecurityHeaders(new NextResponse());
-    dummyResponse.headers.forEach((value, key) => {
-      streamingResponse.headers.set(key, value);
-    });
-
-    return streamingResponse;
-
   } catch (error) {
-    routeLogger.error("Error in chat API:", error)
-    const response = new NextResponse("An error occurred", { status: 500 })
+    routeLogger.error(JSON.stringify({
+      route: '/api/chat',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    const response = new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
     return applySecurityHeaders(response);
   }
 }

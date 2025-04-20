@@ -20,52 +20,62 @@ async function getCurrentUser() {
  * Implements The Prime Law's principles of voluntary consent
  */
 export async function POST(request: NextRequest) {
-  const user = await getCurrentUser();
-  
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  
   try {
-    const { interaction_type, terms, status = 'pending' } = await request.json();
-    
-    if (!interaction_type || !terms) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    const user = await getCurrentUser();
+  
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    const metadata = {
-      ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1',
-      user_agent: request.headers.get('user-agent') || 'unknown'
-    };
-    
-    const cookieStore = cookies();
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
-    
-    const { data, error } = await supabase
-      .from('user_consent')
-      .insert({
-        user_id: user.id,
-        interaction_type,
-        terms,
-        status,
-        metadata
-      })
-      .select()
-      .single();
-    
-    if (error) {
+  
+    try {
+      const { interaction_type, terms, status = 'pending' } = await request.json();
+      
+      if (!interaction_type || !terms) {
+        return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      }
+      
+      const metadata = {
+        ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || '127.0.0.1',
+        user_agent: request.headers.get('user-agent') || 'unknown'
+      };
+      
+      const cookieStore = cookies();
+      const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
+      
+      const { data, error } = await supabase
+        .from('user_consent')
+        .insert({
+          user_id: user.id,
+          interaction_type,
+          terms,
+          status,
+          metadata
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('Error recording consent:', error);
+        return NextResponse.json({ error: 'Failed to record consent' }, { status: 500 });
+      }
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Consent recorded successfully',
+        record: data
+      }, { status: 200 });
+    } catch (error) {
       console.error('Error recording consent:', error);
       return NextResponse.json({ error: 'Failed to record consent' }, { status: 500 });
     }
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Consent recorded successfully',
-      record: data
-    }, { status: 200 });
   } catch (error) {
-    console.error('Error recording consent:', error);
-    return NextResponse.json({ error: 'Failed to record consent' }, { status: 500 });
+    console.error(JSON.stringify({
+      route: '/api/consent',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 

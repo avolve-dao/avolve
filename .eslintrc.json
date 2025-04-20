@@ -1,6 +1,12 @@
 {
   "extends": [
     "next/core-web-vitals",
-    "next/typescript"
-  ]
+    "next/typescript",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/explicit-function-return-type": "warn",
+    "no-console": ["error", { "allow": ["warn", "error", "info"] }]
+  }
 }

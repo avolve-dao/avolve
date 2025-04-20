@@ -57,19 +57,13 @@ export async function POST(request: NextRequest) {
       .single()
     
     if (error) {
-      // Log security event for invalid code attempts
-      await supabase.from('security_logs').insert({
-        user_id: null, // No user associated with this request
-        ip_address: ip,
-        event_type: 'invitation_check_failed',
-        severity: 'info',
-        details: { code }
-      })
-      
-      return NextResponse.json(
-        { valid: false, message: 'Invalid or expired invitation code' },
-        { status: 404 }
-      )
+      console.error(JSON.stringify({
+        route: '/api/invitations/check',
+        supabaseError: error,
+        input: { code },
+        timestamp: new Date().toISOString(),
+      }));
+      return NextResponse.json({ error: error.message || 'Failed to check invitation' }, { status: 500 });
     }
     
     // Return success response
@@ -81,11 +75,13 @@ export async function POST(request: NextRequest) {
         expires_at: data.expires_at
       }
     })
-  } catch (error) {
-    console.error('Error checking invitation:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+  } catch (err) {
+    console.error(JSON.stringify({
+      route: '/api/invitations/check',
+      error: err instanceof Error ? err.message : err,
+      stack: err instanceof Error ? err.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

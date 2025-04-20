@@ -8,37 +8,38 @@
 'use client';
 
 import React, { useEffect, useState, useCallback, createContext, useContext } from 'react';
-import { AuthService, UserProfile, AuthResult, MfaFactor, TotpFactor, RecoveryCodes, UserSession } from '@/lib/auth/auth-service';
+import { AuthService } from '@/lib/auth/auth-service';
+import type { UserProfile, AuthResult, AuthSession } from '@/lib/auth/auth-types';
 import { Session, User, AuthError } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 
 // Authentication context interface
 interface AuthContextType {
   user: UserProfile | null;
-  session: Session | null;
+  session: AuthSession | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   error: AuthError | null;
-  signIn: (email: string, password: string) => Promise<AuthResult<Session>>;
-  signInWithMagicLink: (email: string, redirectTo?: string) => Promise<AuthResult<void>>;
-  signUp: (email: string, password: string, metadata?: Record<string, any>, redirectTo?: string) => Promise<AuthResult<User>>;
+  signIn: (email: string, password: string) => Promise<AuthResult<void>>;
+  signInWithMagicLink: (email: string) => Promise<AuthResult<void>>;
+  signUp: (email: string, password: string, metadata?: Record<string, any>) => Promise<AuthResult<AuthSession>>;
   signOut: () => Promise<AuthResult<void>>;
-  resetPassword: (email: string, redirectTo?: string) => Promise<AuthResult<void>>;
-  updatePassword: (newPassword: string) => Promise<AuthResult<User>>;
-  updateEmail: (newEmail: string) => Promise<AuthResult<User>>;
-  resendConfirmationEmail: (email: string, redirectTo?: string) => Promise<AuthResult<void>>;
-  updateUserMetadata: (metadata: Record<string, any>) => Promise<AuthResult<User>>;
+  resetPassword: (email: string) => Promise<AuthResult<void>>;
+  updatePassword: (newPassword: string) => Promise<AuthResult<void>>;
+  updateEmail: (newEmail: string) => Promise<AuthResult<void>>;
+  resendConfirmationEmail: (email: string) => Promise<AuthResult<void>>;
+  updateUserMetadata: (metadata: Record<string, any>) => Promise<AuthResult<void>>;
   refreshUser: () => Promise<void>;
   hasRole: (role: string) => Promise<boolean>;
   isAdmin: () => Promise<boolean>;
   isMfaRequired: () => Promise<boolean>;
-  getMfaFactors: () => Promise<AuthResult<MfaFactor[]>>;
-  setupTotp: (friendlyName?: string) => Promise<AuthResult<TotpFactor>>;
+  getMfaFactors: () => Promise<AuthResult<any[]>>;
+  setupTotp: (friendlyName?: string) => Promise<AuthResult<any>>;
   verifyTotpFactor: (factorId: string, code: string) => Promise<AuthResult<boolean>>;
-  generateRecoveryCodes: (count?: number) => Promise<AuthResult<RecoveryCodes>>;
+  generateRecoveryCodes: (count?: number) => Promise<AuthResult<any>>;
   verifyRecoveryCode: (code: string) => Promise<AuthResult<boolean>>;
   disableMfa: () => Promise<AuthResult<boolean>>;
-  getUserSessions: () => Promise<AuthResult<UserSession[]>>;
+  getUserSessions: () => Promise<AuthResult<any[]>>;
   revokeSession: (sessionId: string, reason?: string) => Promise<AuthResult<boolean>>;
   revokeAllOtherSessions: () => Promise<AuthResult<boolean>>;
 }
@@ -50,27 +51,84 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   isAuthenticated: false,
   error: null,
-  signIn: async () => ({ data: null, error: null }),
-  signInWithMagicLink: async () => ({ data: null, error: null }),
-  signUp: async () => ({ data: null, error: null }),
-  signOut: async () => ({ data: null, error: null }),
-  resetPassword: async () => ({ data: null, error: null }),
-  updatePassword: async () => ({ data: null, error: null }),
-  updateEmail: async () => ({ data: null, error: null }),
-  resendConfirmationEmail: async () => ({ data: null, error: null }),
-  updateUserMetadata: async () => ({ data: null, error: null }),
+  signIn: async (email: string, password: string) => {
+    const result = await AuthService.getBrowserInstance().signInWithPassword(email, password);
+    return {
+      data: result.error ? null : void 0,
+      error: result.error || null,
+    };
+  },
+  signInWithMagicLink: async (email: string) => {
+    const result = await AuthService.getBrowserInstance().signInWithMagicLink(email);
+    return {
+      data: result.error ? null : void 0,
+      error: result.error || null,
+    };
+  },
+  signUp: async (email: string, password: string, metadata?: Record<string, any>) => await AuthService.getBrowserInstance().signUp(email, password, metadata),
+  signOut: async () => await AuthService.getBrowserInstance().signOut(),
+  resetPassword: async (email: string) => await AuthService.getBrowserInstance().resetPassword(email),
+  updatePassword: async (newPassword: string) => await AuthService.getBrowserInstance().updatePassword(newPassword),
+  updateEmail: async (newEmail: string) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) {
+      return { data: null, error: new AuthError('User not found') };
+    }
+    return await AuthService.getBrowserInstance().updateEmail(user.id, newEmail);
+  },
+  resendConfirmationEmail: async (email: string) => await AuthService.getBrowserInstance().resendConfirmationEmail(email),
+  updateUserMetadata: async (metadata: Record<string, any>) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) {
+      return { data: null, error: new AuthError('User not found') };
+    }
+    return await AuthService.getBrowserInstance().updateUserMetadata(user.id, metadata);
+  },
   refreshUser: async () => {},
-  hasRole: async () => false,
-  isAdmin: async () => false,
-  isMfaRequired: async () => false,
+  hasRole: async (role: string) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) return false;
+    const result = await AuthService.getBrowserInstance().hasRole(user.id, role);
+    return Boolean(result.data);
+  },
+  isAdmin: async () => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) return false;
+    const result = await AuthService.getBrowserInstance().isAdmin(user.id);
+    return Boolean(result.data);
+  },
+  isMfaRequired: async () => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) return false;
+    const result = await AuthService.getBrowserInstance().isMfaRequired(user.id);
+    return Boolean(result.data);
+  },
   getMfaFactors: async () => ({ data: null, error: null }),
-  setupTotp: async () => ({ data: null, error: null }),
-  verifyTotpFactor: async () => ({ data: null, error: null }),
-  generateRecoveryCodes: async () => ({ data: null, error: null }),
+  setupTotp: async (friendlyName?: string) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+    return await AuthService.getBrowserInstance().setupTotp(user.id, friendlyName);
+  },
+  verifyTotpFactor: async (factorId: string, code: string) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) {
+      return { data: null, error: new AuthError('User not found') };
+    }
+    return await AuthService.getBrowserInstance().verifyTotpFactor(user.id, factorId, code);
+  },
+  generateRecoveryCodes: async (count?: number) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+    return await AuthService.getBrowserInstance().generateRecoveryCodes(user.id, count);
+  },
   verifyRecoveryCode: async () => ({ data: null, error: null }),
   disableMfa: async () => ({ data: null, error: null }),
   getUserSessions: async () => ({ data: null, error: null }),
-  revokeSession: async () => ({ data: null, error: null }),
+  revokeSession: async (sessionId: string, reason?: string) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+    return await AuthService.getBrowserInstance().revokeSession(user.id, sessionId, reason);
+  },
   revokeAllOtherSessions: async () => ({ data: null, error: null }),
 });
 
@@ -79,7 +137,7 @@ const AuthContext = createContext<AuthContextType>({
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<AuthError | null>(null);
   const router = useRouter();
@@ -93,37 +151,60 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       
       // Get session first
-      const { data: sessionData, error: sessionError } = await authService.getSession();
+      const sessionResult = await authService.getSession();
+      const sessionData = sessionResult?.data;
+      const sessionError = sessionResult?.error;
       
-      if (sessionError) {
-        throw sessionError;
+      if (sessionResult && sessionError) {
+        const authErr = sessionError instanceof AuthError ? sessionError : new AuthError(sessionError?.message || 'Unknown error');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      if (!sessionResult) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
       }
       
-      setSession(sessionData);
+      setSession(sessionData?.session ?? null);
       
       // If we have a session, get the user profile
-      if (sessionData) {
-        const { data: profileData, error: profileError } = await authService.getUserProfile();
-        
-        if (profileError) {
-          throw profileError;
+      if (sessionData?.session) {
+        if (user?.id) {
+          const profileResult = await authService.getUserProfile(user.id);
+          const { data: profile, error: profileError } = profileResult;
+          if (profileError) {
+            const authErr = profileError instanceof AuthError ? profileError : new AuthError(profileError?.message || 'Unknown error');
+            setError(authErr);
+            setIsLoading(false);
+            return { data: null, error: authErr };
+          }
+          if (!profile) {
+            const authErr = new AuthError('Unexpected null result');
+            setError(authErr);
+            setIsLoading(false);
+            return { data: null, error: authErr };
+          }
+          setUser(profile);
+        } else {
+          setUser(null);
         }
-        
-        setUser(profileData);
       } else {
         setUser(null);
       }
       
       setError(null);
     } catch (err) {
-      console.error('Error refreshing user:', err);
-      setError(err instanceof AuthError ? err : new AuthError('Failed to refresh user'));
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
       setUser(null);
       setSession(null);
     } finally {
       setIsLoading(false);
     }
-  }, [authService]);
+  }, [authService, user]);
   
   // Initialize auth state on component mount
   useEffect(() => {
@@ -131,453 +212,385 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Subscribe to auth changes
     // Access the Supabase client through a public method
-    const { data } = authService.getSupabaseClient().auth.onAuthStateChange(
-      async (event: string, session: Session | null) => {
-        console.log('Auth state changed:', event);
-        setSession(session);
-        
-        if (session) {
-          const { data: profileData } = await authService.getUserProfile();
-          setUser(profileData);
-        } else {
-          setUser(null);
-        }
-        
-        // Refresh the page to ensure the session is properly loaded
-        router.refresh();
+    const handleAuthChange = (event: string, session: AuthSession | null): void => {
+      console.log('Auth state changed:', event);
+      setSession(session ?? null);
+      
+      if (session && user?.id) {
+        authService.getUserProfile(user.id).then(profileResult => {
+          const { data: profile, error: profileError } = profileResult;
+          if (profileError) {
+            const authErr = profileError instanceof AuthError ? profileError : new AuthError(profileError?.message || 'Unknown error');
+            setError(authErr);
+            setIsLoading(false);
+            return;
+          }
+          if (!profile) {
+            const authErr = new AuthError('Unexpected null result');
+            setError(authErr);
+            setIsLoading(false);
+            return;
+          }
+          setUser(profile);
+        });
+      } else {
+        setUser(null);
       }
-    );
+      
+      // Refresh the page to ensure the session is properly loaded
+      router.refresh();
+    };
+    
+    const { data } = authService.getSupabaseClient().auth.onAuthStateChange(handleAuthChange);
     
     // Cleanup subscription on unmount
     return () => {
       data.subscription.unsubscribe();
     };
-  }, [authService, refreshUser, router]);
+  }, [authService, refreshUser, router, user]);
   
   // Sign in with email and password
-  const signIn = useCallback(
-    async (email: string, password: string): Promise<AuthResult<Session>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.signInWithPassword(email, password);
-        
-        if (result.error) {
-          setError(result.error);
-        } else {
-          await refreshUser();
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error during sign in:', err);
-        const authError = new AuthError('An unexpected error occurred during sign in');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [authService, refreshUser]
-  );
-  
-  // Sign in with magic link
-  const signInWithMagicLink = useCallback(
-    async (email: string, redirectTo?: string): Promise<AuthResult<void>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.signInWithMagicLink(email, redirectTo);
-        
-        if (result.error) {
-          setError(result.error);
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error sending magic link:', err);
-        const authError = new AuthError('An unexpected error occurred while sending magic link');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [authService]
-  );
-  
-  // Sign up with email and password
-  const signUp = useCallback(
-    async (email: string, password: string, metadata?: Record<string, any>, redirectTo?: string): Promise<AuthResult<User>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.signUp(email, password, metadata, redirectTo);
-        
-        if (result.error) {
-          setError(result.error);
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error during sign up:', err);
-        const authError = new AuthError('An unexpected error occurred during sign up');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [authService]
-  );
-  
-  // Sign out
-  const signOut = useCallback(async (): Promise<AuthResult<void>> => {
+  const signIn = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
-    
     try {
-      const result = await authService.signOut();
-      
-      if (result.error) {
-        setError(result.error);
-      } else {
-        setUser(null);
-        setSession(null);
-        router.push('/');
+      const result = await authService.signInWithPassword(email, password);
+      if (result && result.error) {
+        const authErr = result.error instanceof AuthError ? result.error : new AuthError(result.error?.message || 'Unknown error');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
       }
-      
+      if (!result) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      await refreshUser();
+      return {
+        data: result.error ? null : void 0,
+        error: result.error || null,
+      };
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
+      setIsLoading(false);
+      return { data: null, error: new AuthError(errorMsg) };
+    }
+  }, [authService, refreshUser]);
+  
+  // Sign in with magic link
+  const signInWithMagicLink = useCallback(async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authService.signInWithMagicLink(email);
+      if (result && result.error) {
+        const authErr = result.error instanceof AuthError ? result.error : new AuthError(result.error?.message || 'Unknown error');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      if (!result) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      return {
+        data: result.error ? null : void 0,
+        error: result.error || null,
+      };
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
+      setIsLoading(false);
+      return { data: null, error: new AuthError(errorMsg) };
+    }
+  }, [authService]);
+  
+  // Sign up with email and password
+  const signUp = useCallback(async (email: string, password: string, metadata?: Record<string, any>) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authService.signUp(email, password, metadata);
+      if (result && result.error) {
+        const authErr = result.error instanceof AuthError ? result.error : new AuthError(result.error?.message || 'Unknown error');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      if (!result) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      await refreshUser();
       return result;
     } catch (err) {
-      console.error('Error during sign out:', err);
-      const authError = new AuthError('An unexpected error occurred during sign out');
-      setError(authError);
-      return { data: null, error: authError };
-    } finally {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
       setIsLoading(false);
+      return { data: null, error: new AuthError(errorMsg) };
+    }
+  }, [authService, refreshUser]);
+  
+  // Sign out
+  const signOut = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authService.signOut();
+      if (result && result.error) {
+        const authErr = result.error instanceof AuthError ? result.error : new AuthError(result.error?.message || 'Unknown error');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      if (!result) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      setUser(null);
+      setSession(null);
+      router.push('/');
+      return result;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
+      setIsLoading(false);
+      return { data: null, error: new AuthError(errorMsg) };
     }
   }, [authService, router]);
   
   // Reset password
-  const resetPassword = useCallback(
-    async (email: string, redirectTo?: string): Promise<AuthResult<void>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.resetPassword(email, redirectTo);
-        
-        if (result.error) {
-          setError(result.error);
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error resetting password:', err);
-        const authError = new AuthError('An unexpected error occurred during password reset');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
+  const resetPassword = useCallback(async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authService.resetPassword(email);
+      if (result && result.error) {
+        const authErr = result.error instanceof AuthError ? result.error : new AuthError(result.error?.message || 'Unknown error');
+        setError(authErr);
         setIsLoading(false);
+        return { data: null, error: authErr };
       }
-    },
-    [authService]
-  );
+      if (!result) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      return result;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
+      setIsLoading(false);
+      return { data: null, error: new AuthError(errorMsg) };
+    }
+  }, [authService]);
   
   // Update password
-  const updatePassword = useCallback(
-    async (newPassword: string): Promise<AuthResult<User>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.updatePassword(newPassword);
-        
-        if (result.error) {
-          setError(result.error);
-        } else {
-          await refreshUser();
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error updating password:', err);
-        const authError = new AuthError('An unexpected error occurred while updating password');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
+  const updatePassword = useCallback(async (newPassword: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authService.updatePassword(newPassword);
+      if (result && result.error) {
+        const authErr = result.error instanceof AuthError ? result.error : new AuthError(result.error?.message || 'Unknown error');
+        setError(authErr);
         setIsLoading(false);
+        return { data: null, error: authErr };
       }
-    },
-    [authService, refreshUser]
-  );
+      if (!result) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      await refreshUser();
+      return result;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
+      setIsLoading(false);
+      return { data: null, error: new AuthError(errorMsg) };
+    }
+  }, [authService, refreshUser]);
   
   // Update email
-  const updateEmail = useCallback(
-    async (newEmail: string): Promise<AuthResult<User>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.updateEmail(newEmail);
-        
-        if (result.error) {
-          setError(result.error);
-        } else {
-          await refreshUser();
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error updating email:', err);
-        const authError = new AuthError('An unexpected error occurred while updating email');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [authService, refreshUser]
-  );
+  const updateEmail = useCallback(async (newEmail: string) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) {
+      return { data: null, error: new AuthError('User not found') };
+    }
+    return await AuthService.getBrowserInstance().updateEmail(user.id, newEmail);
+  }, []);
   
   // Resend confirmation email
-  const resendConfirmationEmail = useCallback(
-    async (email: string, redirectTo?: string): Promise<AuthResult<void>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.resendConfirmationEmail(email, redirectTo);
-        
-        if (result.error) {
-          setError(result.error);
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error resending confirmation email:', err);
-        const authError = new AuthError('An unexpected error occurred while resending confirmation');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
+  const resendConfirmationEmail = useCallback(async (email: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await authService.resendConfirmationEmail(email);
+      if (result && result.error) {
+        const authErr = result.error instanceof AuthError ? result.error : new AuthError(result.error?.message || 'Unknown error');
+        setError(authErr);
         setIsLoading(false);
+        return { data: null, error: authErr };
       }
-    },
-    [authService]
-  );
+      if (!result) {
+        const authErr = new AuthError('Unexpected null result');
+        setError(authErr);
+        setIsLoading(false);
+        return { data: null, error: authErr };
+      }
+      return result;
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      setError(new AuthError(errorMsg));
+      setIsLoading(false);
+      return { data: null, error: new AuthError(errorMsg) };
+    }
+  }, [authService]);
   
   // Update user metadata
-  const updateUserMetadata = useCallback(
-    async (metadata: Record<string, any>): Promise<AuthResult<User>> => {
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const result = await authService.updateUserMetadata(metadata);
-        
-        if (result.error) {
-          setError(result.error);
-        } else {
-          await refreshUser();
-        }
-        
-        return result;
-      } catch (err) {
-        console.error('Error updating user metadata:', err);
-        const authError = new AuthError('An unexpected error occurred while updating user metadata');
-        setError(authError);
-        return { data: null, error: authError };
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [authService, refreshUser]
-  );
+  const updateUserMetadata = useCallback(async (metadata: Record<string, any>) => {
+    const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+    if (!user || !user.id) {
+      return { data: null, error: new AuthError('User not found') };
+    }
+    return await AuthService.getBrowserInstance().updateUserMetadata(user.id, metadata);
+  }, []);
   
   // Check if user has specific role
   const hasRole = useCallback(
     async (role: string) => {
-      try {
-        return await authService.hasRole(role);
-      } catch (err) {
-        console.error('Error checking role:', err);
-        return false;
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return false;
+      const result = await AuthService.getBrowserInstance().hasRole(user.id, role);
+      return Boolean(result.data);
     },
-    [authService]
+    []
   );
   
   // Check if user is admin
   const isAdmin = useCallback(
     async () => {
-      try {
-        return await authService.isAdmin();
-      } catch (err) {
-        console.error('Error checking admin status:', err);
-        return false;
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return false;
+      const result = await AuthService.getBrowserInstance().isAdmin(user.id);
+      return Boolean(result.data);
     },
-    [authService]
+    []
   );
   
   // Check if MFA is required
   const isMfaRequired = useCallback(
     async () => {
-      try {
-        return await authService.isMfaRequired();
-      } catch (err) {
-        console.error('Error checking MFA requirement:', err);
-        return false;
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return false;
+      const result = await AuthService.getBrowserInstance().isMfaRequired(user.id);
+      return Boolean(result.data);
     },
-    [authService]
+    []
   );
   
   // Get MFA factors
   const getMfaFactors = useCallback(
     async () => {
-      try {
-        return await authService.getMfaFactors();
-      } catch (err) {
-        console.error('Error getting MFA factors:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().getMfaFactors(user.id);
     },
-    [authService]
+    []
   );
   
   // Setup TOTP
   const setupTotp = useCallback(
     async (friendlyName?: string) => {
-      try {
-        return await authService.setupTotp(friendlyName);
-      } catch (err) {
-        console.error('Error setting up TOTP:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().setupTotp(user.id, friendlyName);
     },
-    [authService]
+    []
   );
   
   // Verify TOTP factor
   const verifyTotpFactor = useCallback(
     async (factorId: string, code: string) => {
-      try {
-        return await authService.verifyTotpFactor(factorId, code);
-      } catch (err) {
-        console.error('Error verifying TOTP factor:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) {
+        return { data: null, error: new AuthError('User not found') };
       }
+      return await AuthService.getBrowserInstance().verifyTotpFactor(user.id, factorId, code);
     },
-    [authService]
+    []
   );
   
   // Generate recovery codes
   const generateRecoveryCodes = useCallback(
     async (count?: number) => {
-      try {
-        return await authService.generateRecoveryCodes(count);
-      } catch (err) {
-        console.error('Error generating recovery codes:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().generateRecoveryCodes(user.id, count);
     },
-    [authService]
+    []
   );
   
   // Verify recovery code
   const verifyRecoveryCode = useCallback(
     async (code: string) => {
-      try {
-        return await authService.verifyRecoveryCode(code);
-      } catch (err) {
-        console.error('Error verifying recovery code:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().verifyRecoveryCode(user.id, code);
     },
-    [authService]
+    []
   );
   
   // Disable MFA
   const disableMfa = useCallback(
     async () => {
-      try {
-        return await authService.disableMfa();
-      } catch (err) {
-        console.error('Error disabling MFA:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().disableMfa(user.id);
     },
-    [authService]
+    []
   );
   
   // Get user sessions
   const getUserSessions = useCallback(
     async () => {
-      try {
-        return await authService.getUserSessions();
-      } catch (err) {
-        console.error('Error getting user sessions:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().getUserSessions(user.id);
     },
-    [authService]
+    []
   );
   
   // Revoke session
   const revokeSession = useCallback(
     async (sessionId: string, reason?: string) => {
-      try {
-        return await authService.revokeSession(sessionId, reason);
-      } catch (err) {
-        console.error('Error revoking session:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().revokeSession(user.id, sessionId, reason);
     },
-    [authService]
+    []
   );
   
   // Revoke all other sessions
   const revokeAllOtherSessions = useCallback(
     async () => {
-      try {
-        return await authService.revokeAllOtherSessions();
-      } catch (err) {
-        console.error('Error revoking all other sessions:', err);
-        return { 
-          data: null, 
-          error: new AuthError(err instanceof Error ? err.message : 'Unknown error') 
-        };
-      }
+      const user = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+      if (!user || !user.id) return { data: null, error: new AuthError('User not found') };
+      return await AuthService.getBrowserInstance().revokeAllOtherSessions(user.id);
     },
-    [authService]
+    []
   );
   
   const contextValue: AuthContextType = {
@@ -586,28 +599,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     isAuthenticated: !!session,
     error,
-    signIn,
-    signInWithMagicLink,
-    signUp,
-    signOut,
-    resetPassword,
-    updatePassword,
-    updateEmail,
-    resendConfirmationEmail,
-    updateUserMetadata,
-    refreshUser,
-    hasRole,
-    isAdmin,
-    isMfaRequired,
-    getMfaFactors,
-    setupTotp,
-    verifyTotpFactor,
-    generateRecoveryCodes,
-    verifyRecoveryCode,
-    disableMfa,
-    getUserSessions,
-    revokeSession,
-    revokeAllOtherSessions,
+    signIn: async (email: string, password: string) => {
+      const result = await signIn(email, password);
+      return {
+        data: result.error ? null : void 0,
+        error: result.error || null,
+      };
+    },
+    signInWithMagicLink: async (email: string) => {
+      const result = await signInWithMagicLink(email);
+      return {
+        data: result.error ? null : void 0,
+        error: result.error || null,
+      };
+    },
+    signUp: async (email: string, password: string, metadata?: Record<string, any>) => await signUp(email, password, metadata),
+    signOut: async () => await signOut(),
+    resetPassword: async (email: string) => await resetPassword(email),
+    updatePassword: async (newPassword: string) => await updatePassword(newPassword),
+    updateEmail: async (newEmail: string) => await updateEmail(newEmail),
+    resendConfirmationEmail: async (email: string) => await resendConfirmationEmail(email),
+    updateUserMetadata: async (metadata: Record<string, any>) => await updateUserMetadata(metadata),
+    refreshUser: async () => { await refreshUser(); },
+    hasRole: async (role: string) => Boolean(await hasRole(role)),
+    isAdmin: async () => Boolean(await isAdmin()),
+    isMfaRequired: async () => Boolean(await isMfaRequired()),
+    getMfaFactors: async () => await getMfaFactors(),
+    setupTotp: async (friendlyName?: string) => await setupTotp(friendlyName),
+    verifyTotpFactor: async (factorId: string, code: string) => await verifyTotpFactor(factorId, code),
+    generateRecoveryCodes: async (count?: number) => await generateRecoveryCodes(count),
+    verifyRecoveryCode: async (code: string) => await verifyRecoveryCode(code),
+    disableMfa: async () => await disableMfa(),
+    getUserSessions: async () => await getUserSessions(),
+    revokeSession: async (sessionId: string, reason?: string) => await revokeSession(sessionId, reason),
+    revokeAllOtherSessions: async () => await revokeAllOtherSessions(),
   };
   
   return React.createElement(

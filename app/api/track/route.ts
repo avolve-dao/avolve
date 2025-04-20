@@ -53,7 +53,12 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ success: true, activity_id: data });
   } catch (error) {
-    logger.error('Unexpected error in tracking API', error as Error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error(JSON.stringify({
+      route: '/api/track',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }

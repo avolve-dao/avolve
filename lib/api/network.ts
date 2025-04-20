@@ -355,17 +355,17 @@ export class NetworkApi extends ApiClient {
     this.handleError(censusError);
     
     // Transform census data into growth metrics
-    const nodeGrowth = censusData?.map(census => ({
+    const nodeGrowth = censusData?.map((census: { census_date: string; total_nodes: number }) => ({
       date: census.census_date,
       count: census.total_nodes
     })) || [];
     
-    const memberGrowth = censusData?.map(census => ({
+    const memberGrowth = censusData?.map((census: { census_date: string; total_members: number }) => ({
       date: census.census_date,
       count: census.total_members
     })) || [];
     
-    const fundingGrowth = censusData?.map(census => ({
+    const fundingGrowth = censusData?.map((census: { census_date: string; total_funding: number }) => ({
       date: census.census_date,
       amount: census.total_funding
     })) || [];

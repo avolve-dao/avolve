@@ -45,6 +45,8 @@ interface TokenResult<T> {
  * including claiming, transferring, and querying token data.
  */
 export class TokenService {
+  private repository: any; // Assuming this is defined elsewhere
+
   constructor(private supabase: SupabaseClient) {
     // Initialize logger if needed
   }
@@ -768,6 +770,59 @@ export class TokenService {
         }
       }
     }
+  }
+
+  // COMMUNITY MILESTONES
+  public async getAllCommunityMilestones() {
+    return this.repository.getAllCommunityMilestones();
+  }
+  public async getCommunityMilestoneById(id: string) {
+    return this.repository.getCommunityMilestoneById(id);
+  }
+  public async createCommunityMilestone(milestone: Partial<any>) {
+    return this.repository.createCommunityMilestone(milestone);
+  }
+  public async updateCommunityMilestone(id: string, updates: Partial<any>) {
+    return this.repository.updateCommunityMilestone(id, updates);
+  }
+  public async contributeToMilestone(milestoneId: string, userId: string, amount: number) {
+    // 1. Add contribution
+    const contributionResult = await this.repository.contributeToMilestone(milestoneId, userId, amount);
+    if (!contributionResult.success) return contributionResult;
+    // 2. Update milestone progress
+    const milestoneResult = await this.repository.getCommunityMilestoneById(milestoneId);
+    if (!milestoneResult.success || !milestoneResult.data) return contributionResult;
+    const newCurrent = (milestoneResult.data.current || 0) + amount;
+    await this.repository.updateCommunityMilestone(milestoneId, { current: newCurrent });
+    return contributionResult;
+  }
+  public async getMilestoneContributions(milestoneId: string) {
+    return this.repository.getMilestoneContributions(milestoneId);
+  }
+
+  // TEAMS
+  public async getAllTeams() {
+    return this.repository.getAllTeams();
+  }
+  public async getTeamById(id: string) {
+    return this.repository.getTeamById(id);
+  }
+  public async createTeam(team: Partial<any>) {
+    return this.repository.createTeam(team);
+  }
+  public async joinTeam(teamId: string, userId: string) {
+    return this.repository.joinTeam(teamId, userId);
+  }
+  public async getTeamMembers(teamId: string) {
+    return this.repository.getTeamMembers(teamId);
+  }
+
+  // ASSISTS
+  public async logAssist(helperId: string, recipientId: string, description?: string) {
+    return this.repository.logAssist(helperId, recipientId, description);
+  }
+  public async getAssistsForUser(userId: string) {
+    return this.repository.getAssistsForUser(userId);
   }
 }
 

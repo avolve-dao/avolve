@@ -24,13 +24,18 @@ type VouchRecord = {
 }
 
 type UserToVouch = {
-  id: string
-  email: string
-  full_name?: string
-  avatar_url?: string
-  current_level?: string
-  vouch_count?: number
-}
+  id: string;
+  email: string;
+  full_name?: string;
+  avatar_url?: string;
+  current_level?: string;
+  vouch_count?: number;
+  vouched_user_id?: string;
+  vouched_user_email?: string;
+  vouched_user_name?: string;
+  vouched_user_avatar?: string;
+  created_at?: string;
+};
 
 export function VouchManager() {
   const { user } = useUser()
@@ -67,7 +72,7 @@ export function VouchManager() {
       
       // Get user details for each vouched user
       const vouchesWithUserDetails = await Promise.all(
-        vouchData.map(async (vouch) => {
+        (vouchData as VouchRecord[]).map(async (vouch: VouchRecord) => {
           const { data: userData, error: userError } = await supabase
             .from('profiles')
             .select('email, full_name, avatar_url')
@@ -138,11 +143,11 @@ export function VouchManager() {
       if (error) throw error
       
       // Filter out the current user
-      const filteredUsers = data.filter(u => u.id !== user?.id)
+      const filteredUsers = (data as VouchRecord[]).filter((u: VouchRecord) => u.id !== user?.id)
       
       // Get member journey info for each user
       const usersWithJourneyInfo = await Promise.all(
-        filteredUsers.map(async (user) => {
+        filteredUsers.map(async (user: VouchRecord) => {
           const { data: journeyData, error: journeyError } = await supabase
             .from('member_journey')
             .select('current_level, vouch_count')
@@ -166,10 +171,12 @@ export function VouchManager() {
         })
       )
       
-      // Filter out users who are already past the 'invited' level
-      const eligibleUsers = usersWithJourneyInfo.filter(
-        u => !u.current_level || u.current_level === 'invited'
-      )
+      const eligibleUsers = usersWithJourneyInfo
+        .map((u: any) => ({
+          ...u,
+          email: u.email || u.vouched_user_email || '',
+        }))
+        .filter((u: any) => !u.current_level || u.current_level === 'invited')
       
       setSearchResults(eligibleUsers)
     } catch (error) {

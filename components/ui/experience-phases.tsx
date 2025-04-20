@@ -46,7 +46,6 @@ interface PhaseBadgeProps {
   showIcon?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-  userId?: string;
   showTooltip?: boolean;
 }
 
@@ -55,7 +54,6 @@ export function PhaseBadge({
   showIcon = true, 
   size = 'md',
   className = '',
-  userId,
   showTooltip = false
 }: PhaseBadgeProps) {
   const phaseKey = phase.toLowerCase() as keyof typeof phaseColors;
@@ -97,9 +95,9 @@ export function PhaseBadge({
     </Badge>
   );
   
-  if (showTooltip && userId) {
+  if (showTooltip) {
     return (
-      <ContextualTooltip type="experience_phases" userId={userId}>
+      <ContextualTooltip type="experience_phases">
         {badge}
       </ContextualTooltip>
     );

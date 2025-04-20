@@ -5,7 +5,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import { useToast } from '@/components/ui/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { TokenIcon } from '@/components/tokens/token-icon';
+import { TokenIcon } from '@/components/token/token-icon';
 
 interface TokenReward {
   token_type: string;

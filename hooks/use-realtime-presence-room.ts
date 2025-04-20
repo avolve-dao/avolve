@@ -24,7 +24,7 @@ export const useRealtimePresenceRoom = (roomName: string) => {
 
     room
       .on('presence', { event: 'sync' }, () => {
-        const newState = room.presenceState<{ image: string; name: string }>()
+        const newState = room.presenceState() as Record<string, { image: string; name: string }[]>
 
         const newUsers = Object.fromEntries(
           Object.entries(newState).map(([key, values]) => [
@@ -34,7 +34,7 @@ export const useRealtimePresenceRoom = (roomName: string) => {
         ) as Record<string, RealtimeUser>
         setUsers(newUsers)
       })
-      .subscribe(async (status) => {
+      .subscribe(async (status: any) => {
         if (status !== 'SUBSCRIBED') {
           return
         }
@@ -52,4 +52,3 @@ export const useRealtimePresenceRoom = (roomName: string) => {
 
   return { users }
 }
-

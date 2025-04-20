@@ -5,8 +5,8 @@
       "dom.iterable",
       "esnext"
     ],
-    "allowJs": true,
-    "target": "ES6",
+    "allowJs": false,
+    "target": "ES2022",
     "skipLibCheck": true,
     "strict": true,
     "noEmit": false,
@@ -18,6 +18,9 @@
     "jsx": "preserve",
     "incremental": true,
     "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
     "paths": {
       "@/*": [
         "./*"
@@ -39,6 +42,7 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "supabase/functions"
   ]
 }

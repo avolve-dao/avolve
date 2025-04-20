@@ -171,7 +171,9 @@ export class AuditService {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(limit)
-        .offset(offset);
+        // .offset(offset); // .offset is not supported on PostgrestFilterBuilder in supabase-js v2+
+        // Instead, use range for pagination
+        .range(offset, offset + limit - 1);
       
       if (userId) {
         query = query.eq('user_id', userId);

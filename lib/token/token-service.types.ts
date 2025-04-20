@@ -238,6 +238,64 @@ export type TokenHistory = {
 };
 
 /**
+ * Community Milestone
+ */
+export type CommunityMilestone = {
+  id: string;
+  name: string;
+  description?: string;
+  target: number;
+  current: number;
+  reward?: string;
+  achieved_at?: string;
+  created_at: string;
+  updated_at: string;
+};
+
+/**
+ * Milestone Contribution
+ */
+export type MilestoneContribution = {
+  id: string;
+  milestone_id: string;
+  user_id: string;
+  amount: number;
+  contributed_at: string;
+};
+
+/**
+ * Team
+ */
+export type Team = {
+  id: string;
+  name: string;
+  description?: string;
+  created_by?: string;
+  created_at: string;
+};
+
+/**
+ * Team Member
+ */
+export type TeamMember = {
+  id: string;
+  team_id: string;
+  user_id: string;
+  joined_at: string;
+};
+
+/**
+ * Assist
+ */
+export type Assist = {
+  id: string;
+  helper_id: string;
+  recipient_id: string;
+  description?: string;
+  assisted_at: string;
+};
+
+/**
  * Token service interface
  */
 export interface ITokenService {
@@ -295,4 +353,23 @@ export interface ITokenService {
    * Get user streak
    */
   getUserStreak(userId: string): Promise<TokenResult<UserStreak>>;
+
+  // Community Milestones
+  getAllCommunityMilestones(): Promise<TokenResult<CommunityMilestone[]>>;
+  getCommunityMilestoneById(id: string): Promise<TokenResult<CommunityMilestone>>;
+  createCommunityMilestone(milestone: Partial<CommunityMilestone>): Promise<TokenResult<CommunityMilestone>>;
+  updateCommunityMilestone(id: string, updates: Partial<CommunityMilestone>): Promise<TokenResult<CommunityMilestone>>;
+  contributeToMilestone(milestoneId: string, userId: string, amount: number): Promise<TokenResult<MilestoneContribution>>;
+  getMilestoneContributions(milestoneId: string): Promise<TokenResult<MilestoneContribution[]>>;
+
+  // Teams
+  getAllTeams(): Promise<TokenResult<Team[]>>;
+  getTeamById(id: string): Promise<TokenResult<Team>>;
+  createTeam(team: Partial<Team>): Promise<TokenResult<Team>>;
+  joinTeam(teamId: string, userId: string): Promise<TokenResult<TeamMember>>;
+  getTeamMembers(teamId: string): Promise<TokenResult<TeamMember[]>>;
+
+  // Assists
+  logAssist(helperId: string, recipientId: string, description?: string): Promise<TokenResult<Assist>>;
+  getAssistsForUser(userId: string): Promise<TokenResult<Assist[]>>;
 }

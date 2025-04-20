@@ -10,11 +10,11 @@ import { cookies } from 'next/headers';
  * Requires: admin or superadmin role
  */
 export async function POST(req: NextRequest) {
-  const authResult = await requireAuth(req, ['admin', 'superadmin']);
-  if (authResult instanceof NextResponse) return authResult;
-  const { user } = authResult;
-
   try {
+    const authResult = await requireAuth(req, ['admin', 'superadmin']);
+    if (authResult instanceof NextResponse) return authResult;
+    const { user } = authResult;
+
     const { userId, newRole } = await req.json();
     if (!userId || !newRole) {
       return NextResponse.json({ error: 'Missing userId or newRole' }, { status: 400 });
@@ -31,9 +31,13 @@ export async function POST(req: NextRequest) {
     // Audit log
     await logAuditAction(user.id, 'role_change', userId, { newRole });
     return NextResponse.json({ success: true });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    console.error('Error updating user role:', err);
-    return NextResponse.json({ error: message }, { status: 500 });
+  } catch (error) {
+    console.error(JSON.stringify({
+      route: '/api/admin/user/role',
+      error: error instanceof Error ? error.message : error,
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString(),
+    }));
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -57,3 +57,6 @@ __snapshots__/
 .cursor/
 .husky/_/
 .windsurf/
+.env
+.env.local
+.env.production

@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { Database } from '@/lib/database.types';
@@ -8,7 +8,11 @@ import { Database } from '@/lib/database.types';
  */
 async function getCurrentUser() {
   const cookieStore = cookies();
-  const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: cookieStore }
+  );
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 }
@@ -40,7 +44,11 @@ export async function POST(request: NextRequest) {
       };
       
       const cookieStore = cookies();
-      const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
+      const supabase = createServerClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        { cookies: cookieStore }
+      );
       
       const { data, error } = await supabase
         .from('user_consent')
@@ -100,7 +108,11 @@ export async function GET(request: NextRequest) {
     const to_date = searchParams.get('to_date');
     
     const cookieStore = cookies();
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: cookieStore }
+    );
     
     let query = supabase
       .from('user_consent')
@@ -163,7 +175,11 @@ export async function PATCH(request: NextRequest) {
     }
     
     const cookieStore = cookies();
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: cookieStore }
+    );
     
     // First check if the consent record belongs to the user
     const { data: existingConsent, error: fetchError } = await supabase

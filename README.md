@@ -6,6 +6,70 @@
 
 ---
 
+## Quickstart
+
+1. **Clone the repo:**
+   ```sh
+   git clone https://github.com/avolve-dao/avolve.io.git
+   cd avolve.io
+   ```
+2. **Install dependencies:**
+   ```sh
+   pnpm install
+   ```
+3. **Set up environment variables:**
+   - Copy `.env.example` to `.env.local` and fill in:
+     - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+     - `REDIS_URL`, `OPENAI_API_KEY` (optional for AI features)
+4. **Run locally:**
+   ```sh
+   pnpm dev
+   ```
+
+## Database & Supabase
+- Managed via migrations in `/supabase/migrations` (Supabase CLI/MCP best practices).
+- RLS enabled and granular policies for all tables.
+- Types auto-generated in `/types/supabase.ts`.
+
+## Testing
+- Run all tests:
+  ```sh
+  pnpm test
+  ```
+- Ensure Docker Desktop is running for local Supabase tests.
+
+## Linting & Formatting
+- Lint all code:
+  ```sh
+  pnpm lint
+  ```
+- Format all code:
+  ```sh
+  pnpm exec prettier --write .
+  ```
+
+## Deployment
+- Push to `main` for production deploys.
+- Uses GitHub Actions for CI (lint/build/test).
+
+## Environment Variables
+| Name                    | Required | Description                  |
+|-------------------------|----------|------------------------------|
+| SUPABASE_URL            | Yes      | Supabase project URL         |
+| SUPABASE_ANON_KEY       | Yes      | Supabase anon key            |
+| SUPABASE_SERVICE_ROLE_KEY | Yes    | Supabase service role key    |
+| REDIS_URL               | Optional | Redis connection string      |
+| OPENAI_API_KEY          | Optional | OpenAI API key for AI        |
+
+## Contributing
+- For now, this is a solo project. PRs/branches optional.
+- All code, migrations, and types should be versioned and documented.
+
+## Contact
+- Maintainer: @avolve-dao
+
+---
+
 ## Fellowship Review: Production-Ready Status
 
 - **All simulation, mock, and test code has been removed.**

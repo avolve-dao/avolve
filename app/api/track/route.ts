@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { ActivityActionType } from '@/utils/tracking';
 import { Logger } from '@/lib/monitoring/logger';
@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = createServerClient({ cookies });
     
     // Get the current user from the session
     const { data: { session } } = await supabase.auth.getSession();

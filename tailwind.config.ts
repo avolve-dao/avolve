@@ -1,8 +1,7 @@
 import type { Config } from "tailwindcss"
-import { fontFamily } from "tailwindcss/defaultTheme"
 
 const config = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
@@ -203,6 +202,10 @@ const config = {
           token: "#3b82f6", // SBG token color (blue-500)
         },
       },
+      fontFamily: {
+        // Use Inter as the only font for sans
+        sans: ["Inter"],
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -256,9 +259,6 @@ const config = {
       fontVariationSettings: {
         emphasis: '"wght" 600',
         relaxed: '"wght" 300',
-      },
-      fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
       },
     },
   },

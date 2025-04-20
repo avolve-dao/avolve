@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Body: { step: string }
 export async function PATCH(req: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = createServerClient({ cookies });
     let step: string;
     const body = await req.json();
     step = body.step;

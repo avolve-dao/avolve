@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/auth-middleware';
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const { user } = authResult;
 
   try {
-    const supabase = createRouteHandlerClient({ cookies })
+    const supabase = createServerClient({ cookies })
 
     const { fromToken, toToken, amount } = await req.json()
 

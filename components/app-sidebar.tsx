@@ -1,14 +1,27 @@
 "use client"
 
 import type * as React from "react"
-import { NavMain } from "./nav-main"
 import { NavUser } from "./nav-user"
-import { NavSwitcher } from "./nav-switcher"
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar"
 import { useState, useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { TokenSidebarDisplay } from "@/components/token/token-sidebar-display"; // Import the TokenSidebarDisplay component
 import { cn } from "@/lib/utils"; // Import the cn function
+import Link from "next/link"
+import {
+  ChevronDown,
+  ChevronRight,
+  Home,
+  Award,
+  Puzzle,
+  Layers,
+  Brain,
+  Users,
+  Rocket,
+  Globe,
+  Star,
+  Key
+} from "lucide-react"
 
 // Avolve platform structure data
 const avolveData = {
@@ -769,97 +782,237 @@ const avolveData = {
   ]
 }
 
-// Helper function to determine active team based on pathname
-const getActiveTeamFromPath = (path: string) => {
-  // Extract the first segment of the path
-  const segment = path.split('/')[1];
-  
-  // Check if the segment matches any of our main routes
-  const mainRoutes = [
-    'superachiever', 
-    'superachievers', 
-    'supercivilization',
-    'personal',
-    'business',
-    'supermind',
-    'superpuzzle',
-    'superhuman',
-    'supersociety',
-    'supergenius'
-  ];
-  
-  if (mainRoutes.includes(segment)) {
-    return segment;
+// Type definitions for navigation items
+interface NavItem {
+  id: string;
+  title: string;
+  label: string;
+  href: string;
+  category?: string;
+  gradientClass?: string;
+  isDashboard?: boolean;
+  items?: NavItem[];
+  icon?: React.ReactNode;
+}
+
+// Icon mapping for main routes
+const mainRouteIcons: Record<string, React.ReactNode> = {
+  superachiever: <Home className="w-5 h-5 mr-1" />, // Dashboard
+  "personal-success-puzzle": <Award className="w-5 h-5 mr-1" />, // Personal
+  "business-success-puzzle": <Layers className="w-5 h-5 mr-1" />, // Business
+  "supermind-superpowers": <Brain className="w-5 h-5 mr-1" />, // Supermind
+  superachievers: <Users className="w-5 h-5 mr-1" />, // Collective
+  "superpuzzle-developments": <Puzzle className="w-5 h-5 mr-1" />,
+  "superhuman-enhancements": <Rocket className="w-5 h-5 mr-1" />,
+  "supersociety-advancements": <Globe className="w-5 h-5 mr-1" />,
+  "supergenius-breakthroughs": <Star className="w-5 h-5 mr-1" />,
+  supercivilization: <Key className="w-5 h-5 mr-1" />
+}
+
+interface SidebarNavItemProps {
+  route: NavItem;
+  active: boolean;
+  expanded: boolean;
+  onExpand: () => void;
+  depth?: number;
+}
+
+function SidebarNavItem({ route, active, expanded, onExpand, depth = 0 }: SidebarNavItemProps) {
+  const hasChildren = Array.isArray(route.items) && route.items.length > 0;
+  // Pick icon for main routes
+  const icon = depth === 0 && mainRouteIcons[route.id] ? mainRouteIcons[route.id] : null;
+  // Keyboard expand/collapse
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (hasChildren && (e.key === "Enter" || e.key === " ")) {
+      e.preventDefault();
+      onExpand();
+    }
   }
-  
-  // Default to superachiever if no match
-  return 'superachiever';
-};
+  return (
+    <div
+      className={cn("flex flex-col group/sidebar-item", depth > 0 && "ml-6 border-l border-muted/30 pl-3")}
+      aria-label={route.label}
+      aria-current={active ? "page" : undefined}
+      role="treeitem"
+      aria-expanded={hasChildren ? expanded : undefined}
+      tabIndex={-1}
+    >
+      <div className="flex items-center group">
+        <Link
+          href={route.href}
+          className={cn(
+            "flex items-center gap-2 rounded-lg px-3 py-2 text-base font-semibold transition-all w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/70",
+            "hover:bg-gradient-to-r hover:from-primary/70 hover:to-primary/90 hover:text-white",
+            active ? `bg-gradient-to-r ${route.gradientClass} text-white shadow-lg scale-[1.03]` : "text-zinc-700 dark:text-zinc-200",
+            depth === 0 && "transition-transform duration-200 group-hover/sidebar-item:scale-[1.04] group-focus-within/sidebar-item:scale-[1.04]"
+          )}
+          aria-current={active ? "page" : undefined}
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+        >
+          {icon && (
+            <span className={cn("transition-transform duration-200", active ? "scale-110" : "group-hover/sidebar-item:scale-110 group-focus-visible/sidebar-item:scale-110")}>{icon}</span>
+          )}
+          <span className="block w-2 h-8 rounded-full mr-2" style={{ background: `linear-gradient(to bottom, var(--tw-gradient-stops))` }} />
+          {route.label}
+        </Link>
+        {hasChildren && (
+          <button
+            aria-label={expanded ? `Collapse ${route.label}` : `Expand ${route.label}`}
+            className={cn("ml-2 p-1 rounded focus-visible:ring-2 focus-visible:ring-primary/60 transition-colors",
+              expanded ? "bg-muted/50" : "hover:bg-muted/40"
+            )}
+            onClick={onExpand}
+            tabIndex={0}
+            type="button"
+            aria-expanded={expanded}
+            aria-controls={`submenu-${route.id}`}
+          >
+            {expanded ? <ChevronDown className="w-4 h-4 transition-transform duration-150" /> : <ChevronRight className="w-4 h-4 transition-transform duration-150" />}
+          </button>
+        )}
+      </div>
+      {hasChildren && expanded && (
+        <div className="mt-1 animate-fade-in" id={`submenu-${route.id}`} role="group">
+          {route.items!.map((sub) => (
+            <SidebarNavItem
+              key={sub.id}
+              route={sub}
+              active={active && sub.href === route.href}
+              expanded={false}
+              onExpand={() => {}}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  activeFocus?: string;
+  className?: string;
+}
+
+function SidebarOnboarding() {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem("avolve_sidebar_onboarded")) {
+      setShow(true)
+    }
+  }, [])
+  if (!show) return null
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+      <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-xl p-8 max-w-sm w-full relative animate-fade-in">
+        <button
+          className="absolute top-2 right-2 p-1 rounded hover:bg-muted/30"
+          aria-label="Dismiss onboarding"
+          onClick={() => {
+            setShow(false)
+            localStorage.setItem("avolve_sidebar_onboarded", "1")
+          }}
+        >
+          ×
+        </button>
+        <h2 className="text-xl font-bold mb-2">Welcome to Avolve!</h2>
+        <p className="mb-4 text-zinc-600 dark:text-zinc-300">Explore the sidebar to navigate through all the main journeys. Tap the menu button on mobile to open the sidebar. Click any route to see its puzzle pieces. Enjoy your journey! 🚀</p>
+        <button
+          className="w-full mt-2 py-2 rounded bg-primary text-white font-semibold hover:bg-primary/90"
+          onClick={() => {
+            setShow(false)
+            localStorage.setItem("avolve_sidebar_onboarded", "1")
+          }}
+        >
+          Got it!
+        </button>
+      </div>
+    </div>
+  )
+}
 
 export function AppSidebar({ 
   activeFocus,
   className,
   ...props 
-}: React.ComponentProps<typeof Sidebar> & { 
-  activeFocus?: string 
-}) {
-  const pathname = usePathname();
-  const [activeTeamId, setActiveTeamId] = useState(activeFocus || getActiveTeamFromPath(pathname || ''));
+}: AppSidebarProps) {
+  const pathname = usePathname() ?? "";
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-  // Update active team when pathname changes
-  useEffect(() => {
-    if (!activeFocus) {
-      const detectedTeam = getActiveTeamFromPath(pathname || '');
-      setActiveTeamId(detectedTeam);
-    }
-  }, [pathname, activeFocus]);
+  // Responsive sidebar context
+  const sidebar = useSidebar ? useSidebar() : undefined;
+  const isMobile = sidebar?.isMobile;
 
-  // Get filtered menu items based on active team
-  const getFilteredMenuItems = () => {
-    if (!activeTeamId) return [];
-    
-    // For main routes, filter by category
-    if (['individual', 'collective', 'ecosystem'].includes(activeTeamId)) {
-      return avolveData.navMain.filter(item => 
-        item.category === 'main' || 
-        item.category === activeTeamId
-      );
-    }
-    
-    // For sub-routes, filter by their specific category
-    return avolveData.navMain.filter(item => item.category === activeTeamId);
+  // Helper: find top-level route for current path
+  const findActiveMainRoute = (): NavItem => {
+    const seg = pathname.split("/")[1];
+    return avolveData.navMain.find((r: NavItem) => r.id === seg || r.href.replace("/","") === seg) || avolveData.navMain[0];
   };
+  const activeRoute = findActiveMainRoute();
+
+  // Helper: recursively render nav
+  const renderNav = (routes: NavItem[], depth = 0) => (
+    routes.map((route) => {
+      const isActive = pathname.startsWith(route.href);
+      const isExpanded = expanded[route.id] || isActive;
+      return (
+        <SidebarNavItem
+          key={route.id}
+          route={route}
+          active={isActive}
+          expanded={isExpanded}
+          onExpand={() => setExpanded(e => ({ ...e, [route.id]: !e[route.id] }))}
+          depth={depth}
+        />
+      );
+    })
+  );
+
+  // Only show top-level (category main) and their children if active
+  const mainRoutes = avolveData.navMain.filter((r: NavItem) => r.category === "main");
+  const subRoutes = avolveData.navMain.filter((r: NavItem) => r.category === activeRoute.id);
 
   return (
-    <Sidebar 
-      collapsible="icon" 
-      variant="floating" 
-      className={cn(
-        "border-none shadow-none bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-md z-40",
-        className
+    <SidebarProvider>
+      <SidebarOnboarding />
+      {isMobile && (
+        <div className="fixed top-4 left-4 z-50">
+          <SidebarTrigger />
+        </div>
       )}
-      {...props}
-    >
-      <SidebarHeader className="py-2 px-2">
-        <div className="flex h-full flex-col gap-2">
-          <div className="px-3 py-2">
-            <NavSwitcher
-              activeTeam={activeTeamId}
-              onTeamChange={(teamId) => setActiveTeamId(teamId)}
-            />
+      <Sidebar
+        collapsible="icon"
+        variant="floating"
+        className={cn(
+          "border-none shadow-none bg-zinc-50/90 dark:bg-zinc-900/90 backdrop-blur-md z-40",
+          className,
+          isMobile ? "fixed top-0 left-0 h-full w-[18rem] transition-transform duration-300 ease-in-out" : ""
+        )}
+        {...props}
+      >
+        <SidebarHeader className="py-2 px-2">
+          <div className="flex h-full flex-col gap-2">
+            <nav className="flex flex-col gap-1">
+              {renderNav(mainRoutes)}
+              {subRoutes.length > 0 && (
+                <div className="mt-2 border-l-2 border-primary/20 pl-3">
+                  {renderNav(subRoutes, 1)}
+                </div>
+              )}
+            </nav>
           </div>
-        </div>
-      </SidebarHeader>
-      <SidebarContent className="px-2">
-        <NavMain items={getFilteredMenuItems()} />
-        <div className="mt-6 border-t pt-4">
-          <TokenSidebarDisplay />
-        </div>
-      </SidebarContent>
-      <SidebarFooter className="py-2 px-2">
-        <NavUser user={avolveData.user} />
-      </SidebarFooter>
-      <SidebarRail className="bg-transparent border-none" />
-    </Sidebar>
-  )
+        </SidebarHeader>
+        <SidebarContent className="px-2">
+          <div className="mt-6 border-t pt-4">
+            <TokenSidebarDisplay />
+          </div>
+        </SidebarContent>
+        <SidebarFooter className="py-2 px-2">
+          <NavUser user={avolveData.user} />
+        </SidebarFooter>
+        <SidebarRail className="bg-transparent border-none" />
+      </Sidebar>
+    </SidebarProvider>
+  );
 }

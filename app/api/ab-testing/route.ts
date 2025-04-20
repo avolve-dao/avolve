@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { z, ZodError, ZodIssue, ZodFormattedError } from 'zod';
 import { authMiddleware, getUserId } from '@/middleware/auth-middleware';
@@ -103,7 +103,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       : {};
     
     // Create a Supabase client
-    const supabase = createRouteHandlerClient({ cookies });
+    const cookieStore = cookies();
+    const supabase = createServerClient(
+      env.NEXT_PUBLIC_SUPABASE_URL,
+      env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      { cookies: cookieStore }
+    );
     
     // Get the user ID from the request headers
     const userId = getUserId(req);
@@ -189,7 +194,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
 
     // Create a Supabase client
-    const supabase = createRouteHandlerClient({ cookies });
+    const cookieStore2 = cookies();
+    const supabase2 = createServerClient(
+      env.NEXT_PUBLIC_SUPABASE_URL,
+      env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      { cookies: cookieStore2 }
+    );
     
     // Get the user ID from the request headers
     const userId = getUserId(req) as string | undefined;
@@ -202,7 +212,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
     
     // Get the user's A/B testing configuration
-    const { data, error } = await supabase
+    const { data, error } = await supabase2
       .from('ab_testing_assignments')
       .select('test_id, variant')
       .eq('user_id', userId);

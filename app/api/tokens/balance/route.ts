@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { requireAuth } from '@/lib/auth-middleware';
@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
   const { user } = authResult;
 
   try {
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = createServerClient({ cookies });
     const { data, error } = await supabase
       .from('token_balances')
       .select(`*, token_type:token_types(*)`)

@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { cookies } from 'next/headers'
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 
 // Components
 import { HeroSection } from '@/components/marketing/hero-section'
@@ -9,12 +9,15 @@ import { SocialProof } from '@/components/marketing/social-proof'
 import { ValueProposition } from '@/components/marketing/value-proposition'
 import { CTASection } from '@/components/marketing/cta-section'
 import LoadingSpinner from '@/components/ui/loading-spinner'
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 // Get personalized content based on user's location and referral
 async function getPersonalizedContent() {
   let supabase;
   try {
-    supabase = createServerComponentClient({ cookies });
+    supabase = createServerClient({ cookies });
   } catch (error) {
     console.warn('Failed to initialize Supabase client:', error instanceof Error ? error.message : 'Unknown error');
     // Return fallback data if Supabase initialization fails
@@ -84,6 +87,8 @@ export default async function HomePage() {
         description="Embark on a journey of personal evolution and collective achievement to build a supercivilization with other extraordinary individuals."
       />
 
+      <Separator className="my-12" />
+
       {/* Value Proposition */}
       <ValueProposition
         title="The Path to Supercivilization"
@@ -103,7 +108,7 @@ export default async function HomePage() {
           }
         ]}
       />
-      
+      <Separator className="my-12" />
       {/* Feature Showcase */}
       <Suspense fallback={<LoadingSpinner />}>
         <FeatureShowcase
@@ -139,34 +144,39 @@ export default async function HomePage() {
             Our superachievers are already making extraordinary progress in their personal evolution and collective impact.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
+            <Card className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
               <div className="text-3xl font-bold text-indigo-400 mb-2">{new Intl.NumberFormat().format(content.metrics?.users || 0)}</div>
               <div className="text-zinc-300">Active Superachievers</div>
-            </div>
-            <div className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
+            </Card>
+            <Card className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
               <div className="text-3xl font-bold text-indigo-400 mb-2">{new Intl.NumberFormat().format(content.metrics?.teams || 0)}</div>
               <div className="text-zinc-300">Impact Teams</div>
-            </div>
-            <div className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
+            </Card>
+            <Card className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
               <div className="text-3xl font-bold text-indigo-400 mb-2">{new Intl.NumberFormat().format(content.metrics?.achievements || 0)}</div>
               <div className="text-zinc-300">Milestones Achieved</div>
-            </div>
+            </Card>
           </div>
         </div>
       </section>
-
+      <Separator className="my-12" />
       {/* Social Proof */}
       <Suspense fallback={<LoadingSpinner />}>
         <SocialProof testimonials={content.testimonials || []} />
       </Suspense>
-
+      <Separator className="my-12" />
       {/* Call to Action */}
-      <CTASection 
-        region={content.location?.country}
-        metrics={content.metrics}
-        title="Join the Evolution"
-        description="Become part of a movement that is redefining human potential and building the foundation for a supercivilization."
-      />
+      <section className="flex flex-col items-center justify-center py-16">
+        <CTASection 
+          region={content.location?.country}
+          metrics={content.metrics}
+          title="Join the Evolution"
+          description="Become part of a movement that is redefining human potential and building the foundation for a supercivilization."
+        />
+        <Button className="mt-8 px-8 py-4 text-lg rounded-full shadow-lg" size="lg">
+          Get Started
+        </Button>
+      </section>
     </main>
   )
 }

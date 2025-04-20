@@ -1,13 +1,12 @@
-import { createClient } from '@supabase/supabase-js'
+import { createBrowserClient } from '@supabase/ssr'
 import { Database } from '@/types/supabase'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 /**
  * AnalyticsService provides methods for interacting with the Avolve platform's
  * advanced analytics and real-time engagement features.
  */
 export class AnalyticsService {
-  private supabase = createClientComponentClient<Database>()
+  private supabase = createBrowserClient<Database>()
 
   /**
    * Logs a user activity with the specified parameters.

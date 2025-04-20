@@ -6,14 +6,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 // import { Database } from '@/types/supabase'; // Temporarily removed due to missing export
 
 export async function POST(request: NextRequest) {
   try {
     // Initialize Supabase client
-    const supabase = createRouteHandlerClient({ cookies });
+    const supabase = createServerClient({ cookies });
     
     // Verify authentication
     const { data: { session } } = await supabase.auth.getSession();

@@ -28,7 +28,7 @@ export function QRCode({
   return (
     <div className={cn("flex flex-col items-center space-y-2", className)} {...props}>
       <div 
-        className="bg-white p-4 rounded-md border border-border flex flex-col items-center justify-center"
+        className="bg-white p-4 rounded-md border border-zinc-200 flex flex-col items-center justify-center"
         style={{ width: size, minHeight: size / 2 }}
       >
         <p className="text-sm text-center mb-4">{title}</p>

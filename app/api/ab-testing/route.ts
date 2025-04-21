@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { cookies } from 'next/headers';
 import { z, ZodError, ZodIssue, ZodFormattedError } from 'zod';
 import { authMiddleware, getUserId } from '@/middleware/auth-middleware';
@@ -104,11 +104,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     
     // Create a Supabase client
     const cookieStore = cookies();
-    const supabase = createServerClient(
-      env.NEXT_PUBLIC_SUPABASE_URL,
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      { cookies: cookieStore }
-    );
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore });
     
     // Get the user ID from the request headers
     const userId = getUserId(req);
@@ -195,11 +191,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     // Create a Supabase client
     const cookieStore2 = cookies();
-    const supabase2 = createServerClient(
-      env.NEXT_PUBLIC_SUPABASE_URL,
-      env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-      { cookies: cookieStore2 }
-    );
+    const supabase2 = createClient(undefined, undefined, { cookies: cookieStore2 });
     
     // Get the user ID from the request headers
     const userId = getUserId(req) as string | undefined;

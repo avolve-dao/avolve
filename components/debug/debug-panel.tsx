@@ -114,7 +114,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
 
   return (
     <div 
-      className="fixed bottom-0 right-0 w-full md:w-96 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-t-lg z-50 transition-all duration-300 ease-in-out"
+      className="fixed bottom-0 right-0 w-full md:w-96 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-lg rounded-t-lg z-50 transition-all duration-300 ease-in-out"
       style={{ maxHeight: '80vh' }}
       ref={panelRef}
       role="dialog"
@@ -122,7 +122,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
       aria-describedby="debug-panel-description"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-3 border-b border-zinc-200 dark:border-zinc-700">
         <h2 
           id="debug-panel-title"
           className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center"
@@ -140,7 +140,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
       </div>
       
       {/* Tabs */}
-      <div className="flex border-b border-gray-200 dark:border-gray-700">
+      <div className="flex border-b border-zinc-200 dark:border-zinc-700">
         <TabButton 
           active={activeTab === 'queries'} 
           onClick={() => setActiveTab('queries')}
@@ -232,7 +232,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ queries }) => (
         {queries.map((query, index) => (
           <div 
             key={index} 
-            className="p-2 bg-gray-50 dark:bg-gray-700 rounded text-xs border border-gray-200 dark:border-gray-600"
+            className="p-2 bg-gray-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
           >
             <div className="flex justify-between mb-1">
               <span className="font-medium text-gray-700 dark:text-gray-200">{query.table}</span>
@@ -272,7 +272,7 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ performance }) => (
         {Object.entries(performance).map(([key, value], index) => (
           <div 
             key={index} 
-            className="flex justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded text-xs border border-gray-200 dark:border-gray-600"
+            className="flex justify-between p-2 bg-gray-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
           >
             <span className="font-medium text-gray-700 dark:text-gray-200">{key}</span>
             <span className={`${
@@ -364,7 +364,7 @@ const JsonTree: React.FC<JsonTreeProps> = ({ data, level = 0, expanded = true })
   const toggleExpand = () => setIsExpanded(!isExpanded);
   
   return (
-    <div className="pl-4 border-l border-gray-200 dark:border-gray-700">
+    <div className="pl-4 border-l border-zinc-200 dark:border-zinc-700">
       <div 
         className="flex items-center cursor-pointer text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
         onClick={toggleExpand}

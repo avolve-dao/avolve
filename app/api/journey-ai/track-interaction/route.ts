@@ -6,14 +6,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { cookies } from 'next/headers';
 // import { Database } from '@/types/supabase'; // Temporarily removed due to missing export
 
 export async function POST(request: NextRequest) {
   try {
     // Initialize Supabase client
-    const supabase = createServerClient({ cookies });
+    const cookieStore = cookies();
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore });
     
     // Verify authentication
     const { data: { session } } = await supabase.auth.getSession();

@@ -12,7 +12,7 @@ export const QuestProgress: React.FC<QuestProgressProps> = ({ title, category, s
   const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
   
   return (
-    <div className="py-2 border-b border-border last:border-b-0">
+    <div className="py-2 border-b border-zinc-200 last:border-b-0">
       <div className="flex justify-between items-center mb-1">
         <span className="font-medium text-foreground">{title}</span>
         <span className="text-sm text-muted-foreground">{formattedStatus}</span>

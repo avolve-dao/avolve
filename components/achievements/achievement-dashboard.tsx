@@ -260,7 +260,7 @@ export default function AchievementDashboard({
                   key={achievement.id} 
                   className={`border rounded-lg p-4 ${
                     achievement.earned_at 
-                      ? 'bg-white border-gray-200' 
+                      ? 'bg-white border-zinc-200' 
                       : 'bg-gray-50 border-gray-300 opacity-60'
                   }`}
                 >
@@ -350,7 +350,7 @@ export default function AchievementDashboard({
               {unlockedAchievements.map((achievement: UserAchievement) => (
                 <div 
                   key={achievement.id} 
-                  className="border rounded-lg p-4 bg-white border-gray-200"
+                  className="border rounded-lg p-4 bg-white border-zinc-200"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">

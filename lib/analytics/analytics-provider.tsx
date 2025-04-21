@@ -1,9 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect } from 'react';
-// Remove Vercel-specific imports that are causing build failures
-// import { Analytics } from '@vercel/analytics/react';
-// import { SpeedInsights } from '@vercel/speed-insights/react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 // Define the analytics context
@@ -132,9 +129,6 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   return (
     <AnalyticsContext.Provider value={value}>
       {children}
-      {/* Remove Vercel-specific components */}
-      {/* <Analytics /> */}
-      {/* <SpeedInsights /> */}
     </AnalyticsContext.Provider>
   );
 };

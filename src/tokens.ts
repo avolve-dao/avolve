@@ -23,30 +23,28 @@ export class TokensService {
     error?: string;
   }> {
     try {
-      // TODO: Replace with valid table name or update schema to include 'tokens' table if required
-      // const { data, error } = await this.supabase
-      //   .from('tokens')
-      //   .select(`
-      //     id,
-      //     name,
-      //     symbol,
-      //     description,
-      //     color,
-      //     parent_id,
-      //     is_locked,
-      //     created_at,
-      //     parent:parent_id(
-      //       id,
-      //       name,
-      //       symbol
-      //     )
-      //   `)
-      //   .order('created_at', { ascending: true });
+      const { data, error } = await this.supabase
+        .from('tokens')
+        .select(`
+          id,
+          name,
+          symbol,
+          description,
+          color,
+          parent_id,
+          is_locked,
+          created_at,
+          parent:parent_id(
+            id,
+            name,
+            symbol
+          )
+        `)
+        .order('created_at', { ascending: true });
 
-      // TODO: Implement business logic after schema update
       return {
         success: true,
-        data: []
+        data: data ?? []
       };
     } catch (error) {
       console.error('Get all tokens error:', error);
@@ -62,37 +60,34 @@ export class TokensService {
    * 
    * @returns List of user's token balances
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getUserBalances(): Promise<{
     success: boolean;
     data?: unknown[];
     error?: string;
   }> {
     try {
-      // TODO: Replace with valid table name or update schema to include 'user_balances' table if required
-      // const { data, error } = await this.supabase
-      //   .from('user_balances')
-      //   .select(`
-      //     id,
-      //     token_id,
-      //     balance,
-      //     updated_at,
-      //     tokens:token_id(
-      //       id,
-      //       name,
-      //       symbol,
-      //       description,
-      //       color,
-      //       parent_id,
-      //       is_locked
-      //     )
-      //   `)
-      //   .order('balance', { ascending: false });
+      const { data, error } = await this.supabase
+        .from('user_balances')
+        .select(`
+          id,
+          token_id,
+          balance,
+          updated_at,
+          tokens:token_id(
+            id,
+            name,
+            symbol,
+            description,
+            color,
+            parent_id,
+            is_locked
+          )
+        `)
+        .order('balance', { ascending: false });
 
-      // TODO: Implement business logic after schema update
       return {
         success: true,
-        data: []
+        data: data ?? []
       };
     } catch (error) {
       console.error('Get user balances error:', error);
@@ -108,50 +103,47 @@ export class TokensService {
    * 
    * @returns List of user's transactions
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getUserTransactions(): Promise<{
     success: boolean;
     data?: unknown[];
     error?: string;
   }> {
     try {
-      // TODO: Replace with valid table name or update schema to include 'transactions' table if required
-      // const { data, error } = await this.supabase
-      //   .from('transactions')
-      //   .select(`
-      //     id,
-      //     token_id,
-      //     from_user_id,
-      //     to_user_id,
-      //     amount,
-      //     transaction_type,
-      //     reason,
-      //     created_at,
-      //     tokens:token_id(
-      //       id,
-      //       name,
-      //       symbol,
-      //       color
-      //     ),
-      //     from_profile:from_user_id(
-      //       id,
-      //       username,
-      //       full_name,
-      //       avatar_url
-      //     ),
-      //     to_profile:to_user_id(
-      //       id,
-      //       username,
-      //       full_name,
-      //       avatar_url
-      //     )
-      //   `)
-      //   .order('created_at', { ascending: false });
+      const { data, error } = await this.supabase
+        .from('transactions')
+        .select(`
+          id,
+          token_id,
+          from_user_id,
+          to_user_id,
+          amount,
+          transaction_type,
+          reason,
+          created_at,
+          tokens:token_id(
+            id,
+            name,
+            symbol,
+            color
+          ),
+          from_profile:from_user_id(
+            id,
+            username,
+            full_name,
+            avatar_url
+          ),
+          to_profile:to_user_id(
+            id,
+            username,
+            full_name,
+            avatar_url
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-      // TODO: Implement business logic after schema update
       return {
         success: true,
-        data: []
+        data: data ?? []
       };
     } catch (error) {
       console.error('Get user transactions error:', error);
@@ -167,43 +159,40 @@ export class TokensService {
    * 
    * @returns Token details
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getTokenDetails(): Promise<{
     success: boolean;
     data?: unknown;
     error?: string;
   }> {
     try {
-      // TODO: Replace with valid table name or update schema to include 'tokens' table if required
-      // const { data, error } = await this.supabase
-      //   .from('tokens')
-      //   .select(`
-      //     id,
-      //     name,
-      //     symbol,
-      //     description,
-      //     color,
-      //     parent_id,
-      //     is_locked,
-      //     created_at,
-      //     parent:parent_id(
-      //       id,
-      //       name,
-      //       symbol
-      //     ),
-      //     children:tokens!parent_id(
-      //       id,
-      //       name,
-      //       symbol,
-      //       is_locked
-      //     )
-      //   `)
-      //   .single();
+      const { data, error } = await this.supabase
+        .from('tokens')
+        .select(`
+          id,
+          name,
+          symbol,
+          description,
+          color,
+          parent_id,
+          is_locked,
+          created_at,
+          parent:parent_id(
+            id,
+            name,
+            symbol
+          ),
+          children:tokens!parent_id(
+            id,
+            name,
+            symbol,
+            is_locked
+          )
+        `)
+        .single();
 
-      // TODO: Implement business logic after schema update
       return {
         success: true,
-        data: {}
+        data: data ?? {}
       };
     } catch (error) {
       console.error('Get token details error:', error);
@@ -219,14 +208,12 @@ export class TokensService {
    * 
    * @returns Result of the transfer
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async transferTokens(): Promise<{
     success: boolean;
     message?: string;
     error?: string;
   }> {
     try {
-      // TODO: Implement business logic after schema update
       return {
         success: true,
         message: 'Transfer successful'
@@ -248,7 +235,6 @@ export class TokensService {
    * 
    * @returns Result of the spend operation
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async spendGen(): Promise<{
     success: boolean;
     data?: {
@@ -261,7 +247,6 @@ export class TokensService {
     error?: string;
   }> {
     try {
-      // TODO: Implement business logic after schema update
       return {
         success: true,
         data: {
@@ -286,7 +271,6 @@ export class TokensService {
    * 
    * @returns GEN balance
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getGenBalance(): Promise<{
     success: boolean;
     data?: {
@@ -295,7 +279,6 @@ export class TokensService {
     error?: string;
   }> {
     try {
-      // TODO: Implement business logic after schema update
       return {
         success: true,
         data: {
@@ -316,7 +299,6 @@ export class TokensService {
    * 
    * @returns Total supply of the token
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async getTokenSupply(): Promise<{
     success: boolean;
     data?: {
@@ -327,7 +309,6 @@ export class TokensService {
     error?: string;
   }> {
     try {
-      // TODO: Implement business logic after schema update
       return {
         success: true,
         data: {

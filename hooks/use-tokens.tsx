@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { useUser } from './use-user';
 import { useToast } from '@/components/ui/use-toast';
 import { TokenService } from '@/lib/token/TokenService';
@@ -61,7 +61,7 @@ export type TokenSpendPurpose =
  * Follows 2025 best practices for React hooks and Supabase integration
  */
 export function useTokens() {
-  const supabase = createBrowserClient(
+  const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );

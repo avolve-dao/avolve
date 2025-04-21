@@ -5,7 +5,7 @@
  * Copyright 2025 Avolve DAO and the Joshua Seymour Family. All rights reserved. Proprietary and confidential.
  */
 
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { cookies, headers } from 'next/headers';
 import type { Database } from '@/types/supabase';
 
@@ -37,7 +37,8 @@ interface UserBehaviorData {
  * Track page view for analytics
  */
 export async function trackPageView(event: PageViewEvent) {
-  const supabase = createServerClient<Database>({ cookies });
+  const cookieStore = cookies();
+  const supabase = createClient(undefined, undefined, { cookies: cookieStore });
   
   const h = await headers();
   // Record the page view in the analytics table
@@ -59,7 +60,8 @@ export async function trackPageView(event: PageViewEvent) {
  * Get personalized content recommendations for a user
  */
 export async function getPersonalizedRecommendations(userId: string) {
-  const supabase = createServerClient<Database>({ cookies });
+  const cookieStore = cookies();
+  const supabase = createClient(undefined, undefined, { cookies: cookieStore });
   
   // Get user behavior data for AI model
   const userData = await getUserBehaviorData(userId);
@@ -91,7 +93,8 @@ export async function getPersonalizedRecommendations(userId: string) {
  * Predict phase progression timeline for a user
  */
 export async function predictPhaseProgression(userId: string) {
-  const supabase = createServerClient<Database>({ cookies });
+  const cookieStore = cookies();
+  const supabase = createClient(undefined, undefined, { cookies: cookieStore });
   
   // Get user behavior data for AI model
   const userData = await getUserBehaviorData(userId);
@@ -121,7 +124,8 @@ export async function predictPhaseProgression(userId: string) {
  * Get user engagement metrics for analytics
  */
 export async function getUserEngagementMetrics(userId: string) {
-  const supabase = createServerClient<Database>({ cookies });
+  const cookieStore = cookies();
+  const supabase = createClient(undefined, undefined, { cookies: cookieStore });
   
   // Get user's login history
   const { data: loginHistory } = await supabase
@@ -170,7 +174,8 @@ export async function getUserEngagementMetrics(userId: string) {
 // Helper functions
 
 async function getUserBehaviorData(userId: string): Promise<UserBehaviorData> {
-  const supabase = createServerClient<Database>({ cookies });
+  const cookieStore = cookies();
+  const supabase = createClient(undefined, undefined, { cookies: cookieStore });
   
   // Get user's current phase and progress
   const { data: userProgress } = await supabase.rpc('get_user_progress', {
@@ -481,7 +486,8 @@ async function getLearningPathRecommendations(userData: UserBehaviorData) {
 }
 
 export async function trackAnalytics(event: string, data: any) {
-  const supabase = createServerClient<Database>({ cookies });
+  const cookieStore = cookies();
+  const supabase = createClient(undefined, undefined, { cookies: cookieStore });
   
   const requestHeaders = new Headers({
     'Content-Type': 'application/json',

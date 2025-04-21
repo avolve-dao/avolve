@@ -27,5 +27,17 @@ jobs:
         run: pnpm exec prettier --check .
       - name: Build
         run: pnpm build
+      - name: Generate Supabase Types
+        run: pnpm generate:types
+      - name: Lighthouse Accessibility Audit
+        run: |
+          npm install -g lighthouse
+          pnpm exec next start &
+          sleep 10
+          lighthouse http://localhost:3000 --only-categories=accessibility --output=json --output-path=./lighthouse-accessibility-report.json
+      - name: Axe Accessibility Audit
+        run: |
+          pnpm exec playwright install --with-deps
+          pnpm exec vitest run --testNamePattern='axe|accessibility'
       - name: Test
         run: pnpm test

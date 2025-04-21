@@ -110,7 +110,7 @@ export function MemberJourney() {
           icon: <Lock className="h-5 w-5 text-gray-500" />,
           color: 'text-gray-500',
           bgColor: 'bg-gray-100 dark:bg-gray-800/30',
-          borderColor: 'border-gray-200 dark:border-gray-700'
+          borderColor: 'border-zinc-200 dark:border-zinc-700'
         }
     }
   }

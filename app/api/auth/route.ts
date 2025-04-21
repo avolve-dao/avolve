@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
@@ -10,11 +10,7 @@ export async function POST(request: Request) {
     const password = String(formData.get('password'));
     const cookieStore = cookies();
 
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: cookieStore }
-    );
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore });
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -50,11 +46,7 @@ export async function GET(request: Request) {
   const cookieStore = cookies();
 
   if (code) {
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: cookieStore }
-    );
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore });
     await supabase.auth.exchangeCodeForSession(code);
   }
 

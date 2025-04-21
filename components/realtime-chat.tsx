@@ -110,7 +110,7 @@ export const RealtimeChat = ({
         </div>
       </div>
 
-      <form onSubmit={handleSendMessage} className="flex w-full gap-2 border-t border-border p-4">
+      <form onSubmit={handleSendMessage} className="flex w-full gap-2 border-t border-zinc-200 p-4">
         <Input
           className={cn(
             'rounded-full bg-background text-sm transition-all duration-300',
@@ -135,4 +135,3 @@ export const RealtimeChat = ({
     </div>
   )
 }
-

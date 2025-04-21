@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge"
 function SimpleQRCode({ value }: { value: string }) {
   return (
     <div className="flex flex-col items-center justify-center space-y-4">
-      <div className="bg-white p-4 rounded-md border border-border">
+      <div className="bg-white p-4 rounded-md border border-zinc-200">
         <div className="text-center text-sm text-muted-foreground mb-2">
           Open your authenticator app and scan this QR code:
         </div>
@@ -416,7 +416,7 @@ export function MfaSetup() {
             <div className="bg-muted p-4 rounded-md font-mono text-sm">
               <div className="grid grid-cols-2 gap-2">
                 {recoveryCodes.map((code, index) => (
-                  <div key={index} className="p-2 border border-border rounded-sm">
+                  <div key={index} className="p-2 border border-zinc-200 rounded-sm">
                     {code}
                   </div>
                 ))}

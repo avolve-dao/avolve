@@ -913,7 +913,9 @@ For additional support, contact our team at **admin@avolve.io** with the followi
 - Screenshots (if applicable)
 - Steps you've already taken to resolve the issue
 
-Remember that your journey on the Avolve platform is unique to you. Embrace the process of transformation, engage with the community, and enjoy the benefits of the regenerative gamified system.
+## Why Use Avolve?
+
+Avolve isn't just another platform—it's a launchpad for your growth, collaboration, and rewards. [Read more about what makes Avolve special.](../why-avolve.md)
 
 ## Support & Feedback
 

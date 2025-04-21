@@ -176,7 +176,7 @@ export function UnifiedNav() {
   };
 
   return (
-    <nav className="w-64 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 p-4">
+    <nav className="w-64 h-full bg-white dark:bg-gray-900 border-r border-zinc-200 dark:border-zinc-800 p-4">
       <div className="flex items-center justify-between mb-6">
         <Link href="/dashboard" className="flex items-center">
           <Sparkles className="h-6 w-6 text-primary mr-2" />
@@ -198,7 +198,7 @@ export function UnifiedNav() {
         {superRoutes.map(route => renderRouteNav(route))}
       </div>
       
-      <div className="mt-auto pt-6 border-t border-gray-200 dark:border-gray-800">
+      <div className="mt-auto pt-6 border-t border-zinc-200 dark:border-zinc-800">
         <Link href="/tokens" className="flex items-center p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
           <Award className="h-5 w-5 mr-3" />
           <span>Tokens</span>

@@ -5,7 +5,7 @@
  * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 // import { Database } from '@/types/supabase'; // Temporarily removed due to missing export
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const cookieStore = cookies();
-    const supabase = createServerClient({ cookies: () => cookieStore });
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore });
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {

@@ -309,6 +309,7 @@ export class RoleService {
 
   /**
    * Get permissions for a role
+   * Handles both array and object cases for item.permissions
    */
   public async getRolePermissions(roleId: string): Promise<RoleResult<Permission[]>> {
     try {
@@ -321,21 +322,18 @@ export class RoleService {
         return { data: null, error: convertError(error) };
       }
       // Normalize permissions: handle both array and object cases
-      const permissions: Permission[] = (data || [])
-        .map((item: any) => {
-          if (Array.isArray(item.permissions)) {
-            // Defensive: ensure the array is not empty and element is valid
-            const perm = item.permissions[0];
-            if (perm && typeof perm === 'object' && 'id' in perm) {
-              return perm as Permission;
-            }
-            return undefined;
-          } else if (item.permissions && typeof item.permissions === 'object' && 'id' in item.permissions) {
-            return item.permissions as Permission;
+      const permissions = (data || []).map((item: any) => {
+        if (Array.isArray(item.permissions)) {
+          // If it's an array, take the first element (or handle as needed)
+          if (item.permissions.length > 0 && item.permissions[0].id) {
+            return item.permissions[0] as Permission;
           }
-          return undefined;
-        })
-        .filter(Boolean) as Permission[];
+        } else if (item.permissions && typeof item.permissions === 'object' && 'id' in item.permissions) {
+          // Sometimes permissions is a single object
+          return item.permissions as Permission;
+        }
+        return undefined;
+      }).filter(Boolean) as Permission[];
       return { data: permissions, error: null };
     } catch (error) {
       console.error('Unexpected get role permissions error:', error);
@@ -373,7 +371,7 @@ export class RoleService {
   }
 
   /**
-   * Remove a permission from a role
+   * Revoke a permission from a role
    */
   public async removePermissionFromRole(roleId: string, permissionId: string): Promise<RoleResult<boolean>> {
     try {
@@ -384,16 +382,16 @@ export class RoleService {
         .eq('permission_id', permissionId);
       
       if (error) {
-        console.error('Remove permission from role error:', error);
+        console.error('Revoke permission from role error:', error);
         return { data: null, error: convertError(error) };
       }
       
       return { data: true, error: null };
     } catch (error) {
-      console.error('Unexpected remove permission from role error:', error);
+      console.error('Unexpected revoke permission from role error:', error);
       return { 
         data: null, 
-        error: new AuthError('An unexpected error occurred while removing permission from role') 
+        error: new AuthError('An unexpected error occurred while revoking permission from role') 
       };
     }
   }

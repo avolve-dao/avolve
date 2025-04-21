@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client'
 
 // Components
 import { HeroSection } from '@/components/marketing/hero-section'
@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 async function getPersonalizedContent() {
   let supabase;
   try {
-    supabase = createServerClient({ cookies });
+    supabase = createClient({ cookies });
   } catch (error) {
     console.warn('Failed to initialize Supabase client:', error instanceof Error ? error.message : 'Unknown error');
     // Return fallback data if Supabase initialization fails

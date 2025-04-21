@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client';
 import { cookies } from 'next/headers'
 import { z, ZodError, ZodIssue, ZodFormattedError } from 'zod'
 import { env } from '@/lib/env'
@@ -88,7 +88,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const sanitizedComment = sanitizeHtml(validatedData.comment)
       
       // Create a Supabase client
-      const supabase = createServerClient({ cookies })
+      const cookieStore = cookies();
+      const supabase = createClient(undefined, undefined, { cookies: cookieStore });
       
       // Get the user session
       const { data: { session } } = await supabase.auth.getSession()

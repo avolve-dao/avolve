@@ -2,7 +2,7 @@
 
 Copyright 2025 Avolve DAO. All rights reserved.
 
-> 💡 **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
+> **Suggest an Improvement:** [Open an issue](https://github.com/avolve-xyz/avolve/issues/new/choose) or [send feedback](mailto:admin@avolve.io) to help us make these docs even better!
 
 ## Table of Contents
 
@@ -17,6 +17,7 @@ Copyright 2025 Avolve DAO. All rights reserved.
 9. [Troubleshooting](#troubleshooting)
 10. [Contact & Support](#contact--support)
 11. [FAQ](#faq)
+12. [Why Build on Avolve](#why-build-on-avolve)
 
 ## Introduction
 
@@ -207,6 +208,10 @@ function ClientComponent({ initialData }) {
   - A: Run `npm install` and check the package.json for required packages.
 - **Q: Supabase auth is not working.**
   - A: Ensure your environment variables are set correctly and Supabase is running.
+
+## Why Build on Avolve
+
+Avolve enables developers and contributors to create, launch, and scale ventures with robust tools, security, and a vibrant community. [See why you should contribute.](../why-avolve.md)
 
 ## Additional Resources
 

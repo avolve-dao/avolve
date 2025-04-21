@@ -1,10 +1,10 @@
 // This file is for server components only
 // For client components, use client.ts instead
 
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { Database } from '@/lib/database.types'
-import { cache } from 'react'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
+import { Database } from '@/lib/database.types';
+import { cache } from 'react';
 
 /**
  * Creates a Supabase client for use in server components and API routes
@@ -13,43 +13,17 @@ import { cache } from 'react'
  * IMPORTANT: This can only be used in Server Components!
  */
 export const createClient = cache(async () => {
-  // This will only be used in server components
-  const cookieStore = await cookies()
-  
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        async get(name) {
-          const cookie = await cookieStore.get(name)
-          return cookie?.value
-        },
-        async set(name, value, options) {
-          try {
-            await cookieStore.set(name, value, options)
-          } catch (error) {
-            // This might happen in middleware or other contexts
-            console.error('Error setting cookie:', error)
-          }
-        },
-        async remove(name, options) {
-          try {
-            await cookieStore.delete({ name, ...options });
-          } catch (error) {
-            console.error('Error removing cookie:', error);
-          }
-        },
-      },
-      auth: {
-        detectSessionInUrl: true,
-        flowType: 'pkce',
-      },
-      global: {
-        headers: {
-          'x-application-name': 'avolve-platform',
-        },
-      },
-    }
-  )
-})
+  const cookieStore = await cookies();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Missing Supabase environment variables');
+  }
+  return createSupabaseClient<Database>(supabaseUrl, supabaseKey, {
+    cookies: {
+      get: (name) => cookieStore.get(name)?.value,
+      set: (name, value, options) => cookieStore.set(name, value, options),
+      remove: (name, options) => cookieStore.set(name, '', { ...options, maxAge: 0 }),
+    },
+  });
+});

@@ -1,10 +1,11 @@
-import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client';
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient({ cookies })
+    const cookieStore = cookies();
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore })
 
     const {
       data: { session },
@@ -90,7 +91,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const supabase = createServerClient({ cookies })
+    const cookieStore = cookies();
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore })
 
     const {
       data: { session },

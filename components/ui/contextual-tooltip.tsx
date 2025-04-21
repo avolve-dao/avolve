@@ -169,7 +169,7 @@ export function ContextualTooltip({
             )}
           </div>
         </TooltipTrigger>
-        <TooltipContent side={side} align={align} className="bg-white dark:bg-gray-900 p-3 shadow-lg border border-gray-200 dark:border-gray-800 rounded-md">
+        <TooltipContent side={side} align={align} className="bg-white dark:bg-gray-900 p-3 shadow-lg border border-zinc-200 dark:border-zinc-800 rounded-md">
           {renderContent()}
         </TooltipContent>
       </Tooltip>

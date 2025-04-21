@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client'
 import { useAuth } from './use-auth'
 
 export interface Role {
@@ -29,7 +29,7 @@ export interface RBACHook {
 export function useRBAC(): RBACHook {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  const supabase = createBrowserClient(supabaseUrl, supabaseKey)
+  const supabase = createClient(supabaseUrl, supabaseKey)
   const { user } = useAuth()
 
   const hasRole = useCallback(async (roleName: string) => {

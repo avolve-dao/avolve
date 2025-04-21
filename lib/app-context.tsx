@@ -2,13 +2,12 @@
  * App Context
  * 
  * This context provides all application functionality to components.
- * It integrates auth, permissions, tokens, notifications, and consensus.
+ * It integrates auth, permissions, and consensus.
  */
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { AuthProvider, useAuthContext } from './auth/auth-context';
 import { NotificationProvider, useNotificationContext } from './notifications/notification-context';
-// import { useTokens } from './token/use-tokens';
 import { usePermissions } from './token/use-permissions';
 import { useConsensus } from './token/use-consensus';
 
@@ -16,7 +15,6 @@ import { useConsensus } from './token/use-consensus';
 interface AppContextValue {
   auth: ReturnType<typeof useAuthContext>;
   notifications: ReturnType<typeof useNotificationContext>;
-  tokens: any; // Changed type to any since useTokens is commented out
   permissions: ReturnType<typeof usePermissions>;
   consensus: ReturnType<typeof useConsensus>;
 }
@@ -37,7 +35,6 @@ interface AppProviderProps {
 function InnerAppProvider({ children }: AppProviderProps) {
   const auth = useAuthContext();
   const notifications = useNotificationContext();
-  const tokens = null; // Changed to null since useTokens is commented out
   const permissions = usePermissions();
   // useConsensus requires arguments; pass nulls for now to avoid build error
   const consensus = useConsensus(null as any, undefined);
@@ -45,7 +42,6 @@ function InnerAppProvider({ children }: AppProviderProps) {
   const value: AppContextValue = {
     auth,
     notifications,
-    tokens,
     permissions,
     consensus
   };
@@ -116,17 +112,15 @@ interface ProtectedRouteProps {
   fallback?: ReactNode;
   requiredPermission?: { resource: string; action: string };
   requiredRole?: string;
-  requiredTokenType?: { id: string; minBalance?: number };
 }
 
 export function ProtectedRoute({ 
   children, 
   fallback = null,
   requiredPermission,
-  requiredRole,
-  requiredTokenType
+  requiredRole
 }: ProtectedRouteProps) {
-  const { auth, permissions, tokens } = useAppContext();
+  const { auth, permissions } = useAppContext();
   
   // Show loading state
   if (auth.isLoading) {
@@ -159,12 +153,6 @@ export function ProtectedRoute({
     }
   }
   
-  // Check if user has required token balance
-  if (requiredTokenType) {
-    // Removed the token balance check since useTokens is commented out
-    return <div>Token balance check is currently disabled.</div>;
-  }
-  
-  // User is authenticated and has required permissions/roles/tokens
+  // User is authenticated and has required permissions/roles
   return <>{children}</>;
 }

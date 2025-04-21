@@ -230,7 +230,7 @@ export function NotificationDropdown({
       
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-10 overflow-hidden">
-          <div className="p-2 border-b border-gray-200 flex justify-between items-center">
+          <div className="p-2 border-b border-zinc-200 flex justify-between items-center">
             <h3 className="text-lg font-medium text-gray-900">Notifications</h3>
             <button 
               className="text-sm text-blue-600 hover:text-blue-800"
@@ -246,7 +246,7 @@ export function NotificationDropdown({
             emptyMessage={emptyMessage}
           />
           
-          <div className="p-2 border-t border-gray-200">
+          <div className="p-2 border-t border-zinc-200">
             <button 
               className="w-full text-center text-sm text-blue-600 hover:text-blue-800"
               onClick={() => setIsOpen(false)}

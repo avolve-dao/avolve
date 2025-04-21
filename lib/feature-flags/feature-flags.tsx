@@ -14,7 +14,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode, Fragment } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 
 // Define feature flag names as constants to avoid typos
 export const FEATURE_FLAGS = {
@@ -145,9 +145,7 @@ export const FeatureFlagProvider = ({
   children, 
   initialFlags 
 }: FeatureFlagProviderProps) => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-  const supabase = createBrowserClient(supabaseUrl, supabaseKey);
+  const supabase = createClient();
   const [flags, setFlags] = useState<FeatureFlags>(initializeFeatureFlags(initialFlags));
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);

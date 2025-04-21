@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { requireAuth } from '@/lib/auth-middleware';
 import { logAuditAction } from '@/lib/audit-log';
 import { cookies } from 'next/headers';
@@ -20,11 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing userId or newRole' }, { status: 400 });
     }
     const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: cookieStore }
-    );
+    const supabase = createClient(undefined, undefined, { cookies: cookieStore });
     // Update user role
     const { error } = await supabase
       .from('user_roles')

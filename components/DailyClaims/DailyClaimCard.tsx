@@ -130,7 +130,7 @@ const DailyClaimCard: React.FC = () => {
           )}
 
           {/* Claim Streak Info */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="mt-6 pt-6 border-t border-zinc-200">
             <h3 className="text-lg font-semibold mb-3">Claim Streak</h3>
             <div className="flex justify-between items-center mb-2">
               <span className="text-gray-500">Current Streak</span>
@@ -148,7 +148,7 @@ const DailyClaimCard: React.FC = () => {
 
           {/* Recent Claims */}
           {claims && claims.length > 1 && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-6 pt-6 border-t border-zinc-200">
               <h3 className="text-lg font-semibold mb-3">Recent Claims</h3>
               <div className="space-y-2">
                 {claims.slice(1).map((claim) => (

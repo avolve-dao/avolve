@@ -9,6 +9,10 @@
 
 Welcome to the Avolve Platform documentation! This interactive guide provides comprehensive information about the platform's architecture, features, and implementation details. Use the category navigation below to find the information you need.
 
+## 🌟 Why Avolve?
+
+Avolve is where ideas become reality. Whether you're a user (subscriber, participant, contributor) or an admin (venture builder, partner, associate), Avolve empowers you to grow, collaborate, and launch ventures with a supportive community and world-class tools. [Learn why Avolve stands out.](./why-avolve.md)
+
 ## 🧭 Documentation Map
 
 <div class="doc-map">

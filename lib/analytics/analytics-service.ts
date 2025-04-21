@@ -1,4 +1,4 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/supabase'
 
 /**
@@ -6,7 +6,7 @@ import { Database } from '@/types/supabase'
  * advanced analytics and real-time engagement features.
  */
 export class AnalyticsService {
-  private supabase = createBrowserClient<Database>()
+  private supabase = createClient()
 
   /**
    * Logs a user activity with the specified parameters.

@@ -205,7 +205,7 @@ const GovernanceDashboard: React.FC = () => {
                 key={petition.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                className="p-4 border border-zinc-200 rounded-lg hover:shadow-md transition-shadow"
               >
                 <h3 className="text-lg font-semibold">{petition.title}</h3>
                 <p className="text-gray-600 mt-1">{petition.description}</p>

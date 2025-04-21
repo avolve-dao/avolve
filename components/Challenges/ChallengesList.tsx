@@ -120,7 +120,7 @@ const ChallengesList: React.FC<unknown> = () => {
                 return (
                   <div 
                     key={challenge.id} 
-                    className={`p-4 border rounded-lg ${isCompleted ? 'bg-gray-50 border-gray-200' : 'border-gray-200'}`}
+                    className={`p-4 border rounded-lg ${isCompleted ? 'bg-gray-50 border-zinc-200' : 'border-zinc-200'}`}
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>

@@ -9,7 +9,7 @@
  * It implements business logic and delegates database operations to the AuthRepository.
  */
 import { NextRequest } from 'next/server';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { createUniversalClient } from '@/lib/supabase/universal';
 import { 
   User, 
@@ -58,7 +58,7 @@ export class AuthService {
    */
   public static getBrowserInstance(): AuthService {
     if (!AuthService.instance) {
-      AuthService.instance = new AuthService(createBrowserClient());
+      AuthService.instance = new AuthService(createClient());
     }
     return AuthService.instance;
   }

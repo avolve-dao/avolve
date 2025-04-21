@@ -353,7 +353,7 @@ export class PermissionService {
   }
 
   /**
-   * Remove permission from token type
+   * Revoke permission from token type
    */
   public async removePermissionFromTokenType(
     tokenTypeId: string,
@@ -367,16 +367,16 @@ export class PermissionService {
         .eq('permission_id', permissionId);
       
       if (error) {
-        console.error('Remove permission from token type error:', error);
+        console.error('Revoke permission from token type error:', error);
         return { data: null, error: convertError(error) };
       }
       
       return { data: true, error: null };
     } catch (error) {
-      console.error('Unexpected remove permission from token type error:', error);
+      console.error('Unexpected revoke permission from token type error:', error);
       return { 
         data: null, 
-        error: new AuthError('An unexpected error occurred while removing permission from token type') 
+        error: new AuthError('An unexpected error occurred while revoking permission from token type') 
       };
     }
   }
@@ -643,7 +643,7 @@ export class PermissionService {
   }
 
   /**
-   * Remove role from user
+   * Revoke role from user
    */
   public async removeRoleFromUser(
     userId: string,
@@ -657,16 +657,16 @@ export class PermissionService {
         .eq('role', role);
       
       if (error) {
-        console.error('Remove role from user error:', error);
+        console.error('Revoke role from user error:', error);
         return { data: null, error: convertError(error) };
       }
       
       return { data: true, error: null };
     } catch (error) {
-      console.error('Unexpected remove role from user error:', error);
+      console.error('Unexpected revoke role from user error:', error);
       return { 
         data: null, 
-        error: new AuthError('An unexpected error occurred while removing role from user') 
+        error: new AuthError('An unexpected error occurred while revoking role from user') 
       };
     }
   }
@@ -734,7 +734,7 @@ export class PermissionService {
   }
 
   /**
-   * Remove permission from role
+   * Revoke permission from role
    */
   public async removePermissionFromRole(
     role: string,
@@ -750,16 +750,16 @@ export class PermissionService {
         .eq('action', action);
       
       if (error) {
-        console.error('Remove permission from role error:', error);
+        console.error('Revoke permission from role error:', error);
         return { data: null, error: convertError(error) };
       }
       
       return { data: true, error: null };
     } catch (error) {
-      console.error('Unexpected remove permission from role error:', error);
+      console.error('Unexpected revoke permission from role error:', error);
       return { 
         data: null, 
-        error: new AuthError('An unexpected error occurred while removing permission from role') 
+        error: new AuthError('An unexpected error occurred while revoking permission from role') 
       };
     }
   }

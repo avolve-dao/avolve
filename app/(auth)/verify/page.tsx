@@ -1,15 +1,15 @@
 "use client"
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { useState } from 'react'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 export default function Verify() {
   if (!supabaseUrl || !supabaseKey) {
     return <div className="text-red-600">Supabase environment variables are missing.</div>
   }
-  const supabase = createBrowserClient(supabaseUrl, supabaseKey)
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')

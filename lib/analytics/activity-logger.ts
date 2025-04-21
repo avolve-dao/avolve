@@ -1,6 +1,6 @@
 'use client';
 
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { ActivityType, ActivityLogData } from '@/types/analytics';
 
 export type ActivityActionType = 'page_view' | 'button_click' | 'form_submit' | 'feature_usage' | 'enter_invite_code' | 'select_journey' | 'accept_prime_law';
@@ -13,10 +13,7 @@ export class ActivityLogger {
   private readonly supabase;
 
   private constructor() {
-    this.supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    this.supabase = createClient();
   }
 
   public static getInstance(): ActivityLogger {

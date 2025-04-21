@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient, CookieOptions } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * Role-Based Access Control (RBAC) Middleware
@@ -20,7 +20,7 @@ export type RouteProtection = {
 export type Cookie = {
   name: string;
   value: string;
-  options?: CookieOptions;
+  options?: any;
 }
 
 const defaultRouteProtection: RouteProtection = {
@@ -45,24 +45,20 @@ export async function rbacMiddleware(
   }
 
   // Create Supabase client
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return req.cookies.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions = {}) {
-          const { name: cookieName, value: cookieValue, ...cookieOptions } = { name, value, ...options };
-          req.cookies.set(cookieName, cookieValue);
-        },
-        remove(name: string) {
-          req.cookies.delete(name);
-        },
+  const supabase = createClient(undefined, undefined, {
+    cookies: {
+      get(name: string) {
+        return req.cookies.get(name)?.value;
       },
-    }
-  );
+      set(name: string, value: string, options: any = {}) {
+        const { name: cookieName, value: cookieValue, ...cookieOptions } = { name, value, ...options };
+        req.cookies.set(cookieName, cookieValue);
+      },
+      remove(name: string) {
+        req.cookies.delete(name);
+      },
+    },
+  });
 
   // Get session
   const { data: { session } } = await supabase.auth.getSession();

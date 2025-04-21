@@ -25,6 +25,10 @@ Welcome to the Avolve platform documentation. This guide provides comprehensive 
 - Each section links to more detailed documentation.
 - For help, see the [Developer Guide](guides/developer-guide.md) or [User Guide](guides/user-guide.md).
 
+## 🌟 Why Use Avolve?
+
+Curious what makes Avolve unique for users and admins? [Read the Why Avolve page.](./why-avolve.md)
+
 ## Table of Contents
 
 ### Guides

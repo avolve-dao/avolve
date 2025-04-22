@@ -30,8 +30,7 @@ node_modules/
 .env.test
 .envrc
 
-# Allow .env.local and .env.example for automation
-!.env.local
+# Allow .env.example for automation
 !.env.example
 
 # Supabase local artifacts (optional)

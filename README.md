@@ -6,6 +6,139 @@
 
 ---
 
+## 🛠️ Configuration & Project Structure (2025 Launch)
+
+Avolve is designed for maintainability, clarity, and DRY principles. Below is an overview of essential configuration files and best practices for a clean, production-ready setup.
+
+### Essential Config Files
+
+| File/Dir                       | Purpose / Notes                                   |
+|--------------------------------|---------------------------------------------------|
+| `.env.example`                 | Template for environment variables. Keep up-to-date and minimal. |
+| `.gitignore`                   | Ignore sensitive or build files.                  |
+| `.lintstagedrc.js`             | Pre-commit linting.                               |
+| `eslint.config.js`             | Unified ESLint config (see note below).           |
+| `next.config.mjs`              | Main Next.js config (ESM, supports user overrides).|
+| `postcss.config.mjs`           | PostCSS config for Tailwind, etc.                 |
+| `tailwind.config.js`           | Tailwind CSS config.                              |
+| `tsconfig.json`                | Base TypeScript config.                           |
+| `tsconfig.node.json`           | Node-specific TS config (extends base).           |
+| `tsconfig.sim.json`            | Simulation/test TS config (extends base).         |
+| `pnpm-lock.yaml`               | Lock file for pnpm (remove package-lock.json).    |
+| `vitest.config.ts`             | Vitest (test runner) config.                      |
+| `vercel.json`                  | Vercel deployment config.                         |
+| `config/ai-state.json`         | Custom AI/app config (documented below).          |
+| `supabase/config.toml`         | Supabase CLI config.                              |
+| `supabase/migrations/`         | All DB migrations (source of truth).              |
+| `supabase/schemas/`            | Modular SQL schemas (merge with /schema/ if needed). |
+| `supabase/functions/`          | Edge/database functions.                          |
+| `supabase/seed/`               | Seed data for onboarding/tests.                   |
+| `types/`                       | TypeScript types (auto-gen and manual).           |
+
+#### Notes:
+- **Deprecated:** `.eslintrc.json` and `next.config.js` are stubs for compatibility. Use `eslint.config.js` and `next.config.mjs`.
+- **Remove:** `package-lock.json` if using pnpm.
+- **Merge:** `supabase/schema/` into `supabase/schemas/` if possible.
+- **Document:** All custom configs (e.g. `config/ai-state.json`) in this README.
+
+### Example: Custom AI Config
+
+The file `config/ai-state.json` tracks the state of major product subsystems, their implementation status, and key code locations. This is used for onboarding, automated documentation, and AI assistant optimizations.
+
+**Structure:**
+- `version`: Config version
+- `lastUpdated`: ISO8601 timestamp
+- `codebaseState`: Object with keys for each subsystem (tokenSystem, journeySystem, etc.), each containing:
+  - `status`: Implementation status (e.g., "complete")
+  - `description`: Short description
+  - `components`, `utilities`, `apiRoutes`: Arrays of objects with `name`, `status`, and `path`
+- `featureFlags`: Feature toggles for major platform features
+- `aiAssistantOptimizations`: Toggles for AI/automation enhancements (semantic anchors, type definitions, etc.)
+
+**See:** [`config/ai-state.json`](./config/ai-state.json) for the current state and documentation of all major systems.
+
+### DRY & Maintainable Practices
+- **Single Source of Truth:** Only one config per tool (see above table).
+- **Extends:** Use `extends` in TS configs for variants (e.g., node, sim).
+- **Modular SQL:** Use `/supabase/schemas/` and reference in migrations for DRYness.
+- **Onboarding:** Keep `.env.example` and this README up-to-date for new contributors.
+- **Automation:** Use scripts in `/scripts/` for checks and setup.
+
+### Example: Environment Variables
+See `.env.example` for the minimal set of required variables. Document each in the table above for clarity.
+
+### Example: ESLint
+All lint rules are now in `eslint.config.js` (flat config, supports plugins and custom rules). `.eslintrc.json` is deprecated and left as a stub.
+
+### Example: Next.js Config
+All Next.js configuration is in `next.config.mjs` (ESM, supports user overrides). `next.config.js` is deprecated and left as a stub.
+
+### Example: Supabase Schema
+All DB schema and policy changes should be made in `/supabase/migrations/` and, if modular, in `/supabase/schemas/`. Document any custom logic in `/supabase/README.md`.
+
+---
+
+## ✨ Peer Recognition & Engagement Features (2025 Launch)
+
+Avolve now includes robust, accessible, and delightful peer recognition and onboarding features designed to magnetically attract, engage, and delight users and admins:
+
+- **Thank a Peer Modal:**
+  - Accessible modal for sending recognitions with message, badge, and user search/autocomplete.
+  - Confetti celebration and toast notifications on successful send.
+  - Keyboard and screen reader accessible.
+- **Real-Time Recognition Feed:**
+  - See recognitions appear instantly (Supabase Realtime).
+  - Full names and avatars shown for sender/recipient.
+  - Secure: Only senders can delete their recognitions, with confirmation dialog and undo.
+- **Accessibility & Delight:**
+  - ARIA roles, keyboard navigation, and responsive design throughout onboarding and recognition flows.
+  - Micro-animations, toasts, and celebratory feedback for every milestone.
+- **Admin & User Onboarding:**
+  - In-app tooltips, onboarding wizard, and dashboard tour for a welcoming first experience.
+  - Documentation and codebase ready for 100–1000 users and admins.
+
+**See also:**
+- [`app/components/ThankPeerModal.tsx`](./app/components/ThankPeerModal.tsx)
+- [`app/(authenticated)/dashboard/page.tsx`](./app/(authenticated)/dashboard/page.tsx)
+- [`app/components/Toast.tsx`](./app/components/Toast.tsx)
+- [`supabase/migrations/20250421222100_create_peer_recognition_table.sql`](./supabase/migrations/20250421222100_create_peer_recognition_table.sql)
+
+---
+
+## Environment Setup
+
+1. Copy `.env.example` to `.env.local`:
+   ```sh
+   cp .env.example .env.local
+   ```
+2. Fill in all required values in `.env.local`:
+   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key
+   - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
+   - `REDIS_URL`: (Optional, but recommended for production caching)
+   - `OPENAI_API_KEY`: (Optional, enables AI-powered features)
+
+## Running Locally
+
+```sh
+npx next dev
+```
+
+## Building for Production
+
+```sh
+npx next build
+```
+
+## Notes
+- If `REDIS_URL` is not set, the app will use in-memory cache (not recommended for production).
+- If `OPENAI_API_KEY` is not set, AI endpoints will return 503.
+
+## Feedback
+If you encounter issues or have suggestions, please open an issue or contact the maintainer.
+
+---
+
 ## Quickstart
 
 1. **Clone the repo:**
@@ -84,50 +217,6 @@ For details, see:
 - [`docs/database/README.md`](./docs/database/README.md) for schema and audit fields
 - [Onboarding Documentation](./docs/onboarding/README.md)
 - [Database Documentation](./docs/database/README.md)
-
----
-
-## ⚠️ UI Library Policy: Shadcn/ui Only
-
-> **Important:** This project uses [Shadcn/ui](https://ui.shadcn.com/) as the **exclusive** UI component library. Do not add, use, or install any other UI libraries (including NextUI, MUI, Chakra, etc.) without explicit, written permission from the project owner.
->
-> - All UI primitives (Button, Card, Tabs, Badge, Avatar, Input, Textarea, etc.) must come from `/components/ui` (Shadcn/ui).
-> - If you find a legacy or custom UI component, refactor it to use Shadcn/ui for consistency.
-> - This policy ensures a modern, maintainable, and delightful user/admin experience.
-
----
-
-## One-Pager
-
-### Purpose
-Avolve empowers individuals, collectives, and ecosystems to co-create a regenerative future through transparent research, gamified engagement, and fractal governance.
-
-### Problem
-Most people and organizations are stuck in zero-sum, extractive systems (“Anticivilization”), leading to burnout, disengagement, and systemic stagnation. Current platforms focus on features, not transformation, and fail to align incentives or foster genuine collaboration.
-
-### Solution
-Avolve is a positive-sum, tokenized platform that transforms the journey from “Degen” to “Regen.” By combining gamified onboarding, real-time feedback, a multi-token system, and transparent governance, Avolve unlocks personal, collective, and ecosystem evolution. The 10-token structure aligns incentives and participation at every level.
-
-### Why Now?
-The convergence of Web3, real-time data, and regenerative economics makes it possible to build platforms that reward positive-sum behavior. The world is seeking new models for collaboration, belonging, and impact—Avolve meets this need with a proven, ready-to-launch product.
-
-### Market Potential
-Avolve targets individuals, DAOs, collectives, and organizations seeking transformation, engagement, and regenerative impact. The market for regenerative platforms and digital communities is growing rapidly, with new markets emerging for tokenized governance and collective intelligence.
-
-### Competition / Alternatives
-Alternatives include traditional social networks, legacy DAO platforms, and gamified learning tools. Avolve’s unique combination of real-time feedback, tokenized governance, and regenerative economics sets it apart. The fractal, multi-token model is unmatched by competitors.
-
-### Business Model
-Avolve thrives through a mix of platform fees, token economics, premium features, and ecosystem partnerships. The model is designed for sustainability, growth, and reinvestment into the community.
-
-### Team
-Founded by Joshua Seymour and the Avolve DAO, the team brings expertise in product, governance, design, and community building. Contributors span multiple disciplines and geographies.
-
-### Financials
-Available upon request.
-
-### Vision
-In five years, Avolve will be the leading platform for regenerative transformation, powering a global network of Superachievers, Superachievers, and Supercivilizations—demonstrating that positive-sum systems can outcompete extractive models at scale.
 
 ---
 
@@ -262,6 +351,35 @@ Avolve delivers a magnetic onboarding experience:
 
 - **Row Level Security:** Only the user (and admins) can view or update their onboarding row.
 - **Admin Controls:** Admins can view and manage onboarding progress for all users.
+
+### Onboarding Automation, Recognition, and Admin Dashboard
+
+### Automated Onboarding Reminders
+- A Supabase Edge Function (`send_onboarding_reminders.ts`) automatically notifies users who are stuck in onboarding.
+- Reminders are logged in the `user_notifications` table for full auditability.
+- Admins can trigger reminders manually from the Admin Dashboard for any user.
+- All reminder flows are secured by Row Level Security (RLS) and role checks.
+
+### Recognition & Gratitude System
+- Admins receive recognition (gratitude events) when they assist users in completing onboarding.
+- Gratitude events are logged in the `gratitude_events` table and surfaced in the Admin Dashboard.
+
+### Admin Dashboard Features
+- **Gratitude Feed:** See recent recognitions for your admin support.
+- **Stuck Onboarding Table:** View users who are stuck in onboarding, with last progress and last reminder sent.
+- **Manual Reminder Buttons:** Send reminders directly to users from the dashboard.
+- All dashboard features are modular, secure, and production-ready for launch.
+
+### Security & Best Practices
+- All onboarding and recognition flows are protected by RLS and RBAC.
+- All new features are documented and maintainable, following Supabase and Next.js best practices.
+- Codebase is optimized for a clean, welcoming, and robust initial launch experience.
+
+For details on onboarding, recognition, and admin empowerment, see also:
+- [`supabase/functions/send_onboarding_reminders.ts`](./supabase/functions/send_onboarding_reminders.ts)
+- [`components/admin/GratitudeFeed.tsx`](./components/admin/GratitudeFeed.tsx)
+- [`components/admin/StuckOnboardingTable.tsx`](./components/admin/StuckOnboardingTable.tsx)
+- [`app/(authenticated)/admin/page.tsx`](./app/(authenticated)/admin/page.tsx)
 
 ### Security and Data Integrity
 - **Row Level Security (RLS)** on all user data tables

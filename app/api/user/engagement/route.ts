@@ -31,7 +31,7 @@ export async function GET() {
     }
 
     // Call the database function to get engagement score
-    const { data: score, error: scoreError } = await supabase
+    const { data: score, error: scoreError } = await (supabase as any)
       .rpc('calculate_user_engagement_score', { p_user_id: user.id });
 
     if (scoreError) {

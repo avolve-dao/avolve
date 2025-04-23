@@ -15,18 +15,5 @@ export async function createServerActionClient() {
   if (!supabaseUrl || !supabaseKey) {
     throw new Error('Missing Supabase environment variables');
   }
-  return createSupabaseClient<Database>(supabaseUrl, supabaseKey, {
-    cookies: {
-      get(name) {
-        const cookie = cookieStore.get(name);
-        return cookie?.value;
-      },
-      set(name, value, options) {
-        cookieStore.set(name, value, options);
-      },
-      remove(name, options) {
-        cookieStore.set(name, '', { ...options, maxAge: 0 });
-      }
-    }
-  });
+  return createSupabaseClient<Database>(supabaseUrl, supabaseKey);
 }

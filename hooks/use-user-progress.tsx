@@ -70,7 +70,7 @@ export function useUserProgress() {
 
         // Map database records to our structure
         if (data && data.length > 0) {
-          data.forEach(record => {
+          data.forEach((record: any) => {
             if (record.pillar && progressData[record.pillar as PillarType]) {
               progressData[record.pillar as PillarType] = {
                 current_phase: record.current_phase || 'discover',

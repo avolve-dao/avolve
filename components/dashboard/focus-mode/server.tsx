@@ -12,6 +12,7 @@ import { FocusModeClient } from './client';
 // Types
 import type { Database } from '@/types/supabase';
 import type { FocusArea } from './client';
+import type { MilestoneCompletion } from '@/types/experience';
 
 // Analytics for personalized recommendations
 import { getPersonalizedRecommendations } from '@/lib/analytics/server';
@@ -21,8 +22,29 @@ export async function FocusModeServer({ userId }: { userId: string }) {
   
   // Fetch user's current phase and progress
   const { data: userProgress } = await supabase.rpc('get_user_progress', {
-    user_id_param: userId
+    p_user_id: userId
   });
+  
+  // Defensive: handle both array (legacy) and object (current)
+  const phaseData = Array.isArray(userProgress) ? userProgress[0] : userProgress;
+  const currentPhase = typeof phaseData === 'object' && phaseData !== null && 'current_phase' in phaseData
+    ? (phaseData as any).current_phase
+    : 'discovery';
+  const discoveryProgress = typeof phaseData === 'object' && phaseData !== null && 'discovery_progress' in phaseData
+    ? (phaseData as any).discovery_progress
+    : undefined;
+  const onboardingProgress = typeof phaseData === 'object' && phaseData !== null && 'onboarding_progress' in phaseData
+    ? (phaseData as any).onboarding_progress
+    : undefined;
+  const scaffoldingProgress = typeof phaseData === 'object' && phaseData !== null && 'scaffolding_progress' in phaseData
+    ? (phaseData as any).scaffolding_progress
+    : undefined;
+  const endgameProgress = typeof phaseData === 'object' && phaseData !== null && 'endgame_progress' in phaseData
+    ? (phaseData as any).endgame_progress
+    : undefined;
+  const overallProgress = typeof phaseData === 'object' && phaseData !== null && 'overall_progress' in phaseData
+    ? (phaseData as any).overall_progress
+    : undefined;
   
   // Fetch user's recent activities
   const { data: recentActivities } = await supabase
@@ -35,7 +57,7 @@ export async function FocusModeServer({ userId }: { userId: string }) {
   // Fetch user profile data for personalization
   const { data: profile } = await supabase
     .from('profiles')
-    .select('display_name, preferences, goals')
+    .select('full_name')
     .eq('id', userId)
     .single();
   
@@ -44,33 +66,39 @@ export async function FocusModeServer({ userId }: { userId: string }) {
   
   // Determine focus areas based on user progress and behavior
   const focusAreas = determineFocusAreas(
-    userProgress,
+    phaseData,
     recentActivities || [],
-    profile?.goals || {}
+    {} // No goals/preferences available in schema
   );
   
   // Get next milestones to complete
-  const { data: nextMilestones } = await supabase.rpc('get_next_milestones', {
+  const { data: nextMilestonesRaw } = await supabase.rpc('get_next_milestones', {
     user_id_param: userId,
     limit_param: 3
   });
+  // Defensive: only keep items that match MilestoneCompletion shape
+  const nextMilestones = Array.isArray(nextMilestonesRaw)
+    ? (nextMilestonesRaw.filter(
+        m => m && typeof m === 'object' && 'milestone_id' in m && 'completed_at' in m
+      ) as unknown as MilestoneCompletion[])
+    : [];
   
   return (
     <FocusModeClient
-      userName={profile?.display_name || 'User'}
-      currentPhase={userProgress?.current_phase || 'discovery'}
+      userName={profile?.full_name || 'User'}
+      currentPhase={currentPhase}
       phaseProgress={{
-        discovery: userProgress?.discovery_progress || 0,
-        onboarding: userProgress?.onboarding_progress || 0,
-        scaffolding: userProgress?.scaffolding_progress || 0,
-        endgame: userProgress?.endgame_progress || 0
+        discovery: discoveryProgress || 0,
+        onboarding: onboardingProgress || 0,
+        scaffolding: scaffoldingProgress || 0,
+        endgame: endgameProgress || 0
       }}
-      overallProgress={userProgress?.overall_progress || 0}
+      overallProgress={overallProgress || 0}
       focusAreas={focusAreas}
       contentRecommendations={recommendations.content}
       featureRecommendations={recommendations.features}
       learningPathRecommendations={recommendations.learning}
-      nextMilestones={nextMilestones || []}
+      nextMilestones={nextMilestones}
     />
   );
 }
@@ -84,8 +112,12 @@ function determineFocusAreas(
   const focusAreas = [];
   
   // Current phase progress
-  const currentPhase = userProgress?.current_phase || 'discovery';
-  const currentPhaseProgress = userProgress?.[`${currentPhase}_progress`] || 0;
+  const currentPhase = typeof userProgress === 'object' && userProgress !== null && 'current_phase' in userProgress
+    ? (userProgress as any).current_phase
+    : 'discovery';
+  const currentPhaseProgress = typeof userProgress === 'object' && userProgress !== null && `${currentPhase}_progress` in userProgress
+    ? (userProgress as any)[`${currentPhase}_progress`]
+    : 0;
   
   // If progress in current phase is low, focus on phase completion
   if (currentPhaseProgress < 50) {

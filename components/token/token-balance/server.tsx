@@ -21,13 +21,14 @@ export async function TokenBalanceServer({ userId }: { userId: string }) {
     .select('token_id, balance')
     .eq('user_id', userId);
   
-  // Fetch token metadata
-  const { data: tokens } = await supabase
+  // Fetch token metadata (columns: id, name, symbol, amount, source, token_type, updated_at, user_id, created_at)
+  // The tokens table does NOT have icon, description, or is_primary columns.
+  const { data: tokens, error: tokensError } = await supabase
     .from('tokens')
-    .select('id, name, symbol, icon, description, is_primary');
-  
-  // Create a map of token metadata for easier lookup
-  const tokenMetadata = (tokens || []).reduce((acc, token) => {
+    .select('id, name, symbol, amount, source, token_type, updated_at, user_id, created_at');
+
+  // Defensive fallback if tokens query fails
+  const tokenMetadata = (Array.isArray(tokens) ? tokens : []).reduce((acc, token) => {
     acc[token.id] = token;
     return acc;
   }, {} as Record<string, any>);
@@ -36,9 +37,7 @@ export async function TokenBalanceServer({ userId }: { userId: string }) {
   const formattedTokens = (userTokens || []).map(userToken => {
     const metadata = tokenMetadata[userToken.token_id] || {
       name: userToken.token_id,
-      symbol: userToken.token_id,
-      icon: 'default-token.svg',
-      is_primary: false
+      symbol: userToken.token_id
     };
     
     return {
@@ -46,22 +45,20 @@ export async function TokenBalanceServer({ userId }: { userId: string }) {
       balance: userToken.balance,
       name: metadata.name,
       symbol: metadata.symbol,
-      icon: metadata.icon,
-      description: metadata.description,
-      isPrimary: metadata.is_primary
+      // icon, description, isPrimary are not in tokens table, so set to undefined or fallback
+      icon: undefined,
+      description: undefined,
+      isPrimary: false
     };
   });
   
-  // Sort tokens with primary tokens first
-  const sortedTokens = formattedTokens.sort((a, b) => {
-    if (a.isPrimary && !b.isPrimary) return -1;
-    if (!a.isPrimary && b.isPrimary) return 1;
-    return a.symbol.localeCompare(b.symbol);
-  });
+  // Sort tokens by symbol
+  const sortedTokens = formattedTokens.sort((a, b) => a.symbol.localeCompare(b.symbol));
   
   // Get recent token transactions
+  // The correct table is 'transactions', not 'token_transactions'
   const { data: recentTransactions } = await supabase
-    .from('token_transactions')
+    .from('transactions')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })

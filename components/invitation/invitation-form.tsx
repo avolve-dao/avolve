@@ -60,7 +60,7 @@ const getTokenColor = (tokenType: string): string => {
     case 'SMS': return 'bg-gradient-to-r from-violet-500 to-fuchsia-500'; // Violet-Purple-Fuchsia-Pink
     case 'SAP': return 'bg-gradient-to-r from-slate-500 to-slate-700'; // Stone gradient
     case 'SCQ': return 'bg-gradient-to-r from-slate-400 to-slate-600'; // Slate gradient
-    case 'GEN': return 'bg-gradient-to-r from-zinc-400 to-zinc-600'; // Zinc gradient
+    case 'GEN': return 'bg-gradient-to-r from-neutral-400 to-neutral-600'; // Neutral gradient
     default: return 'bg-gray-500';
   }
 };

@@ -28,6 +28,7 @@ type Puzzle = {
 export function CommunityPuzzle() {
   const { user } = useUser()
   const { toast } = useToast()
+  const supabase = createClient();
   const [puzzles, setPuzzles] = useState<Puzzle[]>([])
   const [activePuzzle, setActivePuzzle] = useState<Puzzle | null>(null)
   const [userAnswer, setUserAnswer] = useState("")
@@ -101,25 +102,33 @@ export function CommunityPuzzle() {
       
       setPuzzles(mockPuzzles)
       
+      // Fetch challenge type IDs for 'community_puzzle'
+      const { data: typeIds, error: typeIdError } = await supabase
+        .from('verification_challenge_types')
+        .select('id')
+        .eq('name', 'community_puzzle');
+      if (typeIdError) throw typeIdError;
+      const challengeTypeIds = Array.isArray(typeIds) ? typeIds.map((t: any) => t.id) : [];
+
       // Fetch completed puzzles
-      const supabase = createClient()
-      const { data: challengeData, error: challengeError } = await supabase
-        .from('verification_challenges')
-        .select(`
-          id,
-          challenge_type_id,
-          status,
-          data,
-          verification_challenge_types (name)
-        `)
-        .eq('user_id', user?.id)
-        .eq('status', 'pending')
-        .in('challenge_type_id', (query: any) => {
-          query.select('id')
-            .from('verification_challenge_types')
-            .where('name', 'eq', 'community_puzzle')
-        })
-      
+      let challengeData: any[] = [];
+      let challengeError: any = null;
+      if (challengeTypeIds.length > 0) {
+        const { data, error } = await supabase
+          .from('verification_challenges')
+          .select(`
+            id,
+            challenge_type_id,
+            status,
+            data,
+            verification_challenge_types (name)
+          `)
+          .eq('user_id', user?.id)
+          .eq('status', 'pending')
+          .in('challenge_type_id', challengeTypeIds);
+        challengeData = data || [];
+        challengeError = error;
+      }
       if (challengeError) throw challengeError
       
       // Find completed puzzles
@@ -215,22 +224,31 @@ export function CommunityPuzzle() {
         const supabase = createClient()
         
         // First, check if there's a community puzzle challenge
-        const { data: challengeData, error: challengeError } = await supabase
-          .from('verification_challenges')
-          .select(`
-            id,
-            challenge_type_id,
-            status
-          `)
-          .eq('user_id', user?.id)
-          .eq('status', 'pending')
-          .in('challenge_type_id', (query: any) => {
-            query.select('id')
-              .from('verification_challenge_types')
-              .where('name', 'eq', 'community_puzzle')
-          })
-          .limit(1)
-        
+        // Fetch challenge type IDs for 'community_puzzle'
+        const { data: typeIds, error: typeIdError } = await supabase
+          .from('verification_challenge_types')
+          .select('id')
+          .eq('name', 'community_puzzle');
+        if (typeIdError) throw typeIdError;
+        const challengeTypeIds = Array.isArray(typeIds) ? typeIds.map((t: any) => t.id) : [];
+
+        let challengeData: any[] = [];
+        let challengeError: any = null;
+        if (challengeTypeIds.length > 0) {
+          const { data, error } = await supabase
+            .from('verification_challenges')
+            .select(`
+              id,
+              challenge_type_id,
+              status
+            `)
+            .eq('user_id', user?.id)
+            .eq('status', 'pending')
+            .in('challenge_type_id', challengeTypeIds)
+            .limit(1);
+          challengeData = data || [];
+          challengeError = error;
+        }
         if (challengeError) throw challengeError
         
         if (challengeData && challengeData.length > 0) {

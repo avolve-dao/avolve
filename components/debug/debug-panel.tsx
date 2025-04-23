@@ -232,7 +232,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ queries }) => (
         {queries.map((query, index) => (
           <div 
             key={index} 
-            className="p-2 bg-gray-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
+            className="p-2 bg-zinc-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
           >
             <div className="flex justify-between mb-1">
               <span className="font-medium text-gray-700 dark:text-gray-200">{query.table}</span>
@@ -272,7 +272,7 @@ const PerformanceTab: React.FC<PerformanceTabProps> = ({ performance }) => (
         {Object.entries(performance).map(([key, value], index) => (
           <div 
             key={index} 
-            className="flex justify-between p-2 bg-gray-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
+            className="flex justify-between p-2 bg-zinc-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
           >
             <span className="font-medium text-gray-700 dark:text-gray-200">{key}</span>
             <span className={`${

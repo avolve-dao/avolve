@@ -63,7 +63,19 @@ for each row execute function public.set_updated_at();
 -- 2. Unique Constraints for Natural Keys
 -- =============================
 -- Add unique constraint for user email (if not already present)
-alter table if exists public.profiles add constraint profiles_email_unique unique (email);
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'profiles'
+      AND column_name = 'user_email'
+  ) THEN
+    ALTER TABLE public.profiles
+      ADD CONSTRAINT profiles_user_email_unique UNIQUE (user_email);
+  END IF;
+END $$;
+
 -- Add unique constraint for token symbol (if not already present)
 alter table if exists public.tokens add constraint tokens_symbol_unique unique (symbol);
 

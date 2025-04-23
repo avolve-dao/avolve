@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     // Log enhancement request for improving future suggestions
     try {
       const supabase = await createClient()
-      await supabase.from("ai_enhancement_logs").insert({
+      await (supabase as any).from("ai_enhancement_logs").insert({
         user_id: userId,
         original_content: content,
         enhancement_types: enhancementTypes,

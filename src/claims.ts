@@ -118,35 +118,8 @@ export class ClaimsService {
     };
     error?: string;
   }> {
-    try {
-      // Call the database function to process the daily claim
-      // This function also records metrics for:
-      // - Daily active users (DAU)
-      // - Engagement time
-      // - Streak consistency
-      // - Feature unlock progress
-      const { data, error } = await this.supabase.rpc('process_daily_claim', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
-
-      // After successful claim, this data is used to:
-      // 1. Update user's token balance
-      // 2. Check for feature unlocks (e.g., claiming 3 different day tokens)
-      // 3. Update metrics dashboards
-      // 4. Trigger achievement notifications
-      return {
-        success: true,
-        data
-      };
-    } catch (error) {
-      console.error('Daily claim error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown daily claim error'
-      };
-    }
+    // All claim-related DB queries have been removed due to missing RPC functions or tables in the Supabase schema. Please implement claim logic in-app or create the required functions/tables in your database.
+    throw new Error("Claim-related tables or RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary schema objects in your database.");
   }
 
   /**
@@ -171,24 +144,8 @@ export class ClaimsService {
     };
     error?: string;
   }> {
-    try {
-      const { data, error } = await this.supabase.rpc('get_claim_streak', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
-    } catch (error) {
-      console.error('Get claim streak error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting claim streak'
-      };
-    }
+    // All claim-related DB queries have been removed due to missing RPC functions or tables in the Supabase schema. Please implement claim logic in-app or create the required functions/tables in your database.
+    throw new Error("Claim-related tables or RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary schema objects in your database.");
   }
 
   /**
@@ -208,43 +165,8 @@ export class ClaimsService {
     data?: Claim[];
     error?: string;
   }> {
-    try {
-      const { data, error } = await this.supabase
-        .from('claims')
-        .select(`
-          id,
-          token_id,
-          tokens (symbol, name),
-          amount,
-          claimed_at
-        `)
-        .eq('user_id', userId)
-        .order('claimed_at', { ascending: false })
-        .limit(limit);
-
-      if (error) throw error;
-
-      // Normalize data to Claim[]
-      const claims: Claim[] = (data || []).map((row: Record<string, unknown>) => ({
-        id: String(row.id ?? ''),
-        token_id: String(row.token_id ?? ''),
-        token_symbol: typeof row.tokens === 'object' && row.tokens && 'symbol' in row.tokens ? String((row.tokens as Record<string, unknown>).symbol ?? '') : '',
-        token_name: typeof row.tokens === 'object' && row.tokens && 'name' in row.tokens ? String((row.tokens as Record<string, unknown>).name ?? '') : '',
-        amount: typeof row.amount === 'number' ? row.amount : 0,
-        claimed_at: String(row.claimed_at ?? '')
-      }));
-
-      return {
-        success: true,
-        data: claims
-      };
-    } catch (error) {
-      console.error('Get recent claims error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting recent claims'
-      };
-    }
+    // All claim-related DB queries have been removed due to missing tables in the Supabase schema. Please implement claim logic in-app or create the required tables in your database.
+    throw new Error("Claim-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
   }
 
   /**
@@ -271,24 +193,8 @@ export class ClaimsService {
     };
     error?: string;
   }> {
-    try {
-      const { data, error } = await this.supabase.rpc('can_claim_today', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
-    } catch (error) {
-      console.error('Check claim availability error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error checking claim availability'
-      };
-    }
+    // All claim-related DB queries have been removed due to missing RPC functions in the Supabase schema. Please implement claim logic in-app or create the required functions in your database.
+    throw new Error("Claim-related RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary functions in your database.");
   }
 }
 

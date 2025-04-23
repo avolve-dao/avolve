@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
     const supabase = createClient();
     // Create the invitation
-    const { data, error } = await supabase.rpc('create_invitation', {
+    const { data, error } = await (supabase as any).rpc('create_invitation', {
       p_email: email || null
     });
     if (error) {

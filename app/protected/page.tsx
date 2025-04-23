@@ -17,7 +17,7 @@ export default async function ProtectedPage() {
 
   // --- Onboarding State Logic ---
   // Fetch or create onboarding state for the user
-  const { data: onboardingRow, error: onboardingError } = await supabase
+  const { data: onboardingRow, error: onboardingError } = await (supabase as any)
     .from('user_onboarding')
     .select('*')
     .eq('user_id', data.user.id)

@@ -6,7 +6,7 @@ export async function GET() {
     const supabase = createClient()
     
     // Call the RPC function to get free membership status
-    const { data, error } = await supabase.rpc('get_free_membership_status')
+    const { data, error } = await (supabase as any).rpc('get_free_membership_status')
     
     if (error) {
       console.error('Error fetching free membership status:', error)

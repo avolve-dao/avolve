@@ -510,7 +510,7 @@ export const AVOLVE_SACRED_PATTERNS = {
     angle: SACRED_ANGLES.PENTAGON_INTERIOR,
     ratio: SACRED_RATIOS.GOLDEN_RATIO,
     shape: 'pentagon',
-    gradient: 'from-stone-500 to-stone-700',
+    gradient: 'from-zinc-500 to-zinc-700',
     vortexFamily: '369' as const,
     teslaShape: 'trinity' as const
   },
@@ -542,7 +542,7 @@ export const AVOLVE_SACRED_PATTERNS = {
     angle: SACRED_ANGLES.SQUARE,
     ratio: SACRED_RATIOS.SQUARE_ROOT_2,
     shape: 'square',
-    gradient: 'from-slate-500 to-slate-700',
+    gradient: 'from-zinc-500 to-zinc-700',
     vortexFamily: '147' as const,
     teslaShape: 'hexad' as const
   },

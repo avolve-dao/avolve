@@ -6,7 +6,7 @@
  */
 
 import { AuthError } from '@supabase/supabase-js';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 import { createServerComponentClient } from '@/lib/supabase/server';
 
 // Helper function to convert database error to AuthError
@@ -65,7 +65,7 @@ export class AuditService {
    */
   public static getBrowserInstance(): AuditService {
     if (!AuditService.instance) {
-      AuditService.instance = new AuditService(createBrowserClient());
+      AuditService.instance = new AuditService(createClient());
     }
     return AuditService.instance;
   }

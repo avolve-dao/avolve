@@ -31,7 +31,7 @@ export async function GET(req: Request) {
     }
 
     // Get profile data from the profiles table
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await (supabase as any)
       .from('profiles')
       .select('*')
       .eq('id', user.id)
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: "No valid fields provided." }, { status: 400 });
     }
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from("profiles")
       .update(updates)
       .eq("id", user.id);

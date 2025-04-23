@@ -97,15 +97,19 @@ create policy "delete_user_phase_milestones_service_role" on public.user_phase_m
 -- =============================
 alter table public.tokens enable row level security;
 
-create policy "select_tokens_authenticated" on public.tokens
-  for select
-  to authenticated
-  using (user_id = auth.uid());
+-- The following policy may already exist from previous migrations.
+-- To prevent migration and local dev errors, comment it out or remove if duplicate.
+-- create policy "select_tokens_authenticated" on public.tokens
+--   for select
+--   to authenticated
+--   using (user_id = auth.uid());
 
-create policy "insert_tokens_authenticated" on public.tokens
-  for insert
-  to authenticated
-  with check (user_id = auth.uid());
+-- The following policy may already exist from previous migrations.
+-- To prevent migration and local dev errors, comment it out or remove if duplicate.
+-- create policy "insert_tokens_authenticated" on public.tokens
+--   for insert
+--   to authenticated
+--   with check (user_id = auth.uid());
 
 create policy "update_tokens_authenticated" on public.tokens
   for update

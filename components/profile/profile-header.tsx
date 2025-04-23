@@ -8,6 +8,7 @@ import { useState } from "react"
 import { clientDb } from "@/lib/db"
 import { messagingDb } from "@/lib/db-messaging"
 import { useRouter } from "next/navigation"
+import { RecognitionForm } from "@/components/recognition"
 
 interface ProfileHeaderProps {
   profile: {
@@ -76,7 +77,7 @@ export function ProfileHeader({ profile, currentUserId, isFollowing = false, fol
             {profile.bio && <p className="mt-2">{profile.bio}</p>}
 
             <div className="flex flex-wrap gap-4 mt-4 justify-center md:justify-start">
-              {profile.location && <div className="text-sm text-muted-foreground">📍 {profile.location}</div>}
+              {profile.location && <div className="text-sm text-muted-foreground"> {profile.location}</div>}
               {profile.website && (
                 <a
                   href={profile.website.startsWith("http") ? profile.website : `https://${profile.website}`}
@@ -84,7 +85,7 @@ export function ProfileHeader({ profile, currentUserId, isFollowing = false, fol
                   rel="noopener noreferrer"
                   className="text-sm text-blue-500 hover:underline"
                 >
-                  🔗 {profile.website.replace(/^https?:\/\//, "")}
+                  {profile.website.replace(/^https?:\/\//, "")}
                 </a>
               )}
             </div>
@@ -101,24 +102,29 @@ export function ProfileHeader({ profile, currentUserId, isFollowing = false, fol
             </div>
 
             {currentUserId && currentUserId !== profile.id && (
-              <div className="mt-6 flex gap-2 justify-center md:justify-start">
-                <Button onClick={handleFollowToggle} disabled={loading}>
-                  {following ? (
-                    <>
-                      <UserMinus className="h-4 w-4 mr-2" />
-                      Unfollow
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Follow
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" onClick={handleMessage} disabled={loading}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Message
-                </Button>
+              <div className="mt-6 flex gap-2 flex-col md:flex-row justify-center md:justify-start">
+                <div className="flex gap-2">
+                  <Button onClick={handleFollowToggle} disabled={loading}>
+                    {following ? (
+                      <>
+                        <UserMinus className="h-4 w-4 mr-2" />
+                        Unfollow
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Follow
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="outline" onClick={handleMessage} disabled={loading}>
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Message
+                  </Button>
+                </div>
+                <div className="mt-4 md:mt-0">
+                  <RecognitionForm recipientId={profile.id} />
+                </div>
               </div>
             )}
           </div>
@@ -127,4 +133,3 @@ export function ProfileHeader({ profile, currentUserId, isFollowing = false, fol
     </Card>
   )
 }
-

@@ -2,7 +2,7 @@
  * Tokens Service
  * Provides functionality for interacting with the Avolve token system
  * 
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { createClient } from '@/lib/supabase/client';
@@ -18,6 +18,7 @@ export interface Token {
   total_supply?: number;
   circulating_supply?: number;
   burn_rate?: number;
+  transferable?: boolean;
 }
 
 export interface TokenTransaction {
@@ -109,8 +110,14 @@ export const tokensService = {
         .eq('user_id', userId);
       
       if (error) throw error;
-      
-      return { success: true, data };
+      // Map tokens array to single object per TokenBalance
+      const mappedData = Array.isArray(data)
+        ? data.map((item) => ({
+            ...item,
+            tokens: Array.isArray(item.tokens) ? item.tokens[0] : item.tokens,
+          }))
+        : [];
+      return { success: true, data: mappedData };
     } catch (error) {
       console.error('Error fetching user balances:', error);
       return { 

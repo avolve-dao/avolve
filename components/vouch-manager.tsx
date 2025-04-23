@@ -143,11 +143,11 @@ export function VouchManager() {
       if (error) throw error
       
       // Filter out the current user
-      const filteredUsers = (data as VouchRecord[]).filter((u: VouchRecord) => u.id !== user?.id)
+      const filteredUsers = (data as UserToVouch[]).filter((u: UserToVouch) => u.id !== user?.id)
       
       // Get member journey info for each user
       const usersWithJourneyInfo = await Promise.all(
-        filteredUsers.map(async (user: VouchRecord) => {
+        filteredUsers.map(async (user: UserToVouch) => {
           const { data: journeyData, error: journeyError } = await supabase
             .from('member_journey')
             .select('current_level, vouch_count')

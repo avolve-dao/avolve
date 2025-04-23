@@ -21,7 +21,7 @@ export function SuggestedUsers({ suggestedUsers = [], currentUserId }: Suggested
     if (suggestedUsers.length === 0 && currentUserId) {
       const fetchUsers = async () => {
         const data = await clientDb.getSuggestedUsers(currentUserId, 5)
-        setUsers(data || [])
+        setUsers(Array.isArray(data) ? data : [])
       }
       fetchUsers()
     }
@@ -82,4 +82,3 @@ export function SuggestedUsers({ suggestedUsers = [], currentUserId }: Suggested
     </Card>
   )
 }
-

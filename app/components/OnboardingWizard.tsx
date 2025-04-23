@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Tooltip from "@/components/Tooltip";
 
 const STEPS = [
   { key: "profile", label: "Profile" },
@@ -68,16 +69,22 @@ function ProfileStep({ onNext }: { onNext: () => void }) {
       setLoading(false);
       onNext();
     } catch (err) {
-      setError("Unexpected error. Please try again.");
+      setError("Unexpected error. Please try again or contact support if the issue persists.");
       setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
-      <h2 className="text-2xl font-bold mb-2">Welcome! Let's start your journey 🚀</h2>
+      <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+        Welcome! Let's start your journey
+        <Tooltip label="Your onboarding starts by adding your name so we can personalize your experience.">{null}</Tooltip>
+      </h2>
       <label className="block">
-        <span className="text-gray-700">Your Name</span>
+        <span className="text-gray-700 flex items-center gap-1">
+          Your Name
+          <Tooltip label="This will be shown on your profile and in the community. You can change it later.">{null}</Tooltip>
+        </span>
         <input
           className="mt-1 block w-full rounded border border-gray-300 p-2 focus:border-blue-500 focus:outline-none"
           value={name}
@@ -116,7 +123,7 @@ function InterestsStep({ onNext, onBack }: { onNext: () => void; onBack: () => v
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (interests.length < 1) {
-      setError("Pick at least one interest to continue.");
+      setError("Pick at least one interest to continue. If you need help, hover the ? icon.");
       return;
     }
     setLoading(true);
@@ -130,7 +137,7 @@ function InterestsStep({ onNext, onBack }: { onNext: () => void; onBack: () => v
       });
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to update interests. Try again.");
+        setError(data.error || "Failed to update interests. Try again or contact support.");
         setLoading(false);
         return;
       }
@@ -143,26 +150,34 @@ function InterestsStep({ onNext, onBack }: { onNext: () => void; onBack: () => v
       setLoading(false);
       onNext();
     } catch (err) {
-      setError("Unexpected error. Please try again.");
+      setError("Unexpected error. Please try again or contact support if the issue persists.");
       setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
-      <h2 className="text-2xl font-bold mb-2">What are you interested in?</h2>
-      <div className="flex flex-wrap gap-2">
+      <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+        What are you interested in?
+        <Tooltip label="Select as many interests as you like. We'll use these to personalize your experience.">{null}</Tooltip>
+      </h2>
+      <div className="flex flex-wrap gap-2 mb-2" role="group" aria-label="Interests">
         {ALL_INTERESTS.map(interest => (
           <button
-            type="button"
             key={interest}
-            className={`px-3 py-1 rounded border ${
+            type="button"
+            className={`px-4 py-2 rounded-full border transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
               interests.includes(interest)
                 ? "bg-blue-600 text-white border-blue-600"
                 : "bg-gray-100 text-gray-700 border-gray-300"
             }`}
             onClick={() => toggleInterest(interest)}
             aria-pressed={interests.includes(interest)}
+            aria-label={
+              interests.includes(interest)
+                ? `Remove ${interest} from your interests`
+                : `Add ${interest} to your interests`
+            }
             disabled={loading}
           >
             {interest}
@@ -200,7 +215,7 @@ function GroupStep({ onNext, onBack }: { onNext: () => void; onBack: () => void 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selected) {
-      setError("Please select a group to continue.");
+      setError("Please select a group to continue. Hover the ? icon if you need help.");
       return;
     }
     setLoading(true);
@@ -214,7 +229,7 @@ function GroupStep({ onNext, onBack }: { onNext: () => void; onBack: () => void 
       });
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to join group. Try again.");
+        setError(data.error || "Failed to update group. Try again or contact support.");
         setLoading(false);
         return;
       }
@@ -227,26 +242,34 @@ function GroupStep({ onNext, onBack }: { onNext: () => void; onBack: () => void 
       setLoading(false);
       onNext();
     } catch (err) {
-      setError("Unexpected error. Please try again.");
+      setError("Unexpected error. Please try again or contact support if the issue persists.");
       setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
-      <h2 className="text-2xl font-bold mb-2">Find your tribe</h2>
-      <div className="flex flex-wrap gap-2">
+      <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+        Join a group
+        <Tooltip label="Pick a group that matches your vibe. You can switch later if you want.">{null}</Tooltip>
+      </h2>
+      <div className="flex flex-wrap gap-2 mb-2" role="group" aria-label="Groups">
         {GROUPS.map(group => (
           <button
-            type="button"
             key={group}
-            className={`px-3 py-1 rounded border ${
+            type="button"
+            className={`px-4 py-2 rounded-full border transition focus:outline-none focus:ring-2 focus:ring-blue-400 ${
               selected === group
                 ? "bg-blue-600 text-white border-blue-600"
                 : "bg-gray-100 text-gray-700 border-gray-300"
             }`}
             onClick={() => setSelected(group)}
             aria-pressed={selected === group}
+            aria-label={
+              selected === group
+                ? `Selected group: ${group}`
+                : `Select group: ${group}`
+            }
             disabled={loading}
           >
             {group}
@@ -276,10 +299,11 @@ function GroupStep({ onNext, onBack }: { onNext: () => void; onBack: () => void 
 }
 
 function ExploreStep({ onNext, onBack }: { onNext: () => void; onBack: () => void }) {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleNext = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
     setError("");
     try {
@@ -292,15 +316,20 @@ function ExploreStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
       setLoading(false);
       onNext();
     } catch (err) {
-      setError("Unexpected error. Please try again.");
+      setError("Unexpected error. Please try again or contact support if the issue persists.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto space-y-4">
-      <h2 className="text-2xl font-bold mb-2">Explore Avolve</h2>
-      <p className="mb-4">Check out some of the most popular features and communities. You can always return here later!</p>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
+      <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+        Explore Avolve
+        <Tooltip label="Take a moment to look around and get familiar with the platform. You can always revisit onboarding from your profile menu.">{null}</Tooltip>
+      </h2>
+      <p className="text-gray-600 mb-2">
+        Discover features, connect with peers, and unlock your full potential!
+      </p>
       {error && <div className="text-red-500 text-sm">{error}</div>}
       <div className="flex gap-2">
         <button
@@ -312,14 +341,35 @@ function ExploreStep({ onNext, onBack }: { onNext: () => void; onBack: () => voi
           Back
         </button>
         <button
-          type="button"
-          onClick={handleNext}
+          type="submit"
           className="flex-1 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50"
           disabled={loading}
         >
-          {loading ? "Saving..." : "Next"}
+          {loading ? "Finishing..." : "Finish Onboarding"}
         </button>
       </div>
+    </form>
+  );
+}
+
+// Celebration Badge SVG (Avolve Star)
+const CelebrationBadge = () => (
+  <svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-4">
+    <circle cx="48" cy="48" r="48" fill="#FDE68A"/>
+    <path d="M48 18L54.4721 37.5279L75 42L54.4721 46.4721L48 66L41.5279 46.4721L21 42L41.5279 37.5279L48 18Z" fill="#F59E42"/>
+    <circle cx="48" cy="48" r="8" fill="#fff"/>
+  </svg>
+);
+
+function MiniCelebrationToast({ message, onClose }: { message: string; onClose: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 2000);
+    return () => clearTimeout(t);
+  }, [onClose]);
+  return (
+    <div className="fixed top-8 right-8 z-50 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-fade-in">
+      <span className="text-xl">✨</span>
+      <span>{message}</span>
     </div>
   );
 }
@@ -339,6 +389,7 @@ function CelebrateStep() {
   }, []);
   return (
     <div className="max-w-md mx-auto text-center space-y-6">
+      <CelebrationBadge />
       <h2 className="text-3xl font-bold mb-2">🎉 You made it!</h2>
       <p className="text-lg">Welcome to Avolve. Your journey begins now. We’re excited to see what you’ll accomplish!</p>
       <div className="mt-8 animate-bounce">
@@ -356,17 +407,29 @@ function CelebrateStep() {
 
 export default function OnboardingWizard() {
   const [step, setStep] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+
+  const handleStepComplete = (msg: string, nextStep: number) => {
+    setToastMsg(msg);
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+      setStep(nextStep);
+    }, 900); // show toast briefly before next step
+  };
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-50 to-white p-4">
       <Stepper currentStep={step} />
       <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-8">
-        {step === 0 && <ProfileStep onNext={() => setStep(1)} />}
-        {step === 1 && <InterestsStep onNext={() => setStep(2)} onBack={() => setStep(0)} />}
-        {step === 2 && <GroupStep onNext={() => setStep(3)} onBack={() => setStep(1)} />}
-        {step === 3 && <ExploreStep onNext={() => setStep(4)} onBack={() => setStep(2)} />}
+        {step === 0 && <ProfileStep onNext={() => handleStepComplete("Profile Complete! 🎉", 1)} />}
+        {step === 1 && <InterestsStep onNext={() => handleStepComplete("Interests Saved! 🌟", 2)} onBack={() => setStep(0)} />}
+        {step === 2 && <GroupStep onNext={() => handleStepComplete("Group Joined! 🏅", 3)} onBack={() => setStep(1)} />}
+        {step === 3 && <ExploreStep onNext={() => handleStepComplete("Exploration Complete! 🚀", 4)} onBack={() => setStep(2)} />}
         {step === 4 && <CelebrateStep />}
       </div>
+      {showToast && <MiniCelebrationToast message={toastMsg} onClose={() => setShowToast(false)} />}
     </div>
   );
 }

@@ -252,7 +252,7 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
                   ) : (
                     <ul className="divide-y divide-zinc-100">
                       {filteredItems.map((item) => (
-                        <li key={item.id} className={`flex items-start gap-3 px-4 py-3 group ${!item.read ? 'bg-blue-50' : ''}`}>
+                        <li key={item.id} className={`flex items-start gap-3 px-4 py-3 group ${!item.read ? 'bg-zinc-50' : ''}`}>
                           <div className="pt-1">{getItemIcon(item.type)}</div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">

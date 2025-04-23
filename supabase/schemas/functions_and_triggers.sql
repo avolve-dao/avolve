@@ -1,5 +1,5 @@
 -- AUTO-GENERATED: Export of all user-defined functions and triggers in the Avolve Supabase database
--- Generated on 2025-04-15T21:15:53-06:00
+-- Generated on 2025-04-22T15:52:13-06:00
 -- DO NOT EDIT DIRECTLY. Regenerate with Cascade or Supabase tools as needed.
 
 -- =========================

@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const supabase = createClient()
     
     // Accept the invitation
-    const { data, error } = await supabase.rpc('accept_invitation', {
+    const { data, error } = await (supabase as any).rpc('accept_invitation', {
       p_code: code.trim().toUpperCase()
     })
     

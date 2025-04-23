@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase';
+import { Database } from '../types/database';
 
 /**
  * OnboardingService - Manages user onboarding process
@@ -28,16 +28,8 @@ export class OnboardingService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase.rpc('start_onboarding', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
+      // The 'start_onboarding' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'start_onboarding' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Start onboarding error:', error);
       return {
@@ -65,17 +57,8 @@ export class OnboardingService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase.rpc('update_onboarding_step', {
-        p_user_id: userId,
-        p_step: step
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
+      // The 'update_onboarding_step' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'update_onboarding_step' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Update onboarding step error:', error);
       return {

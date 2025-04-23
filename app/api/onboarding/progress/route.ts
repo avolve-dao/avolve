@@ -8,7 +8,7 @@ export async function GET() {
     if (authError || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("user_onboarding")
       .select("completed_steps, completed_at")
       .eq("user_id", user.id)

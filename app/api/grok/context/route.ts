@@ -21,10 +21,10 @@ export async function GET(req: Request) {
     const supabase = await createClient()
 
     // Get user profile
-    const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).single()
+    const { data: profile } = await (supabase as any).from("profiles").select("*").eq("id", userId).single()
 
     // Get user's recent activity
-    const { data: recentActivity } = await supabase
+    const { data: recentActivity } = await (supabase as any)
       .from("user_activity_feed")
       .select("action_type, entity_type, created_at")
       .eq("user_id", userId)
@@ -32,7 +32,7 @@ export async function GET(req: Request) {
       .limit(5)
 
     // Get trending topics
-    const { data: trendingPosts } = await supabase
+    const { data: trendingPosts } = await (supabase as any)
       .from("posts")
       .select("content")
       .order("like_count", { ascending: false })

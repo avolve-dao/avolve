@@ -202,15 +202,16 @@ export function ChatMessages({ chatId, userId }: ChatMessagesProps) {
           .single()
 
         if (data) {
+          const profile = Array.isArray(data.profiles) ? data.profiles[0] : data.profiles;
           setReadReceipts((prev) => ({
             ...prev,
             [data.message_id]: [
               ...(prev[data.message_id] || []),
               {
                 user: {
-                  id: data.profiles.id,
-                  name: data.profiles.full_name || data.profiles.username || "Unknown User",
-                  avatar: data.profiles.avatar_url || undefined
+                  id: profile?.id ?? '',
+                  name: profile?.full_name || profile?.username || "Unknown User",
+                  avatar: profile?.avatar_url || undefined
                 },
                 readAt: data.read_at,
               },

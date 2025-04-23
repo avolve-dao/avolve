@@ -20,28 +20,7 @@ export function createServerComponentClient() {
     const { cookies } = require('next/headers')
     const cookieStore = cookies()
     
-    return createSupabaseClient<Database>(supabaseUrl, supabaseKey, {
-      // Optionally, add cookie handling here for SSR if needed
-      cookies: {
-        get: (name) => {
-          return cookieStore.get(name)?.value
-        },
-        set: (name, value, options) => {
-          try {
-            cookieStore.set(name, value, options)
-          } catch (error) {
-            // Silently fail if we're in a environment where cookies can't be set
-          }
-        },
-        remove: (name, options) => {
-          try {
-            cookieStore.delete(name, options)
-          } catch (error) {
-            // Silently fail if we're in a environment where cookies can't be removed
-          }
-        },
-      },
-    })
+    return createSupabaseClient<Database>(supabaseUrl, supabaseKey)
   } catch (error) {
     // Fallback for environments where cookies() is not available (like pages directory)
     console.warn('Using fallback Supabase client. This should only happen in pages/ directory.')

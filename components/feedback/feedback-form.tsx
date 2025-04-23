@@ -44,7 +44,7 @@ const feedbackFormSchema = z.object({
   }).max(500, {
     message: "Comment cannot be more than 500 characters."
   }),
-  worthTime: z.boolean().default(true),
+  worthTime: z.boolean(),
 })
 
 // Infer the type from the schema

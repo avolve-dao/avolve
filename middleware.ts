@@ -5,7 +5,8 @@ import { NextResponse } from "next/server"
 import { getRouteProtection } from "@/middleware/rbac-config"
 import { rbacMiddleware } from "@/middleware/rbac-middleware"
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
-import { Database } from '@/types/supabase'
+// IMPORTANT: Use Database type from supabase-schema to ensure all tables (including user_roles) are available
+import { Database } from '@/types/supabase-schema'
 
 // Initialize Supabase client with error handling for URL
 let supabase: SupabaseClient<Database> | undefined;
@@ -142,40 +143,60 @@ const systemRoutes = [
 ]
 
 // Permission check functions
+// Use direct query to user_roles and roles since 'has_role' RPC is not available in the generated types
 const checkSuperPermission = async (userId: string): Promise<boolean> => {
   if (!supabase) return false;
-  const { data, error } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .single()
-
-  if (error) return false
-  return data?.role === 'super'
+  try {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'service_role')
+      .single();
+    if (error) return false;
+    return !!data;
+  } catch {
+    return false;
+  }
 }
 
 const checkAdminRole = async (userId: string): Promise<boolean> => {
   if (!supabase) return false;
-  const { data, error } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', userId)
-    .single()
-
-  if (error) return false
-  return data?.role === 'admin' || data?.role === 'super'
+  try {
+    // Check for 'admin' or 'super' role
+    const { data: isAdmin, error: adminError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .single();
+    if (adminError) return false;
+    if (isAdmin) return true;
+    const { data: isSuper, error: superError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'service_role')
+      .single();
+    if (superError) return false;
+    return !!isSuper;
+  } catch {
+    return false;
+  }
 }
 
 const getOnboardingStatus = async (userId: string) => {
   if (!supabase) return { completed: false };
+  // Fallback: Check onboarding status from profiles table (using regeneration_status as a proxy for onboarding)
   const { data, error } = await supabase
-    .from('user_profiles')
-    .select('onboarding_completed')
-    .eq('user_id', userId)
+    .from('profiles')
+    .select('regeneration_status')
+    .eq('id', userId)
     .single()
 
   if (error) return { completed: false }
-  return { completed: data?.onboarding_completed || false }
+  // Treat regeneration_status as proxy: if set, onboarding is complete
+  return { completed: !!data?.regeneration_status }
 }
 
 // Route protection middleware

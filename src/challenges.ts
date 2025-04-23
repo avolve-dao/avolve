@@ -35,33 +35,8 @@ export class ChallengesService {
     error?: string;
   }> {
     try {
-      // Call the database function to process the challenge completion
-      const { data, error } = await this.supabase.rpc('complete_challenge', {
-        p_user_id: userId,
-        p_challenge_id: challengeId
-      });
-
-      if (error) throw error;
-
-      // Boost interaction rate in metrics
-      if (data) {
-        await this.supabase.rpc('record_metric', {
-          p_metric: 'interaction',
-          p_value: 1,
-          p_user_id: userId,
-          p_data: JSON.stringify({ challenge_id: challengeId, points: data.points })
-        });
-      }
-
-      return {
-        success: true,
-        data: {
-          points: data.points,
-          tokenSymbol: data.tokenSymbol,
-          unlocked: data.unlocked,
-          totalPoints: data.totalPoints
-        }
-      };
+      // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
+      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
     } catch (error) {
       console.error('Challenge completion error:', error);
       return {
@@ -85,51 +60,8 @@ export class ChallengesService {
     error?: string;
   }> {
     try {
-      let query = this.supabase
-        .from('challenges')
-        .select(`
-          id,
-          name,
-          description,
-          token_id,
-          tokens (symbol, name),
-          points,
-          active
-        `)
-        .eq('active', true);
-
-      // Filter by token if specified
-      if (tokenSymbol) {
-        const { data: tokenData } = await this.supabase
-          .from('tokens')
-          .select('id')
-          .eq('symbol', tokenSymbol)
-          .single();
-
-        if (tokenData) {
-          query = query.eq('token_id', tokenData.id);
-        }
-      }
-
-      const { data, error } = await query;
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data: (data || []).map((challenge) => {
-          const tokens = Array.isArray(challenge.tokens) ? (challenge.tokens[0] || { symbol: '', name: '' }) : (challenge.tokens || { symbol: '', name: '' });
-          return {
-            id: challenge.id,
-            name: challenge.name,
-            description: challenge.description,
-            token_id: challenge.token_id,
-            tokens,
-            points: challenge.points,
-            active: challenge.active
-          };
-        })
-      };
+      // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
+      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
     } catch (error) {
       console.error('Get challenges error:', error);
       return {
@@ -152,44 +84,8 @@ export class ChallengesService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase
-        .from('user_challenges')
-        .select(`
-          id,
-          challenge_id,
-          challenges (
-            name,
-            description,
-            points,
-            token_id,
-            tokens (symbol, name)
-          ),
-          completed_at
-        `)
-        .eq('user_id', userId)
-        .order('completed_at', { ascending: false });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data: (data || []).map((completion) => {
-          const ch = Array.isArray(completion.challenges) ? (completion.challenges[0] || {}) : (completion.challenges || {});
-          const chTokens = ch && 'tokens' in ch ? (Array.isArray(ch.tokens) ? (ch.tokens[0] || { symbol: '', name: '' }) : (ch.tokens || { symbol: '', name: '' })) : { symbol: '', name: '' };
-          return {
-            id: completion.id,
-            challenge_id: completion.challenge_id,
-            challenges: {
-              name: ch.name || '',
-              description: ch.description || '',
-              points: ch.points || 0,
-              token_id: ch.token_id || '',
-              tokens: chTokens
-            },
-            completed_at: completion.completed_at
-          };
-        })
-      };
+      // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
+      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
     } catch (error) {
       console.error('Get user completed challenges error:', error);
       return {
@@ -212,29 +108,8 @@ export class ChallengesService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase
-        .from('user_progress')
-        .select(`
-          id,
-          token_id,
-          tokens (symbol, name, is_locked),
-          points,
-          level
-        `)
-        .eq('user_id', userId);
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data: (data || []).map((progress) => {
-          const tokens = Array.isArray(progress.tokens) ? (progress.tokens[0] || { symbol: '', name: '', is_locked: false }) : (progress.tokens || { symbol: '', name: '', is_locked: false });
-          return {
-            ...progress,
-            tokens
-          };
-        })
-      };
+      // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
+      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
     } catch (error) {
       console.error('Get user progress error:', error);
       return {
@@ -287,79 +162,8 @@ export class ChallengesService {
         throw new Error(`Token not found for symbol: ${dayToken}`);
       }
 
-      // Get challenges for today's token
-      const { data: challenges, error: challengesError } = await this.supabase
-        .from('challenges')
-        .select(`
-          id,
-          name,
-          description,
-          token_id,
-          tokens (symbol, name),
-          points,
-          active
-        `)
-        .eq('token_id', tokenData.id)
-        .eq('active', true);
-
-      if (challengesError) throw challengesError;
-
-      // Get challenges completed by the user today
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      const { data: completedToday, error: completedError } = await this.supabase
-        .from('user_challenges')
-        .select(`
-          id,
-          challenge_id,
-          challenges (
-            name,
-            description,
-            points,
-            token_id
-          ),
-          completed_at
-        `)
-        .eq('user_id', userId)
-        .gte('completed_at', today.toISOString())
-        .order('completed_at', { ascending: false });
-
-      if (completedError) throw completedError;
-
-      return {
-        success: true,
-        data: {
-          challenges: (challenges || []).map((challenge) => {
-            const tokens = Array.isArray(challenge.tokens) ? (challenge.tokens[0] || { symbol: '', name: '' }) : (challenge.tokens || { symbol: '', name: '' });
-            return {
-              id: challenge.id,
-              name: challenge.name,
-              description: challenge.description,
-              token_id: challenge.token_id,
-              tokens,
-              points: challenge.points,
-              active: challenge.active
-            };
-          }),
-          completedToday: (completedToday || []).map((completion) => {
-            const ch = Array.isArray(completion.challenges) ? (completion.challenges[0] || {}) : (completion.challenges || {});
-            const chTokens = ch && 'tokens' in ch ? (Array.isArray(ch.tokens) ? (ch.tokens[0] || { symbol: '', name: '' }) : (ch.tokens || { symbol: '', name: '' })) : { symbol: '', name: '' };
-            return {
-              id: completion.id,
-              challenge_id: completion.challenge_id,
-              challenges: {
-                name: ch.name || '',
-                description: ch.description || '',
-                points: ch.points || 0,
-                token_id: ch.token_id || '',
-                tokens: chTokens
-              },
-              completed_at: completion.completed_at
-            };
-          })
-        }
-      };
+      // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
+      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
     } catch (error) {
       console.error('Get today\'s challenges error:', error);
       return {
@@ -371,17 +175,10 @@ export class ChallengesService {
   }
 }
 
-// If TokenSymbol is only a type, define a value enum here for runtime use
-export enum TokenSymbolEnum {
-  SPD = 'SPD',
-  SHE = 'SHE',
-  PSP = 'PSP',
-  SSA = 'SSA',
-  BSP = 'BSP',
-  SGB = 'SGB',
-  SMS = 'SMS',
-  SAP = 'SAP',
-}
+// TODO: Ensure the following RPCs exist in Supabase:
+// - complete_challenge (handles challenge completion logic)
+// - record_metric (records user interaction metrics)
+// If not, add them via migrations and document their expected behavior for onboarding.
 
 interface Challenge {
   id: string;
@@ -429,3 +226,14 @@ export const challengesService = new ChallengesService();
 
 // Export default for direct imports
 export default challengesService;
+
+export enum TokenSymbolEnum {
+  SPD = 'SPD',
+  SHE = 'SHE',
+  PSP = 'PSP',
+  SSA = 'SSA',
+  BSP = 'BSP',
+  SGB = 'SGB',
+  SMS = 'SMS',
+  SAP = 'SAP',
+}

@@ -29,7 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 // Types
-import type { PhaseId } from '@/types/experience';
+import type { PhaseId, MilestoneCompletion } from '@/types/experience';
 
 export interface FocusArea {
   id: string;
@@ -63,17 +63,6 @@ interface LearningPathRecommendation {
   estimatedTime: string;
 }
 
-interface NextMilestone {
-  milestone_id: string;
-  title: string;
-  description: string;
-  phase: PhaseId;
-  token_reward: {
-    token_id: string;
-    amount: number;
-  };
-}
-
 interface FocusModeClientProps {
   userName: string;
   currentPhase: PhaseId;
@@ -83,7 +72,7 @@ interface FocusModeClientProps {
   contentRecommendations: ContentRecommendation[];
   featureRecommendations: FeatureRecommendation[];
   learningPathRecommendations: LearningPathRecommendation[];
-  nextMilestones: NextMilestone[];
+  nextMilestones: MilestoneCompletion[];
 }
 
 export function FocusModeClient({
@@ -228,26 +217,18 @@ export function FocusModeClient({
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-start">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 mt-0.5">
-                          <Award className="w-4 h-4 text-primary" />
-                        </div>
+                        <Award className="w-5 h-5 text-amber-500 mr-2 mt-1" />
                         <div>
-                          <h3 className="font-medium">{milestone.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {milestone.phase} phase
-                          </p>
+                          <div className="font-semibold text-lg text-gray-900">
+                            Milestone: {milestone.milestone_id}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            Completed: {milestone.completed_at ? new Date(milestone.completed_at).toLocaleDateString() : 'Not yet'}
+                          </div>
                         </div>
                       </div>
-                      <Badge variant="outline" className="bg-primary/5">
-                        +{milestone.token_reward.amount} {milestone.token_reward.token_id}
-                      </Badge>
                     </div>
-                    
-                    <p className="text-sm mb-3">{milestone.description}</p>
-                    
-                    <Button size="sm" className="w-full">
-                      Start this milestone
-                    </Button>
+                    {/* Additional milestone details can be rendered here if available */}
                   </CardContent>
                 </Card>
               ))}

@@ -177,10 +177,10 @@ const GovernanceDashboard: React.FC = () => {
             
             <button
               type="submit"
-              disabled={createPetitionMutation.isLoading}
-              className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r ${tokenGradients.GEN} hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${createPetitionMutation.isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+              disabled={createPetitionMutation.isPending}
+              className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r ${tokenGradients.GEN} hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${createPetitionMutation.isPending ? 'opacity-70 cursor-not-allowed' : ''}`}
             >
-              {createPetitionMutation.isLoading ? 'Creating...' : 'Create Petition'}
+              {createPetitionMutation.isPending ? 'Creating...' : 'Create Petition'}
             </button>
           </form>
         ) : (
@@ -198,7 +198,9 @@ const GovernanceDashboard: React.FC = () => {
         
         {petitionsLoading ? (
           <p className="text-gray-500">Loading petitions...</p>
-        ) : petitions?.length > 0 ? (
+        ) : petitions && petitions.length === 0 ? (
+          <div className="text-gray-500 text-center py-8">No petitions found. Be the first to create one!</div>
+        ) : petitions && petitions.map ? (
           <div className="space-y-6">
             {petitions.map((petition: Petition) => (
               <motion.div
@@ -225,14 +227,14 @@ const GovernanceDashboard: React.FC = () => {
                       <>
                         <button
                           onClick={() => handleVote(petition.id, 'support')}
-                          disabled={votePetitionMutation.isLoading}
+                          disabled={votePetitionMutation.isPending}
                           className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                           Support
                         </button>
                         <button
                           onClick={() => handleVote(petition.id, 'oppose')}
-                          disabled={votePetitionMutation.isLoading}
+                          disabled={votePetitionMutation.isPending}
                           className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
                           Oppose

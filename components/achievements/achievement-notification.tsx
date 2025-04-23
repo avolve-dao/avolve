@@ -4,7 +4,7 @@ import { useTokens } from '@/hooks/use-tokens';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { TrophyIcon, CoinsIcon } from 'lucide-react';
-import { Database } from '@/types/supabase';
+import { Database } from '@/lib/database.types';
 
 // Use the same type as dashboard for consistency
 type AchievementCategory = 'discovery' | 'onboarding' | 'scaffolding' | 'endgame' | 'special';
@@ -45,17 +45,22 @@ export function AchievementNotification({
         p_user_id: user?.id,
       });
       if (userAchievements) {
-        const normalized: UserAchievement[] = userAchievements.map((a: Achievement) => ({
-          id: a.id,
-          title: a.title ?? '',
-          description: a.description ?? '',
-          category: a.category ?? 'personal',
-          reward_type: a.reward_type ?? '',
-          claimed_at: a.claimed_at ?? null,
-          earned_at: a.earned_at ?? null,
-          reward_amount: a.reward_amount ?? 0,
-          reward_token_symbol: a.reward_token_symbol ?? ''
-        }));
+        const normalized: UserAchievement[] = userAchievements.map((a: Achievement) => {
+          const meta = (a.data && typeof a.data === 'object' && !Array.isArray(a.data))
+            ? a.data as Record<string, any>
+            : {};
+          return {
+            id: a.id,
+            title: meta.title ?? '',
+            description: meta.description ?? '',
+            category: meta.category ?? 'personal',
+            reward_type: meta.reward_type ?? '',
+            claimed_at: meta.claimed_at ?? null,
+            earned_at: meta.earned_at ?? null,
+            reward_amount: meta.reward_amount ?? 0,
+            reward_token_symbol: meta.reward_token_symbol ?? ''
+          };
+        });
         const unclaimed = normalized.find((a) => !a.reward_token_symbol);
         if (unclaimed && !displayedAchievement) {
           setDisplayedAchievement(unclaimed);

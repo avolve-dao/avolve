@@ -148,11 +148,26 @@ export function EventChat({ eventId, userId: propUserId }: EventChatProps) {
               .single()
 
             if (!error && data) {
-              // Transform to match our ChatMessage interface
-              const formattedMessage = {
-                ...data,
-                profiles: data.profiles || { full_name: null, avatar_url: null }
-              }
+               // Transform to match our ChatMessage interface
+               let profileObj: { full_name: string | null; avatar_url: string | null } = { full_name: null, avatar_url: null };
+               // Defensive: if data.profiles is an array, use first element; if object, use it; else fallback
+               if (Array.isArray(data.profiles) && data.profiles.length > 0 && typeof data.profiles[0] === 'object' && data.profiles[0] !== null) {
+                 const p = data.profiles[0] as { full_name?: string | null; avatar_url?: string | null };
+                 profileObj = {
+                   full_name: typeof p.full_name === 'string' || p.full_name === null ? p.full_name : null,
+                   avatar_url: typeof p.avatar_url === 'string' || p.avatar_url === null ? p.avatar_url : null
+                 };
+               } else if (data.profiles && typeof data.profiles === 'object' && data.profiles !== null && !Array.isArray(data.profiles)) {
+                 const p = data.profiles as { full_name?: string | null; avatar_url?: string | null };
+                 profileObj = {
+                   full_name: typeof p.full_name === 'string' || p.full_name === null ? p.full_name : null,
+                   avatar_url: typeof p.avatar_url === 'string' || p.avatar_url === null ? p.avatar_url : null
+                 };
+               }
+               const formattedMessage = {
+                 ...data,
+                 profiles: profileObj
+               }
 
               setMessages(prev => [...prev, formattedMessage])
               scrollToBottom()

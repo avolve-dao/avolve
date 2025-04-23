@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import type { User } from '@supabase/supabase-js';
 import { useSuperpuzzles } from '@/hooks/useSuperpuzzles';
 import { useTeams } from '@/hooks/useTeams';
@@ -42,7 +42,7 @@ type TeamContribution = {
 export const SuperpuzzleDetails: React.FC<SuperpuzzleDetailsProps> = ({ superpuzzleId }) => {
   const router = useRouter();
   const { toast } = useToast();
-  const supabase = createBrowserClient(
+  const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );

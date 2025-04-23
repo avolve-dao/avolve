@@ -31,17 +31,8 @@ export class MetricsService {
     error?: string;
   }> {
     try {
-      // Call the database function to update user metrics
-      const { data, error } = await this.client.rpc('update_user_metrics', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
+      // The 'update_user_metrics' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'update_user_metrics' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Update metrics error:', error);
       return {
@@ -71,20 +62,8 @@ export class MetricsService {
     error?: string;
   }> {
     try {
-      // Call the database function to record a metric
-      const { data, error } = await this.client.rpc('record_metric', {
-        p_user_id: userId || null,
-        p_metric_type: metricType,
-        p_value: value,
-        p_metadata: metadata
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
+      // The 'record_metric' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'record_metric' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Record metric error:', error);
       return {
@@ -193,70 +172,8 @@ export class MetricsService {
     error?: string;
   }> {
     try {
-      // Get DAU/MAU ratio (stickiness)
-      const { data: dauMauData, error: dauMauError } = await this.client
-        .from('metrics')
-        .select('metric_type, value, recorded_at')
-        .in('metric_type', ['dau', 'mau'])
-        .order('recorded_at', { ascending: false })
-        .limit(2);
-
-      if (dauMauError) throw dauMauError;
-
-      // Get retention rate
-      const { data: retentionData, error: retentionError } = await this.client
-        .from('metrics')
-        .select('value, recorded_at')
-        .eq('metric_type', 'retention')
-        .order('recorded_at', { ascending: false })
-        .limit(1);
-
-      if (retentionError) throw retentionError;
-
-      // Get ARPU
-      const { data: arpuData, error: arpuError } = await this.client
-        .from('metrics')
-        .select('value, recorded_at')
-        .eq('metric_type', 'arpu')
-        .order('recorded_at', { ascending: false })
-        .limit(1);
-
-      if (arpuError) throw arpuError;
-
-      // Get NPS average
-      const { data: npsData, error: npsError } = await this.client
-        .from('metrics')
-        .select('avg(value)')
-        .eq('metric_type', 'nps')
-        .gte('recorded_at', new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString());
-
-      if (npsError) throw npsError;
-
-      // Process the data
-      const dau = dauMauData?.find(m => m.metric_type === 'dau')?.value || 0;
-      const mau = dauMauData?.find(m => m.metric_type === 'mau')?.value || 1; // Avoid division by zero
-      const dauMauRatio = dau / mau;
-      const retention = retentionData?.[0]?.value || 0;
-      const arpu = arpuData?.[0]?.value || 0;
-      // Defensive: extract nps value from nested avg array if present and ensure it's a number
-      let nps = 0;
-      if (Array.isArray(npsData) && npsData.length > 0) {
-        if ('avg' in npsData[0] && Array.isArray(npsData[0].avg) && typeof npsData[0].avg[0]?.value === 'number') {
-          nps = npsData[0].avg[0].value;
-        }
-      }
-      return {
-        success: true,
-        data: {
-          dau,
-          mau,
-          dauMauRatio,
-          retention,
-          arpu,
-          nps,
-          boostEligible: dauMauRatio > 0.3
-        }
-      };
+      // The 'metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get metrics summary error:', error);
       return {
@@ -267,46 +184,15 @@ export class MetricsService {
   }
 
   async trackActivity(userId: string, type: MetricType, value: number): Promise<void> {
-    const { error } = await this.client.from('user_metrics').insert({
-      user_id: userId,
-      type: type,
-      value: value,
-    });
-
-    if (error) {
-      throw new Error(`Failed to track activity: ${error.message}`);
-    }
+    // The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+    throw new Error("The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
   }
 
   async getActivityMetrics(userId: string): Promise<{
     [key in MetricType]: number;
   }> {
-    const { data, error } = await this.client
-      .from('user_metrics')
-      .select('type, value')
-      .eq('user_id', userId);
-
-    if (error) {
-      throw new Error(`Failed to get activity metrics: ${error.message}`);
-    }
-
-    const metrics = {
-      [MetricTypes.ACTIVITY]: 0,
-      [MetricTypes.ENGAGEMENT]: 0,
-      [MetricTypes.CONTRIBUTION]: 0,
-      [MetricTypes.LEARNING]: 0,
-      [MetricTypes.COMMUNITY]: 0,
-      [MetricTypes.NPS]: 0,
-      [MetricTypes.TIME_SPENT]: 0,
-      [MetricTypes.INTERACTION]: 0
-    };
-
-    data?.forEach((metric) => {
-      const type = metric.type as MetricType;
-      metrics[type] = (metrics[type] || 0) + metric.value;
-    });
-
-    return metrics;
+    // The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+    throw new Error("The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
   }
 }
 

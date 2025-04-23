@@ -10,16 +10,20 @@ export function createClient() {
   
   return createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
-      get: (name) => {
+      get: (name: string) => {
         // Implement a fallback method to get cookies if needed
         // For now, return undefined as a placeholder
         return undefined;
       },
-      set: (name, value, options) => {
+      set: (name: string, value: string, options?: any) => {
         // Implement a fallback method to set cookies if needed
+        // For now, do nothing as a placeholder
+        return;
       },
-      remove: (name, options) => {
+      remove: (name: string, options?: any) => {
         // Implement a fallback method to remove cookies if needed
+        // For now, do nothing as a placeholder
+        return;
       },
     },
   });

@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Get token-based permissions
-    const { data: permissions, error: permError } = await supabase
+    const { data: permissions, error: permError } = await (supabase as any)
       .rpc('get_user_permissions_with_tokens', {
         p_user_id: user.id
       })
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check permission for specific token and action
-    const { data: hasPermission, error: permError } = await supabase
+    const { data: hasPermission, error: permError } = await (supabase as any)
       .rpc('has_permission_via_token_type', {
         p_user_id: user.id,
         p_token_code: tokenCode,

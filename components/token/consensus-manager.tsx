@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Loader2 } from 'lucide-react';
 import { format, isPast, isFuture, addDays } from 'date-fns';
-import { toast } from 'react-hot-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 // --- TYPES ---
 import type { ConsensusGroupData } from '@/lib/token/consensus-service';
@@ -76,6 +76,8 @@ export function ConsensusManager() {
   const [newMeetingDuration, setNewMeetingDuration] = useState<number>(60);
   const [newMeetingTokenType, setNewMeetingTokenType] = useState<string>('');
 
+  const { toast } = useToast();
+
   // Load initial data
   useEffect(() => {
     if (user) {
@@ -110,32 +112,47 @@ export function ConsensusManager() {
   // Handle scheduling a new meeting
   const handleScheduleMeeting = async () => {
     if (!newMeetingDate || !newMeetingTime || !newMeetingTokenType) {
-      toast.error('Please fill in all required fields');
+      toast({
+        title: 'Missing Fields',
+        description: 'Please fill in all required fields',
+        variant: 'destructive',
+      });
       return;
     }
     
     const meetingDateTime = new Date(`${newMeetingDate}T${newMeetingTime}`);
     
     if (isPast(meetingDateTime)) {
-      toast.error('Meeting time must be in the future');
+      toast({
+        title: 'Invalid Date',
+        description: 'Meeting date/time must be in the future',
+        variant: 'destructive',
+      });
       return;
     }
     
-    const result = await scheduleMeeting(
-      meetingDateTime,
-      newMeetingDuration,
-      newMeetingTokenType
-    );
-    
-    if (result) {
-      toast.success('Meeting scheduled successfully');
+    try {
+      await scheduleMeeting(
+        meetingDateTime,
+        newMeetingDuration,
+        newMeetingTokenType
+      );
+      toast({
+        title: 'Success',
+        description: 'Meeting scheduled successfully',
+        variant: 'default',
+      });
       setNewMeetingDate('');
       setNewMeetingTime('');
       setNewMeetingDuration(60);
       setNewMeetingTokenType('');
       loadUpcomingMeetings();
-    } else {
-      toast.error('Failed to schedule meeting');
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to schedule meeting',
+        variant: 'destructive',
+      });
     }
   };
   
@@ -144,31 +161,51 @@ export function ConsensusManager() {
     const success = await checkInToMeeting(meetingId);
     
     if (success) {
-      toast.success('Checked in to meeting successfully');
+      toast({
+        title: 'Success',
+        description: 'Checked in to meeting successfully',
+        variant: 'default',
+      });
       loadUpcomingMeetings();
     } else {
-      toast.error('Failed to check in to meeting');
+      toast({
+        title: 'Error',
+        description: 'Failed to check in to meeting',
+        variant: 'destructive',
+      });
     }
   };
   
   // Handle reporting rankings
   const handleReportRankings = async (groupId: string) => {
     if (Object.keys(rankings).length === 0) {
-      toast.error('Please rank at least one participant');
+      toast({
+        title: 'Missing Rankings',
+        description: 'Please rank at least one participant',
+        variant: 'destructive',
+      });
       return;
     }
     
     const success = await reportConsensusRankings(groupId, rankings);
     
     if (success) {
-      toast.success('Rankings reported successfully');
+      toast({
+        title: 'Success',
+        description: 'Rankings reported successfully',
+        variant: 'default',
+      });
       setRankings({});
       
       // Reload group participants
       const participants = await getParticipantsForGroup(groupId);
       setGroupParticipants({ ...groupParticipants, [groupId]: Array.isArray(participants) ? participants : [] });
     } else {
-      toast.error('Failed to report rankings');
+      toast({
+        title: 'Error',
+        description: 'Failed to report rankings',
+        variant: 'destructive',
+      });
     }
   };
   

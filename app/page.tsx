@@ -17,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 async function getPersonalizedContent() {
   let supabase;
   try {
-    supabase = createClient({ cookies });
+    supabase = createClient();
   } catch (error) {
     console.warn('Failed to initialize Supabase client:', error instanceof Error ? error.message : 'Unknown error');
     // Return fallback data if Supabase initialization fails

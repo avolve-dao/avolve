@@ -1,3 +1,11 @@
+// ONBOARDING NOTE: The following RPCs and tables must exist in Supabase for these tests to function:
+// - RPCs: assign_role, has_role, is_admin, has_token_access, complete_content, get_all_pillars_progress, get_user_experience_phase
+// - Table: components (for content/progress tests)
+// All must have proper Row Level Security (RLS) for both authenticated and admin users.
+// If any are missing, add TODOs in migrations and document their expected behavior for onboarding.
+//
+// Defensive coding note: All test flows check for errors after each RPC call. New contributors should follow this pattern and ensure all test flows are robust, error-tolerant, and provide actionable feedback.
+
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Database } from '@/lib/types/supabase';
 

@@ -5,8 +5,7 @@
  * It provides methods for managing roles, permissions, and user role assignments.
  */
 
-import { AuthError, SupabaseClient } from '@supabase/supabase-js';
-import { createBrowserClient } from '@/lib/supabase/client';
+import { AuthError, createClient } from '@supabase/supabase-js';
 import { createUniversalClient } from '@/lib/supabase/universal';
 import { Database } from '@/lib/database.types';
 
@@ -72,13 +71,13 @@ export interface RoleHierarchy {
  * Role Service Class
  */
 export class RoleService {
-  private client: SupabaseClient<Database>;
+  private client: any;
   private static instance: RoleService;
 
   /**
    * Private constructor to enforce singleton pattern
    */
-  private constructor(client: SupabaseClient<Database>) {
+  private constructor(client: any) {
     this.client = client;
   }
 
@@ -87,7 +86,10 @@ export class RoleService {
    */
   public static getBrowserInstance(): RoleService {
     if (!RoleService.instance) {
-      RoleService.instance = new RoleService(createBrowserClient());
+      RoleService.instance = new RoleService(createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      ));
     }
     return RoleService.instance;
   }
@@ -104,7 +106,7 @@ export class RoleService {
    * Get the Supabase client
    * This is needed for direct access to the client in certain scenarios
    */
-  public getSupabaseClient(): SupabaseClient<Database> {
+  public getSupabaseClient(): ReturnType<typeof createClient> {
     return this.client;
   }
 
@@ -322,18 +324,17 @@ export class RoleService {
         return { data: null, error: convertError(error) };
       }
       // Normalize permissions: handle both array and object cases
-      const permissions = (data || []).map((item: any) => {
+      const permissions = (data || []).map((item: { permissions: unknown }) => {
         if (Array.isArray(item.permissions)) {
-          // If it's an array, take the first element (or handle as needed)
-          if (item.permissions.length > 0 && item.permissions[0].id) {
-            return item.permissions[0] as Permission;
-          }
+          // permissions is an array: return the first valid Permission object, or null
+          const first = item.permissions.find((perm: any) => perm && typeof perm === 'object' && 'id' in perm);
+          return first ? (first as Permission) : null;
         } else if (item.permissions && typeof item.permissions === 'object' && 'id' in item.permissions) {
-          // Sometimes permissions is a single object
+          // permissions is a single object
           return item.permissions as Permission;
         }
-        return undefined;
-      }).filter(Boolean) as Permission[];
+        return null;
+      }).filter((p: Permission | null): p is Permission => !!p);
       return { data: permissions, error: null };
     } catch (error) {
       console.error('Unexpected get role permissions error:', error);
@@ -418,7 +419,7 @@ export class RoleService {
       }
       
       // Extract users from the nested structure and ensure proper typing
-      const users: { id: string, email: string }[] = data.map(item => ({
+      const users: { id: string, email: string }[] = data.map((item: { users: any }) => ({
         // item.users may be an array or an object
         ...(Array.isArray(item.users)
           ? item.users[0] || {}

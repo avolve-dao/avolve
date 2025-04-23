@@ -71,70 +71,64 @@ export function NotificationBell({ userId }: NotificationBellProps) {
     if (!userId) return
 
     // Subscribe to feedback updates
-    const feedbackSubscription = supabase
-      .channel('feedback-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'user_feedback',
-          filter: 'user_id=eq.$1',
-          params: [userId],
-        },
-        (payload: any) => {
-          // Only notify admins or the user who submitted the feedback
-          if (payload.new && (payload.new.user_id === userId)) {
-            const newNotification: Notification = {
-              id: crypto.randomUUID(),
-              title: 'Feedback Received',
-              message: `Thank you for your feedback on ${payload.new.category}`,
-              type: 'feedback',
-              created_at: new Date().toISOString(),
-              is_read: false,
-            }
-            
-            setNotifications(prev => [newNotification, ...prev])
-            setUnreadCount(prev => prev + 1)
-          }
+    const feedbackChannel = supabase.channel('feedback-updates');
+    feedbackChannel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'user_feedback',
+        filter: `user_id=eq.${userId}`,
+      },
+      (payload: any) => {
+        if (payload.new && (payload.new.user_id === userId)) {
+          const newNotification: Notification = {
+            id: crypto.randomUUID(),
+            title: 'Feedback Received',
+            message: `Thank you for your feedback on ${payload.new.category}`,
+            type: 'feedback',
+            created_at: new Date().toISOString(),
+            is_read: false,
+          };
+          setNotifications(prev => [newNotification, ...prev]);
+          setUnreadCount(prev => prev + 1);
         }
-      )
-      .subscribe()
+      }
+    );
+    feedbackChannel.subscribe();
 
     // Subscribe to event updates
-    const eventSubscription = supabase
-      .channel('event-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'events',
-          filter: 'is_completed=eq.true',
-        },
-        (payload: any) => {
-          if (payload.new) {
-            const newNotification: Notification = {
-              id: crypto.randomUUID(),
-              title: 'Event Completed',
-              message: `SSA event completed by ${payload.new.completed_by_count} users!`,
-              type: 'event',
-              created_at: new Date().toISOString(),
-              is_read: false,
-            }
-            
-            setNotifications(prev => [newNotification, ...prev])
-            setUnreadCount(prev => prev + 1)
-          }
+    const eventChannel = supabase.channel('event-updates');
+    eventChannel.on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'events',
+        filter: 'is_completed=eq.true',
+      },
+      (payload: any) => {
+        if (payload.new) {
+          const newNotification: Notification = {
+            id: crypto.randomUUID(),
+            title: 'Event Completed',
+            message: `SSA event completed by ${payload.new.completed_by_count} users!`,
+            type: 'event',
+            created_at: new Date().toISOString(),
+            is_read: false,
+          };
+          setNotifications(prev => [newNotification, ...prev]);
+          setUnreadCount(prev => prev + 1);
         }
-      )
-      .subscribe()
+      }
+    );
+    eventChannel.subscribe();
 
     // Cleanup subscriptions on unmount
     return () => {
-      supabase.removeChannel(feedbackSubscription)
-      supabase.removeChannel(eventSubscription)
-    }
+      supabase.removeChannel(feedbackChannel);
+      supabase.removeChannel(eventChannel);
+    };
   }, [userId])
 
   // Mark notifications as read

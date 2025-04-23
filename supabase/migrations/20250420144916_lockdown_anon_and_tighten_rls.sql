@@ -14,9 +14,26 @@ drop policy if exists "Select balances (anon)" on public.user_balances;
 drop policy if exists "Select all phases (anon)" on public.experience_phases;
 
 -- Example: Remove anon select from teams, proposals, collective_actions, etc.
-drop policy if exists "select_teams_anon" on public.teams;
-drop policy if exists "select_proposals_anon" on public.proposals;
-drop policy if exists "select_collective_actions_anon" on public.collective_actions;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teams') THEN
+    DROP POLICY IF EXISTS "select_teams_anon" ON public.teams;
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'proposals') THEN
+    DROP POLICY IF EXISTS "select_proposals_anon" ON public.proposals;
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'collective_actions') THEN
+    DROP POLICY IF EXISTS "select_collective_actions_anon" ON public.collective_actions;
+  END IF;
+END $$;
 
 -- Repeat for all tables with unnecessary anon policies. Document any exceptions below:
 -- If any table needs public/anon access, add a comment explaining why.

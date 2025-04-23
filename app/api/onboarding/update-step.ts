@@ -1,4 +1,4 @@
-import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/server';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Body: { step: string }
 export async function PATCH(req: NextRequest) {
   try {
-    const supabase = createServerClient({ cookies });
+    const supabase = await createClient();
     let step: string;
     const body = await req.json();
     step = body.step;
@@ -21,14 +21,14 @@ export async function PATCH(req: NextRequest) {
     const {
       data: { user },
       error: authError
-    } = await supabase.auth.getUser();
+    } = await (supabase as any).auth.getUser();
     if (authError || !user) {
       console.warn('Unauthorized onboarding update attempt', authError);
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Fetch onboarding row
-    const { data: onboarding, error: onboardingError } = await supabase
+    const { data: onboarding, error: onboardingError } = await (supabase as any)
       .from('user_onboarding')
       .select('*')
       .eq('user_id', user.id)
@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest) {
     const onboardingDone = ALL_STEPS.every(s => completedSteps.includes(s));
 
     // Upsert onboarding progress
-    const { error: updateError } = await supabase
+    const { error: updateError } = await (supabase as any)
       .from('user_onboarding')
       .upsert([
         {

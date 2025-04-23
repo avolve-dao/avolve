@@ -290,6 +290,7 @@ export default function ExperiencePhaseGuide({
                       pillar.gradient_class.includes('stone') ? 'bg-gradient-to-r from-stone-400 to-stone-600' :
                       pillar.gradient_class.includes('slate') ? 'bg-gradient-to-r from-slate-400 to-slate-600' :
                       pillar.gradient_class.includes('zinc') ? 'bg-gradient-to-r from-zinc-400 to-zinc-600' :
+                      pillar.gradient_class.includes('blue') ? 'bg-gradient-to-r from-blue-400 to-blue-600' :
                       'bg-gradient-to-r from-blue-400 to-blue-600'
                     }`} 
                   />

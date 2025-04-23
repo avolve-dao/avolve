@@ -31,7 +31,7 @@ export async function GET() {
     }
 
     // Call the database function to get potential rewards
-    const { data: rewards, error: rewardsError } = await supabase
+    const { data: rewards, error: rewardsError } = await (supabase as any)
       .rpc('calculate_user_rewards', { p_user_id: user.id });
 
     if (rewardsError) {

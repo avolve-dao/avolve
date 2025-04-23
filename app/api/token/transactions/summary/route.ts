@@ -31,7 +31,7 @@ export async function GET() {
     }
 
     // Call the database function to get transaction summary
-    const { data: summary, error: summaryError } = await supabase
+    const { data: summary, error: summaryError } = await (supabase as any)
       .rpc('summarize_user_transactions', { p_user_id: user.id });
 
     if (summaryError) {

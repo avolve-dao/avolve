@@ -48,13 +48,33 @@ drop policy "select_team_tokens_anon" on "public"."team_tokens";
 
 drop policy "select_team_tokens_authenticated" on "public"."team_tokens";
 
-drop policy "insert_teams_authenticated" on "public"."teams";
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teams') THEN
+    DROP POLICY IF EXISTS "select_teams_anon" ON public.teams;
+  END IF;
+END $$;
 
-drop policy "select_teams_anon" on "public"."teams";
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teams') THEN
+    DROP POLICY IF EXISTS "select_teams_authenticated" ON public.teams;
+  END IF;
+END $$;
 
-drop policy "select_teams_authenticated" on "public"."teams";
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teams') THEN
+    DROP POLICY IF EXISTS "insert_teams_authenticated" ON public.teams;
+  END IF;
+END $$;
 
-drop policy "update_teams_authenticated" on "public"."teams";
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teams') THEN
+    DROP POLICY IF EXISTS "update_teams_authenticated" ON public.teams;
+  END IF;
+END $$;
 
 drop policy "Delete own tokens (authenticated)" on "public"."tokens";
 
@@ -1472,6 +1492,3 @@ as permissive
 for update
 to service_role
 using (true);
-
-
-

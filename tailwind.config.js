@@ -3,12 +3,17 @@
  * All custom colors are in theme.extend.colors. No default colors are overridden.
  */
 
+const { zinc } = require('tailwindcss/colors');
+
 module.exports = {
   darkMode: "class",
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}", // Next.js pages (if present)
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",   // Shared libraries/utilities
+    "./utils/**/*.{js,ts,jsx,tsx,mdx}", // Utility folders (if present)
   ],
   prefix: "",
   theme: {
@@ -20,6 +25,9 @@ module.exports = {
       },
     },
     extend: {
+      // NOTE: Do NOT override the default Tailwind color palette destructively.
+      // Always use theme.extend.colors to add or customize colors.
+      // The zinc palette is included by default and is safe to use (e.g., border-zinc-200).
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -94,6 +102,7 @@ module.exports = {
             700: '#6366F1',
           },
         },
+        zinc,
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
@@ -180,6 +189,15 @@ module.exports = {
           accent: "#6366f1",
           token: "#3b82f6",
         },
+      },
+      borderColor: {
+        ...zinc,
+      },
+      backgroundColor: {
+        ...zinc,
+      },
+      textColor: {
+        ...zinc,
       },
       fontFamily: {
         sans: ["Inter"],

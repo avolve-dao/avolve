@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     }
 
     // Get token balances from the view
-    const { data: balances, error: balanceError } = await supabase
+    const { data: balances, error: balanceError } = await (supabase as any)
       .from('user_token_summary')
       .select('*')
       .eq('user_id', user.id)

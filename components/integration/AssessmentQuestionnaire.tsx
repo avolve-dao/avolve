@@ -4,13 +4,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '@/types/supabase';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useTokens } from '@/hooks/use-tokens';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient<Database>(supabaseUrl, supabaseKey);
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // For now, always use a fallback userId string (anonymous or a test value)
 const userId = 'anonymous';
@@ -53,7 +52,38 @@ export default function AssessmentQuestionnaire() {
           .order('subdomain', { ascending: true });
 
         if (error) throw error;
-        setQuestions(data || []);
+        
+        // Type assertion to ensure only correct rows are used
+        type IAQRow = {
+          id: number;
+          question_text: string;
+          domain: string;
+          subdomain: string;
+          question_type: string;
+          options: any;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+          weight: number;
+        };
+        setQuestions(
+          (data as any[])
+            .filter(
+              (row): row is IAQRow =>
+                typeof row === 'object' &&
+                row !== null &&
+                'domain' in row &&
+                'subdomain' in row &&
+                'question_text' in row &&
+                'question_type' in row &&
+                'id' in row &&
+                'weight' in row
+            )
+            .map((row) => ({
+              ...row,
+              id: String(row.id), // Convert id to string for Question type compatibility
+            }))
+        );
 
         // Check if user has existing responses
         const { data: responseData, error: responseError } = await supabase
@@ -62,11 +92,13 @@ export default function AssessmentQuestionnaire() {
           .eq('user_id', userId);
 
         if (responseError) throw responseError;
-        
         const responseMap: Record<string, any> = {};
-        responseData?.forEach((response: Response) => {
-          responseMap[response.question_id] = response.response_value;
-        });
+        // Defensive: Only map if responseData is an array
+        if (Array.isArray(responseData)) {
+          (responseData as { question_id: string; response_value: any }[]).forEach((response) => {
+            responseMap[response.question_id] = response.response_value;
+          });
+        }
         setResponses(responseMap);
 
         // Check if assessment is already completed
@@ -77,8 +109,9 @@ export default function AssessmentQuestionnaire() {
           .single();
 
         if (profileError && profileError.code !== 'PGRST116') throw profileError;
-        
-        if (profileData && profileData.assessment_completed) {
+
+        // Only set completed/profile if property exists
+        if (profileData && typeof (profileData as any).assessment_completed !== 'undefined') {
           setCompleted(true);
           setProfile(profileData);
         }

@@ -2,7 +2,7 @@
  * Feature Preview Server Component
  * 
  * Displays upcoming features based on user's progress through experience phases
- * Copyright © 2025 Avolve DAO. All rights reserved.
+ * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
@@ -21,7 +21,7 @@ export async function FeaturePreviewServer({ userId }: { userId: string }) {
   
   // Fetch user's current phase and progress
   const { data: userProgress } = await supabase.rpc('get_user_progress', {
-    user_id_param: userId
+    p_user_id: userId
   });
   
   // Fetch user's token balances
@@ -48,7 +48,11 @@ export async function FeaturePreviewServer({ userId }: { userId: string }) {
   );
   
   // Determine which features to show based on current phase
-  const currentPhase = userProgress?.current_phase || 'discovery';
+  // Defensive: handle both array (legacy) and object (current)
+  const phaseData = Array.isArray(userProgress) ? userProgress[0] : userProgress;
+  const currentPhase = typeof phaseData === 'object' && phaseData !== null && 'current_phase' in phaseData
+    ? (phaseData as any).current_phase
+    : 'discovery';
   const currentPhaseIndex = ['discovery', 'onboarding', 'scaffolding', 'endgame']
     .indexOf(currentPhase);
   

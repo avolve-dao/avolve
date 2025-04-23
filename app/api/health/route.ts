@@ -8,7 +8,7 @@ export async function GET(req: Request) {
     const supabase = createClient()
     
     // Check database connection
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('user_onboarding')
       .select('count(*)', { count: 'exact' })
       .limit(1)

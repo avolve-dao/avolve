@@ -18,7 +18,8 @@ export async function mintOnboardingTokens() {
     }
     
     // Get token IDs for SAP and PSP
-    const { data: sapToken, error: sapError } = await supabase
+    // TODO: Review type safety for supabase calls
+    const { data: sapToken, error: sapError } = await (supabase as any)
       .from('tokens')
       .select('id')
       .eq('symbol', 'SAP')
@@ -28,7 +29,7 @@ export async function mintOnboardingTokens() {
       throw new Error("SAP token not found")
     }
     
-    const { data: pspToken, error: pspError } = await supabase
+    const { data: pspToken, error: pspError } = await (supabase as any)
       .from('tokens')
       .select('id')
       .eq('symbol', 'PSP')
@@ -39,7 +40,8 @@ export async function mintOnboardingTokens() {
     }
     
     // Call RPC function to mint SAP tokens (25 tokens)
-    const { error: sapMintError } = await supabase.rpc(
+    // TODO: Review type safety for supabase calls
+    const { error: sapMintError } = await (supabase as any).rpc(
       'process_token_transaction',
       {
         p_from_user_id: null,
@@ -55,7 +57,8 @@ export async function mintOnboardingTokens() {
     }
     
     // Call RPC function to mint PSP tokens (10 tokens)
-    const { error: pspMintError } = await supabase.rpc(
+    // TODO: Review type safety for supabase calls
+    const { error: pspMintError } = await (supabase as any).rpc(
       'process_token_transaction',
       {
         p_from_user_id: null,

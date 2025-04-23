@@ -105,6 +105,14 @@ Avolve now includes robust, accessible, and delightful peer recognition and onbo
 
 ---
 
+## Onboarding Guides
+- [User Onboarding Guide](docs/guides/onboarding-user.md)
+- [Admin Onboarding Guide](docs/guides/onboarding-admin.md)
+
+## Feedback & Support
+- Open an [issue on GitHub](https://github.com/avolve-dao/avolve.io/issues)
+- Or email the maintainer at: support@avolve.io
+
 ## Environment Setup
 
 1. Copy `.env.example` to `.env.local`:

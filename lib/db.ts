@@ -2,7 +2,7 @@ import { createClient as createClientBrowser } from "@/lib/supabase/client"
 import { LRUCache } from "lru-cache"
 
 // Create a cache for database queries
-const queryCache = new LRUCache<string, Record<string, unknown>>({
+const queryCache = new LRUCache<string, any>({
   max: 100, // Maximum number of items to store in cache
   ttl: 1000 * 60 * 5, // 5 minutes TTL
 })
@@ -47,7 +47,7 @@ export const clientDb = {
 
     // Cache the result
     if (typeof data === 'object' && data !== null) {
-      queryCache.set(cacheKey, data as Record<string, unknown>)
+      queryCache.set(cacheKey, data as any)
     }
     return data
   },
@@ -135,7 +135,7 @@ export const clientDb = {
     const result = !!data
     // Cache the result
     if (typeof result === 'object' && result !== null) {
-      queryCache.set(cacheKey, result as Record<string, unknown>)
+      queryCache.set(cacheKey, result as any)
     }
     return result
   },
@@ -205,7 +205,7 @@ export const clientDb = {
     const result = !!data
     // Cache the result
     if (typeof result === 'object' && result !== null) {
-      queryCache.set(cacheKey, result as Record<string, unknown>)
+      queryCache.set(cacheKey, result as any)
     }
     return result
   },
@@ -246,7 +246,7 @@ export const clientDb = {
 
     // Cache the result
     if (typeof result === 'object' && result !== null) {
-      queryCache.set(cacheKey, result as Record<string, unknown>)
+      queryCache.set(cacheKey, result as any)
     }
     return result
   },
@@ -302,7 +302,7 @@ export const clientDb = {
 
     // Cache the result
     if (typeof data === 'object' && data !== null) {
-      queryCache.set(cacheKey, data as Record<string, unknown>)
+      queryCache.set(cacheKey, data as any)
     }
     return data
   },

@@ -7,35 +7,68 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { RefreshCcw } from "lucide-react"
 import { getActivityFeed, getUserActivity, getGlobalActivityFeed } from "@/lib/activity-logger"
-import type { Database } from '@/types/supabase';
+import type { Database } from '@/lib/database.types';
+import type { ActivityAction } from '@/lib/activity-logger';
 
 interface ActivityFeedProps {
   userId?: string
   type: "user" | "following" | "global"
-  initialActivities?: Database['public']['Tables']['activity_feed']['Row'][]
+  initialActivities?: Database['public']['Tables']['user_activity_log']['Row'][]
 }
 
-function isActivity(obj: Record<string, unknown>): obj is Database['public']['Tables']['activity_feed']['Row'] {
+function isActivity(obj: Record<string, unknown>): obj is Database['public']['Tables']['user_activity_log']['Row'] {
   return (
     obj && typeof obj === 'object' &&
     typeof obj.id === 'string' &&
     typeof obj.user_id === 'string' &&
-    typeof obj.action_type === 'string' &&
+    typeof obj.activity_type === 'string' &&
     typeof obj.entity_type === 'string' &&
     typeof obj.created_at === 'string'
   );
 }
 
-function mapToActivityItem(activity: unknown): Database['public']['Tables']['activity_feed']['Row'] {
+function mapToActivityItem(activity: unknown): Database['public']['Tables']['user_activity_log']['Row'] {
   const record = activity as Record<string, unknown>;
   if (!isActivity(record)) {
     throw new Error('Invalid activity object');
   }
-  return record as Database['public']['Tables']['activity_feed']['Row'];
+  return record as Database['public']['Tables']['user_activity_log']['Row'];
+}
+
+// Map raw user_activity_log row to the richer ActivityItem shape
+function mapUserActivityLogToActivityItem(
+  activity: Database['public']['Tables']['user_activity_log']['Row']
+): {
+  id: string;
+  user_id: string;
+  user_name: string;
+  user_avatar: string | null;
+  action_type: ActivityAction;
+  entity_type: string;
+  entity_id: string;
+  metadata: { [key: string]: string | number | boolean | null | undefined };
+  created_at: string;
+} {
+  // You may want to enhance this with real user lookups, avatars, etc.
+  // For now, use placeholders or data from the `activity_data` field if present
+  const meta = (activity.activity_data && typeof activity.activity_data === 'object' && !Array.isArray(activity.activity_data))
+    ? activity.activity_data as Record<string, any>
+    : {};
+  return {
+    id: activity.id,
+    user_id: activity.user_id,
+    user_name: meta.user_name ?? '',
+    user_avatar: meta.user_avatar ?? null,
+    action_type: (activity.activity_type as ActivityAction) ?? 'user_join',
+    entity_type: meta.entity_type ?? '',
+    entity_id: meta.entity_id ?? '',
+    metadata: meta.metadata ?? {},
+    created_at: activity.created_at,
+  };
 }
 
 export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityFeedProps) {
-  const [activities, setActivities] = useState<Database['public']['Tables']['activity_feed']['Row'][]>(initialActivities)
+  const [activities, setActivities] = useState<Database['public']['Tables']['user_activity_log']['Row'][]>(initialActivities)
   const [loading, setLoading] = useState(!initialActivities.length)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(initialActivities.length ? 1 : 0)
@@ -51,7 +84,7 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
       setError(null)
 
       const pageToLoad = reset ? 0 : page
-      let data: Database['public']['Tables']['activity_feed']['Row'][] = []
+      let data: Database['public']['Tables']['user_activity_log']['Row'][] = []
 
       if (type === "user" && userId) {
         data = await getUserActivity(userId, 10, pageToLoad)
@@ -133,13 +166,14 @@ export function ActivityFeed({ userId, type, initialActivities = [] }: ActivityF
   return (
     <div className="space-y-4">
       {activities.map((activity) => {
-        const record = activity as Record<string, unknown>;
-        return isActivity(record) ? (
+        // Map the raw log row to the rich ActivityItem shape
+        const mapped = mapUserActivityLogToActivityItem(activity);
+        return (
           <ActivityItem
-            key={activity.id}
-            activity={mapToActivityItem(activity)}
+            key={mapped.id}
+            activity={mapped}
           />
-        ) : null
+        );
       })}
 
       {hasMore && (

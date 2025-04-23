@@ -342,7 +342,7 @@ export const useExperiencePhases = () => {
           table: 'user_phase_transitions',
           filter: `user_id=eq.${user.id}`
         },
-        (payload) => {
+        (payload: any) => {
           // When a new phase transition occurs, refresh user progress
           fetchUserProgress();
           

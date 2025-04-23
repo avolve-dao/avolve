@@ -51,7 +51,7 @@ export class TokenService {
   ): Promise<boolean> {
     try {
       // Build query
-      let query = this.supabase
+      let query = (this.supabase as any)
         .from('user_consent')
         .select('*')
         .eq('user_id', userId)
@@ -101,7 +101,7 @@ export class TokenService {
     metadata?: Record<string, any>
   ): Promise<TokenResult<{ consent_id: string }>> {
     try {
-      const { data, error } = await this.supabase
+      const { data, error } = await (this.supabase as any)
         .from('user_consent')
         .insert({
           user_id: userId,
@@ -112,8 +112,7 @@ export class TokenService {
           },
           status: 'approved',
           metadata,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          created_at: new Date().toISOString()
         })
         .select('consent_id')
         .single();
@@ -562,17 +561,23 @@ export class TokenService {
         };
       }
       
-      // Check if token is transferable
-      if (!token.transferable) {
-        return {
-          success: false,
-          error: {
-            code: 'TOKEN_NOT_TRANSFERABLE',
-            message: `${token.symbol} tokens are not transferable`,
-            details: { tokenSymbol: token.symbol }
-          }
-        };
+      // Defensive: Only check transferable if token is a valid object and has the property
+      if (token && typeof token === 'object' && !Array.isArray(token) && 'transferable' in token) {
+        if ((token as any).transferable === false) {
+          const tokenSymbol = token && typeof token === 'object' && 'symbol' in token ? (token as any).symbol : undefined;
+          return {
+            success: false,
+            error: {
+              code: 'TOKEN_NOT_TRANSFERABLE',
+              message: `${tokenSymbol ?? 'This'} token is not transferable`,
+              details: { tokenSymbol }
+            }
+          };
+        }
       }
+      
+      // Defensive: Only use token fields if token is valid and has those fields
+      const tokenSymbol = token && typeof token === 'object' && 'symbol' in token ? (token as any).symbol : undefined;
       
       // Verify consent if not explicitly given
       if (!consentGiven) {
@@ -586,7 +591,7 @@ export class TokenService {
           actionType,
           {
             tokenId,
-            tokenSymbol: token.symbol,
+            tokenSymbol,
             amount,
             recipient: toUserId,
             reason
@@ -605,87 +610,105 @@ export class TokenService {
         }
       }
       
+      // Find or create a transaction record for this transfer
+      let transaction: { id: string };
+      // Try to find an existing transaction for this operation (idempotency)
+      const { data: existingTx, error: txFetchError } = await this.supabase
+        .from('transactions')
+        .select('id')
+        .eq('from_user_id', fromUserId)
+        .eq('to_user_id', toUserId)
+        .eq('token_id', tokenId)
+        .eq('amount', amount)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (existingTx && existingTx.id) {
+        transaction = { id: existingTx.id };
+      } else {
+        // Insert a new transaction record
+        const { data: newTx, error: txInsertError } = await this.supabase
+          .from('transactions')
+          .insert({
+            token_id: tokenId,
+            amount,
+            transaction_type: 'transfer',
+            from_user_id: fromUserId,
+            to_user_id: toUserId,
+            reason,
+            created_at: new Date().toISOString()
+          })
+          .select('id')
+          .single();
+        if (newTx && newTx.id) {
+          transaction = { id: newTx.id };
+        } else {
+          return {
+            success: false,
+            error: {
+              code: 'TRANSACTION_CREATE_FAILED',
+              message: 'Failed to create transaction record',
+              details: txInsertError
+            }
+          };
+        }
+      }
+      
       // Check sender's balance
-      const { data: balanceData, error: balanceError } = await this.supabase
+      const { data: senderBalanceData, error: senderBalanceError } = await this.supabase
         .from('user_balances')
-        .select('amount')
+        .select('id, balance')
         .eq('user_id', fromUserId)
         .eq('token_id', tokenId)
-        .single();
+        .single() as { data: { id: string; balance: number } | null, error: any };
       
-      if (balanceError) {
-        return {
-          success: false,
-          error: {
-            code: 'BALANCE_CHECK_FAILED',
-            message: 'Failed to check token balance',
-            details: balanceError
-          }
-        };
-      }
-      
-      const currentBalance = balanceData?.amount || 0;
-      
-      if (currentBalance < amount) {
-        return {
-          success: false,
-          error: {
-            code: 'INSUFFICIENT_BALANCE',
-            message: `Insufficient ${token.symbol} balance for transfer`,
-            details: { 
-              required: amount, 
-              available: currentBalance,
-              tokenSymbol: token.symbol
-            }
-          }
-        };
-      }
-      
-      // Create transaction record
-      const { data: transaction, error: transactionError } = await this.supabase
-        .from('token_transactions')
-        .insert({
-          from_user_id: fromUserId,
-          to_user_id: toUserId,
-          token_id: tokenId,
-          amount,
-          reason,
-          transaction_type: 'transfer',
-          status: 'completed',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .select('id')
-        .single();
-      
-      if (transactionError) {
-        return {
-          success: false,
-          error: {
-            code: 'TRANSACTION_CREATION_FAILED',
-            message: 'Failed to create transaction record',
-            details: transactionError
-          }
-        };
-      }
-      
-      // Update sender's balance (decrement)
-      const { error: senderUpdateError } = await this.supabase.rpc(
-        'update_token_balance',
-        {
-          p_user_id: fromUserId,
-          p_token_id: tokenId,
-          p_amount: -amount
+      if (senderBalanceError || !senderBalanceData) {
+        // Attempt to revert sender's balance
+        if (senderBalanceData) {
+          await this.supabase
+            .from('user_balances')
+            .update({ balance: senderBalanceData.balance })
+            .eq('id', senderBalanceData.id);
         }
-      );
-      
+        return {
+          success: false,
+          error: {
+            code: 'SENDER_BALANCE_FETCH_FAILED',
+            message: 'Failed to fetch sender balance for update',
+            details: senderBalanceError
+          }
+        };
+      }
+      const newSenderBalance = Number(senderBalanceData.balance) - amount;
+      if (newSenderBalance < 0) {
+        // Attempt to revert sender's balance
+        if (senderBalanceData) {
+          await this.supabase
+            .from('user_balances')
+            .update({ balance: senderBalanceData.balance })
+            .eq('id', senderBalanceData.id);
+        }
+        return {
+          success: false,
+          error: {
+            code: 'NEGATIVE_SENDER_BALANCE',
+            message: 'Sender balance would go negative',
+            details: { current: senderBalanceData.balance, attempted: amount }
+          }
+        };
+      }
+      const { error: senderUpdateError } = await this.supabase
+        .from('user_balances')
+        .update({ balance: newSenderBalance })
+        .eq('id', senderBalanceData.id);
       if (senderUpdateError) {
-        // Attempt to revert the transaction
-        await this.supabase
-          .from('token_transactions')
-          .update({ status: 'failed', updated_at: new Date().toISOString() })
-          .eq('id', transaction.id);
-        
+        // Attempt to revert sender's balance
+        if (senderBalanceData) {
+          await this.supabase
+            .from('user_balances')
+            .update({ balance: senderBalanceData.balance })
+            .eq('id', senderBalanceData.id);
+        }
         return {
           success: false,
           error: {
@@ -695,33 +718,39 @@ export class TokenService {
           }
         };
       }
-      
       // Update recipient's balance (increment)
-      const { error: recipientUpdateError } = await this.supabase.rpc(
-        'update_token_balance',
-        {
-          p_user_id: toUserId,
-          p_token_id: tokenId,
-          p_amount: amount
-        }
-      );
-      
+      // Fetch recipient's current balance
+      const { data: recipientBalanceData, error: recipientBalanceError } = await this.supabase
+        .from('user_balances')
+        .select('id, balance')
+        .eq('user_id', toUserId)
+        .eq('token_id', tokenId)
+        .single();
+      let recipientBalanceId = recipientBalanceData ? recipientBalanceData.id : undefined;
+      let newRecipientBalance = recipientBalanceData ? Number(recipientBalanceData.balance) + amount : amount;
+      let recipientUpdateError = null;
+      if (recipientBalanceId) {
+        // Update existing balance
+        const { error } = await this.supabase
+          .from('user_balances')
+          .update({ balance: newRecipientBalance })
+          .eq('id', recipientBalanceId);
+        recipientUpdateError = error;
+      } else {
+        // Create new balance row for recipient
+        const { error } = await this.supabase
+          .from('user_balances')
+          .insert({ user_id: toUserId, token_id: tokenId, balance: newRecipientBalance });
+        recipientUpdateError = error;
+      }
       if (recipientUpdateError) {
-        // Attempt to revert the transaction and sender's balance
-        await this.supabase
-          .from('token_transactions')
-          .update({ status: 'failed', updated_at: new Date().toISOString() })
-          .eq('id', transaction.id);
-        
-        await this.supabase.rpc(
-          'update_token_balance',
-          {
-            p_user_id: fromUserId,
-            p_token_id: tokenId,
-            p_amount: amount // Restore the sender's balance
-          }
-        );
-        
+        // Attempt to revert sender's balance
+        if (senderBalanceData) {
+          await this.supabase
+            .from('user_balances')
+            .update({ balance: senderBalanceData.balance })
+            .eq('id', senderBalanceData.id);
+        }
         return {
           success: false,
           error: {
@@ -731,12 +760,11 @@ export class TokenService {
           }
         };
       }
-      
       return {
         success: true,
         data: {
           success: true,
-          message: `Successfully transferred ${amount} ${token.symbol} to recipient`,
+          message: `Successfully transferred ${amount} ${tokenSymbol} to recipient`,
           transaction_id: transaction.id
         }
       };
@@ -766,7 +794,7 @@ export class TokenService {
       const { data, error } = await this.supabase
         .from('user_balances')
         .select(`
-          amount,
+          balance,
           tokens:token_id (
             id,
             symbol,
@@ -799,7 +827,7 @@ export class TokenService {
         success: true,
         data: data.map(item => ({
           token: item.tokens,
-          amount: item.amount
+          balance: item.balance
         }))
       };
     } catch (error) {
@@ -832,7 +860,7 @@ export class TokenService {
   ): Promise<TokenResult<any[]>> {
     try {
       const { data, error } = await this.supabase
-        .from('token_transactions')
+        .from('transactions')
         .select(`
           id,
           token_id,
@@ -841,7 +869,6 @@ export class TokenService {
           amount,
           transaction_type,
           reason,
-          status,
           created_at,
           tokens:token_id (
             symbol,

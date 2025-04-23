@@ -83,35 +83,129 @@
 
 @layer base {
   * {
-    @apply border-zinc-200;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--border);
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
 /* Apple-inspired styles */
 .apple-blur {
-  @apply backdrop-blur-md bg-zinc-50/80 dark:bg-zinc-900/80 border-b border-zinc-200/50 dark:border-zinc-800/50;
-  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(250, 250, 250, 0.8);
+  border-bottom: 1px solid rgba(212, 212, 216, 0.5);
 }
 
-.apple-button {
-  @apply transition-all duration-200 ease-out active:scale-95 hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50;
+@media (prefers-color-scheme: dark) {
+  .apple-blur {
+    background-color: rgba(24, 24, 27, 0.8);
+    border-bottom: 1px solid rgba(39, 39, 42, 0.5);
+  }
 }
 
 .apple-icon {
-  @apply text-zinc-500 dark:text-zinc-400;
+  color: #71717a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .apple-icon {
+    color: #a1a1aa;
+  }
 }
 
 .apple-menu-item {
-  @apply transition-all duration-200 ease-out hover:bg-zinc-100/80 dark:hover:bg-zinc-800/80;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.apple-menu-item:hover {
+  background-color: rgba(244, 244, 245, 0.8);
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu-item:hover {
+    background-color: rgba(39, 39, 42, 0.8);
+  }
 }
 
 .apple-card {
-  @apply bg-white/80 dark:bg-zinc-800/80 backdrop-blur-sm border border-zinc-200/50 dark:border-zinc-700/50 shadow-sm;
+  background-color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(212,212,216,0.5);
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+@media (prefers-color-scheme: dark) {
+  .apple-card {
+    background-color: rgba(39,39,42,0.8);
+    border: 1px solid rgba(63,63,70,0.5);
+  }
+}
+
+.apple-menu {
+  border: 1px solid #e4e4e7;
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu {
+    border: 1px solid #3f3f46;
+  }
+}
+
+.apple-menu-header {
+  border-bottom: 1px solid #e4e4e7;
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu-header {
+    border-bottom: 1px solid #3f3f46;
+  }
+}
+
+.apple-menu-footer {
+  border-top: 1px solid #e4e4e7;
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu-footer {
+    border-top: 1px solid #3f3f46;
+  }
+}
+
+.apple-menu-section {
+  border-top: 1px solid #e4e4e7;
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu-section {
+    border-top: 1px solid #3f3f46;
+  }
+}
+
+.apple-menu-divider {
+  border-top: 1px solid #e4e4e7;
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu-divider {
+    border-top: 1px solid #3f3f46;
+  }
+}
+
+.apple-menu-item.selected {
+  background-color: #f4f4f5;
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu-item.selected {
+    background-color: #27272a;
+  }
+}
+
+.apple-menu-item.disabled {
+  color: #d4d4d8;
+}
+@media (prefers-color-scheme: dark) {
+  .apple-menu-item.disabled {
+    color: #52525b;
+  }
 }
 
 /* Layout transitions */
@@ -127,45 +221,49 @@
 
 /* Gradient text animations */
 .gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r animate-gradient-x;
   background-size: 200% 200%;
+  animation: gradient-x 10s ease infinite;
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Avolve gradient classes */
 .gradient-superachiever {
-  @apply bg-gradient-to-r from-stone-500 to-stone-700;
+  background-image: linear-gradient(to right, #a1a1aa, #71717a);
 }
 
 .gradient-personal {
-  @apply bg-gradient-to-r from-amber-500 to-yellow-500;
+  background-image: linear-gradient(to right, #ffc107, #ff9800);
 }
 
 .gradient-business {
-  @apply bg-gradient-to-r from-teal-500 to-cyan-500;
+  background-image: linear-gradient(to right, #009688, #03a9f4);
 }
 
 .gradient-supermind {
-  @apply bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500;
+  background-image: linear-gradient(to right, #7a288a, #7a288a, #c51077);
 }
 
 .gradient-superachievers {
-  @apply bg-gradient-to-r from-slate-500 to-slate-700;
+  background-image: linear-gradient(to right, #718096, #4b5563);
 }
 
 .gradient-superhuman {
-  @apply bg-gradient-to-r from-rose-500 via-red-500 to-orange-500;
+  background-image: linear-gradient(to right, #ff69b4, #ff9800, #ffc107);
 }
 
 .gradient-supersociety {
-  @apply bg-gradient-to-r from-lime-500 via-green-500 to-emerald-500;
+  background-image: linear-gradient(to right, #34c759, #2ecc71, #1abc9c);
 }
 
 .gradient-supergenius {
-  @apply bg-gradient-to-r from-sky-500 via-blue-500 to-indigo-500;
+  background-image: linear-gradient(to right, #87ceeb, #4682b4, #6495ed);
 }
 
 .gradient-supercivilization {
-  @apply bg-gradient-to-r from-zinc-500 to-zinc-700;
+  background-image: linear-gradient(to right, #718096, #4b5563);
 }
 
 /* Animations */
@@ -179,10 +277,6 @@
   100% {
     background-position: 0% 50%;
   }
-}
-
-.animate-gradient-x {
-  animation: gradient-x 10s ease infinite;
 }
 
 /* Fade-in animations */

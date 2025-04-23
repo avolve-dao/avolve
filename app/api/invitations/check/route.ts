@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const supabase = createClient()
     
     // Query the database for the invitation
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('invitations')
       .select('*')
       .eq('code', code)

@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const supabase = createClient()
     
     // Vouch for the user
-    const { data, error } = await supabase.rpc('vouch_for_user', {
+    const { data, error } = await (supabase as any).rpc('vouch_for_user', {
       p_user_id: userId
     })
     

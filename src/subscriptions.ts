@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase';
+import { Database } from '../types/database';
 
 // Initialize Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -38,20 +38,8 @@ export class SubscriptionService {
     error?: string;
   }> {
     try {
-      // Call the database function to process the subscription
-      const { data, error } = await this.supabase.rpc('process_subscription', {
-        p_user_id: userId,
-        p_amount_usd: amountUsd,
-        p_payment_method: paymentMethod,
-        p_metadata: metadata
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
+      // The 'process_subscription' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'process_subscription' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Subscription error:', error);
       return {

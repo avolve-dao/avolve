@@ -144,6 +144,7 @@ export default function RootLayout({
               </div>
             </header>
             <main className="mt-16">
+              <ResumeOnboardingPrompt />
               <ClientGlobalErrorBoundary />
               {children}
             </main>

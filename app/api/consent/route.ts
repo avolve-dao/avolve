@@ -8,7 +8,7 @@ import { Database } from '@/lib/database.types';
  */
 async function getCurrentUser() {
   const cookieStore = cookies();
-  const supabase = createClient<Database>(
+  const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { cookies: cookieStore }
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       };
       
       const cookieStore = cookies();
-      const supabase = createClient<Database>(
+      const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         { cookies: cookieStore }
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
     const to_date = searchParams.get('to_date');
     
     const cookieStore = cookies();
-    const supabase = createClient<Database>(
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       { cookies: cookieStore }
@@ -175,7 +175,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     const cookieStore = cookies();
-    const supabase = createClient<Database>(
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       { cookies: cookieStore }

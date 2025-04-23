@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Stake tokens using the database function
-    const { data: stakeResult, error: stakeError } = await supabase
+    const { data: stakeResult, error: stakeError } = await (supabase as any)
       .rpc('stake_tokens', {
         p_user_id: user.id,
         p_token_type_id: tokenTypeId,
@@ -83,7 +83,7 @@ export async function GET() {
     }
 
     // Get user's active stakes
-    const { data: stakes, error: stakesError } = await supabase
+    const { data: stakes, error: stakesError } = await (supabase as any)
       .from('user_stakes')
       .select(`
         id,
@@ -107,7 +107,7 @@ export async function GET() {
     }
 
     // Get available staking rules
-    const { data: availableRules, error: rulesError } = await supabase
+    const { data: availableRules, error: rulesError } = await (supabase as any)
       .from('token_staking_rules')
       .select(`
         id,
@@ -179,7 +179,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Unstake tokens using the database function
-    const { data: unstakeResult, error: unstakeError } = await supabase
+    const { data: unstakeResult, error: unstakeError } = await (supabase as any)
       .rpc('unstake_tokens', {
         p_user_id: user.id,
         p_stake_id: stakeId

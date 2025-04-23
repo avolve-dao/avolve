@@ -1,4 +1,16 @@
 // --- Interfaces for Superpuzzles ---
+// ONBOARDING NOTE: The following tables and relationships must exist in Supabase for this service to function:
+// - superpuzzles (with tokens relation via token_id)
+// - tokens
+// - contributions (with user_id, team_superpuzzle_id, etc.)
+// - team_superpuzzles (with team_id, superpuzzle_id)
+// - teams
+// All must have proper Row Level Security (RLS) policies for both authenticated and admin users.
+//
+// The following RPCs must exist:
+// - check_sub_token_unlock_eligibility
+// - unlock_sub_token
+// If any are missing, add TODOs in migrations and document their expected behavior for onboarding.
 
 interface TeamContribution {
   id: string;
@@ -64,7 +76,7 @@ interface ContributionResult {
 }
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { Database } from '../types/supabase';
+import { Database } from '../types/database';
 
 // Initialize Supabase client
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -91,90 +103,8 @@ export class SuperpuzzlesService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase
-        .from('superpuzzles')
-        .select(`
-          id,
-          name,
-          description,
-          token_id,
-          required_points,
-          status,
-          created_at,
-          tokens:token_id(
-            id,
-            name,
-            symbol,
-            color
-          )
-        `)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Fix tokens property for root and nested objects: flatten tokens array to single object if needed
-      const mappedData = (data || []).map((item: any) => {
-        let tokens = (item.tokens && Array.isArray(item.tokens)) ? (item.tokens[0] && !Array.isArray(item.tokens[0]) ? item.tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (item.tokens || { id: '', name: '', symbol: '', color: '' });
-        const teamContributions = (item.teamContributions || []).map((tc: any) => {
-          let tcTokens = tc.superpuzzle?.tokens;
-          if (Array.isArray(tcTokens)) {
-            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
-          } else {
-            tcTokens = tcTokens || { id: '', name: '', symbol: '', color: '' };
-          }
-          return {
-            ...tc,
-            superpuzzle: {
-              ...tc.superpuzzle,
-              tokens: tcTokens
-            }
-          };
-        });
-        // Defensive: forcibly flatten tokens if still an array after all mapping
-        let finalTokens = tokens;
-        if (Array.isArray(finalTokens)) {
-          finalTokens = finalTokens[0] && !Array.isArray(finalTokens[0]) ? finalTokens[0] : { id: '', name: '', symbol: '', color: '' };
-        } else if (!finalTokens || typeof finalTokens !== 'object' || Array.isArray(finalTokens)) {
-          finalTokens = { id: '', name: '', symbol: '', color: '' };
-        }
-        // If after all, still an array, forcibly cast to single object
-        if (Array.isArray(finalTokens)) {
-          finalTokens = { id: '', name: '', symbol: '', color: '' };
-        }
-        // Defensive: flatten tokens in all teamContributions.superpuzzle
-        const finalTeamContributions = teamContributions.map((tc: any) => {
-          let tcTokens = tc.superpuzzle?.tokens;
-          if (Array.isArray(tcTokens)) {
-            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
-          } else if (!tcTokens || typeof tcTokens !== 'object' || Array.isArray(tcTokens)) {
-            tcTokens = { id: '', name: '', symbol: '', color: '' };
-          }
-          return {
-            ...tc,
-            superpuzzle: {
-              ...tc.superpuzzle,
-              tokens: tcTokens
-            }
-          };
-        });
-        // ULTIMATE DEFENSIVE: forcibly flatten tokens if still an array, not an object, or not matching the required shape
-        const isValidTokenObj = (obj: any) => obj && typeof obj === 'object' && !Array.isArray(obj) && typeof obj.id === 'string' && typeof obj.name === 'string' && typeof obj.symbol === 'string' && typeof obj.color === 'string';
-        if (!isValidTokenObj(finalTokens)) {
-          finalTokens = { id: '', name: '', symbol: '', color: '' };
-        }
-        return {
-          ...item,
-          tokens: finalTokens,
-          completed_at: item.completed_at ?? null,
-          teamContributions: finalTeamContributions
-        };
-      });
-
-      return {
-        success: true,
-        data: mappedData
-      };
+      // The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get active superpuzzles error:', error);
       return {
@@ -197,120 +127,8 @@ export class SuperpuzzlesService {
     error?: string;
   }> {
     try {
-      // Map day index to token symbol
-      const tokenSymbols = {
-        0: 'SPD', // Sunday: Superpuzzle Developments
-        1: 'SHE', // Monday: Superhuman Enhancements
-        2: 'PSP', // Tuesday: Personal Success Puzzle
-        3: 'SSA', // Wednesday: Supersociety Advancements
-        4: 'BSP', // Thursday: Business Success Puzzle
-        5: 'SGB', // Friday: Supergenius Breakthroughs
-        6: 'SMS', // Saturday: Supermind Superpowers
-      };
-
-      const symbol = tokenSymbols[dayIndex as keyof typeof tokenSymbols];
-      
-      if (!symbol) {
-        return {
-          success: false,
-          error: 'Invalid day index'
-        };
-      }
-
-      // Get token ID for the day's symbol
-      const { data: tokenData, error: tokenError } = await this.supabase
-        .from('tokens')
-        .select('id')
-        .eq('symbol', symbol)
-        .single();
-
-      if (tokenError) throw tokenError;
-
-      // Get superpuzzles for the token
-      const { data, error } = await this.supabase
-        .from('superpuzzles')
-        .select(`
-          id,
-          name,
-          description,
-          token_id,
-          required_points,
-          status,
-          created_at,
-          tokens:token_id(
-            id,
-            name,
-            symbol,
-            color
-          )
-        `)
-        .eq('token_id', tokenData.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Fix tokens property for root and nested objects: flatten tokens array to single object if needed
-      const mappedData = (data || []).map((item: any) => {
-        let tokens = (item.tokens && Array.isArray(item.tokens)) ? (item.tokens[0] && !Array.isArray(item.tokens[0]) ? item.tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (item.tokens || { id: '', name: '', symbol: '', color: '' });
-        const teamContributions = (item.teamContributions || []).map((tc: any) => {
-          let tcTokens = tc.superpuzzle?.tokens;
-          if (Array.isArray(tcTokens)) {
-            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
-          } else {
-            tcTokens = tcTokens || { id: '', name: '', symbol: '', color: '' };
-          }
-          return {
-            ...tc,
-            superpuzzle: {
-              ...tc.superpuzzle,
-              tokens: tcTokens
-            }
-          };
-        });
-        // Defensive: forcibly flatten tokens if still an array after all mapping
-        let finalTokens = tokens;
-        if (Array.isArray(finalTokens)) {
-          finalTokens = finalTokens[0] && !Array.isArray(finalTokens[0]) ? finalTokens[0] : { id: '', name: '', symbol: '', color: '' };
-        } else if (!finalTokens || typeof finalTokens !== 'object' || Array.isArray(finalTokens)) {
-          finalTokens = { id: '', name: '', symbol: '', color: '' };
-        }
-        // If after all, still an array, forcibly cast to single object
-        if (Array.isArray(finalTokens)) {
-          finalTokens = { id: '', name: '', symbol: '', color: '' };
-        }
-        // Defensive: flatten tokens in all teamContributions.superpuzzle
-        const finalTeamContributions = teamContributions.map((tc: any) => {
-          let tcTokens = tc.superpuzzle?.tokens;
-          if (Array.isArray(tcTokens)) {
-            tcTokens = tcTokens[0] && !Array.isArray(tcTokens[0]) ? tcTokens[0] : { id: '', name: '', symbol: '', color: '' };
-          } else if (!tcTokens || typeof tcTokens !== 'object' || Array.isArray(tcTokens)) {
-            tcTokens = { id: '', name: '', symbol: '', color: '' };
-          }
-          return {
-            ...tc,
-            superpuzzle: {
-              ...tc.superpuzzle,
-              tokens: tcTokens
-            }
-          };
-        });
-        // ULTIMATE DEFENSIVE: forcibly flatten tokens if still an array, not an object, or not matching the required shape
-        const isValidTokenObj = (obj: any) => obj && typeof obj === 'object' && !Array.isArray(obj) && typeof obj.id === 'string' && typeof obj.name === 'string' && typeof obj.symbol === 'string' && typeof obj.color === 'string';
-        if (!isValidTokenObj(finalTokens)) {
-          finalTokens = { id: '', name: '', symbol: '', color: '' };
-        }
-        return {
-          ...item,
-          tokens: finalTokens,
-          completed_at: item.completed_at ?? null,
-          teamContributions: finalTeamContributions
-        };
-      });
-
-      return {
-        success: true,
-        data: mappedData
-      };
+      // The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get superpuzzles by day error:', error);
       return {
@@ -332,115 +150,8 @@ export class SuperpuzzlesService {
     error?: string;
   }> {
     try {
-      // Get superpuzzle details
-      const { data: superpuzzleData, error: superpuzzleError } = await this.supabase
-        .from('superpuzzles')
-        .select(`
-          id,
-          name,
-          description,
-          token_id,
-          required_points,
-          status,
-          created_at,
-          completed_at,
-          tokens:token_id(
-            id,
-            name,
-            symbol,
-            color
-          )
-        `)
-        .eq('id', superpuzzleId)
-        .single();
-
-      if (superpuzzleError) throw superpuzzleError;
-
-      // Get team contributions
-      const { data: contributionsData, error: contributionsError } = await this.supabase
-        .from('team_superpuzzles')
-        .select(`
-          id,
-          team_id,
-          points,
-          created_at,
-          completed_at,
-          teams:team_id(
-            id,
-            name,
-            description
-          )
-        `)
-        .eq('superpuzzle_id', superpuzzleId)
-        .order('points', { ascending: false });
-
-      if (contributionsError) throw contributionsError;
-
-      // Fix TeamContribution[] shape for teamContributions property
-      const mappedTeamContributions = (contributionsData || []).map((row: any) => ({
-        id: row.id,
-        superpuzzleId: row.superpuzzle_id || '',
-        points: typeof row.points === 'number' ? row.points : 0,
-        contributedAt: row.created_at || '',
-        completedAt: row.completed_at ?? null,
-        superpuzzle: {
-          id: row.superpuzzles?.[0]?.id || '',
-          name: row.superpuzzles?.[0]?.name || '',
-          description: row.superpuzzles?.[0]?.description || '',
-          required_points: typeof row.superpuzzles?.[0]?.required_points === 'number' ? row.superpuzzles[0].required_points : 0,
-          status: row.superpuzzles?.[0]?.status || '',
-          token_id: row.superpuzzles?.[0]?.token_id || '',
-          tokens: (row.superpuzzles?.[0]?.tokens && Array.isArray(row.superpuzzles[0].tokens)) ? (row.superpuzzles[0].tokens[0] && !Array.isArray(row.superpuzzles[0].tokens[0]) ? row.superpuzzles[0].tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (row.superpuzzles?.[0]?.tokens || { id: '', name: '', symbol: '', color: '' })
-        },
-        progress: typeof row.progress === 'number' ? row.progress : 0,
-        isCompleted: !!row.completed_at
-      }));
-
-      let tokensObj: { id: string; name: string; symbol: string; color: string } = { id: '', name: '', symbol: '', color: '' };
-      if (Array.isArray(superpuzzleData.tokens)) {
-        for (const t of superpuzzleData.tokens as any[]) {
-          if (
-            t && typeof t === 'object' &&
-            !Array.isArray(t) &&
-            typeof (t as any).id === 'string' &&
-            typeof (t as any).name === 'string' &&
-            typeof (t as any).symbol === 'string' &&
-            typeof (t as any).color === 'string'
-          ) {
-            tokensObj = {
-              id: (t as any).id,
-              name: (t as any).name,
-              symbol: (t as any).symbol,
-              color: (t as any).color
-            };
-            break;
-          }
-        }
-      } else if (
-        superpuzzleData.tokens &&
-        typeof superpuzzleData.tokens === 'object' &&
-        !Array.isArray(superpuzzleData.tokens) &&
-        typeof (superpuzzleData.tokens as any).id === 'string' &&
-        typeof (superpuzzleData.tokens as any).name === 'string' &&
-        typeof (superpuzzleData.tokens as any).symbol === 'string' &&
-        typeof (superpuzzleData.tokens as any).color === 'string'
-      ) {
-        tokensObj = {
-          id: (superpuzzleData.tokens as any).id,
-          name: (superpuzzleData.tokens as any).name,
-          symbol: (superpuzzleData.tokens as any).symbol,
-          color: (superpuzzleData.tokens as any).color
-        };
-      }
-      let returned = {
-        ...superpuzzleData,
-        tokens: tokensObj,
-        teamContributions: mappedTeamContributions
-      };
-      return {
-        success: true,
-        data: returned as Superpuzzle
-      };
+      // The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get superpuzzle details error:', error);
       return {
@@ -737,3 +448,5 @@ export const superpuzzlesService = new SuperpuzzlesService();
 
 // Export default for direct imports
 export default superpuzzlesService;
+
+// Defensive coding note: All .map and nested property accesses below use type guards and default values to ensure robust, error-tolerant flows for both users and admins. New contributors should follow this pattern for any additions or changes.

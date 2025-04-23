@@ -28,27 +28,89 @@ alter table if exists public.profiles add column if not exists updated_at timest
 -- =============================
 -- 2. Add indexes for foreign keys and frequently queried columns
 -- =============================
-create index if not exists idx_proposals_team_id on public.proposals(team_id);
-create index if not exists idx_collective_actions_team_id on public.collective_actions(team_id);
-create index if not exists idx_group_events_team_id on public.group_events(team_id);
-create index if not exists idx_team_tokens_team_id on public.team_tokens(team_id);
-create index if not exists idx_team_tokens_token_id on public.team_tokens(token_id);
-create index if not exists idx_teams_name on public.teams(name);
-create index if not exists idx_profiles_email on public.profiles(user_email);
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'proposals') THEN
+    CREATE INDEX IF NOT EXISTS idx_proposals_team_id ON public.proposals(team_id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'collective_actions') THEN
+    CREATE INDEX IF NOT EXISTS idx_collective_actions_team_id ON public.collective_actions(team_id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'group_events') THEN
+    CREATE INDEX IF NOT EXISTS idx_group_events_team_id ON public.group_events(team_id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'team_tokens') THEN
+    CREATE INDEX IF NOT EXISTS idx_team_tokens_team_id ON public.team_tokens(team_id);
+    CREATE INDEX IF NOT EXISTS idx_team_tokens_token_id ON public.team_tokens(token_id);
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teams') THEN
+    CREATE INDEX IF NOT EXISTS idx_teams_name ON public.teams(name);
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_profiles_email ON public.profiles(user_email);
 
 -- =============================
 -- 3. Add comments for audit and review
 -- =============================
-comment on column public.proposals.created_at is 'Timestamp when the proposal was created (for auditability)';
-comment on column public.proposals.updated_at is 'Timestamp when the proposal was last updated (for auditability)';
-comment on column public.collective_actions.created_at is 'Timestamp when the action was created (for auditability)';
-comment on column public.collective_actions.updated_at is 'Timestamp when the action was last updated (for auditability)';
-comment on column public.group_events.created_at is 'Timestamp when the group event was created (for auditability)';
-comment on column public.group_events.updated_at is 'Timestamp when the group event was last updated (for auditability)';
-comment on column public.team_tokens.created_at is 'Timestamp when the team token was created (for auditability)';
-comment on column public.team_tokens.updated_at is 'Timestamp when the team token was last updated (for auditability)';
-comment on column public.teams.created_at is 'Timestamp when the team was created (for auditability)';
-comment on column public.teams.updated_at is 'Timestamp when the team was last updated (for auditability)';
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'proposals') THEN
+    COMMENT ON COLUMN public.proposals.created_at IS 'Timestamp when the proposal was created (for auditability)';
+    COMMENT ON COLUMN public.proposals.updated_at IS 'Timestamp when the proposal was last updated (for auditability)';
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'collective_actions') THEN
+    COMMENT ON COLUMN public.collective_actions.created_at IS 'Timestamp when the collective action was created (for auditability)';
+    COMMENT ON COLUMN public.collective_actions.updated_at IS 'Timestamp when the collective action was last updated (for auditability)';
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'group_events') THEN
+    COMMENT ON COLUMN public.group_events.created_at IS 'Timestamp when the group event was created (for auditability)';
+    COMMENT ON COLUMN public.group_events.updated_at IS 'Timestamp when the group event was last updated (for auditability)';
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'team_tokens') THEN
+    COMMENT ON COLUMN public.team_tokens.created_at IS 'Timestamp when the team token was created (for auditability)';
+    COMMENT ON COLUMN public.team_tokens.updated_at IS 'Timestamp when the team token was last updated (for auditability)';
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'teams') THEN
+    COMMENT ON COLUMN public.teams.created_at IS 'Timestamp when the team was created (for auditability)';
+    COMMENT ON COLUMN public.teams.updated_at IS 'Timestamp when the team was last updated (for auditability)';
+  END IF;
+END $$;
+
 comment on column public.profiles.created_at is 'Timestamp when the profile was created (for auditability)';
 comment on column public.profiles.updated_at is 'Timestamp when the profile was last updated (for auditability)';
 

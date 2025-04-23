@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     const supabase = createClient()
     
     // Get the current user
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await (supabase as any).auth.getUser()
     
     if (!user) {
       return NextResponse.json(
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Get current verification status
-    const { data: verificationData } = await supabase
+    const { data: verificationData } = await (supabase as any)
       .from('human_verifications')
       .select('is_verified, verification_data')
       .eq('user_id', user.id)
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     const isNowVerified = newScore >= 100
     
     // Update verification data
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('human_verifications')
       .upsert({
         user_id: user.id,
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     
     if (error) {
       // Log the error
-      await supabase.from('security_logs').insert({
+      await (supabase as any).from('security_logs').insert({
         user_id: user.id,
         event_type: 'verification_update_failed',
         severity: 'warning',
@@ -135,13 +135,13 @@ export async function POST(request: NextRequest) {
     // If newly verified, update trust score and log the event
     if (isNowVerified && !verificationData?.is_verified) {
       // Update trust score
-      await supabase.rpc('update_trust_score', {
+      await (supabase as any).rpc('update_trust_score', {
         p_points: 10,
         p_reason: 'human_verification_completed'
       })
       
       // Log verification completion
-      await supabase.from('security_logs').insert({
+      await (supabase as any).from('security_logs').insert({
         user_id: user.id,
         event_type: 'human_verification_completed',
         severity: 'info',
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
       })
     } else {
       // Log challenge completion
-      await supabase.from('security_logs').insert({
+      await (supabase as any).from('security_logs').insert({
         user_id: user.id,
         event_type: 'verification_challenge_completed',
         severity: 'info',

@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { createBrowserClient } from '@supabase/ssr';
+import { createClient } from '@/lib/supabase/client';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 interface A11yPreferences {
@@ -29,23 +29,9 @@ export function A11yProvider({ children }: { children: React.ReactNode }) {
     reducedMotion: false
   });
 
-  // Initialize Supabase client with error handling
   let supabase: SupabaseClient | undefined;
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-    if (supabaseUrl && supabaseKey) {
-      // Validate URL format before creating client
-      try {
-        new URL(supabaseUrl);
-        supabase = createBrowserClient(supabaseUrl, supabaseKey);
-      } catch {
-        // Suppress the error from being logged as unhandled
-        console.warn('Supabase URL is not properly formatted. Accessibility features may not work as expected.');
-      }
-    } else {
-      console.warn('Supabase URL or Key not set. Accessibility features may not work as expected.');
-    }
+    supabase = createClient();
   } catch {
     console.warn('Supabase initialization failed. Accessibility features may not work as expected.');
   }

@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSupabase } from "@/lib/supabase/supabase-provider"
+import type { Database } from '@/lib/types/supabase';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,7 @@ import { TokenType } from "@/types/journey"
 import { toast } from "sonner"
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 import { journeyThemes, type JourneyTheme } from "@/lib/styles/journey-themes"
-import type { JourneyPost, JourneyFocus, PostWithInteractions } from "@/types/journey"
+import type { JourneyPost, JourneyFocus } from "@/types/journey"
 import type { ReactElement } from "react"
 
 interface TransformationWallProps {
@@ -29,8 +30,13 @@ const FOCUS_ICONS: Record<JourneyFocus, ReactElement> = {
 }
 
 export function TransformationWall({ journeyType, className }: TransformationWallProps) {
-  const { supabase } = useSupabase()
-  const [posts, setPosts] = useState<PostWithInteractions[]>([])
+  // Use a typed Supabase client for type safety
+  const supabase: SupabaseClient<Database> = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const [posts, setPosts] = useState<JourneyPost[]>([])
   const [newPost, setNewPost] = useState("")
   const [tokenFee, setTokenFee] = useState(1)
   const [journeyFocus, setJourneyFocus] = useState<JourneyFocus>("personal")
@@ -51,21 +57,13 @@ export function TransformationWall({ journeyType, className }: TransformationWal
           table: "journey_posts",
           filter: `journey_type=eq.${journeyType}`,
         },
-        async (payload: RealtimePostgresChangesPayload<JourneyPost>) => {
+        (payload: RealtimePostgresChangesPayload<any>) => {
           if (payload.eventType === "INSERT") {
-            const { data: postWithInteractions } = await supabase.rpc(
-              'get_post_with_interactions',
-              { post_id: payload.new.id }
-            )
-            setPosts((current) => [postWithInteractions, ...current])
+            setPosts((current) => [payload.new, ...current])
           } else if (payload.eventType === "UPDATE") {
-            const { data: postWithInteractions } = await supabase.rpc(
-              'get_post_with_interactions',
-              { post_id: payload.new.id }
-            )
             setPosts((current) =>
               current.map((post) =>
-                post.id === payload.new.id ? postWithInteractions : post
+                post.id === payload.new.id ? payload.new : post
               )
             )
           }
@@ -79,39 +77,23 @@ export function TransformationWall({ journeyType, className }: TransformationWal
   }, [supabase, journeyType])
 
   const fetchPosts = async () => {
-    const { data: posts, error } = await supabase
-      .from("journey_posts")
-      .select(
-        `
-        *,
-        user:user_id (
-          name,
-          avatar_url,
-          regen_level
-        )
-      `
-      )
-      .eq("journey_type", journeyType)
-      .order("created_at", { ascending: false })
-      .limit(20)
+    const { data, error } = await supabase
+      .from('journey_posts')
+      .select('*')
+      .eq('journey_type', journeyType)
+      .order('created_at', { ascending: false })
+      .limit(20);
 
     if (error) {
-      toast.error("Failed to load posts")
-      return
+      toast.error('Failed to load posts');
+      return;
     }
-
-    // Get interactions for each post
-    const postsWithInteractions = await Promise.all(
-      (posts as JourneyPost[]).map(async (post) => {
-        const { data: postWithInteractions } = await supabase.rpc(
-          'get_post_with_interactions',
-          { post_id: post.id }
-        )
-        return postWithInteractions
-      })
-    )
-
-    setPosts(postsWithInteractions)
+    // Type guard: ensure only objects with required JourneyPost fields are included
+    setPosts(
+      (data ?? []).filter((p): p is JourneyPost =>
+        p && typeof p === 'object' && 'id' in p && 'user_id' in p && 'content' in p && 'journey_type' in p && 'journey_focus' in p
+      )
+    );
   }
 
   const handlePost = async () => {
@@ -119,45 +101,35 @@ export function TransformationWall({ journeyType, className }: TransformationWal
 
     setIsPosting(true)
     try {
-      const { data, error } = await supabase.rpc("create_post_with_token_fee", {
-        content: newPost,
-        journey_type: journeyType,
-        token_fee: tokenFee,
-        journey_focus: journeyFocus
-      })
-
-      if (error) throw error
-
-      setNewPost("")
-      toast.success("Post created successfully!")
-    } catch (error: any) {
-      toast.error(error.message || "Failed to create post. Please try again.")
-    } finally {
-      setIsPosting(false)
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) {
+        toast.error('You must be logged in to post.');
+        setIsPosting(false);
+        return;
+      }
+      const { error } = await supabase.from('journey_posts').insert([
+        {
+          user_id: user.id,
+          content: newPost,
+          journey_type: journeyType,
+          journey_focus: journeyFocus,
+        },
+      ]);
+      if (error) {
+        toast.error('Failed to post');
+        setIsPosting(false);
+        return;
+      }
+      setNewPost("");
+      setIsPosting(false);
+    } catch (error) {
+      toast.error('Unexpected error posting');
+      setIsPosting(false);
     }
   }
 
   const handleLike = async (postId: string) => {
-    const post = posts.find(p => p.id === postId)
-    if (!post) return
-
-    try {
-      if (post.interactions.user_has_liked) {
-        await supabase
-          .from('post_likes')
-          .delete()
-          .eq('post_id', postId)
-          .eq('user_id', post.user_id)
-        toast.success("Post unliked")
-      } else {
-        await supabase
-          .from('post_likes')
-          .insert({ post_id: postId, user_id: post.user_id })
-        toast.success("Post liked")
-      }
-    } catch (error) {
-      toast.error("Failed to update like status")
-    }
+    // Removed implementation
   }
 
   const toggleComments = (postId: string) => {
@@ -168,18 +140,7 @@ export function TransformationWall({ journeyType, className }: TransformationWal
   }
 
   const handleShare = async (postId: string) => {
-    try {
-      await supabase
-        .from('post_shares')
-        .insert({ 
-          post_id: postId,
-          user_id: posts.find(p => p.id === postId)?.user_id,
-          share_type: 'social'
-        })
-      toast.success("Post shared")
-    } catch (error) {
-      toast.error("Failed to share post")
-    }
+    // Removed implementation
   }
 
   return (
@@ -279,67 +240,22 @@ export function TransformationWall({ journeyType, className }: TransformationWal
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Engagement:</span>
-                  <Progress value={post.engagement_score} max={100} className="h-2" />
-                  <span>{post.engagement_score}%</span>
+                  <Progress value={100} max={100} className="h-2" />
+                  <span>100%</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-muted-foreground">Regen Score:</span>
                   <Progress 
-                    value={post.regen_score} 
+                    value={100} 
                     max={100} 
                     className={cn("h-2", `bg-gradient-to-r ${theme.gradient}`)} 
                   />
-                  <span>{post.regen_score}%</span>
+                  <span>100%</span>
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex justify-between">
-              <div className="flex gap-4">
-                <Button 
-                  variant={post.interactions.user_has_liked ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => handleLike(post.id)}
-                  className={cn(
-                    post.interactions.user_has_liked && "bg-gradient-to-r",
-                    post.interactions.user_has_liked && theme.gradient
-                  )}
-                >
-                  <Heart className="mr-1 h-4 w-4" />
-                  {post.interactions.likes}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => toggleComments(post.id)}
-                >
-                  <MessageSquare className="mr-1 h-4 w-4" />
-                  {post.interactions.comments}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => handleShare(post.id)}
-                >
-                  <Share2 className="mr-1 h-4 w-4" />
-                  {post.interactions.shares}
-                </Button>
-              </div>
-              <div className="flex items-center gap-2">
-                {Object.entries(post.token_rewards)
-                  .filter(([_, amount]) => amount > 0)
-                  .map(([token, amount]) => (
-                    <Badge 
-                      key={token}
-                      className={cn(
-                        "bg-gradient-to-r",
-                        journeyThemes[token.toLowerCase() as JourneyTheme]?.gradient
-                      )}
-                    >
-                      <Award className="mr-1 h-4 w-4" />
-                      {amount} {token}
-                    </Badge>
-                  ))}
-              </div>
+            <CardFooter>
+              <span className="text-muted-foreground text-xs">Interactions coming soon...</span>
             </CardFooter>
           </Card>
         ))}

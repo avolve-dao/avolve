@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
+import type { Database } from "@/lib/database.types"
+import type { SupabaseClient } from "@supabase/supabase-js"
 
 export type ActivityAction =
   | "post_create"
@@ -26,7 +28,7 @@ interface LogActivityParams {
  */
 export async function logActivityServer({ userId, action, entityType, entityId, metadata = {} }: LogActivityParams) {
   try {
-    const supabase = await createClient()
+    const supabase = createClient() as SupabaseClient<Database>
 
     const { error } = await supabase.from("activity_logs").insert({
       user_id: userId,
@@ -49,7 +51,7 @@ export async function logActivityServer({ userId, action, entityType, entityId, 
  */
 export async function getUserActivityServer(userId: string, limit = 20, page = 0) {
   try {
-    const supabase = await createClient()
+    const supabase = createClient() as SupabaseClient<Database>
 
     const { data, error } = await supabase
       .from("user_activity_feed")
@@ -75,7 +77,7 @@ export async function getUserActivityServer(userId: string, limit = 20, page = 0
  */
 export async function getActivityFeedServer(userId: string, limit = 20, page = 0) {
   try {
-    const supabase = await createClient()
+    const supabase = createClient() as SupabaseClient<Database>
 
     // First get the list of users this user follows
     const { data: followingData } = await supabase.from("follows").select("following_id").eq("follower_id", userId)
@@ -110,7 +112,7 @@ export async function getActivityFeedServer(userId: string, limit = 20, page = 0
  */
 export async function getGlobalActivityFeedServer(limit = 20, page = 0) {
   try {
-    const supabase = await createClient()
+    const supabase = createClient() as SupabaseClient<Database>
 
     const { data, error } = await supabase
       .from("user_activity_feed")

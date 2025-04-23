@@ -18,7 +18,9 @@ export async function completeWeeklyCheckin() {
     }
     
     // Call the RPC function to complete the weekly check-in
-    const { data, error } = await supabase.rpc(
+    // Type assertion workaround for Supabase RPC typing issue
+    // TODO: Review SDK/types for long-term type safety
+    const { data, error } = await (supabase as any).rpc(
       'complete_psp_weekly_checkin',
       { p_user_id: user.id }
     )

@@ -11,14 +11,14 @@ import { JourneyMapClient } from './client';
 
 // Types
 import type { Database } from '@/types/supabase';
-import type { ExperiencePhase, UserProgress } from '@/types/experience';
+import type { ExperiencePhase, UserProgress, PhaseId } from '@/types/experience';
 
 export async function JourneyMapServer({ userId }: { userId: string }) {
   const supabase = createServerComponentClient<Database>({ cookies });
   
   // Fetch user's current phase and progress
   const { data: userProgress } = await supabase.rpc('get_user_progress', {
-    user_id_param: userId
+    p_user_id: userId
   });
   
   // Fetch all experience phases for reference
@@ -41,42 +41,70 @@ export async function JourneyMapServer({ userId }: { userId: string }) {
     .eq('user_id', userId)
     .order('transitioned_at');
   
-  // Calculate progress percentage for each phase
-  const phaseProgress = phases?.map(phase => {
-    const phaseMilestones = completedMilestones?.filter(
-      milestone => milestone.milestone_id.startsWith(`${phase.id}_`)
-    ) || [];
-    
-    // Get total milestones for this phase from the phase requirements
-    const totalMilestones = phase.requirements?.milestones?.length || 0;
-    const completedCount = phaseMilestones.length;
-    
-    return {
-      phaseId: phase.id,
-      phaseName: phase.name,
-      description: phase.description,
-      sequence: phase.sequence,
-      completed: completedCount === totalMilestones && totalMilestones > 0,
-      progress: totalMilestones > 0 
-        ? Math.round((completedCount / totalMilestones) * 100) 
-        : 0,
-      completedMilestones: phaseMilestones.map(m => m.milestone_id),
-      isCurrentPhase: userProgress?.current_phase === phase.id
-    };
-  }) || [];
-  
+  // Calculate progress percentage for each phase with type guards/casts
+  const phaseProgress = Array.isArray(phases)
+    ? phases.map(phase => {
+        // Defensive: check requirements structure
+        const requirements = (phase.requirements && typeof phase.requirements === 'object' && !Array.isArray(phase.requirements))
+          ? phase.requirements as { milestones?: unknown }
+          : {};
+        const milestones = Array.isArray(requirements.milestones)
+          ? requirements.milestones.filter((m): m is string => typeof m === 'string')
+          : [];
+        const totalMilestones = milestones.length;
+        const phaseId = phase.id as PhaseId;
+
+        const phaseMilestones = Array.isArray(completedMilestones)
+          ? completedMilestones.filter(
+              m => typeof m.milestone_id === 'string' && m.milestone_id.startsWith(`${phase.id}_`)
+            )
+          : [];
+
+        return {
+          phaseId,
+          phaseName: phase.name ?? '',
+          description: phase.description ?? '',
+          sequence: phase.sequence ?? 0,
+          completed: phaseMilestones.length === totalMilestones && totalMilestones > 0,
+          progress: totalMilestones > 0
+            ? Math.round((phaseMilestones.length / totalMilestones) * 100)
+            : 0,
+          completedMilestones: phaseMilestones.map(m => m.milestone_id),
+          isCurrentPhase:
+            userProgress && typeof userProgress === 'object' && 'current_phase' in userProgress
+              ? userProgress.current_phase === phaseId
+              : false
+        };
+      })
+    : [];
+
+  // Defensive: ensure phaseTransitions are typed correctly
+  const safePhaseTransitions = Array.isArray(phaseTransitions)
+    ? phaseTransitions.map(t => ({
+        from_phase: t.from_phase as PhaseId,
+        to_phase: t.to_phase as PhaseId,
+        transitioned_at: t.transitioned_at
+      }))
+    : [];
+
+  // Defensive: get currentPhase from userProgress
+  const currentPhase =
+    userProgress && typeof userProgress === 'object' && 'current_phase' in userProgress
+      ? (userProgress.current_phase as PhaseId)
+      : 'discovery';
+
   // Calculate AI-based predictions for phase completion
   const predictedCompletionDates = await calculatePredictedCompletionDates(
     userId,
     phaseProgress,
     completedMilestones || []
   );
-  
+
   return (
     <JourneyMapClient 
       phaseProgress={phaseProgress}
-      currentPhase={userProgress?.current_phase || 'discovery'}
-      phaseTransitions={phaseTransitions || []}
+      currentPhase={currentPhase}
+      phaseTransitions={safePhaseTransitions}
       predictedCompletionDates={predictedCompletionDates}
     />
   );

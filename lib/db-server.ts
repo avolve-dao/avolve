@@ -1,9 +1,11 @@
 import { createClient } from "@/lib/supabase/server"
+import type { Database } from "@/lib/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cache } from "react"
 
 // Server-side database functions (cached)
 export const getProfile = cache(async (userId: string) => {
-  const supabase = await createClient()
+  const supabase = await createClient() as SupabaseClient<Database>;
   const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single()
 
   if (error) {
@@ -15,7 +17,7 @@ export const getProfile = cache(async (userId: string) => {
 })
 
 export const getPosts = cache(async (limit = 10, page = 0) => {
-  const supabase = await createClient()
+  const supabase = await createClient() as SupabaseClient<Database>;
   const { data, error } = await supabase
     .from("posts")
     .select(`
@@ -39,7 +41,7 @@ export const getPosts = cache(async (limit = 10, page = 0) => {
 })
 
 export const getSuggestedUsers = cache(async (userId: string, limit = 5) => {
-  const supabase = await createClient()
+  const supabase = await createClient() as SupabaseClient<Database>;
   const { data, error } = await supabase.from("profiles").select("*").neq("id", userId).limit(limit)
 
   if (error) {
@@ -51,4 +53,3 @@ export const getSuggestedUsers = cache(async (userId: string, limit = 5) => {
 })
 
 // Move all other server functions here...
-

@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     
     // Call the function to refresh all materialized views
-    const { error } = await supabase.rpc('refresh_and_log_network_analytics');
+    const { error } = await (supabase as any).rpc('refresh_and_log_network_analytics');
     
     if (error) {
       console.error('Error refreshing network analytics:', error);

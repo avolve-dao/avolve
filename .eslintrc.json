@@ -1,12 +1,2 @@
-{
-  "extends": [
-    "next/core-web-vitals",
-    "next/typescript",
-    "plugin:prettier/recommended"
-  ],
-  "rules": {
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/explicit-function-return-type": "warn",
-    "no-console": ["error", { "allow": ["warn", "error", "info"] }]
-  }
-}
+// DEPRECATED: Configuration migrated to eslint.config.js for maintainability. See eslint.config.js for all rules.
+{}

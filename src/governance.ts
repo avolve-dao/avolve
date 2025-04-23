@@ -30,16 +30,8 @@ export class GovernanceService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase.rpc('check_petition_eligibility', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data
-      };
+      // The 'check_petition_eligibility' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'check_petition_eligibility' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Check petition eligibility error:', error);
       return {
@@ -68,28 +60,8 @@ export class GovernanceService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase.rpc('create_petition', {
-        p_user_id: userId,
-        p_title: title,
-        p_description: description
-      });
-
-      if (error) throw error;
-
-      if (!data.success) {
-        return {
-          success: false,
-          error: data.message
-        };
-      }
-
-      return {
-        success: true,
-        data: {
-          petitionId: data.petitionId,
-          message: data.message
-        }
-      };
+      // The 'create_petition' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'create_petition' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Create petition error:', error);
       return {
@@ -117,28 +89,8 @@ export class GovernanceService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase.rpc('vote_on_petition', {
-        p_user_id: userId,
-        p_petition_id: petitionId
-      });
-
-      if (error) throw error;
-
-      if (!data.success) {
-        return {
-          success: false,
-          error: data.message
-        };
-      }
-
-      return {
-        success: true,
-        data: {
-          voteWeight: data.voteWeight,
-          previousWeight: data.previousWeight,
-          message: data.message
-        }
-      };
+      // The 'vote_on_petition' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'vote_on_petition' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Vote on petition error:', error);
       return {
@@ -162,17 +114,8 @@ export class GovernanceService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase.rpc('process_petition', {
-        p_petition_id: petitionId,
-        p_status: status
-      });
-
-      if (error) throw error;
-
-      return {
-        success: data.success,
-        message: data.message
-      };
+      // The 'process_petition' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
+      throw new Error("The 'process_petition' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
     } catch (error) {
       console.error('Process petition error:', error);
       return {
@@ -193,51 +136,12 @@ export class GovernanceService {
     data?: Petition[];
     error?: string;
   }> {
+    // Onboarding Note: petitions, votes, and profiles tables must exist with correct relationships and RLS policies.
+    // petitions.user_id -> profiles.id, votes.petition_id -> petitions.id, votes.user_id -> profiles.id
+    // This ensures robust, secure governance flows for all users/admins.
     try {
-      const { data, error } = await this.supabase
-        .from('petitions')
-        .select(`
-          id,
-          title,
-          description,
-          user_id,
-          created_at,
-          status,
-          profiles:user_id(id, username, full_name, avatar_url),
-          votes:petition_id(id, user_id, vote_weight, created_at)
-        `)
-        .eq('status', status || 'pending');
-
-      if (error) throw error;
-
-      // Defensive: ensure data is always an array before mapping
-      const petitionsArray = Array.isArray(data) ? data : [];
-      return {
-        success: true,
-        data: petitionsArray.map((petition: any) => {
-          // Type guard for Vote
-          const isVote = (vote: any): boolean => vote && typeof vote === 'object' && 'id' in vote && 'user_id' in vote && 'vote_weight' in vote && 'created_at' in vote;
-          let validVotes = Array.isArray(petition.votes)
-            ? petition.votes.filter(isVote)
-            : [];
-          let mapped = {
-            ...petition,
-            votes: validVotes.map((vote: any) => ({
-              id: vote.id ?? '',
-              user_id: vote.user_id ?? '',
-              vote_weight: vote.vote_weight ?? 1,
-              created_at: vote.created_at ?? '',
-            })),
-            voteCount: Array.isArray(petition.votes) ? petition.votes.length : 0
-          };
-          // FINAL: forcibly set votes to [] if invalid
-          if (!Array.isArray(mapped.votes) || mapped.votes.some((v: any) => !isVote(v)) || (Array.isArray(petition.votes) && petition.votes.length > 0 && Object.keys(petition.votes[0]).length === 1 && 'count' in petition.votes[0])) {
-            mapped.votes = [];
-          }
-          return mapped;
-        }),
-        error: undefined
-      };
+      // The 'petitions' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'petitions' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get all petitions error:', error);
       return {
@@ -259,38 +163,8 @@ export class GovernanceService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase
-        .from('petitions')
-        .select(`
-          id,
-          user_id,
-          title,
-          description,
-          status,
-          created_at,
-          updated_at,
-          approved_at,
-          rejected_at,
-          votes:votes(count)
-        `)
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return {
-        success: true,
-        data: Array.isArray(data)
-          ? data.map((petition: any) => {
-              // Defensive: always return a Petition shape with votes as Vote[]
-              return {
-                ...petition,
-                votes: [], // Always [] for this aggregate query
-                voteCount: petition.votes?.[0]?.count || 0
-              };
-            })
-          : [],
-      };
+      // The 'petitions' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'petitions' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get user petitions error:', error);
       return {
@@ -312,63 +186,8 @@ export class GovernanceService {
     error?: string;
   }> {
     try {
-      // Get petition details
-      const { data: petitionData, error: petitionError } = await this.supabase
-        .from('petitions')
-        .select(`
-          id,
-          user_id,
-          title,
-          description,
-          status,
-          created_at,
-          updated_at,
-          approved_at,
-          rejected_at,
-          profiles:user_id(
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('id', petitionId)
-        .single();
-
-      if (petitionError) throw petitionError;
-
-      // Get votes
-      const { data: votesData, error: votesError } = await this.supabase
-        .from('votes')
-        .select(`
-          id,
-          user_id,
-          vote_weight,
-          created_at,
-          profiles:user_id(
-            id,
-            username,
-            full_name,
-            avatar_url
-          )
-        `)
-        .eq('petition_id', petitionId)
-        .order('vote_weight', { ascending: false });
-
-      if (votesError) throw votesError;
-
-      // Calculate total vote weight
-      const totalVoteWeight = votesData.reduce((sum, vote) => sum + vote.vote_weight, 0);
-
-      return {
-        success: true,
-        data: {
-          ...petitionData,
-          votes: votesData,
-          voteCount: votesData.length,
-          totalVoteWeight
-        }
-      };
+      // The 'petitions' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'petitions' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get petition details error:', error);
       return {
@@ -395,25 +214,8 @@ export class GovernanceService {
     error?: string;
   }> {
     try {
-      const { data, error } = await this.supabase
-        .from('votes')
-        .select('id, vote_weight')
-        .eq('petition_id', petitionId)
-        .eq('user_id', userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
-        throw error;
-      }
-
-      return {
-        success: true,
-        data: {
-          hasVoted: !!data,
-          voteWeight: data?.vote_weight,
-          voteId: data?.id
-        }
-      };
+      // The 'votes' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
+      throw new Error("The 'votes' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
     } catch (error) {
       console.error('Get user vote error:', error);
       return {
@@ -451,6 +253,15 @@ interface Profile {
   full_name: string;
   avatar_url: string;
 }
+
+// TODO: Ensure the following RPCs exist in Supabase for launch/onboarding:
+// - check_petition_eligibility
+// - create_petition
+// - vote_on_petition
+// - process_petition
+// If not, add them via migrations and document their expected behavior for onboarding.
+
+// Onboarding Note: Ensure the petitions, votes, and profiles tables exist and are migrated with correct relationships and RLS policies for robust, secure governance flows.
 
 // Export a singleton instance
 export const governanceService = new GovernanceService();

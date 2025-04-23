@@ -1,10 +1,12 @@
 import { xai } from "@ai-sdk/xai"
 import { createClient } from "@/lib/supabase/server"
 import type { GrokModel } from "@/lib/xai"
+import type { Database } from "@/lib/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 // Enhanced context provider for Grok
 export async function getGrokContext(userId: string) {
-  const supabase = await createClient()
+  const supabase = await createClient() as SupabaseClient<Database>;
 
   // Get user profile
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", userId).single()

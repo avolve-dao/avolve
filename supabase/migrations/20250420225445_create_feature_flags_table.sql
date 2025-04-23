@@ -26,7 +26,8 @@ create policy "Allow select for authenticated" on public.feature_flags
 
 -- Insert: only for authenticated users
 create policy "Allow insert for authenticated" on public.feature_flags
-  for insert to authenticated using (auth.role() = 'authenticated');
+  for insert to authenticated
+  with check (auth.role() = 'authenticated');
 
 -- Update: only for authenticated users
 create policy "Allow update for authenticated" on public.feature_flags

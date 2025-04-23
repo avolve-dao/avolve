@@ -11,11 +11,6 @@ const steps = [
     content: 'Let’s get you started on your transformation journey.',
   },
   {
-    title: 'Choose Your Journey',
-    content: 'Select your focus: Superachiever, Superachievers, or Supercivilization.',
-    options: ['Superachiever', 'Superachievers', 'Supercivilization'],
-  },
-  {
     title: 'Create Your Genius ID',
     content: 'Pick an avatar and set your unique Genius ID.',
   },
@@ -24,12 +19,8 @@ const steps = [
     content: 'What’s your first personal or business goal?',
   },
   {
-    title: 'Tour Key Features',
-    content: 'See how Avolve helps you grow and co-create.',
-  },
-  {
-    title: 'Celebrate!',
-    content: 'You’ve completed onboarding! Claim your first badge.',
+    title: 'Make Your First Post',
+    content: 'Share your thoughts and earn your first badge.',
   },
 ];
 
@@ -144,49 +135,62 @@ export default function OnboardingWizard({ onComplete }: { onComplete?: () => vo
       if (step.title === 'Welcome to Avolve!') {
         return { ...step, content: `Welcome, future ${journey}! Let’s get you started on your ${journey} journey.` };
       }
-      if (step.title === 'Celebrate!') {
-        return { ...step, content: `You’ve completed onboarding as a ${journey}! Claim your first badge below.` };
+      if (step.title === 'Make Your First Post') {
+        return { ...step, content: `You’re almost there, ${journey}! Share your thoughts and earn your first badge.` };
       }
       return step;
     });
   }
-  if (onboardingVariant === 'B' && personalizedSteps[2]) {
-    personalizedSteps[2].content += ' (B Variant: Try our new avatar picker!)';
-  }
+
+  // --- MVP LAUNCH POLISH: ONBOARDING ---
+  // Only show available onboarding steps and rewards. Hide or gray out future badges/achievements.
+
+  const availableBadges = [
+    'first_steps',
+    // add other MVP-available badges here
+  ];
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded shadow-md animate-fade-in">
+    <div className="max-w-md mx-auto bg-white p-6 rounded shadow-md animate-fade-in md:p-8 lg:p-12">
       {showConfetti && <Confetti numberOfPieces={200} recycle={false} />}
-      <h2 className="text-xl font-bold mb-2">{personalizedSteps[step].title}</h2>
-      <div className="mb-4">{personalizedSteps[step].content}</div>
-      {personalizedSteps[step].options && (
-        <div className="flex gap-2 mb-4">
-          {personalizedSteps[step].options.map(opt => (
-            <button key={opt} className="px-3 py-2 rounded bg-blue-100 hover:bg-blue-300" onClick={() => handleJourneySelect(opt)}>{opt}</button>
-          ))}
+      <h2 className="text-xl font-bold mb-2" aria-label="Onboarding step title">{personalizedSteps[step].title}</h2>
+      <div className="mb-4" aria-label="Onboarding step content">{personalizedSteps[step].content}</div>
+      {step === 1 && (
+        <div className="flex gap-2 mb-4 md:gap-4 lg:gap-6">
+          <button key="Genius" className="px-3 py-2 rounded bg-blue-100 hover:bg-blue-300 focus-visible:ring-2 focus-visible:ring-blue-500" onClick={() => handleJourneySelect('Genius')} aria-label="Select Genius journey">Genius</button>
+          <button key="Superachiever" className="px-3 py-2 rounded bg-blue-100 hover:bg-blue-300 focus-visible:ring-2 focus-visible:ring-blue-500" onClick={() => handleJourneySelect('Superachiever')} aria-label="Select Superachiever journey">Superachiever</button>
+          <button key="Supercivilization" className="px-3 py-2 rounded bg-blue-100 hover:bg-blue-300 focus-visible:ring-2 focus-visible:ring-blue-500" onClick={() => handleJourneySelect('Supercivilization')} aria-label="Select Supercivilization journey">Supercivilization</button>
         </div>
       )}
-      <div className="flex gap-2">
-        {step > 0 && <button onClick={prev} className="px-4 py-2 rounded bg-gray-200">Back</button>}
-        {step < personalizedSteps.length - 1 && <button onClick={next} className="px-4 py-2 rounded bg-blue-600 text-white">Next</button>}
-        {step === personalizedSteps.length - 1 && <button onClick={finish} className="px-4 py-2 rounded bg-green-600 text-white">Finish</button>}
+      <div className="flex gap-2 md:gap-4 lg:gap-6">
+        {step > 0 && <button onClick={prev} className="px-4 py-2 rounded bg-gray-200 focus-visible:ring-2 focus-visible:ring-gray-500" aria-label="Go back to previous step">Back</button>}
+        {step < personalizedSteps.length - 1 && <button onClick={next} className="px-4 py-2 rounded bg-blue-600 text-white focus-visible:ring-2 focus-visible:ring-blue-500" aria-label="Go to next step">Next</button>}
+        {step === personalizedSteps.length - 1 && <button onClick={finish} className="px-4 py-2 rounded bg-green-600 text-white focus-visible:ring-2 focus-visible:ring-green-500" aria-label="Finish onboarding">Finish</button>}
       </div>
       {step > 0 && !feedbackGiven && (
         <div className="mt-6">
-          <FeedbackWidget context={`onboarding_step_${step}`} />
-          <button onClick={() => setFeedbackGiven(true)} className="text-xs text-blue-500 mt-2">Skip Feedback</button>
+          <FeedbackWidget context={`onboarding_step_${step}`} aria-label="Provide feedback for this step" />
+          <button onClick={() => setFeedbackGiven(true)} className="text-xs text-blue-500 mt-2 focus-visible:ring-2 focus-visible:ring-blue-500" aria-label="Skip feedback">Skip Feedback</button>
         </div>
       )}
-      <div className="mt-4 text-xs text-gray-400">Step {step + 1} of {personalizedSteps.length}</div>
+      <div className="mt-4 text-xs text-gray-400" aria-label="Current step and total steps">Step {step + 1} of {personalizedSteps.length}</div>
       {/* Show badge on completion */}
-      {step === personalizedSteps.length - 1 && badge && (
+      {step === personalizedSteps.length - 1 && badge && availableBadges.includes(badge) && (
         <div className="mt-6 flex flex-col items-center">
-          <span className="text-2xl">🏅</span>
-          <div className="text-sm mt-1">Badge: {badge.replace('_', ' ').replace('first steps', 'First Steps')}</div>
+          <span className="text-2xl" aria-label="Badge icon">🏅</span>
+          <div className="text-sm mt-1" aria-label="Badge name">Badge: {badge.replace('_', ' ').replace('first steps', 'First Steps')}</div>
         </div>
       )}
-      {/* Show onboarding variant for A/B testing */}
-      <div className="mt-2 text-xs text-gray-300">Onboarding Variant: {onboardingVariant}</div>
+      {step === personalizedSteps.length - 1 && badge && !availableBadges.includes(badge) && (
+        <div className="mt-6 flex flex-col items-center opacity-50">
+          <span className="text-2xl" aria-label="Badge icon">🏅</span>
+          <div className="text-sm mt-1" aria-label="Badge name">Badge: Coming Soon</div>
+        </div>
+      )}
+      {/* Progress bar */}
+      <div className="mt-2 w-full bg-gray-200 h-2 rounded" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={personalizedSteps.length}>
+        <div className={`bg-blue-600 h-2 rounded ${step === 0 ? 'w-1/4' : step === 1 ? 'w-1/2' : step === 2 ? 'w-3/4' : 'w-full'}`}></div>
+      </div>
     </div>
   );
 }

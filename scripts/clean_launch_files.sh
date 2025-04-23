@@ -18,4 +18,7 @@ test -d docs/onboarding && rm -rf docs/onboarding
 test -d docs/testing && rm -rf docs/testing
 test -d docs/migrations && rm -rf docs/migrations
 
+# Remove scenario files if not needed for launch
+rm -f scenarios/abuse-whale.json scenarios/normal-growth.json scenarios/viral-growth.json
+
 echo "✅ Launch clean-up complete. Review your repo and commit the changes!"

@@ -35,6 +35,9 @@ rm -rf packages
 # Remove any update/fix scripts if not needed
 rm -f update-dependencies.sh update_all_layouts.sh update_layouts.sh fix-react-imports.sh
 
+# Remove scenario files if not needed for launch
+rm -f scripts/scenarios/abuse-whale.json scripts/scenarios/normal-growth.json scripts/scenarios/viral-growth.json
+
 # Double-check .gitignore for sensitive files
 if ! grep -q '^.env$' .gitignore; then
   echo '.env' >> .gitignore

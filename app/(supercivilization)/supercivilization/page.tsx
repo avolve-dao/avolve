@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient, Session } from "@supabase/supabase-js";
+import SupercivilizationFeed from "@/components/SupercivilizationFeed";
+import PersonalProgressTracker from "@/components/PersonalProgressTracker";
+import CollectiveProgressBar from "@/components/CollectiveProgressBar";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -107,8 +110,14 @@ export default function Supercivilization() {
   }
 
   return (
-    <div className="max-w-xl mx-auto py-10 px-6">
+    <div className="max-w-2xl mx-auto py-10 px-6">
       <h1 className="text-3xl font-bold text-fuchsia-400 mb-6">Supercivilization</h1>
+      {/* Feed section for intentions, wins, and collective progress */}
+      <SupercivilizationFeed />
+      {/* Personal progress tracker for user journey */}
+      <PersonalProgressTracker />
+      {/* Collective progress bar for community achievements */}
+      <CollectiveProgressBar />
       {showOnboarding && (
         <div className="mb-6 p-4 bg-fuchsia-100 border-l-4 border-fuchsia-400 text-fuchsia-800 rounded">
           Welcome! Start your journey by entering your supercivilization scores below. <span className="font-bold">Tip:</span> Hover over the <span className="underline">info</span> icons for guidance.

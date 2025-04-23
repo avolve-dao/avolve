@@ -6,6 +6,38 @@
 
 ---
 
+## 🚀 Quick Start for New Users & Admins
+
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/avolve-dao/avolve.io.git
+   cd avolve.io
+   ```
+2. **Install dependencies:**
+   ```sh
+   pnpm install
+   ```
+3. **Copy and configure environment variables:**
+   ```sh
+   cp .env.example .env.local
+   # Fill in all required values in .env.local (see table below)
+   ```
+4. **Start the development server:**
+   ```sh
+   pnpm dev
+   ```
+5. **Access the app:**
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+6. **First 5 things to do after joining:**
+   - Complete your profile and intention setup.
+   - Make your first post in the Supercivilization Feed.
+   - Explore the Collective Progress Bar and track community actions.
+   - Try the feedback widget and leave a suggestion.
+   - Invite a friend or fellow admin to join the onboarding flow.
+
+---
+
 ## 🛠️ Configuration & Project Structure (2025 Launch)
 
 Avolve is designed for maintainability, clarity, and DRY principles. Below is an overview of essential configuration files and best practices for a clean, production-ready setup.
@@ -41,6 +73,21 @@ Avolve is designed for maintainability, clarity, and DRY principles. Below is an
 - **Merge:** `supabase/schema/` into `supabase/schemas/` if possible.
 - **Document:** All custom configs (e.g. `config/ai-state.json`) in this README.
 
+### Example: Environment Variables
+
+See `.env.example` for the minimal set of required variables. Each is described below:
+
+| Variable                      | Purpose                                        | Where to Get/Set                |
+|-------------------------------|------------------------------------------------|----------------------------------|
+| `NEXT_PUBLIC_SUPABASE_URL`    | Public Supabase project URL (frontend)          | Supabase Project Settings        |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`| Public anon key for Supabase (frontend)        | Supabase Project Settings        |
+| `SUPABASE_URL`                | Backend Supabase URL (if different from public) | Supabase Project Settings        |
+| `SUPABASE_ANON_KEY`           | Backend anon key (if needed for server-side)    | Supabase Project Settings        |
+| `OPENAI_API_KEY`              | OpenAI API key for AI features                  | OpenAI Dashboard                 |
+| `NEXT_PUBLIC_SITE_URL`        | Public site URL (for Vercel, etc)               | Deployment Platform              |
+
+- **Tip:** Never commit `.env.local` or real secrets to git. Only `.env.example` should be tracked.
+
 ### Example: Custom AI Config
 
 The file `config/ai-state.json` tracks the state of major product subsystems, their implementation status, and key code locations. This is used for onboarding, automated documentation, and AI assistant optimizations.
@@ -63,9 +110,6 @@ The file `config/ai-state.json` tracks the state of major product subsystems, th
 - **Modular SQL:** Use `/supabase/schemas/` and reference in migrations for DRYness.
 - **Onboarding:** Keep `.env.example` and this README up-to-date for new contributors.
 - **Automation:** Use scripts in `/scripts/` for checks and setup.
-
-### Example: Environment Variables
-See `.env.example` for the minimal set of required variables. Document each in the table above for clarity.
 
 ### Example: ESLint
 All lint rules are now in `eslint.config.js` (flat config, supports plugins and custom rules). `.eslintrc.json` is deprecated and left as a stub.
@@ -123,7 +167,6 @@ Avolve now includes robust, accessible, and delightful peer recognition and onbo
    - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key
    - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
-   - `REDIS_URL`: (Optional, but recommended for production caching)
    - `OPENAI_API_KEY`: (Optional, enables AI-powered features)
 
 ## Running Locally
@@ -139,7 +182,6 @@ npx next build
 ```
 
 ## Notes
-- If `REDIS_URL` is not set, the app will use in-memory cache (not recommended for production).
 - If `OPENAI_API_KEY` is not set, AI endpoints will return 503.
 
 ## Feedback
@@ -161,7 +203,7 @@ If you encounter issues or have suggestions, please open an issue or contact the
 3. **Set up environment variables:**
    - Copy `.env.example` to `.env.local` and fill in:
      - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-     - `REDIS_URL`, `OPENAI_API_KEY` (optional for AI features)
+     - `OPENAI_API_KEY` (optional for AI features)
 4. **Run locally:**
    ```sh
    pnpm dev
@@ -199,7 +241,6 @@ If you encounter issues or have suggestions, please open an issue or contact the
 | SUPABASE_URL            | Yes      | Supabase project URL         |
 | SUPABASE_ANON_KEY       | Yes      | Supabase anon key            |
 | SUPABASE_SERVICE_ROLE_KEY | Yes    | Supabase service role key    |
-| REDIS_URL               | Optional | Redis connection string      |
 | OPENAI_API_KEY          | Optional | OpenAI API key for AI        |
 
 ## Contributing

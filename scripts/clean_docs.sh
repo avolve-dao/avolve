@@ -10,12 +10,11 @@ rm -f docs/ui/README.md
 # Remove docs not referenced in main README or onboarding
 # (add more as needed based on manual review)
 
-# Example: Remove old/duplicate onboarding docs
-rm -f docs/admin-onboarding.md
-rm -f docs/dao/onboarding.md
-
-# Example: Remove any other obsolete or unreferenced .md files here
-# (extend this list as you finalize the new docs structure)
+# Remove duplicate onboarding/admin guides
+rm -f ../../docs/guides/onboarding-admin.md ../../docs/guides/onboarding-user.md
+# Remove placeholder/legacy files
+rm -f ../../docs/PRE_LAUNCH_CHECKLIST.md
+# Remove any .md files in docs/ not referenced in ../../README.md or ONBOARDING_CHECKLIST.md
 
 # Print summary
 

@@ -62,3 +62,7 @@ __snapshots__/
 .env
 .env.production
 .env.local
+
+tsconfig.tsbuildinfo
+.vercel
+.env*.local

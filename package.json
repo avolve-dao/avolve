@@ -75,6 +75,7 @@
     "ioredis": "^5.6.1",
     "lru-cache": "^11.1.0",
     "lucide-react": "^0.503.0",
+    "nanoid": "^5.1.5",
     "next": "15.3.1",
     "next-themes": "^0.4.6",
     "openai": "^4.95.1",

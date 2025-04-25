@@ -76,14 +76,14 @@ This document outlines all environment variables required for the Avolve platfor
 | ------------------------------------ | ---------------------- | -------- | ------------------------------------- |
 | `OPENAI_API_KEY`                     | OpenAI API key         | No       | `sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
 | # Stripe API Key
-|#STRIPE_SECRET_KEY=your_actual_stripe_key_here
-STRIPE_SECRET_KEY=YOUR_STRIPE_API_KEY
+|#STRIPE_SECRET_KEY=REDACTED
+STRIPE_SECRET_KEY=REDACTED
 |# Stripe Publishable Key
-|#NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_actual_stripe_publishable_key_here
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=YOUR_STRIPE_PUBLISHABLE_KEY
+|#NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=REDACTED
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=REDACTED
 |# Stripe Webhook Secret
-|#STRIPE_WEBHOOK_SECRET=your_actual_stripe_webhook_secret_here
-STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET
+|#STRIPE_WEBHOOK_SECRET=REDACTED
+STRIPE_WEBHOOK_SECRET=REDACTED
 
 ## CDN & Performance
 

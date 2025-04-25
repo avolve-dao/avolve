@@ -1,12 +1,12 @@
-"use client";
-import React from "react";
+'use client';
+import React from 'react';
 
 export default function ConfirmDialog({
   open,
-  title = "Are you sure?",
-  message = "This action cannot be undone.",
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  title = 'Are you sure?',
+  message = 'This action cannot be undone.',
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
   onConfirm,
   onCancel,
   loading = false,
@@ -39,7 +39,7 @@ export default function ConfirmDialog({
             onClick={onConfirm}
             disabled={loading}
           >
-            {loading ? "Processing..." : confirmLabel}
+            {loading ? 'Processing...' : confirmLabel}
           </button>
         </div>
       </div>

@@ -82,6 +82,7 @@ The default language (English) will also be accessible without the language pref
 ### Translation Memory
 
 A translation memory system will be used to:
+
 - Store previously translated segments
 - Ensure consistency across documents
 - Reduce translation costs for repeated content
@@ -89,6 +90,7 @@ A translation memory system will be used to:
 ### Terminology Management
 
 A terminology database will be maintained to ensure consistent translation of:
+
 - Platform-specific terms (e.g., token names)
 - Technical terms
 - Brand terminology
@@ -96,6 +98,7 @@ A terminology database will be maintained to ensure consistent translation of:
 ## Community Contributions
 
 Community members can contribute to translations through:
+
 1. GitHub pull requests
 2. Translation suggestion forms
 3. Documentation issue reports
@@ -125,7 +128,7 @@ Community members can contribute to translations through:
     // Store preference
     localStorage.setItem('preferredLanguage', lang);
   }
-  
+
   // Set initial selection based on current URL or stored preference
   document.addEventListener('DOMContentLoaded', () => {
     const currentLang = window.location.pathname.match(/^\/([a-z]{2})\//)?.[1] || 'en';

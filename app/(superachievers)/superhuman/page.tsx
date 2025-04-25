@@ -1,7 +1,7 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient, Session } from "@supabase/supabase-js";
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient, Session } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,7 +22,11 @@ export default function Superhuman() {
   const [loading, setLoading] = useState<boolean>(true);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<SuperhumanProfile | null>(null);
-  const [fields, setFields] = useState({ academy_progress: "", university_progress: "", institute_progress: "" });
+  const [fields, setFields] = useState({
+    academy_progress: '',
+    university_progress: '',
+    institute_progress: '',
+  });
   const [edit, setEdit] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -30,7 +34,7 @@ export default function Superhuman() {
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) {
-        router.replace("/auth/signin");
+        router.replace('/auth/signin');
         return;
       }
       setSession(data.session);
@@ -43,28 +47,28 @@ export default function Superhuman() {
   const fetchSuperhuman = async (userId: string) => {
     setLoading(true);
     const { data } = await supabase
-      .from("superhuman_enhancements")
-      .select("*")
-      .eq("user_id", userId)
+      .from('superhuman_enhancements')
+      .select('*')
+      .eq('user_id', userId)
       .single();
     if (data) {
       setProfile({
         id: data.id,
         user_id: data.user_id,
-        academy_progress: data.academy_progress || "",
-        university_progress: data.university_progress || "",
-        institute_progress: data.institute_progress || "",
+        academy_progress: data.academy_progress || '',
+        university_progress: data.university_progress || '',
+        institute_progress: data.institute_progress || '',
         updated_at: data.updated_at,
       });
       setFields({
-        academy_progress: data.academy_progress || "",
-        university_progress: data.university_progress || "",
-        institute_progress: data.institute_progress || "",
+        academy_progress: data.academy_progress || '',
+        university_progress: data.university_progress || '',
+        institute_progress: data.institute_progress || '',
       });
       setShowOnboarding(false);
     } else {
       setProfile(null);
-      setFields({ academy_progress: "", university_progress: "", institute_progress: "" });
+      setFields({ academy_progress: '', university_progress: '', institute_progress: '' });
       setShowOnboarding(true);
     }
     setLoading(false);
@@ -80,23 +84,21 @@ export default function Superhuman() {
     const userId = session.user.id;
     if (profile) {
       await supabase
-        .from("superhuman_enhancements")
+        .from('superhuman_enhancements')
         .update({
           academy_progress: fields.academy_progress,
           university_progress: fields.university_progress,
           institute_progress: fields.institute_progress,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", profile.id);
+        .eq('id', profile.id);
     } else {
-      await supabase
-        .from("superhuman_enhancements")
-        .insert({
-          user_id: userId,
-          academy_progress: fields.academy_progress,
-          university_progress: fields.university_progress,
-          institute_progress: fields.institute_progress,
-        });
+      await supabase.from('superhuman_enhancements').insert({
+        user_id: userId,
+        academy_progress: fields.academy_progress,
+        university_progress: fields.university_progress,
+        institute_progress: fields.institute_progress,
+      });
     }
     setEdit(false);
     fetchSuperhuman(userId);
@@ -111,13 +113,23 @@ export default function Superhuman() {
       <h1 className="text-3xl font-bold text-rose-400 mb-6">Superhuman Enhancements</h1>
       {showOnboarding && (
         <div className="mb-6 p-4 bg-rose-100 border-l-4 border-rose-400 text-rose-800 rounded">
-          Welcome! Start your journey by entering your superhuman progress below. <span className="font-bold">Tip:</span> Hover over the <span className="underline">info</span> icons for guidance.
+          Welcome! Start your journey by entering your superhuman progress below.{' '}
+          <span className="font-bold">Tip:</span> Hover over the{' '}
+          <span className="underline">info</span> icons for guidance.
         </div>
       )}
       {edit ? (
         <div className="space-y-4">
           <div>
-            <label className="block text-zinc-300">Academy Progress <span title="How do you rate your progress in the academy?" className="ml-1 cursor-help">ℹ️</span></label>
+            <label className="block text-zinc-300">
+              Academy Progress{' '}
+              <span
+                title="How do you rate your progress in the academy?"
+                className="ml-1 cursor-help"
+              >
+                ℹ️
+              </span>
+            </label>
             <input
               type="text"
               name="academy_progress"
@@ -127,7 +139,15 @@ export default function Superhuman() {
             />
           </div>
           <div>
-            <label className="block text-zinc-300">University Progress <span title="How do you rate your progress at university?" className="ml-1 cursor-help">ℹ️</span></label>
+            <label className="block text-zinc-300">
+              University Progress{' '}
+              <span
+                title="How do you rate your progress at university?"
+                className="ml-1 cursor-help"
+              >
+                ℹ️
+              </span>
+            </label>
             <input
               type="text"
               name="university_progress"
@@ -137,7 +157,15 @@ export default function Superhuman() {
             />
           </div>
           <div>
-            <label className="block text-zinc-300">Institute Progress <span title="How do you rate your progress at the institute?" className="ml-1 cursor-help">ℹ️</span></label>
+            <label className="block text-zinc-300">
+              Institute Progress{' '}
+              <span
+                title="How do you rate your progress at the institute?"
+                className="ml-1 cursor-help"
+              >
+                ℹ️
+              </span>
+            </label>
             <input
               type="text"
               name="institute_progress"
@@ -163,15 +191,15 @@ export default function Superhuman() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-zinc-300">Academy Progress:</span>
-            <span className="text-zinc-100 font-bold">{fields.academy_progress || "-"}</span>
+            <span className="text-zinc-100 font-bold">{fields.academy_progress || '-'}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-zinc-300">University Progress:</span>
-            <span className="text-zinc-100 font-bold">{fields.university_progress || "-"}</span>
+            <span className="text-zinc-100 font-bold">{fields.university_progress || '-'}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-zinc-300">Institute Progress:</span>
-            <span className="text-zinc-100 font-bold">{fields.institute_progress || "-"}</span>
+            <span className="text-zinc-100 font-bold">{fields.institute_progress || '-'}</span>
           </div>
           <div className="flex justify-between items-center mt-4">
             <button

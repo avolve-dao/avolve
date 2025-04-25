@@ -1,26 +1,26 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { IconBrain } from "@/components/icons"
+import * as React from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { IconBrain } from '@/components/icons';
 
 interface GrokWidgetProps {
-  userId: string
-  context: string
+  userId: string;
+  context: string;
 }
 
 export function GrokWidget({ userId, context }: GrokWidgetProps) {
-  const [isOpen, setIsOpen] = React.useState(false)
-  const [query, setQuery] = React.useState("")
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [query, setQuery] = React.useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // TODO: Implement AI query handling
-    console.log("Query:", query, "Context:", context)
-    setQuery("")
-  }
+    console.log('Query:', query, 'Context:', context);
+    setQuery('');
+  };
 
   return (
     <>
@@ -46,7 +46,7 @@ export function GrokWidget({ userId, context }: GrokWidgetProps) {
             <form onSubmit={handleSubmit} className="flex gap-2">
               <Input
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={e => setQuery(e.target.value)}
                 placeholder="Ask anything..."
                 className="flex-1"
               />
@@ -58,5 +58,5 @@ export function GrokWidget({ userId, context }: GrokWidgetProps) {
         </Card>
       )}
     </>
-  )
+  );
 }

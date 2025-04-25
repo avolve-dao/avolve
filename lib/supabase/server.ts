@@ -17,14 +17,14 @@ export function createServerComponentClient() {
   try {
     // This will only work in app directory server components
     // We use a dynamic import to avoid issues with pages directory
-    const { cookies } = require('next/headers')
-    const cookieStore = cookies()
-    
-    return createSupabaseClient<Database>(supabaseUrl, supabaseKey)
+    const { cookies } = require('next/headers');
+    const cookieStore = cookies();
+
+    return createSupabaseClient<Database>(supabaseUrl, supabaseKey);
   } catch (error) {
     // Fallback for environments where cookies() is not available (like pages directory)
-    console.warn('Using fallback Supabase client. This should only happen in pages/ directory.')
-    return createSupabaseClient<Database>(supabaseUrl, supabaseKey)
+    console.warn('Using fallback Supabase client. This should only happen in pages/ directory.');
+    return createSupabaseClient<Database>(supabaseUrl, supabaseKey);
   }
 }
 

@@ -1,31 +1,31 @@
-"use client"
-import { createClient } from '@supabase/supabase-js'
-import { useState } from 'react'
+'use client';
+import { createClient } from '@supabase/supabase-js';
+import { useState } from 'react';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function UpdatePassword() {
   if (!supabaseUrl || !supabaseKey) {
-    return <div className="text-red-600">Supabase environment variables are missing.</div>
+    return <div className="text-red-600">Supabase environment variables are missing.</div>;
   }
-  const [password, setPassword] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [error, setError] = useState<string | null>(null)
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
 
   const handleUpdate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setStatus('loading')
-    setError(null)
-    const { error } = await supabase.auth.updateUser({ password })
+    e.preventDefault();
+    setStatus('loading');
+    setError(null);
+    const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setStatus('error')
-      setError(error.message)
+      setStatus('error');
+      setError(error.message);
     } else {
-      setStatus('success')
+      setStatus('success');
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
@@ -52,5 +52,5 @@ export default function UpdatePassword() {
         </form>
       </div>
     </div>
-  )
+  );
 }

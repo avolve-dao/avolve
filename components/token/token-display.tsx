@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
-import { 
-  Tooltip, 
-  TooltipContent, 
-  TooltipProvider, 
-  TooltipTrigger 
-} from '@/components/ui/tooltip';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 
@@ -45,44 +40,39 @@ export function TokenDisplay({
   showDetails = false,
   showBalance = false,
   interactive = true,
-  onClick
+  onClick,
 }: TokenDisplayProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  
+
   // Size mappings
   const sizeClasses = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-12 h-12 text-sm',
     lg: 'w-16 h-16 text-base',
-    xl: 'w-24 h-24 text-lg'
+    xl: 'w-24 h-24 text-lg',
   };
-  
+
   const tokenClass = `${sizeClasses[size]} rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${token.gradient_class}`;
-  
+
   const tokenIcon = token.icon_url ? (
-    <Image 
-      src={token.icon_url} 
-      alt={token.symbol} 
-      width={size === 'xl' ? 96 : size === 'lg' ? 64 : size === 'md' ? 48 : 32} 
+    <Image
+      src={token.icon_url}
+      alt={token.symbol}
+      width={size === 'xl' ? 96 : size === 'lg' ? 64 : size === 'md' ? 48 : 32}
       height={size === 'xl' ? 96 : size === 'lg' ? 64 : size === 'md' ? 48 : 32}
       className="rounded-full"
     />
   ) : (
-    <div className={tokenClass}>
-      {token.symbol}
-    </div>
+    <div className={tokenClass}>{token.symbol}</div>
   );
-  
+
   // Basic token display with tooltip
   if (!showDetails && interactive) {
     return (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <button 
-              className="focus:outline-none" 
-              onClick={onClick || (() => setDialogOpen(true))}
-            >
+            <button className="focus:outline-none" onClick={onClick || (() => setDialogOpen(true))}>
               {tokenIcon}
             </button>
           </TooltipTrigger>
@@ -96,7 +86,7 @@ export function TokenDisplay({
       </TooltipProvider>
     );
   }
-  
+
   // Non-interactive token display
   if (!interactive) {
     return (
@@ -105,9 +95,7 @@ export function TokenDisplay({
         {showDetails && (
           <div>
             <p className="font-medium">{token.name}</p>
-            {token.description && (
-              <p className="text-xs text-gray-500">{token.description}</p>
-            )}
+            {token.description && <p className="text-xs text-gray-500">{token.description}</p>}
             {showBalance && token.balance !== undefined && (
               <p className="text-xs">Balance: {token.balance}</p>
             )}
@@ -116,11 +104,11 @@ export function TokenDisplay({
       </div>
     );
   }
-  
+
   // Token display with details and dialog
   return (
     <>
-      <div 
+      <div
         className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
         onClick={onClick || (() => setDialogOpen(true))}
       >
@@ -147,19 +135,19 @@ export function TokenDisplay({
           </div>
         )}
       </div>
-      
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${token.gradient_class}`}>
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${token.gradient_class}`}
+              >
                 {token.symbol}
               </div>
               <span>{token.name}</span>
             </DialogTitle>
-            <DialogDescription>
-              {token.description}
-            </DialogDescription>
+            <DialogDescription>{token.description}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {token.parent_token_symbol && (

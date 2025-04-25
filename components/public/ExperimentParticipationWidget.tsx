@@ -10,7 +10,10 @@ interface ExperimentParticipationWidgetProps {
 
 const supabase = createClient();
 
-const ExperimentParticipationWidget: React.FC<ExperimentParticipationWidgetProps> = ({ experimentId, userId }) => {
+const ExperimentParticipationWidget: React.FC<ExperimentParticipationWidgetProps> = ({
+  experimentId,
+  userId,
+}) => {
   const [participating, setParticipating] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -20,9 +23,9 @@ const ExperimentParticipationWidget: React.FC<ExperimentParticipationWidgetProps
     setSubmitting(true);
     setError(null);
     setSuccess(false);
-    const { error } = await supabase.from('experiment_participation').insert([
-      { user_id: userId, experiment_name: experimentId, result: 'participated' }
-    ]);
+    const { error } = await supabase
+      .from('experiment_participation')
+      .insert([{ user_id: userId, experiment_name: experimentId, result: 'participated' }]);
     if (error) {
       setError(error.message);
     } else {
@@ -36,7 +39,9 @@ const ExperimentParticipationWidget: React.FC<ExperimentParticipationWidgetProps
     <Card className="my-4 max-w-md">
       <CardContent className="p-4">
         {participating ? (
-          <div className="text-green-600 font-medium">Thank you for participating in this experiment!</div>
+          <div className="text-green-600 font-medium">
+            Thank you for participating in this experiment!
+          </div>
         ) : (
           <Button onClick={handleParticipate} disabled={submitting} className="w-full">
             {submitting ? 'Joining...' : 'Join this Experiment'}

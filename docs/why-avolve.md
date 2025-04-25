@@ -3,6 +3,7 @@
 ## For Users (Subscribers, Participants, Contributors)
 
 ### 🚀 Unlock Your Potential
+
 Avolve is your launchpad for personal and collective transformation. Whether you want to accelerate your career, improve your well-being, or co-create new ventures, Avolve gives you the tools, community, and support to achieve your goals.
 
 - **Personalized Progress:** Guided journeys, daily challenges, and milestone tracking tailored to your aspirations.
@@ -12,6 +13,7 @@ Avolve is your launchpad for personal and collective transformation. Whether you
 - **Delightful Experience:** Enjoy a beautiful, intuitive interface designed for focus and flow.
 
 ### Typical User Profiles
+
 - **Subscriber:** Enjoys curated content, tracks personal progress, and earns rewards for engagement.
 - **Participant:** Joins challenges, collaborates in groups, and contributes to community discussions.
 - **Contributor:** Builds features, creates content, or helps guide the platform’s direction.
@@ -21,6 +23,7 @@ Avolve is your launchpad for personal and collective transformation. Whether you
 ## For Admins (Venture Builders, Venture Partners, Venture Associates)
 
 ### 🏗️ Build and Scale Impactful Ventures
+
 Avolve empowers you to launch, manage, and grow ventures—whether you’re a founder, partner, or associate.
 
 - **Venture Builder:** Architect new projects, recruit teams, and deploy resources efficiently.
@@ -28,6 +31,7 @@ Avolve empowers you to launch, manage, and grow ventures—whether you’re a fo
 - **Venture Associate:** Support operations, manage onboarding, and facilitate collaboration across projects.
 
 ### Key Admin Benefits
+
 - **Role-Based Access:** Fine-grained permissions for secure, scalable management.
 - **Live Analytics:** Real-time dashboards for user engagement, venture progress, and token flows.
 - **Automated Onboarding:** Streamline new user and team onboarding with customizable flows.
@@ -37,7 +41,9 @@ Avolve empowers you to launch, manage, and grow ventures—whether you’re a fo
 ---
 
 ## Why Avolve?
+
 **Avolve is where ideas become reality.**
+
 - For users: Achieve more, grow faster, and belong to a community that supports your journey.
 - For admins: Launch and scale ventures with confidence, clarity, and community-driven governance.
 

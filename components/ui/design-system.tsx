@@ -6,56 +6,56 @@ import React, { JSX, CSSProperties } from 'react';
 export const spacing = {
   0: '0',
   0.5: '0.125rem', // 2px
-  1: '0.25rem',    // 4px
+  1: '0.25rem', // 4px
   1.5: '0.375rem', // 6px
-  2: '0.5rem',     // 8px
+  2: '0.5rem', // 8px
   2.5: '0.625rem', // 10px
-  3: '0.75rem',    // 12px
+  3: '0.75rem', // 12px
   3.5: '0.875rem', // 14px
-  4: '1rem',       // 16px
-  5: '1.25rem',    // 20px
-  6: '1.5rem',     // 24px
-  7: '1.75rem',    // 28px
-  8: '2rem',       // 32px
-  9: '2.25rem',    // 36px
-  10: '2.5rem',    // 40px
-  11: '2.75rem',   // 44px
-  12: '3rem',      // 48px
-  14: '3.5rem',    // 56px
-  16: '4rem',      // 64px
-  20: '5rem',      // 80px
-  24: '6rem',      // 96px
-  28: '7rem',      // 112px
-  32: '8rem',      // 128px
-  36: '9rem',      // 144px
-  40: '10rem',     // 160px
-  44: '11rem',     // 176px
-  48: '12rem',     // 192px
-  52: '13rem',     // 208px
-  56: '14rem',     // 224px
-  60: '15rem',     // 240px
-  64: '16rem',     // 256px
-  72: '18rem',     // 288px
-  80: '20rem',     // 320px
-  96: '24rem',     // 384px
+  4: '1rem', // 16px
+  5: '1.25rem', // 20px
+  6: '1.5rem', // 24px
+  7: '1.75rem', // 28px
+  8: '2rem', // 32px
+  9: '2.25rem', // 36px
+  10: '2.5rem', // 40px
+  11: '2.75rem', // 44px
+  12: '3rem', // 48px
+  14: '3.5rem', // 56px
+  16: '4rem', // 64px
+  20: '5rem', // 80px
+  24: '6rem', // 96px
+  28: '7rem', // 112px
+  32: '8rem', // 128px
+  36: '9rem', // 144px
+  40: '10rem', // 160px
+  44: '11rem', // 176px
+  48: '12rem', // 192px
+  52: '13rem', // 208px
+  56: '14rem', // 224px
+  60: '15rem', // 240px
+  64: '16rem', // 256px
+  72: '18rem', // 288px
+  80: '20rem', // 320px
+  96: '24rem', // 384px
 };
 
 // Define typography scale
 export const typography = {
   fontSizes: {
-    xs: '0.75rem',     // 12px
-    sm: '0.875rem',    // 14px
-    base: '1rem',      // 16px
-    lg: '1.125rem',    // 18px
-    xl: '1.25rem',     // 20px
-    '2xl': '1.5rem',   // 24px
+    xs: '0.75rem', // 12px
+    sm: '0.875rem', // 14px
+    base: '1rem', // 16px
+    lg: '1.125rem', // 18px
+    xl: '1.25rem', // 20px
+    '2xl': '1.5rem', // 24px
     '3xl': '1.875rem', // 30px
-    '4xl': '2.25rem',  // 36px
-    '5xl': '3rem',     // 48px
-    '6xl': '3.75rem',  // 60px
-    '7xl': '4.5rem',   // 72px
-    '8xl': '6rem',     // 96px
-    '9xl': '8rem',     // 128px
+    '4xl': '2.25rem', // 36px
+    '5xl': '3rem', // 48px
+    '6xl': '3.75rem', // 60px
+    '7xl': '4.5rem', // 72px
+    '8xl': '6rem', // 96px
+    '9xl': '8rem', // 128px
   },
   fontWeights: {
     thin: '100',
@@ -89,13 +89,13 @@ export const typography = {
 // Define consistent border radius scale
 export const borderRadius = {
   none: '0',
-  sm: '0.125rem',    // 2px
+  sm: '0.125rem', // 2px
   DEFAULT: '0.25rem', // 4px
-  md: '0.375rem',    // 6px
-  lg: '0.5rem',      // 8px
-  xl: '0.75rem',     // 12px
-  '2xl': '1rem',     // 16px
-  '3xl': '1.5rem',   // 24px
+  md: '0.375rem', // 6px
+  lg: '0.5rem', // 8px
+  xl: '0.75rem', // 12px
+  '2xl': '1rem', // 16px
+  '3xl': '1.5rem', // 24px
   full: '9999px',
 };
 
@@ -130,14 +130,9 @@ interface HeadingProps {
   weight?: keyof typeof typography.fontWeights;
 }
 
-export function Heading({ 
-  level = 1, 
-  children, 
-  className = '',
-  weight = 'bold'
-}: HeadingProps) {
+export function Heading({ level = 1, children, className = '', weight = 'bold' }: HeadingProps) {
   const Tag = `h${level}` as keyof JSX.IntrinsicElements;
-  
+
   const sizeMap = {
     1: typography.fontSizes['4xl'],
     2: typography.fontSizes['3xl'],
@@ -146,13 +141,13 @@ export function Heading({
     5: typography.fontSizes.lg,
     6: typography.fontSizes.base,
   };
-  
+
   const style = {
     fontSize: sizeMap[level],
     fontWeight: typography.fontWeights[weight],
     lineHeight: typography.lineHeights.tight,
   };
-  
+
   return (
     <Tag className={className} style={style}>
       {children}
@@ -168,12 +163,12 @@ interface TextProps {
   muted?: boolean;
 }
 
-export function Text({ 
-  children, 
-  size = 'base', 
+export function Text({
+  children,
+  size = 'base',
   weight = 'normal',
   className = '',
-  muted = false
+  muted = false,
 }: TextProps) {
   const style = {
     fontSize: typography.fontSizes[size],
@@ -181,7 +176,7 @@ export function Text({
     lineHeight: typography.lineHeights.normal,
     color: muted ? 'var(--muted-foreground)' : 'inherit',
   };
-  
+
   return (
     <p className={className} style={style}>
       {children}
@@ -196,16 +191,12 @@ interface SpacerProps {
   className?: string;
 }
 
-export function Spacer({ 
-  size = 4, 
-  axis = 'vertical',
-  className = ''
-}: SpacerProps) {
+export function Spacer({ size = 4, axis = 'vertical', className = '' }: SpacerProps) {
   const width = axis === 'horizontal' ? spacing[size] : '100%';
   const height = axis === 'vertical' ? spacing[size] : '100%';
-  
+
   return (
-    <div 
+    <div
       className={className}
       style={{
         width,
@@ -224,11 +215,11 @@ interface ContainerProps {
   className?: string;
 }
 
-export function Container({ 
-  children, 
+export function Container({
+  children,
   maxWidth = 'lg',
   padding = 4,
-  className = ''
+  className = '',
 }: ContainerProps) {
   const maxWidthMap = {
     sm: '640px',
@@ -239,14 +230,14 @@ export function Container({
     full: '100%',
     none: 'none',
   };
-  
+
   const style = {
     maxWidth: maxWidthMap[maxWidth],
     padding: spacing[padding],
     margin: '0 auto',
     width: '100%',
   };
-  
+
   return (
     <div className={className} style={style}>
       {children}
@@ -262,18 +253,13 @@ interface GridProps {
   className?: string;
 }
 
-export function Grid({ 
-  children, 
-  columns = 1,
-  gap = 4,
-  className = ''
-}: GridProps) {
+export function Grid({ children, columns = 1, gap = 4, className = '' }: GridProps) {
   const style = {
     display: 'grid',
     gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
     gap: spacing[gap],
   };
-  
+
   return (
     <div className={className} style={style}>
       {children}
@@ -292,14 +278,14 @@ interface FlexProps {
   className?: string;
 }
 
-export function Flex({ 
-  children, 
+export function Flex({
+  children,
   direction = 'row',
   align = 'start',
   justify = 'start',
   gap = 4,
   wrap = false,
-  className = ''
+  className = '',
 }: FlexProps) {
   const alignMap = {
     start: 'flex-start',
@@ -308,7 +294,7 @@ export function Flex({
     stretch: 'stretch',
     baseline: 'baseline',
   };
-  
+
   const justifyMap = {
     start: 'flex-start',
     center: 'center',
@@ -317,16 +303,18 @@ export function Flex({
     around: 'space-around',
     evenly: 'space-evenly',
   };
-  
+
   const style: React.CSSProperties = {
     display: 'flex',
     flexDirection: direction,
     alignItems: alignMap[align],
     justifyContent: justifyMap[justify],
     gap: spacing[gap],
-    flexWrap: wrap ? ('wrap' as React.CSSProperties['flexWrap']) : ('nowrap' as React.CSSProperties['flexWrap']),
+    flexWrap: wrap
+      ? ('wrap' as React.CSSProperties['flexWrap'])
+      : ('nowrap' as React.CSSProperties['flexWrap']),
   };
-  
+
   return (
     <div className={className} style={style}>
       {children}

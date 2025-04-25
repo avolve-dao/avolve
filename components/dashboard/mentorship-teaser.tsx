@@ -1,26 +1,26 @@
-// [Avolve 2025+] This mentorship teaser is currently a placeholder for a future feature. 
+// [Avolve 2025+] This mentorship teaser is currently a placeholder for a future feature.
 // If mentorship is not a near-term focus, consider removing this file to reduce codebase clutter.
 // Otherwise, keep it as a soft-locked teaser for future launch.
 
-"use client"
+'use client';
 
-import { LockKeyhole, Users, ArrowRight } from "lucide-react"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { useTracking } from "@/utils/tracking"
+import { LockKeyhole, Users, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useTracking } from '@/utils/tracking';
 
 interface MentorshipTeaserProps {
-  userId: string
+  userId: string;
 }
 
 export function MentorshipTeaser({ userId }: MentorshipTeaserProps) {
-  const tracking = useTracking(userId)
-  
+  const tracking = useTracking(userId);
+
   const handleTeaserClick = () => {
     // Track the interaction with the locked feature
-    tracking.trackFeature('mentorship_teaser', 'page_view')
-  }
+    tracking.trackFeature('mentorship_teaser', 'page_view');
+  };
 
   return (
     <Card className="border-zinc-800 bg-zinc-950/50 opacity-50 transition-all duration-300 hover:opacity-60">
@@ -39,9 +39,10 @@ export function MentorshipTeaser({ userId }: MentorshipTeaserProps) {
       <CardContent>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Connect with experienced mentors in the Avolve ecosystem to accelerate your journey and unlock new opportunities.
+            Connect with experienced mentors in the Avolve ecosystem to accelerate your journey and
+            unlock new opportunities.
           </p>
-          
+
           <div className="grid grid-cols-2 gap-2">
             <div className="bg-zinc-900/50 p-3 rounded-md">
               <h4 className="text-sm font-medium">Personalized Guidance</h4>
@@ -52,7 +53,7 @@ export function MentorshipTeaser({ userId }: MentorshipTeaserProps) {
               <p className="text-xs text-muted-foreground mt-1">Tailored learning paths</p>
             </div>
           </div>
-          
+
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Unlock Requirements:</span>
             <span className="font-medium">Regen Score 75+</span>
@@ -60,11 +61,7 @@ export function MentorshipTeaser({ userId }: MentorshipTeaserProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button 
-          variant="outline" 
-          className="w-full"
-          onClick={handleTeaserClick}
-        >
+        <Button variant="outline" className="w-full" onClick={handleTeaserClick}>
           Learn More
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -76,5 +73,5 @@ export function MentorshipTeaser({ userId }: MentorshipTeaserProps) {
         </div>
       </div>
     </Card>
-  )
+  );
 }

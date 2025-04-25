@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
-import type { User } from "@supabase/supabase-js"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { createClient } from '@/lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,26 +13,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { LogOut, UserIcon, Settings, HelpCircle } from "lucide-react"
+} from '@/components/ui/dropdown-menu';
+import { LogOut, UserIcon, Settings, HelpCircle } from 'lucide-react';
 
 interface UserNavProps {
-  user: User
+  user: User;
 }
 
 export function UserNav({ user }: UserNavProps) {
-  const router = useRouter()
-  const supabase = createClient()
+  const router = useRouter();
+  const supabase = createClient();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push("/auth/login")
-  }
+    await supabase.auth.signOut();
+    router.push('/auth/login');
+  };
 
-  const userInitials = user.email ? user.email.substring(0, 2).toUpperCase() : "U"
+  const userInitials = user.email ? user.email.substring(0, 2).toUpperCase() : 'U';
 
-  const userAvatar = user.user_metadata?.avatar_url || null
-  const userName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User"
+  const userAvatar = user.user_metadata?.avatar_url || null;
+  const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
 
   return (
     <DropdownMenu>
@@ -57,11 +57,11 @@ export function UserNav({ user }: UserNavProps) {
             <UserIcon className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
+          <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/dashboard/help")}>
+          <DropdownMenuItem onClick={() => router.push('/dashboard/help')}>
             <HelpCircle className="mr-2 h-4 w-4" />
             <span>Help</span>
           </DropdownMenuItem>
@@ -73,6 +73,5 @@ export function UserNav({ user }: UserNavProps) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
-

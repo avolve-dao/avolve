@@ -67,14 +67,24 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 });
     }
     // Only allow sender or admin to delete
-    const { data: rec, error: recError } = await (supabase as any).from('peer_recognition').select('id,sender_id').eq('id', id).single();
+    const { data: rec, error: recError } = await (supabase as any)
+      .from('peer_recognition')
+      .select('id,sender_id')
+      .eq('id', id)
+      .single();
     if (recError || !rec) {
       return NextResponse.json({ error: 'Recognition not found.' }, { status: 404 });
     }
     if (rec.sender_id !== user.id /* && !user.is_admin */) {
-      return NextResponse.json({ error: 'Not authorized to delete this recognition.' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Not authorized to delete this recognition.' },
+        { status: 403 }
+      );
     }
-    const { error: delError } = await (supabase as any).from('peer_recognition').delete().eq('id', id);
+    const { error: delError } = await (supabase as any)
+      .from('peer_recognition')
+      .delete()
+      .eq('id', id);
     if (delError) {
       return NextResponse.json({ error: delError.message }, { status: 500 });
     }

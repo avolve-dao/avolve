@@ -1,11 +1,11 @@
-"use client"
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { RefreshCcw } from "lucide-react"
+import { Button } from '@/components/ui/button';
+import { RefreshCcw } from 'lucide-react';
 
 interface ErrorDisplayProps {
-  message: string
-  onRetry?: () => void
+  message: string;
+  onRetry?: () => void;
 }
 
 export default function ErrorDisplay({ message, onRetry }: ErrorDisplayProps) {
@@ -19,6 +19,5 @@ export default function ErrorDisplay({ message, onRetry }: ErrorDisplayProps) {
         </Button>
       )}
     </div>
-  )
+  );
 }
-

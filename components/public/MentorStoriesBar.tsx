@@ -28,7 +28,10 @@ const MentorStoriesBar: React.FC<MentorStoriesBarProps> = ({ context }) => {
     const fetchStories = async () => {
       // @ts-ignore: supabase import path
       const { supabase } = await import('../../lib/supabaseClient');
-      let query = supabase.from('mentor_stories').select('*').order('created_at', { ascending: false });
+      let query = supabase
+        .from('mentor_stories')
+        .select('*')
+        .order('created_at', { ascending: false });
       if (context) {
         query = query.ilike('context', `%${context}%`);
       }
@@ -71,7 +74,7 @@ const MentorStoriesBar: React.FC<MentorStoriesBarProps> = ({ context }) => {
           className="flex space-x-4 overflow-x-auto scrollbar-hide py-2 px-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {stories.map((story) => (
+          {stories.map(story => (
             <div key={story.id} className="flex flex-col items-center space-y-2 flex-shrink-0 w-64">
               <div className="p-0.5 rounded-full bg-gradient-to-tr from-zinc-500 via-blue-500 to-emerald-500">
                 <div className="p-0.5 bg-background rounded-full">
@@ -85,7 +88,9 @@ const MentorStoriesBar: React.FC<MentorStoriesBarProps> = ({ context }) => {
                 </div>
               </div>
               <span className="text-xs font-semibold">{story.mentor_name}</span>
-              <div className="text-xs text-muted-foreground text-center line-clamp-4">{story.story}</div>
+              <div className="text-xs text-muted-foreground text-center line-clamp-4">
+                {story.story}
+              </div>
             </div>
           ))}
         </div>

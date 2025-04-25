@@ -1,108 +1,115 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, ArrowRight, Lock } from 'lucide-react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import Link from 'next/link';
 
 // Define quick start guides based on experience phases
 const phaseGuides = {
   discovery: [
-    { 
-      title: 'Complete Your Profile', 
+    {
+      title: 'Complete Your Profile',
       description: 'Add your details and preferences to personalize your experience.',
       link: '/dashboard/profile',
       action: 'Update Profile',
-      taskKey: 'profile_completed'
+      taskKey: 'profile_completed',
     },
-    { 
-      title: 'Take the Superachiever Assessment', 
+    {
+      title: 'Take the Superachiever Assessment',
       description: 'Discover your strengths and areas for growth with our assessment.',
       link: '/dashboard/assessment',
       action: 'Start Assessment',
-      taskKey: 'assessment_completed'
+      taskKey: 'assessment_completed',
     },
-    { 
-      title: 'Claim Your First Tokens', 
+    {
+      title: 'Claim Your First Tokens',
       description: 'Complete your first daily claim to receive GEN tokens.',
       link: '/dashboard/tokens',
       action: 'Claim Tokens',
-      taskKey: 'first_token_claim'
+      taskKey: 'first_token_claim',
     },
   ],
   onboarding: [
-    { 
-      title: 'Join Your First Team', 
+    {
+      title: 'Join Your First Team',
       description: 'Connect with others by joining or creating a team.',
       link: '/teams',
       action: 'Explore Teams',
-      taskKey: 'team_joined'
+      taskKey: 'team_joined',
     },
-    { 
-      title: 'Complete a Journey Component', 
+    {
+      title: 'Complete a Journey Component',
       description: 'Start your journey by completing your first component.',
       link: '/dashboard/journey',
       action: 'Start Journey',
-      taskKey: 'journey_component_completed'
+      taskKey: 'journey_component_completed',
     },
-    { 
-      title: 'Set Up Verification', 
+    {
+      title: 'Set Up Verification',
       description: 'Verify your identity to unlock additional features.',
       link: '/dashboard/verification',
       action: 'Verify Now',
-      taskKey: 'verification_started'
+      taskKey: 'verification_started',
     },
   ],
   scaffolding: [
-    { 
-      title: 'Contribute to a Superpuzzle', 
+    {
+      title: 'Contribute to a Superpuzzle',
       description: 'Add your insights to community superpuzzles.',
       link: '/superpuzzles',
       action: 'Explore Superpuzzles',
-      taskKey: 'superpuzzle_contribution'
+      taskKey: 'superpuzzle_contribution',
     },
-    { 
-      title: 'Participate in Governance', 
+    {
+      title: 'Participate in Governance',
       description: 'Vote on community proposals and help shape Avolve.',
       link: '/governance',
       action: 'View Proposals',
-      taskKey: 'governance_participation'
+      taskKey: 'governance_participation',
     },
-    { 
-      title: 'Earn Specialized Tokens', 
+    {
+      title: 'Earn Specialized Tokens',
       description: 'Complete activities to earn specialized utility tokens.',
       link: '/dashboard/tokens',
       action: 'View Token Guide',
-      taskKey: 'utility_token_earned'
+      taskKey: 'utility_token_earned',
     },
   ],
   endgame: [
-    { 
-      title: 'Create a Community Proposal', 
+    {
+      title: 'Create a Community Proposal',
       description: 'Submit your ideas for improving the Avolve ecosystem.',
       link: '/governance/propose',
       action: 'Create Proposal',
-      taskKey: 'proposal_created'
+      taskKey: 'proposal_created',
     },
-    { 
-      title: 'Mentor New Members', 
+    {
+      title: 'Mentor New Members',
       description: 'Help onboard new members and earn mentor rewards.',
       link: '/dashboard/mentorship',
       action: 'Become a Mentor',
-      taskKey: 'mentorship_started'
+      taskKey: 'mentorship_started',
     },
-    { 
-      title: 'Achieve Network State Status', 
+    {
+      title: 'Achieve Network State Status',
       description: 'Reach the highest level of participation in the Avolve ecosystem.',
       link: '/dashboard/network-state',
       action: 'View Requirements',
-      taskKey: 'network_state_progress'
+      taskKey: 'network_state_progress',
     },
-  ]
+  ],
 };
 
 interface QuickStartGuideProps {
@@ -113,7 +120,7 @@ export function QuickStartGuide({ userId }: QuickStartGuideProps) {
   const [userPhase, setUserPhase] = useState<string>('discovery');
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<string>('discovery');
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Fetch user's current experience phase and completed tasks
   useEffect(() => {
@@ -149,17 +156,15 @@ export function QuickStartGuide({ userId }: QuickStartGuideProps) {
   // Mark a task as completed
   const markTaskCompleted = async (taskKey: string) => {
     if (completedTasks.includes(taskKey)) return;
-    
+
     const updatedTasks = [...completedTasks, taskKey];
     setCompletedTasks(updatedTasks);
-    
-    await supabase
-      .from('user_onboarding')
-      .upsert({ 
-        user_id: userId, 
-        completed_tasks: updatedTasks,
-        updated_at: new Date().toISOString()
-      });
+
+    await supabase.from('user_onboarding').upsert({
+      user_id: userId,
+      completed_tasks: updatedTasks,
+      updated_at: new Date().toISOString(),
+    });
   };
 
   // Get available phases based on user's current phase
@@ -174,7 +179,7 @@ export function QuickStartGuide({ userId }: QuickStartGuideProps) {
     discovery: 'Discovery',
     onboarding: 'Onboarding',
     scaffolding: 'Scaffolding',
-    endgame: 'Endgame'
+    endgame: 'Endgame',
   };
 
   return (
@@ -189,49 +194,41 @@ export function QuickStartGuide({ userId }: QuickStartGuideProps) {
         <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-4 mb-4">
             {Object.entries(phaseLabels).map(([phase, label]) => (
-              <TabsTrigger 
-                key={phase} 
+              <TabsTrigger
+                key={phase}
                 value={phase}
                 disabled={!availablePhases.includes(phase)}
                 className="relative"
               >
                 {label}
-                {!availablePhases.includes(phase) && (
-                  <Lock className="h-3 w-3 ml-1 inline" />
-                )}
+                {!availablePhases.includes(phase) && <Lock className="h-3 w-3 ml-1 inline" />}
               </TabsTrigger>
             ))}
           </TabsList>
-          
+
           {Object.entries(phaseGuides).map(([phase, tasks]) => (
             <TabsContent key={phase} value={phase} className="space-y-4">
               {tasks.map((task, index) => {
                 const isCompleted = completedTasks.includes(task.taskKey);
                 return (
-                  <div 
+                  <div
                     key={index}
                     className={`p-4 rounded-lg border ${
-                      isCompleted 
-                        ? 'border-green-600 bg-green-950/20' 
-                        : 'border-zinc-800'
+                      isCompleted ? 'border-green-600 bg-green-950/20' : 'border-zinc-800'
                     }`}
                   >
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-medium flex items-center">
                           {task.title}
-                          {isCompleted && (
-                            <CheckCircle className="h-4 w-4 ml-2 text-green-500" />
-                          )}
+                          {isCompleted && <CheckCircle className="h-4 w-4 ml-2 text-green-500" />}
                         </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {task.description}
-                        </p>
+                        <p className="text-sm text-muted-foreground mt-1">{task.description}</p>
                       </div>
                       <Link href={task.link}>
-                        <Button 
-                          size="sm" 
-                          variant={isCompleted ? "outline" : "default"}
+                        <Button
+                          size="sm"
+                          variant={isCompleted ? 'outline' : 'default'}
                           onClick={() => !isCompleted && markTaskCompleted(task.taskKey)}
                           className="ml-4"
                         >
@@ -248,9 +245,7 @@ export function QuickStartGuide({ userId }: QuickStartGuideProps) {
         </Tabs>
       </CardContent>
       <CardFooter className="justify-between border-t border-zinc-800 pt-4">
-        <div className="text-sm text-muted-foreground">
-          {completedTasks.length} tasks completed
-        </div>
+        <div className="text-sm text-muted-foreground">{completedTasks.length} tasks completed</div>
         <Badge variant="outline">
           {/* userPhase should be a key of phaseLabels, fallback to 'onboarding' if not found */}
           {phaseLabels[userPhase as keyof typeof phaseLabels] ?? phaseLabels['onboarding']} Phase

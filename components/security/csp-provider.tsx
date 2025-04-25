@@ -6,13 +6,7 @@ import React, { createContext, useContext, ReactNode } from 'react';
 const CspContext = createContext<string | null>(null);
 
 // Provider component that will wrap the application
-export function CspProvider({
-  nonce,
-  children,
-}: {
-  nonce: string | null;
-  children: ReactNode;
-}) {
+export function CspProvider({ nonce, children }: { nonce: string | null; children: ReactNode }) {
   return <CspContext.Provider value={nonce}>{children}</CspContext.Provider>;
 }
 
@@ -30,13 +24,9 @@ export function Script({
   children: string;
 } & React.HTMLAttributes<HTMLScriptElement>) {
   const nonce = useCspNonce();
-  
+
   return (
-    <script
-      nonce={nonce || undefined}
-      dangerouslySetInnerHTML={{ __html: children }}
-      {...props}
-    />
+    <script nonce={nonce || undefined} dangerouslySetInnerHTML={{ __html: children }} {...props} />
   );
 }
 
@@ -48,12 +38,8 @@ export function Style({
   children: string;
 } & React.HTMLAttributes<HTMLStyleElement>) {
   const nonce = useCspNonce();
-  
+
   return (
-    <style
-      nonce={nonce || undefined}
-      dangerouslySetInnerHTML={{ __html: children }}
-      {...props}
-    />
+    <style nonce={nonce || undefined} dangerouslySetInnerHTML={{ __html: children }} {...props} />
   );
 }

@@ -33,15 +33,15 @@ GEN (Supercivilization) - Top-level token
 
 The platform follows a weekly schedule for token claims, with each day dedicated to a specific token:
 
-| Day | Token | Full Name | Gradient | Value Pillar | Metrics Impact |
-|-----|-------|-----------|----------|--------------|----------------|
-| Sunday | SPD | Superpuzzle Developments | Red-Green-Blue | Superachievers | Community Engagement |
-| Monday | SHE | Superhuman Enhancements | Rose-Red-Orange | Superachievers | D1 Retention |
-| Tuesday | PSP | Personal Success Puzzle | Amber-Yellow | Superachiever | DAU/MAU Ratio |
-| Wednesday | SSA | Supersociety Advancements | Lime-Green-Emerald | Superachievers | Community Contribution |
-| Thursday | BSP | Business Success Puzzle | Teal-Cyan | Superachiever | ARPU Metrics |
-| Friday | SGB | Supergenius Breakthroughs | Sky-Blue-Indigo | Superachievers | Innovation Metrics |
-| Saturday | SMS | Supermind Superpowers | Violet-Purple-Fuchsia-Pink | Superachiever | User Satisfaction & NPS |
+| Day       | Token | Full Name                 | Gradient                   | Value Pillar   | Metrics Impact          |
+| --------- | ----- | ------------------------- | -------------------------- | -------------- | ----------------------- |
+| Sunday    | SPD   | Superpuzzle Developments  | Red-Green-Blue             | Superachievers | Community Engagement    |
+| Monday    | SHE   | Superhuman Enhancements   | Rose-Red-Orange            | Superachievers | D1 Retention            |
+| Tuesday   | PSP   | Personal Success Puzzle   | Amber-Yellow               | Superachiever  | DAU/MAU Ratio           |
+| Wednesday | SSA   | Supersociety Advancements | Lime-Green-Emerald         | Superachievers | Community Contribution  |
+| Thursday  | BSP   | Business Success Puzzle   | Teal-Cyan                  | Superachiever  | ARPU Metrics            |
+| Friday    | SGB   | Supergenius Breakthroughs | Sky-Blue-Indigo            | Superachievers | Innovation Metrics      |
+| Saturday  | SMS   | Supermind Superpowers     | Violet-Purple-Fuchsia-Pink | Superachiever  | User Satisfaction & NPS |
 
 ### Claim Streaks and Bonuses
 
@@ -66,14 +66,17 @@ The platform uses a metrics-driven approach to feature unlocking. By improving e
 ### Feature Unlock Requirements
 
 1. **Teams Feature**
+
    - Complete 10 challenges OR claim 3 different day tokens
    - Unlocks the ability to create or join teams for collaborative work
 
 2. **Governance Feature**
+
    - Accumulate 100 GEN tokens
    - Unlocks the ability to create petitions and vote on platform decisions
 
 3. **Marketplace Feature**
+
    - Complete 20 challenges OR achieve DAU/MAU > 0.3
    - Unlocks the ability to buy, sell, and trade items with other users
 
@@ -116,11 +119,13 @@ The regenerative gamified system is implemented using the following database tab
 ### For Developers
 
 1. **Recording Metrics**
+
    - Always record metrics for important user actions
    - Use the `recordMetric` function with appropriate metric types and values
    - Include relevant metadata for detailed analysis
 
 2. **Token Operations**
+
    - Always validate token operations before executing them
    - Handle errors properly, especially for token transfers and claims
    - Update user balances and metrics after successful operations
@@ -133,11 +138,13 @@ The regenerative gamified system is implemented using the following database tab
 ### For Users
 
 1. **Daily Engagement**
+
    - Log in daily to claim tokens
    - Complete challenges to improve metrics
    - Maintain claim streaks for bonus rewards
 
 2. **Balanced Participation**
+
    - Engage with all three value pillars
    - Claim tokens on different days of the week
    - Participate in both individual and collective activities

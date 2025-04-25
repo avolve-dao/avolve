@@ -69,7 +69,7 @@ You can use CSS variables in your custom styles:
 The `AvolveThemeShowcase` component provides a visual reference for all colors and gradients:
 
 ```jsx
-import { AvolveThemeShowcase } from "@/components/ui/avolve-theme-showcase"
+import { AvolveThemeShowcase } from '@/components/ui/avolve-theme-showcase';
 
 export default function ThemePage() {
   return (
@@ -77,7 +77,7 @@ export default function ThemePage() {
       <h1 className="text-3xl font-bold mb-6">Avolve Theme System</h1>
       <AvolveThemeShowcase />
     </div>
-  )
+  );
 }
 ```
 
@@ -85,28 +85,28 @@ export default function ThemePage() {
 
 ### Main Values
 
-| Value | Gradient | Token |
-|-------|----------|-------|
-| Supercivilization | Zinc gradient | GEN token |
-| Superachiever | Stone gradient | SAP token |
-| Superachievers | Slate gradient | SCQ token |
+| Value             | Gradient       | Token     |
+| ----------------- | -------------- | --------- |
+| Supercivilization | Zinc gradient  | GEN token |
+| Superachiever     | Stone gradient | SAP token |
+| Superachievers    | Slate gradient | SCQ token |
 
 ### Superachiever Sections
 
-| Section | Gradient | Token |
-|---------|----------|-------|
-| Personal Success Puzzle | Amber-Yellow gradient | PSP token |
-| Business Success Puzzle | Teal-Cyan gradient | BSP token |
-| Supermind Superpowers | Violet-Purple-Fuchsia-Pink gradient | SMS token |
+| Section                 | Gradient                            | Token     |
+| ----------------------- | ----------------------------------- | --------- |
+| Personal Success Puzzle | Amber-Yellow gradient               | PSP token |
+| Business Success Puzzle | Teal-Cyan gradient                  | BSP token |
+| Supermind Superpowers   | Violet-Purple-Fuchsia-Pink gradient | SMS token |
 
 ### Superachievers Sections
 
-| Section | Gradient | Token |
-|---------|----------|-------|
-| Superpuzzle Developments | Red-Green-Blue gradient | SPD token |
-| Superhuman Enhancements | Rose-Red-Orange gradient | SHE token |
+| Section                   | Gradient                    | Token     |
+| ------------------------- | --------------------------- | --------- |
+| Superpuzzle Developments  | Red-Green-Blue gradient     | SPD token |
+| Superhuman Enhancements   | Rose-Red-Orange gradient    | SHE token |
 | Supersociety Advancements | Lime-Green-Emerald gradient | SSA token |
-| Supergenius Breakthroughs | Sky-Blue-Indigo gradient | SBG token |
+| Supergenius Breakthroughs | Sky-Blue-Indigo gradient    | SBG token |
 
 ## Usage Guidelines
 
@@ -133,16 +133,12 @@ When designing components for specific sections:
 export function PersonalSuccessPuzzleCard({ title, description, icon }) {
   return (
     <div className="rounded-lg border border-psp-token p-4">
-      <div className="bg-personal-success-gradient rounded-md p-3 mb-4">
-        {icon}
-      </div>
+      <div className="bg-personal-success-gradient rounded-md p-3 mb-4">{icon}</div>
       <h3 className="text-lg font-medium text-psp-token">{title}</h3>
       <p className="text-sm text-muted-foreground">{description}</p>
-      <button className="mt-4 bg-psp-token text-white px-4 py-2 rounded-md">
-        Learn More
-      </button>
+      <button className="mt-4 bg-psp-token text-white px-4 py-2 rounded-md">Learn More</button>
     </div>
-  )
+  );
 }
 ```
 
@@ -176,16 +172,16 @@ module.exports = {
       },
       backgroundImage: {
         // Avolve gradients are already included
-      }
-    }
-  }
-}
+      },
+    },
+  },
+};
 ```
 
 3. Use the showcase component to explore available colors:
 
 ```jsx
-import { AvolveThemeShowcase } from "@/components/ui/avolve-theme-showcase"
+import { AvolveThemeShowcase } from '@/components/ui/avolve-theme-showcase';
 
 // Use in any page to see the available colors and gradients
 ```

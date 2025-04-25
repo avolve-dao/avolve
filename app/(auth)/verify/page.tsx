@@ -1,32 +1,32 @@
-"use client"
-import { createClient } from '@supabase/supabase-js'
-import { useState } from 'react'
+'use client';
+import { createClient } from '@supabase/supabase-js';
+import { useState } from 'react';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function Verify() {
   if (!supabaseUrl || !supabaseKey) {
-    return <div className="text-red-600">Supabase environment variables are missing.</div>
+    return <div className="text-red-600">Supabase environment variables are missing.</div>;
   }
-  const [email, setEmail] = useState('')
-  const [token, setToken] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [error, setError] = useState<string | null>(null)
+  const [email, setEmail] = useState('');
+  const [token, setToken] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
 
   const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setStatus('loading')
-    setError(null)
-    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' })
+    e.preventDefault();
+    setStatus('loading');
+    setError(null);
+    const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
     if (error) {
-      setStatus('error')
-      setError(error.message)
+      setStatus('error');
+      setError(error.message);
     } else {
-      setStatus('success')
+      setStatus('success');
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
@@ -61,5 +61,5 @@ export default function Verify() {
         </form>
       </div>
     </div>
-  )
+  );
 }

@@ -14,11 +14,11 @@ Each role is based on user behavior and is tracked and rewarded with dedicated t
 
 ## Role Model and Access Levels
 
-| Role         | Typical Access    | Example Actions              | Token Earned        |
-|--------------|------------------|------------------------------|---------------------|
-| Subscriber   | Read-only        | View content, follow updates | Subscription Token  |
-| Participant  | Write            | Post, comment, submit forms  | Participation Token |
-| Contributor  | Execute          | Launch features, moderate, deploy | Contribution Token |
+| Role        | Typical Access | Example Actions                   | Token Earned        |
+| ----------- | -------------- | --------------------------------- | ------------------- |
+| Subscriber  | Read-only      | View content, follow updates      | Subscription Token  |
+| Participant | Write          | Post, comment, submit forms       | Participation Token |
+| Contributor | Execute        | Launch features, moderate, deploy | Contribution Token  |
 
 - **Users can hold any or all roles at once, depending on their actions.**
 - **All roles are positive-sum: the more you contribute, the more you and others benefit.**
@@ -90,6 +90,7 @@ export function useAccess(userId: string): UserAccess {
 ```
 
 ### 4. Integration with RBAC
+
 - Use these roles to gate content, features, and actions throughout the app.
 - Middleware and UI components should check `useAccess` or similar logic to determine what a user can see/do.
 
@@ -104,6 +105,7 @@ export function useAccess(userId: string): UserAccess {
 ---
 
 ## TODOs / Next Steps
+
 - Implement `/lib/access/roles.ts` and `/hooks/useAccess.ts` as shown above.
 - Integrate role checks into UI and API routes.
 - Add visualizations for token balances and role progress in the dashboard.
@@ -112,4 +114,5 @@ export function useAccess(userId: string): UserAccess {
 ---
 
 ## Contact / Contribution
+
 For questions or to contribute to the token system, please reach out to the Avolve core team or submit a pull request.

@@ -1,15 +1,15 @@
-"use client";
-import { usePathname, notFound } from "next/navigation";
-import FeedbackWidget from "@/components/public/FeedbackWidget";
-import React from "react";
+'use client';
+import { usePathname, notFound } from 'next/navigation';
+import FeedbackWidget from '@/components/public/FeedbackWidget';
+import React from 'react';
 
 // MVP routes only
 const MVP_ROUTES = [
-  "/app/(supercivilization)/supercivilization",
-  "/app/(superachiever)/superachiever",
-  "/app/(superachievers)/superachievers",
-  "/app/(authenticated)/profile",
-  "/app/(authenticated)/settings",
+  '/app/(supercivilization)/supercivilization',
+  '/app/(superachiever)/superachiever',
+  '/app/(superachievers)/superachievers',
+  '/app/(authenticated)/profile',
+  '/app/(authenticated)/settings',
 ];
 
 // TODO: Replace with real admin check
@@ -24,7 +24,7 @@ export default function ClientRootGuard({ children }: { children: React.ReactNod
   if (!pathname || !isMvpRoute(pathname)) return notFound();
 
   // TODO: Replace with real user ID from auth context for production
-  const userId = typeof window !== "undefined" ? localStorage.getItem("user_id") || "anon" : "anon";
+  const userId = typeof window !== 'undefined' ? localStorage.getItem('user_id') || 'anon' : 'anon';
 
   return (
     <>

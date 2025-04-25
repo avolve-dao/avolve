@@ -3,9 +3,9 @@
  * @ai-context This file defines types for the invitation system in the Avolve platform
  * @ai-related-to token-types.ts, invitation-service.ts, invitation-repository.ts
  * @ai-sacred-geometry tesla-369
- * 
+ *
  * Invitation Types
- * 
+ *
  * This file defines the types for the invitation system, including invitation tiers,
  * invitation codes, and invitation status tracking.
  */
@@ -39,7 +39,7 @@ export enum InvitationStatus {
   ACCEPTED = 'accepted',
   EXPIRED = 'expired',
   REVOKED = 'revoked',
-  CLAIMED = 'claimed'
+  CLAIMED = 'claimed',
 }
 
 /**
@@ -194,14 +194,32 @@ export interface ClaimInvitationRewardRequest {
 export interface IInvitationRepository {
   getAllInvitationTiers(): Promise<InvitationResult<InvitationTier[]>>;
   getInvitationTierByName(tierName: string): Promise<InvitationResult<InvitationTier>>;
-  getUserInvitationCountForTier(userId: string, tierName: string): Promise<InvitationResult<number>>;
-  createInvitation(userId: string, tierName: string, email?: string): Promise<InvitationResult<Invitation>>;
+  getUserInvitationCountForTier(
+    userId: string,
+    tierName: string
+  ): Promise<InvitationResult<number>>;
+  createInvitation(
+    userId: string,
+    tierName: string,
+    email?: string
+  ): Promise<InvitationResult<Invitation>>;
   getInvitationByCode(code: string): Promise<InvitationResult<Invitation>>;
   getInvitationById(id: string): Promise<InvitationResult<Invitation>>;
-  acceptInvitation(invitationId: string, userId: string): Promise<InvitationResult<InvitationAcceptanceResponse>>;
-  claimInvitationReward(invitationId: string, userId: string): Promise<InvitationResult<InvitationAcceptanceResponse>>;
+  acceptInvitation(
+    invitationId: string,
+    userId: string
+  ): Promise<InvitationResult<InvitationAcceptanceResponse>>;
+  claimInvitationReward(
+    invitationId: string,
+    userId: string
+  ): Promise<InvitationResult<InvitationAcceptanceResponse>>;
   getUserCreatedInvitations(userId: string): Promise<InvitationResult<Invitation[]>>;
-  getUserInvitationsWithInvitees(userId: string): Promise<InvitationResult<InvitationWithInvitee[]>>;
+  getUserInvitationsWithInvitees(
+    userId: string
+  ): Promise<InvitationResult<InvitationWithInvitee[]>>;
   getUserReceivedInvitations(userId: string): Promise<InvitationResult<InvitationWithCreator[]>>;
-  updateInvitationStatus(invitationId: string, status: InvitationStatus): Promise<InvitationResult<Invitation>>;
+  updateInvitationStatus(
+    invitationId: string,
+    status: InvitationStatus
+  ): Promise<InvitationResult<Invitation>>;
 }

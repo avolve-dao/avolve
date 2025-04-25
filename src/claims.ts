@@ -9,13 +9,13 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 /**
  * ClaimsService - Handles daily token claims and streak management
- * 
+ *
  * The regenerative gamified system is built around daily token claims that:
  * 1. Drive daily active user (DAU) metrics
  * 2. Improve retention through consistent engagement
  * 3. Increase average revenue per user (ARPU) through token utility
  * 4. Boost net promoter score (NPS) through community participation
- * 
+ *
  * Each day has a specific token that can be claimed:
  * - Sunday: SPD (Superpuzzle Developments) - Boosts community engagement metrics
  * - Monday: SHE (Superhuman Enhancements) - Improves D1 retention metrics
@@ -59,7 +59,7 @@ export class ClaimsService {
   /**
    * Get the token symbol for the current day of the week
    * This is the core of the daily claim system that drives regular engagement
-   * 
+   *
    * @returns The token symbol corresponding to the current day
    */
   getDayToken(): TokenSymbol {
@@ -74,19 +74,24 @@ export class ClaimsService {
    * - GEN (Supercivilization) is the top-level token
    * - SAP (Superachiever) for individual journey tokens
    * - SCQ (Superachievers) for collective journey tokens
-   * 
+   *
    * @param tokenSymbol Sub-token symbol
    * @returns Parent token symbol (SAP or SCQ)
    */
   getParentToken(tokenSymbol: TokenSymbol): TokenSymbol {
     // SAP sub-tokens (individual journey)
     const sapSubTokens = [TokenSymbols.PSP, TokenSymbols.BSP, TokenSymbols.SMS] as const;
-    if (sapSubTokens.includes(tokenSymbol as typeof sapSubTokens[number])) {
+    if (sapSubTokens.includes(tokenSymbol as (typeof sapSubTokens)[number])) {
       return TokenSymbols.SAP;
     }
     // SCQ sub-tokens (collective journey)
-    const scqSubTokens = [TokenSymbols.SPD, TokenSymbols.SHE, TokenSymbols.SSA, TokenSymbols.SGB] as const;
-    if (scqSubTokens.includes(tokenSymbol as typeof scqSubTokens[number])) {
+    const scqSubTokens = [
+      TokenSymbols.SPD,
+      TokenSymbols.SHE,
+      TokenSymbols.SSA,
+      TokenSymbols.SGB,
+    ] as const;
+    if (scqSubTokens.includes(tokenSymbol as (typeof scqSubTokens)[number])) {
       return TokenSymbols.SCQ;
     }
     // Return the token itself if it's already a parent token
@@ -100,10 +105,10 @@ export class ClaimsService {
    * - Claim SHE on MON to improve D1 retention metrics
    * - Claim BSP on THU to boost ARPU metrics
    * - Claim SMS on SAT to enhance NPS scores
-   * 
+   *
    * The streak system encourages consistent engagement, further improving
    * retention metrics and creating habit-forming behavior.
-   * 
+   *
    * @param userId User ID claiming the reward
    * @returns Result of the claim operation
    */
@@ -119,7 +124,9 @@ export class ClaimsService {
     error?: string;
   }> {
     // All claim-related DB queries have been removed due to missing RPC functions or tables in the Supabase schema. Please implement claim logic in-app or create the required functions/tables in your database.
-    throw new Error("Claim-related tables or RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary schema objects in your database.");
+    throw new Error(
+      'Claim-related tables or RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary schema objects in your database.'
+    );
   }
 
   /**
@@ -129,7 +136,7 @@ export class ClaimsService {
    * 2. Rewards consistent engagement
    * 3. Provides increasing returns (multipliers)
    * 4. Drives D1, D7, and D30 retention metrics
-   * 
+   *
    * @param userId User ID to check
    * @returns Streak information including current streak and last claim date
    */
@@ -145,7 +152,9 @@ export class ClaimsService {
     error?: string;
   }> {
     // All claim-related DB queries have been removed due to missing RPC functions or tables in the Supabase schema. Please implement claim logic in-app or create the required functions/tables in your database.
-    throw new Error("Claim-related tables or RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary schema objects in your database.");
+    throw new Error(
+      'Claim-related tables or RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary schema objects in your database.'
+    );
   }
 
   /**
@@ -155,18 +164,23 @@ export class ClaimsService {
    * 2. Reinforcement of the daily claim schedule
    * 3. Data for personalized recommendations
    * 4. Insights for improving user engagement
-   * 
+   *
    * @param userId User ID to check
    * @param limit Number of claims to return (default: 7)
    * @returns Recent claims with token and amount details
    */
-  async getRecentClaims(userId: string, limit: number = 7): Promise<{
+  async getRecentClaims(
+    userId: string,
+    limit: number = 7
+  ): Promise<{
     success: boolean;
     data?: Claim[];
     error?: string;
   }> {
     // All claim-related DB queries have been removed due to missing tables in the Supabase schema. Please implement claim logic in-app or create the required tables in your database.
-    throw new Error("Claim-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
+    throw new Error(
+      'Claim-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.'
+    );
   }
 
   /**
@@ -176,10 +190,10 @@ export class ClaimsService {
    * 2. They complete any required actions
    * 3. They claim their daily token
    * 4. They return tomorrow to continue the cycle
-   * 
+   *
    * This cycle is essential for maintaining high DAU/MAU ratios
    * and improving retention metrics.
-   * 
+   *
    * @param userId User ID to check
    * @returns Whether the user can claim today and which token is available
    */
@@ -194,7 +208,9 @@ export class ClaimsService {
     error?: string;
   }> {
     // All claim-related DB queries have been removed due to missing RPC functions in the Supabase schema. Please implement claim logic in-app or create the required functions in your database.
-    throw new Error("Claim-related RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary functions in your database.");
+    throw new Error(
+      'Claim-related RPC functions do not exist in the current Supabase schema. Please implement this logic in-app or create the necessary functions in your database.'
+    );
   }
 }
 

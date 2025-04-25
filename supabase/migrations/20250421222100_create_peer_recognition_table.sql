@@ -41,4 +41,40 @@ create policy "Peer recognition: sender can update" on public.peer_recognition
 create policy "Peer recognition: sender can delete" on public.peer_recognition
   for delete using (auth.uid() = sender_id);
 
+-- 4. Add indexes for performance
+create index idx_peer_recognition_sender_id on public.peer_recognition(sender_id);
+create index idx_peer_recognition_recipient_id on public.peer_recognition(recipient_id);
+create index idx_peer_recognition_created_at on public.peer_recognition(created_at desc);
+
+-- 5. Create or replace updated_at trigger function if it doesn't exist
+-- This follows our SQL best practices with SECURITY INVOKER and empty search_path
+do $$
+begin
+  if not exists (select 1 from pg_proc where proname = 'update_updated_at') then
+    create or replace function public.update_updated_at()
+    returns trigger
+    language plpgsql
+    security invoker
+    set search_path = ''
+    as $$
+    begin
+      new.updated_at := now();
+      return new;
+    end;
+    $$;
+  end if;
+end
+$$;
+
+-- 6. Create trigger for updated_at
+create trigger update_peer_recognition_updated_at
+before update on public.peer_recognition
+for each row
+execute function public.update_updated_at();
+
+-- 7. Add service role policies for admin access
+create policy "Peer recognition: service role can select all" on public.peer_recognition
+  for select to service_role
+  using (true);
+
 commit;

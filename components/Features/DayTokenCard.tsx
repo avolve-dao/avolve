@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { useFeatures } from '@/hooks/useFeatures';
@@ -8,12 +15,12 @@ import { Badge } from '@/components/ui/badge';
 
 /**
  * DayTokenCard - Displays information about a day-specific token and allows users to claim it
- * 
+ *
  * This component is part of the GEN-centric regenerative gamified system that:
  * 1. Drives daily active user (DAU) metrics through regular engagement
  * 2. Creates a habit-forming loop with weekly token claims
  * 3. Reinforces the three value pillars: Supercivilization, Superachiever, and Superachievers
- * 
+ *
  * Each day has a specific token that can be claimed:
  * - Sunday: SPD (Superpuzzle Developments) - Boosts community engagement metrics
  * - Monday: SHE (Superhuman Enhancements) - Improves D1 retention metrics
@@ -38,10 +45,10 @@ interface TokenInfo {
   gradient: string;
 }
 
-export const DayTokenCard: React.FC<DayTokenCardProps> = ({ 
-  dayName, 
+export const DayTokenCard: React.FC<DayTokenCardProps> = ({
+  dayName,
   dayOfWeek,
-  isToday = false
+  isToday = false,
 }) => {
   const { toast } = useToast();
   const { getDayTokenInfo, checkDayTokenUnlock, claimDayToken } = useFeatures();
@@ -53,9 +60,9 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
     description: '',
     day: '',
     dayOfWeek: 0,
-    gradient: ''
+    gradient: '',
   });
-  
+
   // Fetch token info when component mounts
   useEffect(() => {
     const fetchTokenInfo = async () => {
@@ -66,7 +73,7 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
         console.error('Error fetching token info:', error);
       }
     };
-    
+
     fetchTokenInfo();
   }, [dayOfWeek, getDayTokenInfo]);
 
@@ -81,42 +88,42 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
   const handleClaimToken = async () => {
     try {
       setLoading(true);
-      
+
       // First check if the token is available today
       const dayStatus = await checkDayTokenUnlock(dayName.toLowerCase());
-      
+
       if (!dayStatus.isUnlocked) {
         toast({
-          title: "Token not available",
+          title: 'Token not available',
           description: dayStatus.unlockReason,
-          variant: "destructive"
+          variant: 'destructive',
         });
         return;
       }
-      
+
       // Attempt to claim the token
       const result = await claimDayToken(dayStatus.tokenInfo.symbol);
-      
+
       if (result.success) {
         setClaimed(true);
         toast({
-          title: "Token claimed!",
+          title: 'Token claimed!',
           description: `You received ${result.amount || 1} ${dayStatus.tokenInfo.symbol} tokens. This contributes to your progress in the regenerative system.`,
-          variant: "default"
+          variant: 'default',
         });
       } else {
         toast({
-          title: "Failed to claim token",
+          title: 'Failed to claim token',
           description: result.message,
-          variant: "destructive"
+          variant: 'destructive',
         });
       }
     } catch (error) {
       console.error('Error claiming token:', error);
       toast({
-        title: "Error",
-        description: "An unexpected error occurred while claiming the token.",
-        variant: "destructive"
+        title: 'Error',
+        description: 'An unexpected error occurred while claiming the token.',
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -126,11 +133,11 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
   // Determine which pillar this token belongs to and its metric impact
   let pillar = 'Supercivilization';
   let metricImpact = 'Ecosystem Engagement';
-  
+
   // SAP sub-tokens (individual journey)
   if (['PSP', 'BSP', 'SMS'].includes(tokenInfo.symbol)) {
     pillar = 'Superachiever';
-    
+
     if (tokenInfo.symbol === 'PSP') metricImpact = 'DAU/MAU Ratio';
     if (tokenInfo.symbol === 'BSP') metricImpact = 'ARPU Metrics';
     if (tokenInfo.symbol === 'SMS') metricImpact = 'User Satisfaction';
@@ -138,7 +145,7 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
   // SCQ sub-tokens (collective journey)
   else if (['SPD', 'SHE', 'SSA', 'SGB'].includes(tokenInfo.symbol)) {
     pillar = 'Superachievers';
-    
+
     if (tokenInfo.symbol === 'SPD') metricImpact = 'Community Engagement';
     if (tokenInfo.symbol === 'SHE') metricImpact = 'D1 Retention';
     if (tokenInfo.symbol === 'SSA') metricImpact = 'Community Contribution';
@@ -152,25 +159,33 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center">
             {dayName}
-            {isToday && <span className="ml-2 text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">Today</span>}
+            {isToday && (
+              <span className="ml-2 text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                Today
+              </span>
+            )}
           </CardTitle>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-r flex items-center justify-center text-white font-bold text-xs" 
-            style={{ 
-              backgroundImage: tokenInfo.gradient ? 
-                `linear-gradient(to right, ${tokenInfo.gradient.replace('from-', '').replace('to-', '').replace('via-', '')})` : 
-                'linear-gradient(to right, gray, darkgray)' 
-            }}>
+          <div
+            className="w-8 h-8 rounded-full bg-gradient-to-r flex items-center justify-center text-white font-bold text-xs"
+            style={{
+              backgroundImage: tokenInfo.gradient
+                ? `linear-gradient(to right, ${tokenInfo.gradient.replace('from-', '').replace('to-', '').replace('via-', '')})`
+                : 'linear-gradient(to right, gray, darkgray)',
+            }}
+          >
             {tokenInfo.symbol}
           </div>
         </div>
         <div className="flex items-center justify-between">
           <CardDescription>{tokenInfo.name}</CardDescription>
-          <Badge variant="outline" className="text-xs">{pillar}</Badge>
+          <Badge variant="outline" className="text-xs">
+            {pillar}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="pb-2 space-y-2">
         <p className="text-sm text-muted-foreground">{tokenInfo.description}</p>
-        
+
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <TrendingUp className="h-3 w-3" />
           <span>Improves {metricImpact}</span>
@@ -178,11 +193,7 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
       </CardContent>
       <CardFooter>
         {isToday ? (
-          <Button 
-            className="w-full"
-            onClick={handleClaimToken}
-            disabled={loading || claimed}
-          >
+          <Button className="w-full" onClick={handleClaimToken} disabled={loading || claimed}>
             {loading ? (
               <>
                 <Clock className="mr-2 h-4 w-4 animate-spin" />
@@ -201,11 +212,7 @@ export const DayTokenCard: React.FC<DayTokenCardProps> = ({
             )}
           </Button>
         ) : (
-          <Button 
-            variant="outline" 
-            className="w-full" 
-            disabled
-          >
+          <Button variant="outline" className="w-full" disabled>
             Available on {dayName}s
           </Button>
         )}

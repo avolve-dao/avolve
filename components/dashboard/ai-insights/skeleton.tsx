@@ -1,6 +1,6 @@
 /**
  * AI Insights Skeleton Component
- * 
+ *
  * Skeleton loader for AI Insights while data is being fetched
  * Copyright © 2025 Avolve DAO. All rights reserved.
  */
@@ -26,7 +26,7 @@ export function AIInsightsSkeleton() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Additional insights skeleton */}
       <div className="grid grid-cols-2 gap-3">
         <Card className="border-blue-200">
@@ -40,7 +40,7 @@ export function AIInsightsSkeleton() {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card className="border-amber-200">
           <CardContent className="p-3">
             <div className="flex items-start space-x-2">

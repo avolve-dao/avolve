@@ -1,6 +1,6 @@
 /**
  * Community Dashboard Widget
- * 
+ *
  * Displays community structure information and user progress
  */
 
@@ -46,7 +46,7 @@ export function CommunityWidget() {
   // Calculate overall progress across all pillars
   const calculateOverallProgress = () => {
     if (!userJourneys.length) return 0;
-    
+
     const totalProgress = userJourneys.reduce((sum, journey) => sum + journey.progress, 0);
     return Math.round((totalProgress / userJourneys.length) * 100) / 100;
   };
@@ -75,16 +75,18 @@ export function CommunityWidget() {
               </div>
               <Progress value={overallProgress * 100} className="h-2" />
             </div>
-            
+
             <div className="space-y-4">
-              {pillars.map((pillar) => {
+              {pillars.map(pillar => {
                 const journey = userJourneys.find(j => j.pillar_id === pillar.id);
                 const progress = journey ? journey.progress * 100 : 0;
                 const status = journey?.status || 'not_started';
-                
+
                 return (
                   <div key={pillar.id} className="flex items-start space-x-4">
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${pillar.gradient_class}`}>
+                    <div
+                      className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${pillar.gradient_class}`}
+                    >
                       {pillar.icon_url ? (
                         <img src={pillar.icon_url} alt={pillar.title} className="w-6 h-6" />
                       ) : (
@@ -95,17 +97,22 @@ export function CommunityWidget() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-medium">{pillar.title}</span>
                         <Badge variant={status === 'completed' ? 'default' : 'outline'}>
-                          {status === 'not_started' ? 'Not Started' : 
-                           status === 'in_progress' ? 'In Progress' : 'Completed'}
+                          {status === 'not_started'
+                            ? 'Not Started'
+                            : status === 'in_progress'
+                              ? 'In Progress'
+                              : 'Completed'}
                         </Badge>
                       </div>
                       <Progress value={progress} className="h-2 mb-1" />
-                      <p className="text-xs text-muted-foreground">{pillar.subtitle || pillar.description || ''}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {pillar.subtitle || pillar.description || ''}
+                      </p>
                     </div>
                   </div>
                 );
               })}
-              
+
               {pillars.length === 0 && (
                 <div className="text-center py-4 text-muted-foreground">
                   No community pillars found. Start your journey by exploring the available paths.

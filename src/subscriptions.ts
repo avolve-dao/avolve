@@ -20,7 +20,7 @@ export class SubscriptionService {
    * - Mints GEN tokens to the user
    * - Allocates fiat to treasury (10% GEN, 40% SAP, 50% SCQ)
    * - Applies boost based on platform metrics
-   * 
+   *
    * @param userId User ID to subscribe
    * @param amountUsd Subscription amount in USD (default: 100)
    * @param paymentMethod Optional payment method details
@@ -28,7 +28,7 @@ export class SubscriptionService {
    * @returns Subscription result with allocation details
    */
   async subscribe(
-    userId: string, 
+    userId: string,
     amountUsd: number = 100,
     paymentMethod?: Record<string, unknown>,
     metadata?: Record<string, unknown>
@@ -39,12 +39,14 @@ export class SubscriptionService {
   }> {
     try {
       // The 'process_subscription' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
-      throw new Error("The 'process_subscription' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
+      throw new Error(
+        "The 'process_subscription' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database."
+      );
     } catch (error) {
       console.error('Subscription error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown subscription error'
+        error: error instanceof Error ? error.message : 'Unknown subscription error',
       };
     }
   }
@@ -52,7 +54,7 @@ export class SubscriptionService {
   /**
    * Spend GEN tokens to receive internal tokens (SAP, SCQ, or sub-tokens)
    * $1 USD = 1 internal token unit
-   * 
+   *
    * @param userId User ID spending the tokens
    * @param amountUsd Amount to spend in USD (GEN tokens)
    * @param tokenSymbol Symbol of the token to receive (e.g., 'SAP', 'SCQ', 'PSP')
@@ -75,27 +77,27 @@ export class SubscriptionService {
         p_user_id: userId,
         p_amount_usd: amountUsd,
         p_token_symbol: tokenSymbol,
-        p_description: description || `GEN spent for ${tokenSymbol} tokens`
+        p_description: description || `GEN spent for ${tokenSymbol} tokens`,
       });
 
       if (error) throw error;
 
       return {
         success: true,
-        data
+        data,
       };
     } catch (error) {
       console.error('Token spending error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown token spending error'
+        error: error instanceof Error ? error.message : 'Unknown token spending error',
       };
     }
   }
 
   /**
    * Get a user's subscription details
-   * 
+   *
    * @param userId User ID to check
    * @returns Subscription details if found
    */
@@ -115,20 +117,20 @@ export class SubscriptionService {
 
       return {
         success: !!data,
-        data: data || null
+        data: data || null,
       };
     } catch (error) {
       console.error('Get subscription error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting subscription'
+        error: error instanceof Error ? error.message : 'Unknown error getting subscription',
       };
     }
   }
 
   /**
    * Cancel a user's subscription
-   * 
+   *
    * @param userId User ID to cancel subscription for
    * @returns Result of the cancellation
    */
@@ -149,14 +151,14 @@ export class SubscriptionService {
       console.error('Cancel subscription error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error cancelling subscription'
+        error: error instanceof Error ? error.message : 'Unknown error cancelling subscription',
       };
     }
   }
 
   /**
    * Get treasury allocation details
-   * 
+   *
    * @returns Current treasury allocation statistics
    */
   async getTreasuryAllocations(): Promise<{
@@ -166,32 +168,38 @@ export class SubscriptionService {
   }> {
     try {
       // Fetch raw allocations from Supabase
-      const { data, error } = await this.supabase
-        .from('treasury_allocations')
-        .select('*');
+      const { data, error } = await this.supabase.from('treasury_allocations').select('*');
 
       if (error) throw error;
 
       // Map/normalize results to TreasuryAllocation interface
-      const allocations: TreasuryAllocation[] = (data || []).map((row: Record<string, unknown>) => ({
-        id: String(row.id ?? ''),
-        amount: typeof row.amount === 'number' ? row.amount : 0,
-        allocation_type: typeof row.allocation_type === 'string' ? row.allocation_type : '',
-        token_id: String(row.token_id ?? ''),
-        token_symbol: typeof row.tokens === 'object' && row.tokens && 'symbol' in row.tokens ? String((row.tokens as Record<string, unknown>).symbol ?? '') : '',
-        token_name: typeof row.tokens === 'object' && row.tokens && 'name' in row.tokens ? String((row.tokens as Record<string, unknown>).name ?? '') : '',
-        percentage: typeof row.percentage === 'number' ? row.percentage : 0
-      }));
+      const allocations: TreasuryAllocation[] = (data || []).map(
+        (row: Record<string, unknown>) => ({
+          id: String(row.id ?? ''),
+          amount: typeof row.amount === 'number' ? row.amount : 0,
+          allocation_type: typeof row.allocation_type === 'string' ? row.allocation_type : '',
+          token_id: String(row.token_id ?? ''),
+          token_symbol:
+            typeof row.tokens === 'object' && row.tokens && 'symbol' in row.tokens
+              ? String((row.tokens as Record<string, unknown>).symbol ?? '')
+              : '',
+          token_name:
+            typeof row.tokens === 'object' && row.tokens && 'name' in row.tokens
+              ? String((row.tokens as Record<string, unknown>).name ?? '')
+              : '',
+          percentage: typeof row.percentage === 'number' ? row.percentage : 0,
+        })
+      );
 
       return {
         success: true,
-        data: allocations
+        data: allocations,
       };
     } catch (error) {
       console.error('Get treasury allocations error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown treasury allocations error'
+        error: error instanceof Error ? error.message : 'Unknown treasury allocations error',
       };
     }
   }

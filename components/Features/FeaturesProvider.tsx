@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -11,7 +11,7 @@ interface FeaturesContextType {
 
 const FeaturesContext = createContext<FeaturesContextType>({
   features: null,
-  loading: true
+  loading: true,
 });
 
 // Hook to use features context
@@ -26,8 +26,10 @@ export const FeaturesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     async function loadFeatures() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -51,9 +53,7 @@ export const FeaturesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }
 
   return (
-    <FeaturesContext.Provider value={{ features, loading }}>
-      {children}
-    </FeaturesContext.Provider>
+    <FeaturesContext.Provider value={{ features, loading }}>{children}</FeaturesContext.Provider>
   );
 };
 

@@ -31,7 +31,10 @@ export default [
       'no-restricted-imports': [
         'error',
         {
-          paths: forbiddenUiLibraries.map(lib => ({ name: lib, message: 'Use Shadcn/ui components from /components/ui only.' })),
+          paths: forbiddenUiLibraries.map(lib => ({
+            name: lib,
+            message: 'Use Shadcn/ui components from /components/ui only.',
+          })),
         },
       ],
       // TypeScript strictness

@@ -1,6 +1,6 @@
 # 📊 Audit Logging System Documentation
 
-> *"What gets measured, gets managed."* — Peter Drucker
+> _"What gets measured, gets managed."_ — Peter Drucker
 
 Welcome to the Avolve audit logging system! This document provides detailed information about our comprehensive audit logging system implemented in the Avolve platform, focusing on the Role-Based Access Control (RBAC) audit logging features.
 
@@ -46,7 +46,7 @@ create policy "Admins can read all audit logs"
   for select
   to authenticated
   using (
-    (auth.jwt() ->> 'user_metadata')::jsonb ? 'is_admin' 
+    (auth.jwt() ->> 'user_metadata')::jsonb ? 'is_admin'
     and ((auth.jwt() ->> 'user_metadata')::jsonb ->> 'is_admin')::boolean = true
   );
 
@@ -104,7 +104,7 @@ begin
     p_ip_address,
     p_user_agent
   ) returning id into v_log_id;
-  
+
   return v_log_id;
 exception
   when others then
@@ -208,7 +208,7 @@ begin
   ) then
     raise exception 'Only administrators can access all audit logs';
   end if;
-  
+
   return query
   select
     al.id,
@@ -282,7 +282,7 @@ begin
       )
     );
   end if;
-  
+
   return null;
 end;
 $$;
@@ -349,7 +349,7 @@ begin
       )
     );
   end if;
-  
+
   return null;
 end;
 $$;
@@ -384,14 +384,11 @@ export class AuditService {
    */
   async getUserAuditLogs(userId: string, limit = 100, offset = 0) {
     try {
-      const { data, error } = await this.client.rpc(
-        'get_user_rbac_audit_logs',
-        {
-          p_user_id: userId,
-          p_limit: limit,
-          p_offset: offset
-        }
-      );
+      const { data, error } = await this.client.rpc('get_user_rbac_audit_logs', {
+        p_user_id: userId,
+        p_limit: limit,
+        p_offset: offset,
+      });
 
       if (error) {
         console.error('Error getting user audit logs:', error);
@@ -415,7 +412,7 @@ export class AuditService {
     entityType,
     fromDate,
     toDate,
-    userId
+    userId,
   }: {
     limit?: number;
     offset?: number;
@@ -426,18 +423,15 @@ export class AuditService {
     userId?: string;
   }) {
     try {
-      const { data, error } = await this.client.rpc(
-        'get_all_rbac_audit_logs',
-        {
-          p_limit: limit,
-          p_offset: offset,
-          p_action_type: actionType || null,
-          p_entity_type: entityType || null,
-          p_from_date: fromDate ? fromDate.toISOString() : null,
-          p_to_date: toDate ? toDate.toISOString() : null,
-          p_user_id: userId || null
-        }
-      );
+      const { data, error } = await this.client.rpc('get_all_rbac_audit_logs', {
+        p_limit: limit,
+        p_offset: offset,
+        p_action_type: actionType || null,
+        p_entity_type: entityType || null,
+        p_from_date: fromDate ? fromDate.toISOString() : null,
+        p_to_date: toDate ? toDate.toISOString() : null,
+        p_user_id: userId || null,
+      });
 
       if (error) {
         console.error('Error getting all audit logs:', error);
@@ -462,7 +456,7 @@ export class AuditService {
     targetId,
     details,
     ipAddress,
-    userAgent
+    userAgent,
   }: {
     user: Session;
     actionType: string;
@@ -482,7 +476,7 @@ export class AuditService {
         p_target_id: targetId || null,
         p_details: details ? JSON.stringify(details) : null,
         p_ip_address: ipAddress,
-        p_user_agent: userAgent
+        p_user_agent: userAgent,
       });
 
       if (error) {
@@ -521,10 +515,10 @@ export const AuditLogViewer: React.FC = () => {
   const [entityType, setEntityType] = useState<string | null>(null);
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [toDate, setToDate] = useState<Date | null>(null);
-  
+
   const limit = 20;
   const auditService = new AuditService(createClient());
-  
+
   const fetchLogs = async () => {
     try {
       setLoading(true);
@@ -534,9 +528,9 @@ export const AuditLogViewer: React.FC = () => {
         actionType,
         entityType,
         fromDate,
-        toDate
+        toDate,
       });
-      
+
       setLogs(data);
       setError(null);
     } catch (err: any) {
@@ -545,19 +539,23 @@ export const AuditLogViewer: React.FC = () => {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     fetchLogs();
   }, [page, actionType, entityType, fromDate, toDate]);
-  
+
   const handleExport = () => {
     // Implementation for exporting logs to CSV
-    const csvContent = 'data:text/csv;charset=utf-8,' + 
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
       'ID,User ID,Action Type,Entity Type,Entity ID,Target ID,Created At\n' +
-      logs.map(log => 
-        `${log.id},${log.user_id},${log.action_type},${log.entity_type},${log.entity_id},${log.target_id},${log.created_at}`
-      ).join('\n');
-    
+      logs
+        .map(
+          log =>
+            `${log.id},${log.user_id},${log.action_type},${log.entity_type},${log.entity_id},${log.target_id},${log.created_at}`
+        )
+        .join('\n');
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
@@ -566,19 +564,19 @@ export const AuditLogViewer: React.FC = () => {
     link.click();
     document.body.removeChild(link);
   };
-  
+
   const actionTypes = [
     { value: 'assign_role', label: 'Assign Role' },
     { value: 'remove_role', label: 'Remove Role' },
     { value: 'assign_permission', label: 'Assign Permission' },
-    { value: 'remove_permission', label: 'Remove Permission' }
+    { value: 'remove_permission', label: 'Remove Permission' },
   ];
-  
+
   const entityTypes = [
     { value: 'user_role', label: 'User Role' },
-    { value: 'role_permission', label: 'Role Permission' }
+    { value: 'role_permission', label: 'Role Permission' },
   ];
-  
+
   return (
     <Card className="w-full">
       <div className="p-6">
@@ -588,40 +586,38 @@ export const AuditLogViewer: React.FC = () => {
             Export CSV
           </Button>
         </div>
-        
+
         {error && (
           <Alert variant="destructive" className="mb-4">
             {error}
           </Alert>
         )}
-        
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div>
             <label className="block text-sm font-medium mb-1">Action Type</label>
-            <Select
-              value={actionType || ''}
-              onValueChange={(value) => setActionType(value || null)}
-            >
+            <Select value={actionType || ''} onValueChange={value => setActionType(value || null)}>
               <option value="">All Actions</option>
               {actionTypes.map(type => (
-                <option key={type.value} value={type.value}>{type.label}</option>
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
             </Select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-1">Entity Type</label>
-            <Select
-              value={entityType || ''}
-              onValueChange={(value) => setEntityType(value || null)}
-            >
+            <Select value={entityType || ''} onValueChange={value => setEntityType(value || null)}>
               <option value="">All Entities</option>
               {entityTypes.map(type => (
-                <option key={type.value} value={type.value}>{type.label}</option>
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
             </Select>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-1">From Date</label>
             <DatePicker
@@ -630,17 +626,13 @@ export const AuditLogViewer: React.FC = () => {
               placeholder="Select start date"
             />
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium mb-1">To Date</label>
-            <DatePicker
-              selected={toDate}
-              onSelect={setToDate}
-              placeholder="Select end date"
-            />
+            <DatePicker selected={toDate} onSelect={setToDate} placeholder="Select end date" />
           </div>
         </div>
-        
+
         <Table>
           <thead>
             <tr>
@@ -655,11 +647,15 @@ export const AuditLogViewer: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-4">Loading...</td>
+                <td colSpan={6} className="text-center py-4">
+                  Loading...
+                </td>
               </tr>
             ) : logs.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-4">No audit logs found</td>
+                <td colSpan={6} className="text-center py-4">
+                  No audit logs found
+                </td>
               </tr>
             ) : (
               logs.map(log => (
@@ -686,19 +682,13 @@ export const AuditLogViewer: React.FC = () => {
             )}
           </tbody>
         </Table>
-        
+
         <div className="flex justify-between items-center mt-4">
-          <Button
-            onClick={() => setPage(p => Math.max(0, p - 1))}
-            disabled={page === 0 || loading}
-          >
+          <Button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0 || loading}>
             Previous
           </Button>
           <span>Page {page + 1}</span>
-          <Button
-            onClick={() => setPage(p => p + 1)}
-            disabled={logs.length < limit || loading}
-          >
+          <Button onClick={() => setPage(p => p + 1)} disabled={logs.length < limit || loading}>
             Next
           </Button>
         </div>
@@ -764,8 +754,8 @@ await auditService.logAction({
     amount,
     fee,
     transferAmount: amount - fee,
-    transactionId
-  }
+    transactionId,
+  },
 });
 ```
 
@@ -783,7 +773,7 @@ export const TokenTransactionViewer: React.FC = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       if (!user) return;
-      
+
       setLoading(true);
       const { data } = await getTokenTransactions();
       setTransactions(data || []);
@@ -797,9 +787,7 @@ export const TokenTransactionViewer: React.FC = () => {
     <Card>
       <CardHeader>
         <CardTitle>Token Transaction History</CardTitle>
-        <CardDescription>
-          View your token transaction history
-        </CardDescription>
+        <CardDescription>View your token transaction history</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -827,16 +815,14 @@ export const TokenTransactionViewer: React.FC = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              transactions.map((tx) => (
+              transactions.map(tx => (
                 <TableRow key={tx.id}>
                   <TableCell>{tx.transaction_type}</TableCell>
                   <TableCell>{tx.token.symbol}</TableCell>
                   <TableCell>{tx.amount}</TableCell>
                   <TableCell>{tx.fee || 0}</TableCell>
                   <TableCell>{tx.status}</TableCell>
-                  <TableCell>
-                    {new Date(tx.created_at).toLocaleString()}
-                  </TableCell>
+                  <TableCell>{new Date(tx.created_at).toLocaleString()}</TableCell>
                 </TableRow>
               ))
             )}

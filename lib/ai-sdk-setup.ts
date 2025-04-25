@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 // This file provides compatibility for the ai package
 
 // Import the xAI integration
-import { xai } from "@ai-sdk/xai";
+import { xai } from '@ai-sdk/xai';
 
 // Create compatibility classes for the old API
 export class StreamingTextResponse extends Response {
@@ -21,13 +21,13 @@ export class StreamingTextResponse extends Response {
 export function OpenAIStream(response: any, options?: any) {
   // Create a simple text stream as a fallback
   const encoder = new TextEncoder();
-  const message = "AI response functionality has been updated. Please check the documentation.";
-  
+  const message = 'AI response functionality has been updated. Please check the documentation.';
+
   return new ReadableStream({
     start(controller) {
       controller.enqueue(encoder.encode(message));
       controller.close();
-    }
+    },
   });
 }
 
@@ -35,13 +35,14 @@ export function OpenAIStream(response: any, options?: any) {
 export function streamText(options: any) {
   // Create a simple text stream as a fallback
   const encoder = new TextEncoder();
-  const message = "AI streaming text functionality has been updated. Please check the documentation.";
-  
+  const message =
+    'AI streaming text functionality has been updated. Please check the documentation.';
+
   return new ReadableStream({
     start(controller) {
       controller.enqueue(encoder.encode(message));
       controller.close();
-    }
+    },
   });
 }
 
@@ -60,9 +61,9 @@ export function checkAiSdkSetup() {
 export async function generateText(prompt: string, options?: any) {
   try {
     // Create a simple response as a fallback
-    return { text: "AI text generation has been updated. Please check the documentation." };
+    return { text: 'AI text generation has been updated. Please check the documentation.' };
   } catch (error) {
     console.error('Error in generateText:', error);
-    return { text: "Error generating text" };
+    return { text: 'Error generating text' };
   }
 }

@@ -36,8 +36,10 @@ export function useSuperpuzzles() {
 
   useEffect(() => {
     async function loadSuperpuzzles() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -50,9 +52,9 @@ export function useSuperpuzzles() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load superpuzzles",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load superpuzzles',
+          variant: 'destructive',
         });
         return;
       }
@@ -63,13 +65,14 @@ export function useSuperpuzzles() {
       // Subscribe to puzzle updates
       const channel = supabase
         .channel('puzzle_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'superpuzzles',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadSuperpuzzles();
           }
@@ -85,13 +88,15 @@ export function useSuperpuzzles() {
   }, [supabase, toast]);
 
   const updateProgress = async (puzzleId: string, progress: number) => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to update progress",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to update progress',
+        variant: 'destructive',
       });
       return;
     }
@@ -105,36 +110,38 @@ export function useSuperpuzzles() {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to update puzzle progress",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to update puzzle progress',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Progress updated successfully!"
+      title: 'Success',
+      description: 'Progress updated successfully!',
     });
   };
 
   const completeSuperpuzzle = async (puzzleId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to complete puzzles",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to complete puzzles',
+        variant: 'destructive',
       });
       return;
     }
 
     const { error } = await supabase
       .from('superpuzzles')
-      .update({ 
+      .update({
         completed: true,
-        progress: 100
+        progress: 100,
       })
       .eq('id', puzzleId)
       .eq('user_id', user.id)
@@ -142,33 +149,35 @@ export function useSuperpuzzles() {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to complete puzzle",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to complete puzzle',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Puzzle completed successfully!"
+      title: 'Success',
+      description: 'Puzzle completed successfully!',
     });
   };
 
   const loadSuperpuzzleDetails = async (puzzleId: string) => {
     setLoading(true);
-    
+
     try {
       const { data, error } = await supabase
         .from('superpuzzles')
-        .select(`
+        .select(
+          `
           *,
           tokens:reward_token (*),
           teamContributions:team_contributions (
             *,
             teams:team_id (*)
           )
-        `)
+        `
+        )
         .eq('id', puzzleId)
         .single();
 
@@ -179,9 +188,9 @@ export function useSuperpuzzles() {
       setSelectedSuperpuzzle(data);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to load superpuzzle details: " + error.message,
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load superpuzzle details: ' + error.message,
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -190,10 +199,12 @@ export function useSuperpuzzles() {
 
   const loadActiveSuperpuzzles = async () => {
     setLoading(true);
-    
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -202,10 +213,12 @@ export function useSuperpuzzles() {
       // Get active superpuzzles
       const { data, error } = await supabase
         .from('superpuzzles')
-        .select(`
+        .select(
+          `
           *,
           tokens:reward_token (*)
-        `)
+        `
+        )
         .eq('status', 'active');
 
       if (error) {
@@ -215,9 +228,9 @@ export function useSuperpuzzles() {
       setActiveSuperpuzzles(data || []);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to load active superpuzzles: " + error.message,
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load active superpuzzles: ' + error.message,
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -226,10 +239,12 @@ export function useSuperpuzzles() {
 
   const loadTodaySuperpuzzles = async () => {
     setLoading(true);
-    
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -243,10 +258,12 @@ export function useSuperpuzzles() {
       // Get superpuzzles for today's token
       const { data, error } = await supabase
         .from('superpuzzles')
-        .select(`
+        .select(
+          `
           *,
           tokens:reward_token (*)
-        `)
+        `
+        )
         .eq('tokens.symbol', tokenSymbol)
         .eq('status', 'active');
 
@@ -257,9 +274,9 @@ export function useSuperpuzzles() {
       setTodaySuperpuzzles(data || []);
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: 'Error',
         description: "Failed to load today's superpuzzles: " + error.message,
-        variant: "destructive"
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -305,6 +322,6 @@ export function useSuperpuzzles() {
     loadSuperpuzzleDetails,
     loadActiveSuperpuzzles,
     loadTodaySuperpuzzles,
-    getTokenNameForDay
+    getTokenNameForDay,
   };
 }

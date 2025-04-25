@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useSearchParams } from 'next/navigation'
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 export default function AuthErrorPage() {
@@ -16,17 +16,17 @@ export default function AuthErrorPage() {
 
 function AuthErrorContent() {
   const errorMessages: Record<string, string> = {
-    default: "An error occurred during authentication",
-    "invalid-email": "The email address is invalid",
-    "user-not-found": "No user found with this email",
-    "wrong-password": "Incorrect password",
-    "email-not-verified": "Please verify your email address",
-    "invalid-token": "Your session has expired, please sign in again",
-  }
+    default: 'An error occurred during authentication',
+    'invalid-email': 'The email address is invalid',
+    'user-not-found': 'No user found with this email',
+    'wrong-password': 'Incorrect password',
+    'email-not-verified': 'Please verify your email address',
+    'invalid-token': 'Your session has expired, please sign in again',
+  };
 
-  const searchParams = useSearchParams()
-  const error = searchParams?.get('error') || "default"
-  const message = errorMessages[error] || errorMessages.default
+  const searchParams = useSearchParams();
+  const error = searchParams?.get('error') || 'default';
+  const message = errorMessages[error] || errorMessages.default;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -48,5 +48,5 @@ function AuthErrorContent() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

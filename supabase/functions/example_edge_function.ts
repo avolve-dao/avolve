@@ -4,30 +4,30 @@
 //
 // To deploy: supabase functions deploy example_edge_function
 
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
+import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
 
-serve(async (req) => {
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Method not allowed" }), {
+serve(async req => {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
   const { content } = await req.json();
-  if (!content || typeof content !== "string" || content.length < 3) {
-    return new Response(JSON.stringify({ error: "Content too short" }), {
+  if (!content || typeof content !== 'string' || content.length < 3) {
+    return new Response(JSON.stringify({ error: 'Content too short' }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 
   // Optionally transform content (e.g., sanitize, add hashtags)
-  const sanitized = content.trim().replace(/\s+/g, " ");
+  const sanitized = content.trim().replace(/\s+/g, ' ');
 
   // Return the sanitized content for insertion
   return new Response(JSON.stringify({ content: sanitized }), {
     status: 200,
-    headers: { "Content-Type": "application/json" },
+    headers: { 'Content-Type': 'application/json' },
   });
 });

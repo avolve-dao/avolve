@@ -12,12 +12,12 @@ Retrieves consent records for the authenticated user.
 
 #### Query Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
+| Parameter        | Type   | Description                                              |
+| ---------------- | ------ | -------------------------------------------------------- |
 | interaction_type | string | Filter by interaction type (e.g., 'governance_proposal') |
-| status | string | Filter by consent status (e.g., 'approved', 'rejected') |
-| from_date | string | Filter records from this date (ISO format) |
-| to_date | string | Filter records until this date (ISO format) |
+| status           | string | Filter by consent status (e.g., 'approved', 'rejected')  |
+| from_date        | string | Filter records from this date (ISO format)               |
+| to_date          | string | Filter records until this date (ISO format)              |
 
 #### Response
 
@@ -97,6 +97,7 @@ All endpoints return appropriate HTTP status codes and error messages:
 ```
 
 Common error scenarios:
+
 - 401: Unauthorized - User not authenticated
 - 403: Forbidden - User not authorized to perform action
 - 404: Not Found - Consent record not found
@@ -115,19 +116,21 @@ Common error scenarios:
 
 ```js
 fetch('/api/consent', {
-  headers: { Authorization: 'Bearer <your_token>' }
+  headers: { Authorization: 'Bearer <your_token>' },
 })
   .then(res => res.json())
   .then(data => console.log(data));
 ```
 
 ## FAQ & Troubleshooting
+
 - **Q: Why am I not seeing my consent records?**
   - A: Check your authentication and query parameters. Only records for the authenticated user are returned.
 - **Q: How do I revoke consent?**
   - A: Use the PATCH endpoint (see API spec) with the consent ID and new status.
 
 ## Feedback & Support
+
 - For help or to request new consent features, open an issue or email dev@avolve.io
 
 ## Testing

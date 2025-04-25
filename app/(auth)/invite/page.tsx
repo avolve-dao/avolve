@@ -1,31 +1,31 @@
-"use client"
-import { createClient } from '@supabase/supabase-js'
-import { useState } from 'react'
+'use client';
+import { createClient } from '@supabase/supabase-js';
+import { useState } from 'react';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function Invite() {
   if (!supabaseUrl || !supabaseKey) {
-    return <div className="text-red-600">Supabase environment variables are missing.</div>
+    return <div className="text-red-600">Supabase environment variables are missing.</div>;
   }
-  const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle')
-  const [error, setError] = useState<string | null>(null)
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
+  const [error, setError] = useState<string | null>(null);
 
   const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setStatus('loading')
-    setError(null)
-    const { error } = await supabase.auth.signInWithOtp({ email })
+    e.preventDefault();
+    setStatus('loading');
+    setError(null);
+    const { error } = await supabase.auth.signInWithOtp({ email });
     if (error) {
-      setStatus('error')
-      setError(error.message)
+      setStatus('error');
+      setError(error.message);
     } else {
-      setStatus('sent')
+      setStatus('sent');
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center py-2">
@@ -47,10 +47,12 @@ export default function Invite() {
           >
             {status === 'loading' ? 'Sending...' : 'Send Invite'}
           </button>
-          {status === 'sent' && <div className="text-green-600">Invite sent! Check your email.</div>}
+          {status === 'sent' && (
+            <div className="text-green-600">Invite sent! Check your email.</div>
+          )}
           {status === 'error' && <div className="text-red-600">{error}</div>}
         </form>
       </div>
     </div>
-  )
+  );
 }

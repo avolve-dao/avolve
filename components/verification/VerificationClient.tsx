@@ -1,8 +1,8 @@
 'use client';
 
-import { HumanVerification } from '@/components/verification/HumanVerification'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Shield, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { HumanVerification } from '@/components/verification/HumanVerification';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Shield, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 interface VerificationClientProps {
   isVerified: boolean;
@@ -17,7 +17,7 @@ export function VerificationClient({ isVerified, memberJourney }: VerificationCl
       <div className="md:col-span-2">
         <HumanVerification requiredScore={100} />
       </div>
-      
+
       <div className="space-y-4">
         <Card>
           <CardHeader>
@@ -25,9 +25,11 @@ export function VerificationClient({ isVerified, memberJourney }: VerificationCl
             <CardDescription>Your current verification level</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className={`flex items-center gap-2 p-3 rounded-md ${
-              isVerified ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
-            }`}>
+            <div
+              className={`flex items-center gap-2 p-3 rounded-md ${
+                isVerified ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-700'
+              }`}
+            >
               {isVerified ? (
                 <>
                   <CheckCircle2 className="h-5 w-5" />
@@ -48,7 +50,7 @@ export function VerificationClient({ isVerified, memberJourney }: VerificationCl
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Why Verify?</CardTitle>
@@ -79,7 +81,7 @@ export function VerificationClient({ isVerified, memberJourney }: VerificationCl
             </ul>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Member Journey</CardTitle>
@@ -93,58 +95,74 @@ export function VerificationClient({ isVerified, memberJourney }: VerificationCl
                   {memberJourney?.current_level || 'Not Started'}
                 </span>
               </div>
-              
+
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className={`h-4 w-4 rounded-full ${
-                    memberJourney ? 'bg-primary' : 'bg-muted'
-                  }`} />
+                  <div
+                    className={`h-4 w-4 rounded-full ${memberJourney ? 'bg-primary' : 'bg-muted'}`}
+                  />
                   <span className={memberJourney ? 'font-medium' : 'text-muted-foreground'}>
                     Invited
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                  <div className={`h-4 w-4 rounded-full ${
-                    memberJourney?.current_level === 'vouched' ||
-                    memberJourney?.current_level === 'contributor' ||
-                    memberJourney?.current_level === 'full_member'
-                      ? 'bg-primary' : 'bg-muted'
-                  }`} />
-                  <span className={
-                    memberJourney?.current_level === 'vouched' ||
-                    memberJourney?.current_level === 'contributor' ||
-                    memberJourney?.current_level === 'full_member'
-                      ? 'font-medium' : 'text-muted-foreground'
-                  }>
+                  <div
+                    className={`h-4 w-4 rounded-full ${
+                      memberJourney?.current_level === 'vouched' ||
+                      memberJourney?.current_level === 'contributor' ||
+                      memberJourney?.current_level === 'full_member'
+                        ? 'bg-primary'
+                        : 'bg-muted'
+                    }`}
+                  />
+                  <span
+                    className={
+                      memberJourney?.current_level === 'vouched' ||
+                      memberJourney?.current_level === 'contributor' ||
+                      memberJourney?.current_level === 'full_member'
+                        ? 'font-medium'
+                        : 'text-muted-foreground'
+                    }
+                  >
                     Vouched
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                  <div className={`h-4 w-4 rounded-full ${
-                    memberJourney?.current_level === 'contributor' ||
-                    memberJourney?.current_level === 'full_member'
-                      ? 'bg-primary' : 'bg-muted'
-                  }`} />
-                  <span className={
-                    memberJourney?.current_level === 'contributor' ||
-                    memberJourney?.current_level === 'full_member'
-                      ? 'font-medium' : 'text-muted-foreground'
-                  }>
+                  <div
+                    className={`h-4 w-4 rounded-full ${
+                      memberJourney?.current_level === 'contributor' ||
+                      memberJourney?.current_level === 'full_member'
+                        ? 'bg-primary'
+                        : 'bg-muted'
+                    }`}
+                  />
+                  <span
+                    className={
+                      memberJourney?.current_level === 'contributor' ||
+                      memberJourney?.current_level === 'full_member'
+                        ? 'font-medium'
+                        : 'text-muted-foreground'
+                    }
+                  >
                     Contributor
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
-                  <div className={`h-4 w-4 rounded-full ${
-                    memberJourney?.current_level === 'full_member'
-                      ? 'bg-primary' : 'bg-muted'
-                  }`} />
-                  <span className={
-                    memberJourney?.current_level === 'full_member'
-                      ? 'font-medium' : 'text-muted-foreground'
-                  }>
+                  <div
+                    className={`h-4 w-4 rounded-full ${
+                      memberJourney?.current_level === 'full_member' ? 'bg-primary' : 'bg-muted'
+                    }`}
+                  />
+                  <span
+                    className={
+                      memberJourney?.current_level === 'full_member'
+                        ? 'font-medium'
+                        : 'text-muted-foreground'
+                    }
+                  >
                     Full Member
                   </span>
                 </div>
@@ -154,5 +172,5 @@ export function VerificationClient({ isVerified, memberJourney }: VerificationCl
         </Card>
       </div>
     </>
-  )
+  );
 }

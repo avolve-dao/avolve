@@ -1,6 +1,6 @@
 /**
  * Migration Application Script for Avolve Database
- * 
+ *
  * This script applies migrations to the Supabase database using the MCP server.
  * It reads migration files from the migrations directory and applies them in order.
  */
@@ -44,9 +44,7 @@ async function getMigrationFiles(): Promise<string[]> {
       }
 
       // Filter for SQL files and sort by name
-      const migrationFiles = files
-        .filter(file => file.endsWith('.sql'))
-        .sort();
+      const migrationFiles = files.filter(file => file.endsWith('.sql')).sort();
 
       resolve(migrationFiles);
     });
@@ -57,24 +55,24 @@ async function getMigrationFiles(): Promise<string[]> {
 async function applyMigration(fileName: string): Promise<void> {
   const filePath = path.join(CONFIG.migrationsDir, fileName);
   const migrationName = fileName.replace('.sql', '');
-  
+
   console.log(`Applying migration: ${migrationName}`);
-  
+
   try {
     // Read migration file
     const sql = fs.readFileSync(filePath, 'utf8');
-    
+
     // Apply migration using Supabase
     const { error } = await supabase.rpc('apply_migration', {
       name: migrationName,
       project_id: CONFIG.projectId,
       query: sql,
     });
-    
+
     if (error) {
       throw error;
     }
-    
+
     console.log(`Migration ${migrationName} applied successfully.`);
   } catch (error) {
     console.error(`Error applying migration ${migrationName}:`, error);
@@ -86,16 +84,16 @@ async function applyMigration(fileName: string): Promise<void> {
 async function main() {
   try {
     console.log('Starting migration application...');
-    
+
     // Get migration files
     const migrationFiles = await getMigrationFiles();
     console.log(`Found ${migrationFiles.length} migration files.`);
-    
+
     // Apply migrations in order
     for (const file of migrationFiles) {
       await applyMigration(file);
     }
-    
+
     console.log('All migrations applied successfully.');
   } catch (error) {
     console.error('Error applying migrations:', error);

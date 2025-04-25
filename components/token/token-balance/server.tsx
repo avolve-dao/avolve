@@ -1,11 +1,11 @@
 /**
  * Token Balance Server Component
- * 
+ *
  * Displays user's token balances with real-time updates
  * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/lib/supabase/client';
 import { cookies } from 'next/headers';
 import { TokenBalanceClient } from './client';
 
@@ -13,14 +13,14 @@ import { TokenBalanceClient } from './client';
 import type { Database } from '@/types/supabase';
 
 export async function TokenBalanceServer({ userId }: { userId: string }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  
+  const supabase = createClient();
+
   // Fetch user's token balances
   const { data: userTokens } = await supabase
     .from('user_tokens')
     .select('token_id, balance')
     .eq('user_id', userId);
-  
+
   // Fetch token metadata (columns: id, name, symbol, amount, source, token_type, updated_at, user_id, created_at)
   // The tokens table does NOT have icon, description, or is_primary columns.
   const { data: tokens, error: tokensError } = await supabase
@@ -28,33 +28,40 @@ export async function TokenBalanceServer({ userId }: { userId: string }) {
     .select('id, name, symbol, amount, source, token_type, updated_at, user_id, created_at');
 
   // Defensive fallback if tokens query fails
-  const tokenMetadata = (Array.isArray(tokens) ? tokens : []).reduce((acc, token) => {
-    acc[token.id] = token;
-    return acc;
-  }, {} as Record<string, any>);
-  
+  const tokenMetadata = (Array.isArray(tokens) ? tokens : []).reduce(
+    (acc, token) => {
+      acc[token.id] = token;
+      return acc;
+    },
+    {} as Record<string, any>
+  );
+
   // Format token balances with metadata
-  const formattedTokens = (userTokens || []).map(userToken => {
-    const metadata = tokenMetadata[userToken.token_id] || {
-      name: userToken.token_id,
-      symbol: userToken.token_id
-    };
-    
-    return {
-      id: userToken.token_id,
-      balance: userToken.balance,
-      name: metadata.name,
-      symbol: metadata.symbol,
-      // icon, description, isPrimary are not in tokens table, so set to undefined or fallback
-      icon: undefined,
-      description: undefined,
-      isPrimary: false
-    };
-  });
-  
+  const formattedTokens = (userTokens || []).map(
+    (userToken: { token_id: string; balance: number }) => {
+      const metadata = tokenMetadata[userToken.token_id] || {
+        name: userToken.token_id,
+        symbol: userToken.token_id,
+      };
+
+      return {
+        id: userToken.token_id,
+        balance: userToken.balance,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        // icon, description, isPrimary are not in tokens table, so set to undefined or fallback
+        icon: undefined,
+        description: undefined,
+        isPrimary: false,
+      };
+    }
+  );
+
   // Sort tokens by symbol
-  const sortedTokens = formattedTokens.sort((a, b) => a.symbol.localeCompare(b.symbol));
-  
+  const sortedTokens = formattedTokens.sort((a: { symbol: string }, b: { symbol: string }) =>
+    a.symbol.localeCompare(b.symbol)
+  );
+
   // Get recent token transactions
   // The correct table is 'transactions', not 'token_transactions'
   const { data: recentTransactions } = await supabase
@@ -63,8 +70,6 @@ export async function TokenBalanceServer({ userId }: { userId: string }) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(5);
-  
-  return (
-    <TokenBalanceClient />
-  );
+
+  return <TokenBalanceClient />;
 }

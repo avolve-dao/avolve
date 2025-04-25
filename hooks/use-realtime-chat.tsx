@@ -1,29 +1,29 @@
-"use client"
+'use client';
 
-import { createClient } from "@/lib/supabase/client"
-import { useCallback, useEffect, useState } from "react"
+import { createClient } from '@/lib/supabase/client';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseRealtimeChatProps {
-  roomName: string
-  username: string
+  roomName: string;
+  username: string;
 }
 
 export interface ChatMessage {
-  id: string
-  content: string
+  id: string;
+  content: string;
   user: {
-    name: string
-  }
-  createdAt: string
+    name: string;
+  };
+  createdAt: string;
 }
 
-const EVENT_MESSAGE_TYPE = "message"
+const EVENT_MESSAGE_TYPE = 'message';
 
 export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
-  const supabase = createClient()
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
+  const supabase = createClient();
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const setupRealtimeChat = async () => {
@@ -32,30 +32,30 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
         .channel(`chat:${roomName}`, {
           config: { broadcast: { self: true } },
         })
-        .on("broadcast", { event: EVENT_MESSAGE_TYPE }, (payload: any) => {
-          setMessages((current) => [...current, payload.payload as ChatMessage])
+        .on('broadcast', { event: EVENT_MESSAGE_TYPE }, (payload: any) => {
+          setMessages(current => [...current, payload.payload as ChatMessage]);
         })
         .subscribe(async (status: any) => {
-          if (status === "SUBSCRIBED") {
-            setIsConnected(true)
+          if (status === 'SUBSCRIBED') {
+            setIsConnected(true);
           }
-        })
+        });
 
-      setChannel(newChannel)
-    }
+      setChannel(newChannel);
+    };
 
-    setupRealtimeChat()
+    setupRealtimeChat();
 
     return () => {
       if (channel) {
-        supabase.removeChannel(channel)
+        supabase.removeChannel(channel);
       }
-    }
-  }, [roomName, username, supabase])
+    };
+  }, [roomName, username, supabase]);
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!channel || !isConnected) return
+      if (!channel || !isConnected) return;
 
       const message: ChatMessage = {
         id: crypto.randomUUID(),
@@ -64,19 +64,19 @@ export function useRealtimeChat({ roomName, username }: UseRealtimeChatProps) {
           name: username,
         },
         createdAt: new Date().toISOString(),
-      }
+      };
 
       // Update local state immediately for the sender
-      setMessages((current) => [...current, message])
+      setMessages(current => [...current, message]);
 
       await channel.send({
-        type: "broadcast",
+        type: 'broadcast',
         event: EVENT_MESSAGE_TYPE,
         payload: message,
-      })
+      });
     },
-    [channel, isConnected, username],
-  )
+    [channel, isConnected, username]
+  );
 
-  return { messages, sendMessage, isConnected }
+  return { messages, sendMessage, isConnected };
 }

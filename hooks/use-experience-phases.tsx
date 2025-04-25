@@ -75,13 +75,13 @@ export const phaseNames = {
   discover: 'Discovery',
   onboard: 'Onboarding',
   scaffold: 'Scaffolding',
-  endgame: 'Endgame'
+  endgame: 'Endgame',
 };
 
 export const pillarNames = {
   superachiever: 'Superachiever',
   superachievers: 'Superachievers',
-  supercivilization: 'Supercivilization'
+  supercivilization: 'Supercivilization',
 };
 
 export const useExperiencePhases = () => {
@@ -122,7 +122,7 @@ export const useExperiencePhases = () => {
       // Extract recent transitions (last 24 hours)
       const oneDayAgo = new Date();
       oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-      
+
       const transitions: PhaseTransition[] = [];
       data?.forEach((pillar: PillarProgress) => {
         pillar.phase_transitions?.forEach(transition => {
@@ -132,7 +132,7 @@ export const useExperiencePhases = () => {
               pillar: pillar.pillar,
               from_phase: transition.from_phase,
               to_phase: transition.to_phase,
-              transitioned_at: transition.transitioned_at
+              transitioned_at: transition.transitioned_at,
             });
           }
         });
@@ -140,22 +140,23 @@ export const useExperiencePhases = () => {
 
       if (transitions.length > 0) {
         setRecentTransitions(transitions);
-        
+
         // Show celebration for the most recent transition
-        const mostRecent = transitions.sort((a, b) => 
-          new Date(b.transitioned_at).getTime() - new Date(a.transitioned_at).getTime()
+        const mostRecent = transitions.sort(
+          (a, b) => new Date(b.transitioned_at).getTime() - new Date(a.transitioned_at).getTime()
         )[0];
-        
+
         setCelebrationData({
           pillar: mostRecent.pillar,
-          phase: mostRecent.to_phase
+          phase: mostRecent.to_phase,
         });
         setShowCelebration(true);
       }
 
       // Fetch available features
-      const { data: featuresData, error: featuresError } = await supabase.rpc('get_available_features');
-      
+      const { data: featuresData, error: featuresError } =
+        await supabase.rpc('get_available_features');
+
       if (featuresError) {
         console.error('Error fetching available features:', featuresError);
       } else {
@@ -170,157 +171,193 @@ export const useExperiencePhases = () => {
   }, [user, supabase]);
 
   // Function to complete a milestone
-  const completeMilestone = useCallback(async (milestoneId: string) => {
-    if (!user) {
-      toast({
-        title: 'Authentication required',
-        description: 'Please sign in to track your progress',
-        variant: 'destructive'
-      });
-      return false;
-    }
-
-    try {
-      const { data, error } = await supabase.rpc('complete_milestone', {
-        p_milestone_id: milestoneId
-      });
-
-      if (error) {
-        throw error;
+  const completeMilestone = useCallback(
+    async (milestoneId: string) => {
+      if (!user) {
+        toast({
+          title: 'Authentication required',
+          description: 'Please sign in to track your progress',
+          variant: 'destructive',
+        });
+        return false;
       }
 
-      if (data.success) {
-        toast({
-          title: 'Milestone completed!',
-          description: data.message,
-          variant: 'default'
+      try {
+        const { data, error } = await supabase.rpc('complete_milestone', {
+          p_milestone_id: milestoneId,
         });
 
-        if (data.token_reward && data.token_type) {
-          toast({
-            title: 'Tokens earned!',
-            description: `You earned ${data.token_reward} ${data.token_type} tokens`,
-            variant: 'default'
-          });
+        if (error) {
+          throw error;
         }
 
-        // Refresh user progress
-        await fetchUserProgress();
-        
-        return true;
-      } else {
+        if (data.success) {
+          toast({
+            title: 'Milestone completed!',
+            description: data.message,
+            variant: 'default',
+          });
+
+          if (data.token_reward && data.token_type) {
+            toast({
+              title: 'Tokens earned!',
+              description: `You earned ${data.token_reward} ${data.token_type} tokens`,
+              variant: 'default',
+            });
+          }
+
+          // Refresh user progress
+          await fetchUserProgress();
+
+          return true;
+        } else {
+          toast({
+            title: 'Could not complete milestone',
+            description: data.message,
+            variant: 'destructive',
+          });
+          return false;
+        }
+      } catch (err) {
+        console.error('Error completing milestone:', err);
         toast({
-          title: 'Could not complete milestone',
-          description: data.message,
-          variant: 'destructive'
+          title: 'Error',
+          description: 'Failed to complete milestone. Please try again.',
+          variant: 'destructive',
         });
         return false;
       }
-    } catch (err) {
-      console.error('Error completing milestone:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to complete milestone. Please try again.',
-        variant: 'destructive'
-      });
-      return false;
-    }
-  }, [user, supabase, toast, fetchUserProgress]);
+    },
+    [user, supabase, toast, fetchUserProgress]
+  );
 
   // Function to update milestone progress
-  const updateMilestoneProgress = useCallback(async (milestoneId: string, progress: number) => {
-    if (!user || progress < 0 || progress > 100) return false;
+  const updateMilestoneProgress = useCallback(
+    async (milestoneId: string, progress: number) => {
+      if (!user || progress < 0 || progress > 100) return false;
 
-    try {
-      const { data, error } = await supabase
-        .from('user_milestone_progress')
-        .upsert({
-          user_id: user.id,
-          milestone_id: milestoneId,
-          progress,
-          is_completed: progress >= 100,
-          completed_at: progress >= 100 ? new Date().toISOString() : null
-        })
-        .select();
+      try {
+        const { data, error } = await supabase
+          .from('user_milestone_progress')
+          .upsert({
+            user_id: user.id,
+            milestone_id: milestoneId,
+            progress,
+            is_completed: progress >= 100,
+            completed_at: progress >= 100 ? new Date().toISOString() : null,
+          })
+          .select();
 
-      if (error) {
-        throw error;
+        if (error) {
+          throw error;
+        }
+
+        if (progress >= 100) {
+          // If progress is 100%, call completeMilestone to handle rewards and phase advancement
+          await completeMilestone(milestoneId);
+        } else {
+          // Otherwise just refresh the progress data
+          await fetchUserProgress();
+        }
+
+        return true;
+      } catch (err) {
+        console.error('Error updating milestone progress:', err);
+        return false;
       }
-
-      if (progress >= 100) {
-        // If progress is 100%, call completeMilestone to handle rewards and phase advancement
-        await completeMilestone(milestoneId);
-      } else {
-        // Otherwise just refresh the progress data
-        await fetchUserProgress();
-      }
-
-      return true;
-    } catch (err) {
-      console.error('Error updating milestone progress:', err);
-      return false;
-    }
-  }, [user, supabase, completeMilestone, fetchUserProgress]);
+    },
+    [user, supabase, completeMilestone, fetchUserProgress]
+  );
 
   // Function to get current phase for a specific pillar
-  const getCurrentPhase = useCallback((pillar: Pillar): ExperiencePhase => {
-    const pillarProgress = userProgress.find(p => p.pillar === pillar);
-    return pillarProgress?.current_phase || 'discover';
-  }, [userProgress]);
+  const getCurrentPhase = useCallback(
+    (pillar: Pillar): ExperiencePhase => {
+      const pillarProgress = userProgress.find(p => p.pillar === pillar);
+      return pillarProgress?.current_phase || 'discover';
+    },
+    [userProgress]
+  );
 
   // Function to get phase progress for a specific pillar
-  const getPhaseProgress = useCallback((pillar: Pillar): number => {
-    const pillarProgress = userProgress.find(p => p.pillar === pillar);
-    return pillarProgress?.phase_progress || 0;
-  }, [userProgress]);
+  const getPhaseProgress = useCallback(
+    (pillar: Pillar): number => {
+      const pillarProgress = userProgress.find(p => p.pillar === pillar);
+      return pillarProgress?.phase_progress || 0;
+    },
+    [userProgress]
+  );
 
   // Function to get available milestones for a specific pillar
-  const getAvailableMilestones = useCallback((pillar: Pillar): Milestone[] => {
-    const pillarProgress = userProgress.find(p => p.pillar === pillar);
-    return pillarProgress?.available_milestones || [];
-  }, [userProgress]);
+  const getAvailableMilestones = useCallback(
+    (pillar: Pillar): Milestone[] => {
+      const pillarProgress = userProgress.find(p => p.pillar === pillar);
+      return pillarProgress?.available_milestones || [];
+    },
+    [userProgress]
+  );
 
   // Function to get completed milestones for a specific pillar
-  const getCompletedMilestones = useCallback((pillar: Pillar): Milestone[] => {
-    const pillarProgress = userProgress.find(p => p.pillar === pillar);
-    return pillarProgress?.completed_milestones || [];
-  }, [userProgress]);
+  const getCompletedMilestones = useCallback(
+    (pillar: Pillar): Milestone[] => {
+      const pillarProgress = userProgress.find(p => p.pillar === pillar);
+      return pillarProgress?.completed_milestones || [];
+    },
+    [userProgress]
+  );
 
   // Function to check if a feature is available
-  const isFeatureAvailable = useCallback((feature: string, pillar: Pillar): boolean => {
-    if (!availableFeatures) return false;
-    
-    switch (pillar) {
-      case 'superachiever':
-        return availableFeatures.superachiever[feature as keyof typeof availableFeatures.superachiever] || false;
-      case 'superachievers':
-        return availableFeatures.superachievers[feature as keyof typeof availableFeatures.superachievers] || false;
-      case 'supercivilization':
-        return availableFeatures.supercivilization[feature as keyof typeof availableFeatures.supercivilization] || false;
-      default:
-        return false;
-    }
-  }, [availableFeatures]);
+  const isFeatureAvailable = useCallback(
+    (feature: string, pillar: Pillar): boolean => {
+      if (!availableFeatures) return false;
+
+      switch (pillar) {
+        case 'superachiever':
+          return (
+            availableFeatures.superachiever[
+              feature as keyof typeof availableFeatures.superachiever
+            ] || false
+          );
+        case 'superachievers':
+          return (
+            availableFeatures.superachievers[
+              feature as keyof typeof availableFeatures.superachievers
+            ] || false
+          );
+        case 'supercivilization':
+          return (
+            availableFeatures.supercivilization[
+              feature as keyof typeof availableFeatures.supercivilization
+            ] || false
+          );
+        default:
+          return false;
+      }
+    },
+    [availableFeatures]
+  );
 
   // Function to get next recommended actions
-  const getNextRecommendedActions = useCallback((pillar: Pillar): Milestone[] => {
-    const availableMilestones = getAvailableMilestones(pillar);
-    
-    // First, get required milestones sorted by order_index
-    const requiredMilestones = availableMilestones
-      .filter(m => m.required_for_advancement)
-      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
-    
-    // If there are required milestones, prioritize them
-    if (requiredMilestones.length > 0) {
-      return requiredMilestones.slice(0, 3);
-    }
-    
-    // Otherwise, return optional milestones
-    return availableMilestones
-      .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-      .slice(0, 3);
-  }, [getAvailableMilestones]);
+  const getNextRecommendedActions = useCallback(
+    (pillar: Pillar): Milestone[] => {
+      const availableMilestones = getAvailableMilestones(pillar);
+
+      // First, get required milestones sorted by order_index
+      const requiredMilestones = availableMilestones
+        .filter(m => m.required_for_advancement)
+        .sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+
+      // If there are required milestones, prioritize them
+      if (requiredMilestones.length > 0) {
+        return requiredMilestones.slice(0, 3);
+      }
+
+      // Otherwise, return optional milestones
+      return availableMilestones
+        .sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+        .slice(0, 3);
+    },
+    [getAvailableMilestones]
+  );
 
   // Function to dismiss celebration
   const dismissCelebration = useCallback(() => {
@@ -340,16 +377,16 @@ export const useExperiencePhases = () => {
           event: 'INSERT',
           schema: 'public',
           table: 'user_phase_transitions',
-          filter: `user_id=eq.${user.id}`
+          filter: `user_id=eq.${user.id}`,
         },
         (payload: any) => {
           // When a new phase transition occurs, refresh user progress
           fetchUserProgress();
-          
+
           // Show celebration
           setCelebrationData({
             pillar: payload.new.pillar,
-            phase: payload.new.to_phase
+            phase: payload.new.to_phase,
           });
           setShowCelebration(true);
         }
@@ -387,6 +424,6 @@ export const useExperiencePhases = () => {
     isFeatureAvailable,
     getNextRecommendedActions,
     dismissCelebration,
-    refreshProgress: fetchUserProgress
+    refreshProgress: fetchUserProgress,
   };
 };

@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useFeatures } from '@/hooks/useFeatures';
 import { Calendar } from 'lucide-react';
 
@@ -23,13 +18,13 @@ interface TokenInfo {
   gradient: string;
 }
 
-export const DayTokenTooltip: React.FC<DayTokenTooltipProps> = ({ 
-  dayName, 
+export const DayTokenTooltip: React.FC<DayTokenTooltipProps> = ({
+  dayName,
   dayOfWeek,
-  children 
+  children,
 }) => {
   const { isDayTokenUnlocked, featureStatus, getDayTokenInfo } = useFeatures();
-  
+
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,24 +43,16 @@ export const DayTokenTooltip: React.FC<DayTokenTooltipProps> = ({
 
     fetchTokenInfo();
   }, [dayOfWeek, getDayTokenInfo]);
-  
+
   const isUnlocked = isDayTokenUnlocked(dayName.toLowerCase());
   const unlockReason = featureStatus?.dayTokens[dayName.toLowerCase()]?.unlockReason || '';
 
   if (loading) {
-    return (
-      <div className="relative cursor-pointer">
-        {children}
-      </div>
-    );
+    return <div className="relative cursor-pointer">{children}</div>;
   }
 
   if (!tokenInfo) {
-    return (
-      <div className="relative cursor-pointer">
-        {children}
-      </div>
-    );
+    return <div className="relative cursor-pointer">{children}</div>;
   }
 
   return (
@@ -82,13 +69,13 @@ export const DayTokenTooltip: React.FC<DayTokenTooltipProps> = ({
           </div>
         </TooltipTrigger>
         <TooltipContent className="max-w-xs">
-          <p className="font-medium">{tokenInfo.name} ({tokenInfo.symbol})</p>
+          <p className="font-medium">
+            {tokenInfo.name} ({tokenInfo.symbol})
+          </p>
           <p className="text-sm">{tokenInfo.description}</p>
           <div className={`h-1 w-full rounded mt-1 bg-gradient-to-r ${tokenInfo.gradient}`}></div>
           <p className="text-sm mt-2">
-            {isUnlocked 
-              ? `Available on ${tokenInfo.day}s` 
-              : unlockReason}
+            {isUnlocked ? `Available on ${tokenInfo.day}s` : unlockReason}
           </p>
         </TooltipContent>
       </Tooltip>

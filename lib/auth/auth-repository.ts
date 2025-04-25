@@ -2,12 +2,12 @@
  * @ai-anchor #AUTH_REPOSITORY
  * @ai-context This repository centralizes all authentication-related database operations for the Avolve platform
  * @ai-related-to auth-service.ts, auth-types.ts
- * 
+ *
  * Authentication Repository
- * 
+ *
  * This repository centralizes all authentication-related database operations for the Avolve platform.
  * It provides methods for user authentication, session management, and security features.
- * 
+ *
  * The repository follows the repository pattern, providing a clean abstraction over the Supabase client.
  */
 
@@ -16,7 +16,7 @@ import { AuthResult, AuthSession } from './auth-types';
 
 /**
  * Authentication Repository Class
- * 
+ *
  * This repository provides a low-level API for authentication-related database operations.
  * It handles direct interactions with the Supabase client.
  */
@@ -25,7 +25,7 @@ export class AuthRepository {
 
   /**
    * Constructor
-   * 
+   *
    * @param client - The Supabase client instance
    */
   constructor(client: SupabaseClient) {
@@ -34,7 +34,7 @@ export class AuthRepository {
 
   /**
    * Get the Supabase client
-   * 
+   *
    * @returns The Supabase client instance
    */
   public getClient(): SupabaseClient {
@@ -43,7 +43,7 @@ export class AuthRepository {
 
   /**
    * Sign in with email and password
-   * 
+   *
    * @param email - The user's email
    * @param password - The user's password
    * @returns A promise resolving to an AuthResult containing the session
@@ -55,13 +55,18 @@ export class AuthRepository {
     try {
       const { data, error } = await this.client.auth.signInWithPassword({
         email,
-        password
+        password,
       });
 
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -74,7 +79,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -86,7 +96,7 @@ export class AuthRepository {
 
   /**
    * Sign up with email and password
-   * 
+   *
    * @param email - The user's email
    * @param password - The user's password
    * @param metadata - Optional additional metadata for the user
@@ -110,7 +120,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -123,7 +138,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -135,7 +155,7 @@ export class AuthRepository {
 
   /**
    * Sign out the current user
-   * 
+   *
    * @returns A promise resolving to an AuthResult indicating success or failure
    */
   public async signOut(): Promise<AuthResult<void>> {
@@ -145,7 +165,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -158,7 +183,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -170,7 +200,7 @@ export class AuthRepository {
 
   /**
    * Reset password
-   * 
+   *
    * @param email - The user's email
    * @returns A promise resolving to an AuthResult indicating success or failure
    */
@@ -183,7 +213,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -196,7 +231,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -208,20 +248,25 @@ export class AuthRepository {
 
   /**
    * Update password
-   * 
+   *
    * @param password - The new password
    * @returns A promise resolving to an AuthResult containing the updated user
    */
   public async updatePassword(password: string): Promise<AuthResult<void>> {
     try {
       const { error } = await this.client.auth.updateUser({
-        password
+        password,
       });
 
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -234,7 +279,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -246,17 +296,26 @@ export class AuthRepository {
 
   /**
    * Get user profile
-   * 
+   *
    * @param userId - The user's ID
    * @returns A promise resolving to an AuthResult containing the user's profile
    */
   public async getUserProfile(userId: string): Promise<AuthResult<any>> {
     try {
-      const { data, error } = await this.client.from('profiles').select('*').eq('id', userId).single();
+      const { data, error } = await this.client
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -268,7 +327,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -280,17 +344,25 @@ export class AuthRepository {
 
   /**
    * Get user roles
-   * 
+   *
    * @param userId - The user's ID
    * @returns A promise resolving to an AuthResult containing the user's roles
    */
   public async getUserRoles(userId: string): Promise<AuthResult<string[]>> {
     try {
-      const { data, error } = await this.client.from('user_roles').select('role_id').eq('user_id', userId);
+      const { data, error } = await this.client
+        .from('user_roles')
+        .select('role_id')
+        .eq('user_id', userId);
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -302,7 +374,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -314,7 +391,7 @@ export class AuthRepository {
 
   /**
    * Get user permissions
-   * 
+   *
    * @param userId - The user's ID
    * @returns A promise resolving to an AuthResult containing the user's permissions
    */
@@ -324,7 +401,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -336,7 +418,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -348,18 +435,28 @@ export class AuthRepository {
 
   /**
    * Check if user has role
-   * 
+   *
    * @param userId - The user's ID
    * @param role - The role to check
    * @returns A promise resolving to an AuthResult indicating whether the user has the role
    */
   public async hasRole(userId: string, role: string): Promise<AuthResult<boolean>> {
     try {
-      const { data, error } = await this.client.from('user_roles').select('role:roles(name)').eq('user_id', userId).eq('roles.name', role).single();
+      const { data, error } = await this.client
+        .from('user_roles')
+        .select('role:roles(name)')
+        .eq('user_id', userId)
+        .eq('roles.name', role)
+        .single();
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -371,7 +468,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -383,18 +485,26 @@ export class AuthRepository {
 
   /**
    * Check if user has permission
-   * 
+   *
    * @param userId - The user's ID
    * @param permission - The permission to check
    * @returns A promise resolving to an AuthResult indicating whether the user has the permission
    */
   public async hasPermission(userId: string, permission: string): Promise<AuthResult<boolean>> {
     try {
-      const { data, error } = await this.client.rpc('check_user_permission', { user_id: userId, permission });
+      const { data, error } = await this.client.rpc('check_user_permission', {
+        user_id: userId,
+        permission,
+      });
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -406,7 +516,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -418,7 +533,7 @@ export class AuthRepository {
 
   /**
    * Sign in with magic link
-   * 
+   *
    * @param email - The user's email
    * @returns A promise resolving to an AuthResult containing the session
    */
@@ -428,7 +543,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -440,7 +560,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -452,18 +577,28 @@ export class AuthRepository {
 
   /**
    * Update user profile
-   * 
+   *
    * @param userId - The user's ID
    * @param profile - The updated profile
    * @returns A promise resolving to an AuthResult containing the updated profile
    */
   public async updateUserProfile(userId: string, profile: any): Promise<AuthResult<any>> {
     try {
-      const { data, error } = await this.client.from('profiles').update(profile).eq('id', userId).select().single();
+      const { data, error } = await this.client
+        .from('profiles')
+        .update(profile)
+        .eq('id', userId)
+        .select()
+        .single();
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -475,7 +610,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -487,17 +627,26 @@ export class AuthRepository {
 
   /**
    * Get user settings
-   * 
+   *
    * @param userId - The user's ID
    * @returns A promise resolving to an AuthResult containing the user's settings
    */
   public async getUserSettings(userId: string): Promise<AuthResult<any>> {
     try {
-      const { data, error } = await this.client.from('user_settings').select('*').eq('user_id', userId).single();
+      const { data, error } = await this.client
+        .from('user_settings')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -509,7 +658,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -521,7 +675,7 @@ export class AuthRepository {
 
   /**
    * Get user sessions
-   * 
+   *
    * @param userId - The user's ID
    * @returns A promise resolving to an AuthResult containing the user's sessions
    */
@@ -531,7 +685,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -543,7 +702,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -555,18 +719,27 @@ export class AuthRepository {
 
   /**
    * Revoke session
-   * 
+   *
    * @param userId - The user's ID
    * @param sessionId - The session ID to revoke
    * @returns A promise resolving to an AuthResult indicating success or failure
    */
   public async revokeSession(userId: string, sessionId: string): Promise<AuthResult<boolean>> {
     try {
-      const { error } = await this.client.from('sessions').delete().eq('user_id', userId).eq('id', sessionId);
+      const { error } = await this.client
+        .from('sessions')
+        .delete()
+        .eq('user_id', userId)
+        .eq('id', sessionId);
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -578,7 +751,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -590,18 +768,29 @@ export class AuthRepository {
 
   /**
    * Check if user has permission via token
-   * 
+   *
    * @param userId - The user's ID
    * @param permission - The permission to check
    * @returns A promise resolving to an AuthResult indicating whether the user has the permission
    */
-  public async hasPermissionViaToken(userId: string, permission: string): Promise<AuthResult<boolean>> {
+  public async hasPermissionViaToken(
+    userId: string,
+    permission: string
+  ): Promise<AuthResult<boolean>> {
     try {
-      const { data, error } = await this.client.rpc('check_permission_via_token', { user_id: userId, permission });
+      const { data, error } = await this.client.rpc('check_permission_via_token', {
+        user_id: userId,
+        permission,
+      });
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -613,7 +802,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -636,7 +830,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -648,7 +847,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -665,13 +869,21 @@ export class AuthRepository {
    * @param metadata - Metadata object
    * @returns Promise resolving to an AuthResult indicating success or failure
    */
-  public async updateUserMetadata(userId: string, metadata: Record<string, any>): Promise<AuthResult<void>> {
+  public async updateUserMetadata(
+    userId: string,
+    metadata: Record<string, any>
+  ): Promise<AuthResult<void>> {
     try {
       const { error } = await this.client.auth.updateUser({ data: metadata });
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -683,7 +895,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -704,7 +921,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -716,7 +938,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -735,7 +962,12 @@ export class AuthRepository {
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -747,7 +979,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -770,11 +1007,21 @@ export class AuthRepository {
    */
   public async updateUserSettings(userId: string, settings: any): Promise<AuthResult<any>> {
     try {
-      const { data, error } = await this.client.from('user_settings').update(settings).eq('user_id', userId).select().single();
+      const { data, error } = await this.client
+        .from('user_settings')
+        .update(settings)
+        .eq('user_id', userId)
+        .select()
+        .single();
       if (error) {
         if (typeof error === 'object' && error instanceof AuthError) {
           return { data: null, error };
-        } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as any).message === 'string'
+        ) {
           return { data: null, error: new AuthError((error as any).message) };
         } else if (error) {
           return { data: null, error: new AuthError(String(error)) };
@@ -786,7 +1033,12 @@ export class AuthRepository {
     } catch (error: any) {
       if (typeof error === 'object' && error instanceof AuthError) {
         return { data: null, error };
-      } else if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+      } else if (
+        typeof error === 'object' &&
+        error !== null &&
+        'message' in error &&
+        typeof (error as any).message === 'string'
+      ) {
         return { data: null, error: new AuthError((error as any).message) };
       } else if (error) {
         return { data: null, error: new AuthError(String(error)) };
@@ -839,7 +1091,11 @@ export class AuthRepository {
   /**
    * Verify TOTP factor (stub for now)
    */
-  public async verifyTotpFactor(userId: string, factorId: string, code: string): Promise<AuthResult<boolean>> {
+  public async verifyTotpFactor(
+    userId: string,
+    factorId: string,
+    code: string
+  ): Promise<AuthResult<boolean>> {
     // Implement logic as needed, stub returns true
     return { data: true, error: null };
   }

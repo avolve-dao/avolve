@@ -5,6 +5,7 @@ Thank you for your interest in contributing to Avolve DAO! We're building a tran
 ## 🌟 2025 Vision
 
 Our platform is evolving to support deeper transformation through:
+
 - Real-time social features that inspire personal growth
 - Community-driven chat experiences that foster collaboration
 - Token rewards that incentivize meaningful engagement
@@ -13,24 +14,28 @@ Our platform is evolving to support deeper transformation through:
 ## 🎯 Focus Areas
 
 ### 1. Transformation Features
+
 - Real-time posts with token rewards
 - AI-driven prompts for meaningful sharing
 - Engagement tracking and milestones
 - Progressive unlocking based on participation
 
 ### 2. Chat and Community
+
 - Real-time messaging in Regen Circles
 - Token-gated access levels
 - Community reputation systems
 - Collaborative achievement tracking
 
 ### 3. Token Integration
+
 - GEN token for ecosystem governance
 - SAP token for personal achievements
 - SCQ token for community contributions
 - Daily token claims and streak bonuses
 
 ### 4. Accessibility and UX
+
 - WCAG 2.2 AA compliance
 - Dark mode support
 - High-contrast themes
@@ -65,12 +70,14 @@ NEXT_PUBLIC_ENABLE_REAL_TIME_CHAT=true
 ### Adding New Features
 
 1. **Social Features**
+
    - Use real-time Supabase subscriptions
    - Implement token rewards for engagement
    - Follow accessibility guidelines
    - Add comprehensive test coverage
 
 2. **Chat Features**
+
    - Use WebSocket connections for real-time updates
    - Implement message persistence
    - Add moderation capabilities
@@ -149,11 +156,13 @@ All contributors are expected to run these before submitting a PR. See [README.m
 ## 🔄 Pull Request Process
 
 1. **Branch Naming**
+
    - Feature: `feature/description`
    - Fix: `fix/description`
    - Docs: `docs/description`
 
 2. **Commit Messages**
+
    ```
    feat: add real-time chat for Regen Circles
    fix: resolve token claim delay issue
@@ -161,6 +170,7 @@ All contributors are expected to run these before submitting a PR. See [README.m
    ```
 
 3. **PR Description**
+
    - Clearly describe the changes
    - Link related issues
    - Include screenshots/videos
@@ -175,6 +185,7 @@ All contributors are expected to run these before submitting a PR. See [README.m
 ## 🎨 Design Guidelines
 
 ### UI Components
+
 - Use shadcn/ui components from `/components/ui` **exclusively**
 - Do **not** use or install any other UI libraries (NextUI, MUI, Chakra, etc.) unless you have explicit written permission from the project owner
 - Refactor any legacy or custom UI to shadcn/ui for consistency
@@ -183,12 +194,14 @@ All contributors are expected to run these before submitting a PR. See [README.m
 - Support dark mode
 
 ### Accessibility
+
 - Meet WCAG 2.2 AA standards
 - Test with screen readers
 - Support keyboard navigation
 - Provide alternative text
 
 ### Journey Themes
+
 - Use semantic color tokens
 - Support high contrast
 - Maintain consistent gradients
@@ -215,10 +228,12 @@ All contributions to this project become the exclusive property of the Avolve DA
 ## ❓ Questions?
 
 Join our community channels:
+
 - Discord: [Avolve DAO](https://discord.gg/avolve)
 - GitHub Discussions
 - Community Forum
 
 For direct support:
+
 - Email: admin@avolve.io
 - GitHub Issues

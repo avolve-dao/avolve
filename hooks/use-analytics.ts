@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useCallback } from 'react'
-import { analyticsService } from '@/lib/analytics/analytics-service'
+import { useState, useEffect, useCallback } from 'react';
+import { analyticsService } from '@/lib/analytics/analytics-service';
 import { createBrowserClient } from '@supabase/ssr';
 import { useUser } from './use-user';
 
@@ -16,13 +16,13 @@ export function useAnalytics() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
   const { user } = useUser();
-  const [isLoading, setIsLoading] = useState(false)
-  const [leaderboard, setLeaderboard] = useState<any[]>([])
-  const [userPosition, setUserPosition] = useState<any>(null)
-  const [journeyAnalytics, setJourneyAnalytics] = useState<any[]>([])
-  const [communityInsights, setCommunityInsights] = useState<any[]>([])
-  const [tesla369Streak, setTesla369Streak] = useState<any>(null)
-  const [immersionInsights, setImmersionInsights] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false);
+  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [userPosition, setUserPosition] = useState<any>(null);
+  const [journeyAnalytics, setJourneyAnalytics] = useState<any[]>([]);
+  const [communityInsights, setCommunityInsights] = useState<any[]>([]);
+  const [tesla369Streak, setTesla369Streak] = useState<any>(null);
+  const [immersionInsights, setImmersionInsights] = useState<any>(null);
 
   // Log a user activity
   const logActivity = useCallback(
@@ -32,18 +32,15 @@ export function useAnalytics() {
       immersionLevel: number = 1,
       useQueue: boolean = true
     ) => {
-      return analyticsService.logActivity(actionType, details, immersionLevel, useQueue)
+      return analyticsService.logActivity(actionType, details, immersionLevel, useQueue);
     },
     []
-  )
+  );
 
   // Subscribe to real-time event updates
-  const subscribeToEventUpdates = useCallback(
-    (callback: (payload: any) => void) => {
-      return analyticsService.subscribeToEventUpdates(callback)
-    },
-    []
-  )
+  const subscribeToEventUpdates = useCallback((callback: (payload: any) => void) => {
+    return analyticsService.subscribeToEventUpdates(callback);
+  }, []);
 
   // Fetch leaderboard data
   const fetchLeaderboard = useCallback(
@@ -53,22 +50,27 @@ export function useAnalytics() {
       timePeriod: '7days' | '30days' | '90days' | 'alltime' = '30days',
       limit: number = 10
     ) => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const data = await analyticsService.getLeaderboard(journeyType, tokenType, timePeriod, limit)
+        const data = await analyticsService.getLeaderboard(
+          journeyType,
+          tokenType,
+          timePeriod,
+          limit
+        );
         if (data) {
-          setLeaderboard(data)
+          setLeaderboard(data);
         }
-        return data
+        return data;
       } catch (error) {
-        console.error('Error fetching leaderboard:', error)
-        return null
+        console.error('Error fetching leaderboard:', error);
+        return null;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
     []
-  )
+  );
 
   // Fetch user's leaderboard position
   const fetchUserPosition = useCallback(
@@ -77,94 +79,94 @@ export function useAnalytics() {
       tokenType?: string,
       timePeriod: '7days' | '30days' | '90days' | 'alltime' = '30days'
     ) => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
         const data = await analyticsService.getUserLeaderboardPosition(
           journeyType,
           tokenType,
           timePeriod
-        )
+        );
         if (data) {
-          setUserPosition(data)
+          setUserPosition(data);
         }
-        return data
+        return data;
       } catch (error) {
-        console.error('Error fetching user position:', error)
-        return null
+        console.error('Error fetching user position:', error);
+        return null;
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     },
     []
-  )
+  );
 
   // Fetch journey analytics data
   const fetchJourneyAnalytics = useCallback(async (journeyType?: string, tokenType?: string) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await analyticsService.getJourneyAnalytics(journeyType, tokenType)
+      const data = await analyticsService.getJourneyAnalytics(journeyType, tokenType);
       if (data) {
-        setJourneyAnalytics(data)
+        setJourneyAnalytics(data);
       }
-      return data
+      return data;
     } catch (error) {
-      console.error('Error fetching journey analytics:', error)
-      return null
+      console.error('Error fetching journey analytics:', error);
+      return null;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   // Fetch community insights data
   const fetchCommunityInsights = useCallback(async (tokenType?: string) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await analyticsService.getCommunityInsights(tokenType)
+      const data = await analyticsService.getCommunityInsights(tokenType);
       if (data) {
-        setCommunityInsights(data)
+        setCommunityInsights(data);
       }
-      return data
+      return data;
     } catch (error) {
-      console.error('Error fetching community insights:', error)
-      return null
+      console.error('Error fetching community insights:', error);
+      return null;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   // Fetch Tesla 3-6-9 streak data
   const fetchTesla369Streak = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await analyticsService.getTesla369Streak()
+      const data = await analyticsService.getTesla369Streak();
       if (data) {
-        setTesla369Streak(data)
+        setTesla369Streak(data);
       }
-      return data
+      return data;
     } catch (error) {
-      console.error('Error fetching Tesla 3-6-9 streak:', error)
-      return null
+      console.error('Error fetching Tesla 3-6-9 streak:', error);
+      return null;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   // Fetch immersion insights data
   const fetchImmersionInsights = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const data = await analyticsService.getImmersionInsights()
+      const data = await analyticsService.getImmersionInsights();
       if (data) {
-        setImmersionInsights(data)
+        setImmersionInsights(data);
       }
-      return data
+      return data;
     } catch (error) {
-      console.error('Error fetching immersion insights:', error)
-      return null
+      console.error('Error fetching immersion insights:', error);
+      return null;
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [])
+  }, []);
 
   return {
     isLoading,
@@ -181,6 +183,6 @@ export function useAnalytics() {
     fetchJourneyAnalytics,
     fetchCommunityInsights,
     fetchTesla369Streak,
-    fetchImmersionInsights
-  }
+    fetchImmersionInsights,
+  };
 }

@@ -18,194 +18,194 @@ import {
   Users2,
   Globe2,
   Sparkles,
-  Lightbulb
-} from "lucide-react"
-import type { LucideIcon } from "lucide-react"
+  Lightbulb,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 export interface NavItem {
-  title: string
-  href: string
-  icon: LucideIcon
-  isExternal?: boolean
-  badge?: string | number
-  priority: "critical" | "high" | "medium" | "low" // Usage frequency
+  title: string;
+  href: string;
+  icon: LucideIcon;
+  isExternal?: boolean;
+  badge?: string | number;
+  priority: 'critical' | 'high' | 'medium' | 'low'; // Usage frequency
 }
 
 export interface NavSection {
-  title?: string
-  items: NavItem[]
+  title?: string;
+  items: NavItem[];
 }
 
 // Super routes for main navigation areas
 export const superRoutes = [
   {
-    path: "/super/personal",
-    label: "Personal Growth",
-    description: "Focus on your individual development journey",
+    path: '/super/personal',
+    label: 'Personal Growth',
+    description: 'Focus on your individual development journey',
     icon: UserCircle,
   },
   {
-    path: "/super/business",
-    label: "Business",
-    description: "Enhance your professional capabilities",
+    path: '/super/business',
+    label: 'Business',
+    description: 'Enhance your professional capabilities',
     icon: Building2,
   },
   {
-    path: "/super/mind",
-    label: "Mind",
-    description: "Unlock your cognitive potential",
+    path: '/super/mind',
+    label: 'Mind',
+    description: 'Unlock your cognitive potential',
     icon: Brain,
   },
   {
-    path: "/super/puzzle",
-    label: "Puzzle",
-    description: "Solve complex challenges",
+    path: '/super/puzzle',
+    label: 'Puzzle',
+    description: 'Solve complex challenges',
     icon: Puzzle,
   },
   {
-    path: "/super/human",
-    label: "Human",
-    description: "Reach peak human potential",
+    path: '/super/human',
+    label: 'Human',
+    description: 'Reach peak human potential',
     icon: User,
   },
   {
-    path: "/super/society",
-    label: "Society",
-    description: "Build meaningful connections",
+    path: '/super/society',
+    label: 'Society',
+    description: 'Build meaningful connections',
     icon: Users2,
   },
   {
-    path: "/super/genius",
-    label: "Genius",
-    description: "Access collective intelligence",
+    path: '/super/genius',
+    label: 'Genius',
+    description: 'Access collective intelligence',
     icon: Lightbulb,
   },
   {
-    path: "/super/civilization",
-    label: "Civilization",
-    description: "Create global impact",
+    path: '/super/civilization',
+    label: 'Civilization',
+    description: 'Create global impact',
     icon: Globe2,
   },
-] as const
+] as const;
 
 // Navigation items organized by actual user needs and frequency
 export const navigationItems: NavItem[] = [
   // Critical path items (used multiple times daily)
   {
-    title: "Home",
-    href: "/dashboard",
+    title: 'Home',
+    href: '/dashboard',
     icon: Home,
-    priority: "critical",
+    priority: 'critical',
   },
   {
-    title: "Create",
-    href: "/dashboard/create",
+    title: 'Create',
+    href: '/dashboard/create',
     icon: PlusSquare,
-    priority: "critical",
+    priority: 'critical',
   },
   {
-    title: "Messages",
-    href: "/messages",
+    title: 'Messages',
+    href: '/messages',
     icon: Mail,
-    priority: "critical",
+    priority: 'critical',
   },
   {
-    title: "Notifications",
-    href: "/notifications",
+    title: 'Notifications',
+    href: '/notifications',
     icon: Bell,
     badge: 3,
-    priority: "critical",
+    priority: 'critical',
   },
 
   // High frequency items (used daily)
   {
-    title: "Profile",
-    href: "/dashboard/profile",
+    title: 'Profile',
+    href: '/dashboard/profile',
     icon: User,
-    priority: "high",
+    priority: 'high',
   },
   {
-    title: "Discover",
-    href: "/dashboard/discover",
+    title: 'Discover',
+    href: '/dashboard/discover',
     icon: Compass,
-    priority: "high",
+    priority: 'high',
   },
 
   // Medium frequency items (used weekly)
   {
-    title: "Activity",
-    href: "/dashboard/activity",
+    title: 'Activity',
+    href: '/dashboard/activity',
     icon: Activity,
-    priority: "medium",
+    priority: 'medium',
   },
   {
-    title: "Grok AI",
-    href: "/dashboard/grok",
+    title: 'Grok AI',
+    href: '/dashboard/grok',
     icon: Bot,
-    priority: "medium",
+    priority: 'medium',
   },
   {
-    title: "Friends",
-    href: "/dashboard/friends",
+    title: 'Friends',
+    href: '/dashboard/friends',
     icon: Users,
-    priority: "medium",
+    priority: 'medium',
   },
 
   // Low frequency items (used occasionally)
   {
-    title: "Settings",
-    href: "/dashboard/settings",
+    title: 'Settings',
+    href: '/dashboard/settings',
     icon: Settings,
-    priority: "low",
+    priority: 'low',
   },
   {
-    title: "Help Center",
-    href: "/help",
+    title: 'Help Center',
+    href: '/help',
     icon: HelpCircle,
-    priority: "low",
+    priority: 'low',
   },
   {
-    title: "Documentation",
-    href: "https://docs.example.com",
+    title: 'Documentation',
+    href: 'https://docs.example.com',
     icon: BookOpen,
     isExternal: true,
-    priority: "low",
+    priority: 'low',
   },
-]
+];
 
 // Helper functions to get navigation items by priority
 export function getCriticalNavItems(): NavItem[] {
-  return navigationItems.filter((item) => item.priority === "critical")
+  return navigationItems.filter(item => item.priority === 'critical');
 }
 
 export function getHighPriorityNavItems(): NavItem[] {
-  return navigationItems.filter((item) => item.priority === "high")
+  return navigationItems.filter(item => item.priority === 'high');
 }
 
 export function getMediumPriorityNavItems(): NavItem[] {
-  return navigationItems.filter((item) => item.priority === "medium")
+  return navigationItems.filter(item => item.priority === 'medium');
 }
 
 export function getLowPriorityNavItems(): NavItem[] {
-  return navigationItems.filter((item) => item.priority === "low")
+  return navigationItems.filter(item => item.priority === 'low');
 }
 
 // Mobile navigation - focus on critical path only
 export const mobileNavItems: NavItem[] = [
   ...getCriticalNavItems(),
   // Add profile as the 5th item since it's important for user context
-  navigationItems.find((item) => item.title === "Profile")!,
-]
+  navigationItems.find(item => item.title === 'Profile')!,
+];
 
 // Function to check if a route is active
 export function isRouteActive(currentPath: string, href: string): boolean {
-  if (href === "/dashboard" && currentPath === "/dashboard") {
-    return true
+  if (href === '/dashboard' && currentPath === '/dashboard') {
+    return true;
   }
 
-  if (href !== "/dashboard" && currentPath.startsWith(href)) {
-    return true
+  if (href !== '/dashboard' && currentPath.startsWith(href)) {
+    return true;
   }
 
-  return false
+  return false;
 }

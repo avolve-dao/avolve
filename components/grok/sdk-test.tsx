@@ -1,20 +1,20 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { checkAiSdkSetup } from "@/lib/ai-sdk-setup"
-import { Bot, Check, X } from "lucide-react"
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { checkAiSdkSetup } from '@/lib/ai-sdk-setup';
+import { Bot, Check, X } from 'lucide-react';
 
 export function GrokSdkTest() {
   const [sdkStatus, setSdkStatus] = useState<{
-    aiSdkInstalled: boolean
-    xaiSdkInstalled: boolean
-  } | null>(null)
+    aiSdkInstalled: boolean;
+    xaiSdkInstalled: boolean;
+  } | null>(null);
 
   useEffect(() => {
     // Check SDK installation status
-    setSdkStatus(checkAiSdkSetup())
-  }, [])
+    setSdkStatus(checkAiSdkSetup());
+  }, []);
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -69,6 +69,5 @@ export function GrokSdkTest() {
         </p>
       </CardFooter>
     </Card>
-  )
+  );
 }
-

@@ -34,20 +34,35 @@ export default function RecentRoleActivity() {
   }, []);
 
   return (
-    <div className="card" style={{padding: '1.5rem', borderRadius: 12, background: '#f9f9fc', boxShadow: '0 2px 8px #e0e0e0'}}>
-      <h3 style={{marginBottom: 12}}>Recent Activity</h3>
-      <ul style={{listStyle: 'none', padding: 0}}>
+    <div
+      className="card"
+      style={{
+        padding: '1.5rem',
+        borderRadius: 12,
+        background: '#f9f9fc',
+        boxShadow: '0 2px 8px #e0e0e0',
+      }}
+    >
+      <h3 style={{ marginBottom: 12 }}>Recent Activity</h3>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {history.map(act => {
           const token = getTokenForAction(act.role_type, act.action_type);
           return (
-            <li key={act.id} style={{marginBottom: 12, display: 'flex', alignItems: 'center'}}>
-              <span style={{fontSize: 22, marginRight: 10}}>{ROLE_ICONS[act.role_type] || '🧑‍💻'}</span>
-              <span style={{flex: 1}}>
-                <strong style={{textTransform: 'capitalize'}}>{act.role_type}</strong> {act.action_type.replace('_', ' ')}
-                <span style={{marginLeft: 8, color: '#888', fontSize: 13}}>{new Date(act.created_at).toLocaleString()}</span>
+            <li key={act.id} style={{ marginBottom: 12, display: 'flex', alignItems: 'center' }}>
+              <span style={{ fontSize: 22, marginRight: 10 }}>
+                {ROLE_ICONS[act.role_type] || '🧑‍💻'}
+              </span>
+              <span style={{ flex: 1 }}>
+                <strong style={{ textTransform: 'capitalize' }}>{act.role_type}</strong>{' '}
+                {act.action_type.replace('_', ' ')}
+                <span style={{ marginLeft: 8, color: '#888', fontSize: 13 }}>
+                  {new Date(act.created_at).toLocaleString()}
+                </span>
               </span>
               {token && (
-                <span style={{marginLeft: 10, fontSize: 18}} title={`Earned ${token}`}>{TOKEN_ICONS[token] || token}</span>
+                <span style={{ marginLeft: 10, fontSize: 18 }} title={`Earned ${token}`}>
+                  {TOKEN_ICONS[token] || token}
+                </span>
               )}
             </li>
           );

@@ -33,12 +33,14 @@ export async function POST(req: NextRequest) {
     await logAuditAction(user.id, 'role_change', userId, { newRole });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(JSON.stringify({
-      route: '/api/admin/user/role',
-      error: error instanceof Error ? error.message : error,
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    }));
+    console.error(
+      JSON.stringify({
+        route: '/api/admin/user/role',
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      })
+    );
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

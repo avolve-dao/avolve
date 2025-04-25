@@ -2,27 +2,25 @@
  * @ai-anchor #AUTH_FLOW #AUTH_SERVICE
  * @ai-context This service centralizes all authentication-related functionality for the Avolve platform
  * @ai-related-to auth-repository.ts, auth-types.ts
- * 
+ *
  * Authentication Service
- * 
+ *
  * This service provides a high-level API for authentication-related operations.
  * It implements business logic and delegates database operations to the AuthRepository.
  */
 import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/client';
 import { createUniversalClient } from '@/lib/supabase/universal';
-import { 
-  User, 
-  SupabaseClient,
-  AuthError,
-  Session
-} from '@supabase/supabase-js';
-import type { AuthResult, AuthSession, UserProfile, MfaFactor, TotpFactor, RecoveryCodes } from './auth-types';
-import { 
-  UserSettings, 
-  Role, 
-  Permission 
+import { User, SupabaseClient, AuthError, Session } from '@supabase/supabase-js';
+import type {
+  AuthResult,
+  AuthSession,
+  UserProfile,
+  MfaFactor,
+  TotpFactor,
+  RecoveryCodes,
 } from './auth-types';
+import { UserSettings, Role, Permission } from './auth-types';
 import { AuthRepository } from './auth-repository';
 import { rateLimit } from '@/lib/rate-limit';
 
@@ -33,7 +31,7 @@ export type { UserProfile, AuthResult } from './auth-types';
 
 /**
  * Authentication Service Class
- * 
+ *
  * This service provides a high-level API for authentication-related operations.
  * It implements business logic and delegates database operations to the AuthRepository.
  */
@@ -44,7 +42,7 @@ export class AuthService {
 
   /**
    * Private constructor to enforce singleton pattern
-   * 
+   *
    * @param client - The Supabase client instance
    */
   private constructor(client: SupabaseClient) {
@@ -53,7 +51,7 @@ export class AuthService {
 
   /**
    * Get browser-side instance of the auth service
-   * 
+   *
    * @returns The singleton instance of the AuthService for browser-side use
    */
   public static getBrowserInstance(): AuthService {
@@ -65,7 +63,7 @@ export class AuthService {
 
   /**
    * Get server-side instance of the auth service
-   * 
+   *
    * @param request - The NextRequest instance
    * @returns A fresh instance of the AuthService for server-side use
    */
@@ -78,7 +76,7 @@ export class AuthService {
   /**
    * Get the Supabase client
    * This is needed for direct access to the client in certain scenarios
-   * 
+   *
    * @returns The Supabase client instance
    */
   public getSupabaseClient(): SupabaseClient {
@@ -87,7 +85,7 @@ export class AuthService {
 
   /**
    * Helper method to convert any error to AuthError
-   * 
+   *
    * @param error - The error to convert
    * @returns An AuthError instance
    */
@@ -95,13 +93,13 @@ export class AuthService {
     if (error instanceof AuthError) {
       return error;
     }
-    
+
     return new AuthError(error.message || 'An unexpected error occurred');
   }
 
   /**
    * Clear rate limit
-   * 
+   *
    * @param key - The rate limit key
    */
   private async clearRateLimit(key: string): Promise<void> {
@@ -110,7 +108,7 @@ export class AuthService {
 
   /**
    * Sign in with email and password
-   * 
+   *
    * @param email - The user's email
    * @param password - The user's password
    * @returns A promise resolving to an AuthResult containing the session
@@ -124,7 +122,7 @@ export class AuthService {
       if (!email || !password) {
         return {
           data: null,
-          error: new AuthError('Email and password are required')
+          error: new AuthError('Email and password are required'),
         };
       }
 
@@ -137,13 +135,13 @@ export class AuthService {
       const { success: withinLimit } = await rateLimit(this.request, {
         uniqueIdentifier: rateLimitKey,
         limit: 5,
-        timeframe: 300 // 5 minutes
+        timeframe: 300, // 5 minutes
       });
 
       if (!withinLimit) {
         return {
           data: null,
-          error: new AuthError('Too many sign in attempts. Please try again later.')
+          error: new AuthError('Too many sign in attempts. Please try again later.'),
         };
       }
 
@@ -160,14 +158,14 @@ export class AuthService {
       console.error('Sign in error:', error);
       return {
         data: null,
-        error: this.convertToAuthError(error)
+        error: this.convertToAuthError(error),
       };
     }
   }
 
   /**
    * Sign up with email and password
-   * 
+   *
    * @param email - The user's email
    * @param password - The user's password
    * @param metadata - Optional additional metadata for the user
@@ -183,7 +181,7 @@ export class AuthService {
       if (!email || !password) {
         return {
           data: null,
-          error: new AuthError('Email and password are required')
+          error: new AuthError('Email and password are required'),
         };
       }
 
@@ -194,7 +192,7 @@ export class AuthService {
       if (password.length < 8) {
         return {
           data: null,
-          error: new AuthError('Password must be at least 8 characters')
+          error: new AuthError('Password must be at least 8 characters'),
         };
       }
 
@@ -207,7 +205,9 @@ export class AuthService {
       if (!(hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar)) {
         return {
           data: null,
-          error: new AuthError('Password must contain uppercase, lowercase, number, and special character')
+          error: new AuthError(
+            'Password must contain uppercase, lowercase, number, and special character'
+          ),
         };
       }
 
@@ -216,13 +216,13 @@ export class AuthService {
       const { success: withinLimit } = await rateLimit(this.request, {
         uniqueIdentifier: rateLimitKey,
         limit: 3,
-        timeframe: 3600 // 1 hour
+        timeframe: 3600, // 1 hour
       });
 
       if (!withinLimit) {
         return {
           data: null,
-          error: new AuthError('Too many sign up attempts. Please try again later.')
+          error: new AuthError('Too many sign up attempts. Please try again later.'),
         };
       }
 
@@ -242,14 +242,14 @@ export class AuthService {
       console.error('Sign up error:', error);
       return {
         data: null,
-        error: this.convertToAuthError(error)
+        error: this.convertToAuthError(error),
       };
     }
   }
 
   /**
    * Reset password
-   * 
+   *
    * @param email - The user's email
    * @returns A promise resolving to an AuthResult indicating success or failure
    */
@@ -259,7 +259,7 @@ export class AuthService {
       if (!email) {
         return {
           data: null,
-          error: new AuthError('Email is required')
+          error: new AuthError('Email is required'),
         };
       }
 
@@ -272,13 +272,13 @@ export class AuthService {
       const { success: withinLimit } = await rateLimit(this.request, {
         uniqueIdentifier: rateLimitKey,
         limit: 3,
-        timeframe: 3600 // 1 hour
+        timeframe: 3600, // 1 hour
       });
 
       if (!withinLimit) {
         return {
           data: null,
-          error: new AuthError('Too many password reset attempts. Please try again later.')
+          error: new AuthError('Too many password reset attempts. Please try again later.'),
         };
       }
 
@@ -287,14 +287,14 @@ export class AuthService {
       console.error('Password reset error:', error);
       return {
         data: null,
-        error: this.convertToAuthError(error)
+        error: this.convertToAuthError(error),
       };
     }
   }
 
   /**
    * Update password
-   * 
+   *
    * @param password - The new password
    * @returns A promise resolving to an AuthResult indicating success or failure
    */
@@ -304,7 +304,7 @@ export class AuthService {
 
   /**
    * Sign out the current user
-   * 
+   *
    * @returns A promise resolving to an AuthResult indicating success or failure
    */
   public async signOut(): Promise<AuthResult<void>> {
@@ -323,11 +323,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getUserProfile(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -339,11 +345,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getSession();
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -351,11 +363,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getUser();
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -363,11 +381,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getUserSettings(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -375,11 +399,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getUserRoles(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -387,11 +417,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getUserPermissions(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -399,11 +435,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.hasRole(userId, role);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -411,23 +453,38 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.hasPermission(userId, permission);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
-  public async hasPermissionViaToken(userId: string, permission: string): Promise<AuthResult<boolean>> {
+  public async hasPermissionViaToken(
+    userId: string,
+    permission: string
+  ): Promise<AuthResult<boolean>> {
     try {
       const { data, error } = await this.repository.hasPermissionViaToken(userId, permission);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -435,15 +492,25 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getUserSessions(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
-  public async revokeSession(userId: string, sessionId: string, reason?: string): Promise<AuthResult<boolean>> {
+  public async revokeSession(
+    userId: string,
+    sessionId: string,
+    reason?: string
+  ): Promise<AuthResult<boolean>> {
     // Implement logic as needed, stub returns true
     return { data: true, error: null };
   }
@@ -452,11 +519,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.revokeAllOtherSessions(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -464,11 +537,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.signInWithMagicLink(email);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -476,23 +555,38 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.updateUserProfile(userId, profile);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
-  public async updateUserSettings(userId: string, settings: any): Promise<AuthResult<UserSettings>> {
+  public async updateUserSettings(
+    userId: string,
+    settings: any
+  ): Promise<AuthResult<UserSettings>> {
     try {
       const { data, error } = await this.repository.updateUserSettings(userId, settings);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -500,11 +594,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.updateEmail(userId, email);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -517,11 +617,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.resendConfirmationEmail(email);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -531,15 +637,24 @@ export class AuthService {
    * @param metadata - Metadata object
    * @returns Promise resolving to an AuthResult indicating success or failure
    */
-  public async updateUserMetadata(userId: string, metadata: Record<string, any>): Promise<AuthResult<void>> {
+  public async updateUserMetadata(
+    userId: string,
+    metadata: Record<string, any>
+  ): Promise<AuthResult<void>> {
     try {
       const { data, error } = await this.repository.updateUserMetadata(userId, metadata);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -552,11 +667,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.isAdmin(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -569,11 +690,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.isMfaRequired(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -586,11 +713,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.getMfaFactors(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -604,11 +737,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.setupTotp(userId, friendlyName);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -619,15 +758,25 @@ export class AuthService {
    * @param code - The TOTP code
    * @returns Promise resolving to boolean
    */
-  public async verifyTotpFactor(userId: string, factorId: string, code: string): Promise<AuthResult<boolean>> {
+  public async verifyTotpFactor(
+    userId: string,
+    factorId: string,
+    code: string
+  ): Promise<AuthResult<boolean>> {
     try {
       const { data, error } = await this.repository.verifyTotpFactor(userId, factorId, code);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -637,7 +786,10 @@ export class AuthService {
    * @param count - Optional number of codes to generate
    * @returns Promise resolving to an array of recovery codes
    */
-  public async generateRecoveryCodes(userId: string, count?: number): Promise<AuthResult<string[]>> {
+  public async generateRecoveryCodes(
+    userId: string,
+    count?: number
+  ): Promise<AuthResult<string[]>> {
     // Implement logic as needed, stub returns empty array
     return { data: [], error: null };
   }
@@ -652,11 +804,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.verifyRecoveryCode(userId, code);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 
@@ -669,11 +827,17 @@ export class AuthService {
     try {
       const { data, error } = await this.repository.disableMfa(userId);
       if (error) {
-        return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+        return {
+          data: null,
+          error: error instanceof AuthError ? error : new AuthError(error.message),
+        };
       }
       return { data, error: null };
     } catch (error: any) {
-      return { data: null, error: error instanceof AuthError ? error : new AuthError(error.message) };
+      return {
+        data: null,
+        error: error instanceof AuthError ? error : new AuthError(error.message),
+      };
     }
   }
 }

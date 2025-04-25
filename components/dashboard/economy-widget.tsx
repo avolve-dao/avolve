@@ -1,6 +1,6 @@
 /**
  * Economy Dashboard Widget
- * 
+ *
  * Displays token balances and recent transactions
  */
 
@@ -33,7 +33,7 @@ export function EconomyWidget() {
         if (user?.id) {
           const userTokensData = await economyApi.getUserTokens(user.id);
           setUserTokens(userTokensData);
-          
+
           const transactionsData = await economyApi.getUserTransactions(user.id, 5);
           setTransactions(transactionsData);
         }
@@ -92,11 +92,11 @@ export function EconomyWidget() {
             <div className="mb-6">
               <h3 className="text-sm font-medium mb-2">Your Balances</h3>
               <div className="grid grid-cols-2 gap-2">
-                {userTokens.map((userToken) => {
+                {userTokens.map(userToken => {
                   const token = getTokenDetails(userToken.token_id);
                   return (
-                    <div 
-                      key={userToken.id} 
+                    <div
+                      key={userToken.id}
                       className={`p-3 rounded-lg ${token?.gradient_class || 'bg-gradient-to-r from-blue-500 to-indigo-500'}`}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -110,10 +110,14 @@ export function EconomyWidget() {
                               </span>
                             </div>
                           )}
-                          <span className="text-white font-medium">{token?.symbol || 'Unknown'}</span>
+                          <span className="text-white font-medium">
+                            {token?.symbol || 'Unknown'}
+                          </span>
                         </div>
                       </div>
-                      <div className="text-white text-lg font-bold">{userToken.balance.toLocaleString()}</div>
+                      <div className="text-white text-lg font-bold">
+                        {userToken.balance.toLocaleString()}
+                      </div>
                       {userToken.staked_balance > 0 && (
                         <div className="text-white/80 text-xs mt-1">
                           {userToken.staked_balance.toLocaleString()} staked
@@ -122,7 +126,7 @@ export function EconomyWidget() {
                     </div>
                   );
                 })}
-                
+
                 {userTokens.length === 0 && (
                   <div className="col-span-2 text-center py-4 text-muted-foreground">
                     No tokens yet. Complete activities to earn tokens.
@@ -130,21 +134,38 @@ export function EconomyWidget() {
                 )}
               </div>
             </div>
-            
+
             <div>
               <h3 className="text-sm font-medium mb-2">Recent Transactions</h3>
               <div className="space-y-2">
-                {transactions.map((transaction) => {
+                {transactions.map(transaction => {
                   const token = getTokenDetails(transaction.token_id);
                   const isIncoming = transaction.to_user_id === user?.id;
-                  
+
                   return (
-                    <div key={transaction.id} className="flex items-center justify-between p-2 rounded-lg border">
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between p-2 rounded-lg border"
+                    >
                       <div className="flex items-center">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          isIncoming ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
-                        }`}>
-                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            isIncoming
+                              ? 'bg-green-100 text-green-600'
+                              : 'bg-amber-100 text-amber-600'
+                          }`}
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             {isIncoming ? (
                               <path d="M12 3v18m0-18l-4 4m4-4l4 4" />
                             ) : (
@@ -154,18 +175,23 @@ export function EconomyWidget() {
                         </div>
                         <div className="ml-3">
                           <div className="font-medium">
-                            {isIncoming ? 'Received' : 'Sent'} {transaction.amount} {token?.symbol || 'tokens'}
+                            {isIncoming ? 'Received' : 'Sent'} {transaction.amount}{' '}
+                            {token?.symbol || 'tokens'}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {formatDistanceToNow(new Date(transaction.created_at), { addSuffix: true })}
+                            {formatDistanceToNow(new Date(transaction.created_at), {
+                              addSuffix: true,
+                            })}
                           </div>
                         </div>
                       </div>
-                      <Badge variant="outline">{formatTransactionType(transaction.transaction_type)}</Badge>
+                      <Badge variant="outline">
+                        {formatTransactionType(transaction.transaction_type)}
+                      </Badge>
                     </div>
                   );
                 })}
-                
+
                 {transactions.length === 0 && (
                   <div className="text-center py-4 text-muted-foreground">
                     No recent transactions.

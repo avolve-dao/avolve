@@ -9,6 +9,7 @@ This document outlines the best practices implemented in the Avolve codebase. It
 Rate limiting is implemented to protect API endpoints from abuse and ensure fair usage of resources.
 
 **Implementation Details:**
+
 - Located in `/lib/rate-limit.ts`
 - Uses an in-memory store for serverless environments
 - Configurable window (default: 60 seconds) and request limit (default: 10 requests)
@@ -16,24 +17,26 @@ Rate limiting is implemented to protect API endpoints from abuse and ensure fair
 - Returns appropriate headers for client-side handling
 
 **Usage Example:**
+
 ```typescript
-import { rateLimit } from "@/lib/rate-limit"
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
   // Apply rate limiting
-  const rateLimitResult = await rateLimit(req)
+  const rateLimitResult = await rateLimit(req);
   if (!rateLimitResult.success) {
-    return new Response(rateLimitResult.message, { 
+    return new Response(rateLimitResult.message, {
       status: 429,
-      headers: rateLimitResult.headers 
-    })
+      headers: rateLimitResult.headers,
+    });
   }
-  
+
   // Continue processing the request...
 }
 ```
 
 **Best Practices:**
+
 - Always apply rate limiting to public-facing API endpoints
 - Include rate limit headers in all responses
 - Consider different limits for different endpoint types
@@ -44,31 +47,34 @@ export async function POST(req: Request) {
 Caching is implemented to improve performance and reduce load on backend services.
 
 **Implementation Details:**
+
 - Located in `/lib/cache.ts`
 - Uses LRU cache with configurable max size and TTL
 - Generates cache keys based on request method, path, and body
 - Provides utilities for getting, setting, and invalidating cached responses
 
 **Usage Example:**
+
 ```typescript
-import { generateCacheKey, getCachedResponse, setCachedResponse } from "@/lib/cache"
+import { generateCacheKey, getCachedResponse, setCachedResponse } from '@/lib/cache';
 
 // Generate a cache key for the current request
-const cacheKey = generateCacheKey(req)
+const cacheKey = generateCacheKey(req);
 
 // Try to get a cached response
-const cachedResponse = getCachedResponse(cacheKey)
+const cachedResponse = getCachedResponse(cacheKey);
 if (cachedResponse) {
-  return cachedResponse
+  return cachedResponse;
 }
 
 // Generate and cache a new response
-const response = await generateResponse()
-setCachedResponse(cacheKey, response)
-return response
+const response = await generateResponse();
+setCachedResponse(cacheKey, response);
+return response;
 ```
 
 **Best Practices:**
+
 - Cache only idempotent operations (GET, POST with same input = same output)
 - Set appropriate TTL values based on data volatility
 - Include cache bypass mechanisms for fresh data requirements
@@ -80,31 +86,37 @@ return response
 Robust input validation is implemented to ensure data integrity and prevent security vulnerabilities.
 
 **Implementation Details:**
+
 - Located in `/lib/validators/`
 - Uses Zod for schema validation
 - Provides both strict validation (throws errors) and safe validation (returns result object)
 - Includes detailed error information for debugging
 
 **Usage Example:**
+
 ```typescript
-import { safeValidateChatRequest } from "@/lib/validators/chat"
+import { safeValidateChatRequest } from '@/lib/validators/chat';
 
 // Parse and validate request body
-const body = await req.json()
-const validation = safeValidateChatRequest(body)
+const body = await req.json();
+const validation = safeValidateChatRequest(body);
 
 if (!validation.success) {
-  return new Response(JSON.stringify({ 
-    error: "Invalid request", 
-    details: validation.error?.errors 
-  }), { status: 400 })
+  return new Response(
+    JSON.stringify({
+      error: 'Invalid request',
+      details: validation.error?.errors,
+    }),
+    { status: 400 }
+  );
 }
 
 // Use validated data
-const { messages, model } = validation.data
+const { messages, model } = validation.data;
 ```
 
 **Best Practices:**
+
 - Validate all user input at the application boundary
 - Use strict types for internal functions
 - Return descriptive validation errors to aid debugging
@@ -116,25 +128,28 @@ const { messages, model } = validation.data
 Security headers are implemented to protect against common web vulnerabilities.
 
 **Implementation Details:**
+
 - Located in `/lib/security-headers.ts`
 - Configurable options for different header combinations
 - Utilities for applying headers to existing responses
 - Sensible defaults for all headers
 
 **Usage Example:**
+
 ```typescript
-import { withSecurityHeaders } from "@/lib/security-headers"
+import { withSecurityHeaders } from '@/lib/security-headers';
 
 // Apply security headers to a response
-const response = new Response("Hello World")
-const secureResponse = withSecurityHeaders(response)
+const response = new Response('Hello World');
+const secureResponse = withSecurityHeaders(response);
 
 // Or create a new response with security headers
-const headers = createSecurityHeaders()
-const response = new Response("Hello World", { headers })
+const headers = createSecurityHeaders();
+const response = new Response('Hello World', { headers });
 ```
 
 **Best Practices:**
+
 - Apply security headers to all responses
 - Use appropriate Content Security Policy directives
 - Enable Strict Transport Security in production
@@ -146,25 +161,28 @@ const response = new Response("Hello World", { headers })
 Structured logging is implemented to improve debugging, monitoring, and observability.
 
 **Implementation Details:**
+
 - Located in `/lib/logger.ts`
 - Supports multiple log levels (DEBUG, INFO, WARN, ERROR)
 - Includes contextual information with each log entry
 - Environment-aware configuration
 
 **Usage Example:**
+
 ```typescript
-import { logger } from "@/lib/logger"
+import { logger } from '@/lib/logger';
 
 // Basic logging
-logger.info("Processing request")
-logger.error("Failed to process request", error)
+logger.info('Processing request');
+logger.error('Failed to process request', error);
 
 // Contextual logging
-const routeLogger = logger.withContext({ route: "api/chat" })
-routeLogger.info("Processing chat request", { messageCount: 5 })
+const routeLogger = logger.withContext({ route: 'api/chat' });
+routeLogger.info('Processing chat request', { messageCount: 5 });
 ```
 
 **Best Practices:**
+
 - Use appropriate log levels for different information
 - Include relevant context with each log entry
 - Avoid logging sensitive information
@@ -176,23 +194,29 @@ routeLogger.info("Processing chat request", { messageCount: 5 })
 Consistent error handling is implemented to improve user experience and debugging.
 
 **Implementation Details:**
+
 - Standardized error responses across all API endpoints
 - Detailed error information in development, sanitized in production
 - Structured logging of all errors with context
 
 **Usage Example:**
+
 ```typescript
 try {
   // Operation that might fail
 } catch (error) {
-  logger.error("Operation failed", error, { context: "additional info" })
-  return new Response(JSON.stringify({ 
-    error: "Something went wrong" 
-  }), { status: 500 })
+  logger.error('Operation failed', error, { context: 'additional info' });
+  return new Response(
+    JSON.stringify({
+      error: 'Something went wrong',
+    }),
+    { status: 500 }
+  );
 }
 ```
 
 **Best Practices:**
+
 - Use try/catch blocks for error-prone operations
 - Log all errors with appropriate context
 - Return user-friendly error messages

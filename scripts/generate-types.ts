@@ -1,9 +1,9 @@
 /**
  * TypeScript Types Generator for Avolve Database
- * 
+ *
  * This script generates TypeScript types from the Supabase database schema.
  * It can use either the Supabase CLI or the MCP server to generate types.
- * 
+ *
  * Usage:
  * - With CLI: npm run generate-types
  * - With environment variables:
@@ -32,17 +32,19 @@ const CONFIG = {
  */
 async function generateTypesWithCli(): Promise<string> {
   console.log('Generating types using Supabase CLI...');
-  
+
   try {
     // Check if supabase CLI is installed
     execSync('supabase --version', { stdio: 'ignore' });
   } catch (error) {
-    throw new Error('Supabase CLI is not installed. Please install it first: https://supabase.com/docs/guides/cli');
+    throw new Error(
+      'Supabase CLI is not installed. Please install it first: https://supabase.com/docs/guides/cli'
+    );
   }
-  
+
   const schemas = CONFIG.schemas.join(',');
   const command = `supabase gen types typescript --project-id ${CONFIG.projectRef} --schema ${schemas}`;
-  
+
   try {
     return execSync(command).toString();
   } catch (error) {
@@ -55,35 +57,35 @@ async function generateTypesWithCli(): Promise<string> {
  */
 async function generateTypesWithMcp(): Promise<string> {
   console.log('Generating types using MCP server...');
-  
+
   if (!CONFIG.accessToken) {
     throw new Error('SUPABASE_ACCESS_TOKEN environment variable is not set');
   }
-  
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'api.supabase.com',
       path: `/v1/projects/${CONFIG.projectRef}/types/typescript`,
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${CONFIG.accessToken}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${CONFIG.accessToken}`,
+        'Content-Type': 'application/json',
+      },
     };
-    
-    const req = https.request(options, (res) => {
+
+    const req = https.request(options, res => {
       let data = '';
-      
-      res.on('data', (chunk) => {
+
+      res.on('data', chunk => {
         data += chunk;
       });
-      
+
       res.on('end', () => {
         if (res.statusCode !== 200) {
           reject(new Error(`MCP server returned status code ${res.statusCode}: ${data}`));
           return;
         }
-        
+
         try {
           const response = JSON.parse(data);
           resolve(response.types || '');
@@ -92,11 +94,11 @@ async function generateTypesWithMcp(): Promise<string> {
         }
       });
     });
-    
-    req.on('error', (error) => {
+
+    req.on('error', error => {
       reject(new Error(`MCP request failed: ${error}`));
     });
-    
+
     req.end();
   });
 }
@@ -138,30 +140,27 @@ async function main() {
   try {
     console.log(`Generating TypeScript types for project: ${CONFIG.projectRef}`);
     console.log(`Schemas: ${CONFIG.schemas.join(', ')}`);
-    
+
     if (!CONFIG.projectRef) {
       throw new Error('SUPABASE_PROJECT_REF environment variable is not set');
     }
 
     // Generate types using the appropriate method
-    const rawTypes = CONFIG.useMcp 
-      ? await generateTypesWithMcp() 
-      : await generateTypesWithCli();
-    
+    const rawTypes = CONFIG.useMcp ? await generateTypesWithMcp() : await generateTypesWithCli();
+
     // Process and enhance the types
     const processedTypes = processTypes(rawTypes);
-    
+
     // Save to file
     const outputPath = path.join(CONFIG.outputDir, CONFIG.outputFile);
     fs.writeFileSync(outputPath, processedTypes);
-    
+
     console.log(`TypeScript types generated successfully at: ${outputPath}`);
-    
+
     // Generate a simple index.ts file to re-export the types
     const indexPath = path.join(CONFIG.outputDir, 'index.ts');
     fs.writeFileSync(indexPath, `export * from './${CONFIG.outputFile.replace('.ts', '')}';\n`);
     console.log(`Created index file at: ${indexPath}`);
-    
   } catch (error) {
     console.error('Error generating TypeScript types:');
     console.error(error instanceof Error ? error.message : error);

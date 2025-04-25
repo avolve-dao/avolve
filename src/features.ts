@@ -7,7 +7,10 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 export class FeaturesService {
   private supabase: SupabaseClient<unknown>;
 
-  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
+  constructor(
+    supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  ) {
     this.supabase = createClient(supabaseUrl, supabaseKey);
   }
 
@@ -38,7 +41,7 @@ export class FeaturesService {
       console.error('Error checking feature unlock:', error);
       return {
         isUnlocked: false,
-        unlockReason: `Error checking feature: ${error.message}`
+        unlockReason: `Error checking feature: ${error.message}`,
       };
     }
 
@@ -75,8 +78,8 @@ export class FeaturesService {
           description: '',
           day: dayName,
           dayOfWeek: -1,
-          gradient: ''
-        }
+          gradient: '',
+        },
       };
     }
 
@@ -127,7 +130,7 @@ export class FeaturesService {
       console.error('Error getting user feature statuses:', error);
       return {
         features: {},
-        dayTokens: {}
+        dayTokens: {},
       };
     }
 
@@ -150,7 +153,7 @@ export class FeaturesService {
       console.error('Error claiming day token:', error);
       return {
         success: false,
-        message: `Error claiming token: ${error.message}`
+        message: `Error claiming token: ${error.message}`,
       };
     }
 
@@ -180,7 +183,7 @@ export class FeaturesService {
         description: '',
         day: 'Unknown',
         dayOfWeek: -1,
-        gradient: ''
+        gradient: '',
       };
     }
 

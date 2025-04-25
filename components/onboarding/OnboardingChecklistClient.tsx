@@ -1,7 +1,7 @@
-"use client";
-import React, { useState, useTransition, useEffect } from "react";
-import Confetti from "react-confetti";
-import { toast } from "sonner";
+'use client';
+import React, { useState, useTransition, useEffect } from 'react';
+import Confetti from 'react-confetti';
+import { toast } from 'sonner';
 
 // Native window size hook replacement
 function useWindowSize() {
@@ -9,7 +9,7 @@ function useWindowSize() {
   function getSize() {
     return {
       width: isClient ? window.innerWidth : undefined,
-      height: isClient ? window.innerHeight : undefined
+      height: isClient ? window.innerHeight : undefined,
     };
   }
   const [windowSize, setWindowSize] = React.useState(getSize);
@@ -76,8 +76,12 @@ export function OnboardingChecklistClient({ initialCompleted }: { initialComplet
       <ul className="space-y-2">
         {CHECKLIST.map(item => (
           <li key={item.key} className="flex items-center">
-            <span className={`inline-block w-5 h-5 mr-2 rounded-full border-2 ${completed.includes(item.key) ? 'bg-green-400 border-green-400' : 'border-gray-300'} transition-colors duration-200`}></span>
-            <span className={completed.includes(item.key) ? 'line-through text-gray-400' : ''}>{item.label}</span>
+            <span
+              className={`inline-block w-5 h-5 mr-2 rounded-full border-2 ${completed.includes(item.key) ? 'bg-green-400 border-green-400' : 'border-gray-300'} transition-colors duration-200`}
+            ></span>
+            <span className={completed.includes(item.key) ? 'line-through text-gray-400' : ''}>
+              {item.label}
+            </span>
             {!completed.includes(item.key) && (
               <button
                 className="ml-auto bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded text-xs focus:outline focus:ring-2 focus:ring-emerald-400 active:scale-95 transition"
@@ -91,8 +95,16 @@ export function OnboardingChecklistClient({ initialCompleted }: { initialComplet
           </li>
         ))}
       </ul>
-      {error && <div className="mt-2 text-red-600" role="alert">{error}</div>}
-      {success && <div className="mt-2 text-green-600" role="status">{success}</div>}
+      {error && (
+        <div className="mt-2 text-red-600" role="alert">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="mt-2 text-green-600" role="status">
+          {success}
+        </div>
+      )}
       {celebrate && (
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
           <Confetti width={width} height={height} numberOfPieces={400} recycle={false} />
@@ -103,8 +115,17 @@ export function OnboardingChecklistClient({ initialCompleted }: { initialComplet
         <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
           <div className="bg-white bg-opacity-90 rounded-lg shadow-lg p-6 flex flex-col items-center">
             <h3 className="text-2xl font-bold mb-2">Congratulations!</h3>
-            <p className="mb-4 text-lg text-center">You're ready to begin your Superachiever journey.<br />What's next?</p>
-            <a href="/dashboard" className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded font-semibold transition focus:outline focus:ring-2 focus:ring-emerald-400">Go to Dashboard</a>
+            <p className="mb-4 text-lg text-center">
+              You're ready to begin your Superachiever journey.
+              <br />
+              What's next?
+            </p>
+            <a
+              href="/dashboard"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded font-semibold transition focus:outline focus:ring-2 focus:ring-emerald-400"
+            >
+              Go to Dashboard
+            </a>
           </div>
         </div>
       )}

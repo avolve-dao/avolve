@@ -1,11 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import { Lock, Star, Info, ArrowRight } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { ContextualTooltip } from '@/components/ui/contextual-tooltip';
@@ -58,8 +65,8 @@ const featureDefinitions: { [key: string]: FeatureDefinition } = {
         id: 'first_component_completed',
         name: 'Complete First Component',
         description: 'Complete at least one journey component',
-      }
-    ]
+      },
+    ],
   },
   governance: {
     title: 'Governance',
@@ -87,8 +94,8 @@ const featureDefinitions: { [key: string]: FeatureDefinition } = {
         id: 'scaffolding',
         name: 'Scaffolding Phase',
         description: 'Reach the Scaffolding experience phase',
-      }
-    ]
+      },
+    ],
   },
   mentorship: {
     title: 'Mentorship Program',
@@ -109,8 +116,8 @@ const featureDefinitions: { [key: string]: FeatureDefinition } = {
         id: 'leadership_basics',
         name: 'Leadership Basics',
         description: 'Complete the Leadership Basics component',
-      }
-    ]
+      },
+    ],
   },
   network_state: {
     title: 'Network State',
@@ -138,8 +145,8 @@ const featureDefinitions: { [key: string]: FeatureDefinition } = {
         id: 'endgame',
         name: 'Endgame Phase',
         description: 'Reach the Endgame experience phase',
-      }
-    ]
+      },
+    ],
   },
   advanced_analytics: {
     title: 'Advanced Analytics',
@@ -160,8 +167,8 @@ const featureDefinitions: { [key: string]: FeatureDefinition } = {
         id: 'data_driven',
         name: 'Data Driven',
         description: 'Complete the Data Literacy component',
-      }
-    ]
+      },
+    ],
   },
   token_exchange: {
     title: 'Token Exchange',
@@ -183,18 +190,18 @@ const featureDefinitions: { [key: string]: FeatureDefinition } = {
         id: 'token_collector',
         name: 'Token Collector',
         description: 'Earn at least 3 different utility token types',
-      }
-    ]
-  }
+      },
+    ],
+  },
 };
 
 export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
   const [userPhase, setUserPhase] = useState<string>('discovery');
-  const [userTokens, setUserTokens] = useState<{[key: string]: number}>({});
+  const [userTokens, setUserTokens] = useState<{ [key: string]: number }>({});
   const [userAchievements, setUserAchievements] = useState<string[]>([]);
   const [userComponents, setUserComponents] = useState<string[]>([]);
-  const [featureProgress, setFeatureProgress] = useState<{[key: string]: number}>({});
-  const supabase = createClientComponentClient();
+  const [featureProgress, setFeatureProgress] = useState<{ [key: string]: number }>({});
+  const supabase = createClient();
 
   // Determine which features to show
   const featuresToShow = features || Object.keys(featureDefinitions);
@@ -208,7 +215,7 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
         .select('experience_phase')
         .eq('user_id', userId)
         .single();
-      
+
       if (profileData) {
         setUserPhase(profileData.experience_phase || 'discovery');
       }
@@ -218,9 +225,9 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
         .from('user_tokens')
         .select('token_type, amount')
         .eq('user_id', userId);
-      
+
       if (tokensData) {
-        const tokens: {[key: string]: number} = {};
+        const tokens: { [key: string]: number } = {};
         tokensData.forEach((token: any) => {
           tokens[token.token_type] = token.amount || 0;
         });
@@ -232,7 +239,7 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
         .from('user_achievements')
         .select('achievement_id')
         .eq('user_id', userId);
-      
+
       if (achievementsData) {
         setUserAchievements(achievementsData.map((a: any) => a.achievement_id));
       }
@@ -243,7 +250,7 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
         .select('component_id')
         .eq('user_id', userId)
         .eq('status', 'completed');
-      
+
       if (componentsData) {
         setUserComponents(componentsData.map((c: any) => c.component_id));
       }
@@ -256,27 +263,27 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
   useEffect(() => {
     const phaseOrder = ['discovery', 'onboarding', 'scaffolding', 'endgame'];
     const userPhaseIndex = phaseOrder.indexOf(userPhase);
-    
-    const progress: {[key: string]: number} = {};
-    
+
+    const progress: { [key: string]: number } = {};
+
     // Calculate progress for each feature
     Object.entries(featureDefinitions).forEach(([featureKey, feature]) => {
       if (!featuresToShow.includes(featureKey)) return;
-      
+
       // Check if feature is unlocked based on user's phase
       const featurePhaseIndex = phaseOrder.indexOf(feature.unlockPhase);
       if (userPhaseIndex >= featurePhaseIndex) {
         progress[featureKey] = 100;
         return;
       }
-      
+
       // Calculate progress based on requirements
       const totalRequirements = feature.requirements.length;
       let completedRequirements = 0;
-      
-      feature.requirements.forEach((req) => {
+
+      feature.requirements.forEach(req => {
         let isCompleted = false;
-        
+
         switch (req.type) {
           case 'token':
             const userAmount = userTokens[req.id] || 0;
@@ -284,19 +291,19 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
             req.max = req.amount || 0;
             isCompleted = userAmount >= (req.amount || 0);
             break;
-            
+
           case 'achievement':
             req.current = userAchievements.includes(req.id) ? 1 : 0;
             req.max = 1;
             isCompleted = userAchievements.includes(req.id);
             break;
-            
+
           case 'component':
             req.current = userComponents.includes(req.id) ? 1 : 0;
             req.max = 1;
             isCompleted = userComponents.includes(req.id);
             break;
-            
+
           case 'phase':
             const reqPhaseIndex = phaseOrder.indexOf(req.id);
             const currentPhaseIndex = phaseOrder.indexOf(userPhase);
@@ -305,17 +312,16 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
             isCompleted = currentPhaseIndex >= reqPhaseIndex;
             break;
         }
-        
+
         if (isCompleted) {
           completedRequirements++;
         }
       });
-      
-      progress[featureKey] = totalRequirements > 0 
-        ? (completedRequirements / totalRequirements) * 100 
-        : 0;
+
+      progress[featureKey] =
+        totalRequirements > 0 ? (completedRequirements / totalRequirements) * 100 : 0;
     });
-    
+
     setFeatureProgress(progress);
   }, [userPhase, userTokens, userAchievements, userComponents, featuresToShow]);
 
@@ -324,19 +330,22 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
       {featuresToShow.map(featureKey => {
         const feature = featureDefinitions[featureKey as keyof typeof featureDefinitions];
         if (!feature) return null;
-        
+
         const isUnlocked = featureProgress[featureKey] === 100;
         const progress = featureProgress[featureKey] || 0;
-        
+
         return (
-          <Card key={featureKey} className={`overflow-hidden transition-all duration-300 ${
-            isUnlocked ? 'border-green-600' : 'border-zinc-800'
-          }`}>
+          <Card
+            key={featureKey}
+            className={`overflow-hidden transition-all duration-300 ${
+              isUnlocked ? 'border-green-600' : 'border-zinc-800'
+            }`}
+          >
             {feature.image && (
               <div className="relative h-32 overflow-hidden">
-                <img 
-                  src={feature.image} 
-                  alt={feature.title} 
+                <img
+                  src={feature.image}
+                  alt={feature.title}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
@@ -350,22 +359,19 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
                 )}
               </div>
             )}
-            
+
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center">
                 {feature.title}
                 {feature.tooltipType && (
-                  <ContextualTooltip 
-                    type={feature.tooltipType as any} 
-                    className="ml-1"
-                  >
+                  <ContextualTooltip type={feature.tooltipType as any} className="ml-1">
                     <></>
                   </ContextualTooltip>
                 )}
               </CardTitle>
               <CardDescription>{feature.description}</CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-1">
@@ -374,7 +380,7 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
                 </div>
                 <Progress value={progress} className="h-2" />
               </div>
-              
+
               {!isUnlocked && feature.requirements && (
                 <div className="space-y-3">
                   <h4 className="text-sm font-medium">Requirements to Unlock:</h4>
@@ -395,20 +401,20 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
                           </TooltipProvider>
                         </div>
                         {req.type === 'token' && req.amount && (
-                          <Progress 
-                            value={(req.current ?? 0) / (req.max ?? 0) * 100} 
-                            className="h-1 mt-1" 
+                          <Progress
+                            value={((req.current ?? 0) / (req.max ?? 0)) * 100}
+                            className="h-1 mt-1"
                           />
                         )}
                       </div>
                       <div className="ml-2 flex items-center">
                         {req.type === 'token' && req.amount ? (
                           <Badge variant="outline" className="ml-auto">
-                            {(req.current ?? 0)}/{(req.amount ?? 0)}
+                            {req.current ?? 0}/{req.amount ?? 0}
                           </Badge>
                         ) : (
-                          <Badge 
-                            variant={(req.current ?? 0) >= (req.max ?? 0) ? "success" : "outline"} 
+                          <Badge
+                            variant={(req.current ?? 0) >= (req.max ?? 0) ? 'success' : 'outline'}
                             className="ml-auto"
                           >
                             {(req.current ?? 0) >= (req.max ?? 0) ? (
@@ -423,7 +429,7 @@ export function FeaturePreview({ userId, features }: FeaturePreviewProps) {
                 </div>
               )}
             </CardContent>
-            
+
             <CardFooter>
               {isUnlocked ? (
                 <Link href={feature.unlockPath} className="w-full">

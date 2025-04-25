@@ -6,7 +6,9 @@ const supabase = createClient(
 );
 
 export async function getRolePoints() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
   // Use updated function/view for Fibonacci-based rewards if available
   const { data, error } = await supabase.rpc('get_role_points', { p_user_id: user.id });
@@ -15,10 +17,15 @@ export async function getRolePoints() {
 }
 
 export async function getRoleHistory() {
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
   // Use updated function/view for Fibonacci-based rewards if available
-  const { data, error } = await supabase.rpc('get_role_history', { p_user_id: user.id, p_limit: 50 });
+  const { data, error } = await supabase.rpc('get_role_history', {
+    p_user_id: user.id,
+    p_limit: 50,
+  });
   if (error) throw error;
   return data;
 }
@@ -32,7 +39,9 @@ export async function getGroupEventRewards(eventId: string) {
   if (error) throw error;
   // Calculate Fibonacci rewards client-side for display
   const fibonacci = (n: number): number => {
-    let a = 0, b = 1, temp;
+    let a = 0,
+      b = 1,
+      temp;
     for (let i = 0; i < n; i++) {
       temp = a + b;
       a = b;

@@ -8,18 +8,18 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSupabase, hasUser } from '@/lib/supabase/use-supabase';
-import { 
-  Award, 
-  Coins, 
-  Calendar, 
-  Layers, 
-  ChevronRight, 
-  Bell, 
-  Users, 
+import {
+  Award,
+  Coins,
+  Calendar,
+  Layers,
+  ChevronRight,
+  Bell,
+  Users,
   Puzzle,
   ArrowRight,
   Target,
-  Clock
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
@@ -37,7 +37,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
     achievementsCount: 0,
     nextEvent: null,
     teamInvites: 0,
-    superpuzzles: []
+    superpuzzles: [],
   });
   const [activeTab, setActiveTab] = useState('overview');
   const supabaseHook = useSupabase();
@@ -55,7 +55,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           .select('*')
           .eq('user_id', supabaseHook.user!.id)
           .single();
-        
+
         if (profile) {
           setUserProfile(profile);
         }
@@ -65,7 +65,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           .from('user_tokens')
           .select('token_type, amount')
           .eq('user_id', supabaseHook.user!.id);
-        
+
         if (tokens) {
           setUserTokens(tokens);
         }
@@ -75,15 +75,15 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           .from('component_progress')
           .select('status')
           .eq('user_id', supabaseHook.user!.id);
-        
+
         if (components) {
           const completedCount = components.filter(c => c.status === 'completed').length;
           const totalCount = components.length;
           const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
-          
+
           setUserProgress((prev: typeof userProgress) => ({
             ...prev,
-            journeyProgress: progress
+            journeyProgress: progress,
           }));
         }
 
@@ -92,10 +92,10 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           .from('user_achievements')
           .select('*', { count: 'exact', head: true })
           .eq('user_id', supabaseHook.user!.id);
-        
+
         setUserProgress((prev: typeof userProgress) => ({
           ...prev,
-          achievementsCount: achievementsCount || 0
+          achievementsCount: achievementsCount || 0,
         }));
 
         // Fetch next event
@@ -105,11 +105,11 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           .gt('event_date', new Date().toISOString())
           .order('event_date', { ascending: true })
           .limit(1);
-        
+
         if (events && events.length > 0) {
           setUserProgress((prev: typeof userProgress) => ({
             ...prev,
-            nextEvent: events[0]
+            nextEvent: events[0],
           }));
         }
 
@@ -119,16 +119,17 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           .select('*', { count: 'exact', head: true })
           .eq('user_id', supabaseHook.user!.id)
           .eq('status', 'pending');
-        
+
         setUserProgress((prev: typeof userProgress) => ({
           ...prev,
-          teamInvites: invitesCount || 0
+          teamInvites: invitesCount || 0,
         }));
 
         // Fetch superpuzzles
         const { data: superpuzzles } = await supabase
           .from('superpuzzle_contributions')
-          .select(`
+          .select(
+            `
             id,
             superpuzzle:superpuzzle_id(
               id,
@@ -137,16 +138,17 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
             ),
             status,
             completion_percentage
-          `)
+          `
+          )
           .eq('user_id', supabaseHook.user!.id)
           .in('status', ['started', 'in_progress'])
           .order('updated_at', { ascending: false })
           .limit(3);
-        
+
         if (superpuzzles) {
           setUserProgress((prev: typeof userProgress) => ({
             ...prev,
-            superpuzzles: superpuzzles
+            superpuzzles: superpuzzles,
           }));
         }
       } catch (error) {
@@ -169,12 +171,11 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
       <div className="bg-gradient-to-b from-zinc-900 to-background p-4 mb-4 rounded-b-lg">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-bold">
-              {userProfile?.display_name || 'Welcome'}
-            </h1>
+            <h1 className="text-xl font-bold">{userProfile?.display_name || 'Welcome'}</h1>
             <p className="text-sm text-muted-foreground">
-              {userProfile?.experience_phase?.charAt(0).toUpperCase() + 
-               userProfile?.experience_phase?.slice(1) || 'Discovery'} Phase
+              {userProfile?.experience_phase?.charAt(0).toUpperCase() +
+                userProfile?.experience_phase?.slice(1) || 'Discovery'}{' '}
+              Phase
             </p>
           </div>
           <Link href="/notifications">
@@ -188,7 +189,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
             </Button>
           </Link>
         </div>
-        
+
         <div className="grid grid-cols-3 gap-2 mb-4">
           <Link href="/tokens" className="block">
             <Card className="bg-zinc-900/50 border-zinc-800">
@@ -199,7 +200,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
               </CardContent>
             </Card>
           </Link>
-          
+
           <Link href="/dashboard/achievements" className="block">
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardContent className="p-3 flex flex-col items-center justify-center">
@@ -209,19 +210,21 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
               </CardContent>
             </Card>
           </Link>
-          
+
           <Link href="/dashboard/journey" className="block">
             <Card className="bg-zinc-900/50 border-zinc-800">
               <CardContent className="p-3 flex flex-col items-center justify-center">
                 <Target className="h-5 w-5 text-green-500 mb-1" />
-                <span className="text-lg font-bold">{Math.round(userProgress.journeyProgress)}%</span>
+                <span className="text-lg font-bold">
+                  {Math.round(userProgress.journeyProgress)}%
+                </span>
                 <span className="text-xs text-muted-foreground">Progress</span>
               </CardContent>
             </Card>
           </Link>
         </div>
       </div>
-      
+
       {/* Dashboard Tabs */}
       <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="px-4">
         <TabsList className="grid grid-cols-3 mb-4">
@@ -229,7 +232,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
           <TabsTrigger value="journey">Journey</TabsTrigger>
           <TabsTrigger value="community">Community</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="space-y-4">
           {/* Next Action */}
           <Card className="border-zinc-800">
@@ -254,7 +257,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
               </div>
             </CardContent>
           </Card>
-          
+
           {/* Upcoming Event */}
           {userProgress.nextEvent && (
             <Card className="border-zinc-800">
@@ -265,7 +268,9 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
                     <h3 className="font-medium">{userProgress.nextEvent.title}</h3>
                     <Badge variant="outline" className="flex items-center">
                       <Clock className="h-3 w-3 mr-1" />
-                      {formatDistanceToNow(new Date(userProgress.nextEvent.event_date), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(userProgress.nextEvent.event_date), {
+                        addSuffix: true,
+                      })}
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">
@@ -281,7 +286,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
               </CardContent>
             </Card>
           )}
-          
+
           {/* Token Summary */}
           <Card className="border-zinc-800">
             <CardContent className="p-4">
@@ -294,12 +299,15 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
               <ScrollArea className="h-[120px]">
                 <div className="space-y-2">
                   {userTokens.map((token, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 rounded-md bg-zinc-900/50">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 rounded-md bg-zinc-900/50"
+                    >
                       <div className="flex items-center">
                         <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center mr-2">
-                          <img 
-                            src={`/tokens/${token.token_type.toLowerCase()}.svg`} 
-                            alt={token.token_type} 
+                          <img
+                            src={`/tokens/${token.token_type.toLowerCase()}.svg`}
+                            alt={token.token_type}
                             className="w-5 h-5"
                           />
                         </div>
@@ -325,7 +333,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="journey" className="space-y-4">
           {/* Journey Progress */}
           <Card className="border-zinc-800">
@@ -346,7 +354,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
               </Link>
             </CardContent>
           </Card>
-          
+
           {/* Achievements */}
           <Card className="border-zinc-800">
             <CardContent className="p-4">
@@ -364,7 +372,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
               </Link>
             </CardContent>
           </Card>
-          
+
           {/* Quick Access */}
           <Card className="border-zinc-800">
             <CardContent className="p-4">
@@ -401,7 +409,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="community" className="space-y-4">
           {/* Team Invites */}
           {userProgress.teamInvites > 0 && (
@@ -415,14 +423,12 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
                   You have pending team invitations waiting for your response
                 </p>
                 <Link href="/teams/invitations">
-                  <Button className="w-full">
-                    View Invitations
-                  </Button>
+                  <Button className="w-full">View Invitations</Button>
                 </Link>
               </CardContent>
             </Card>
           )}
-          
+
           {/* Superpuzzles */}
           <Card className="border-zinc-800">
             <CardContent className="p-4">
@@ -432,7 +438,7 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
                   <span className="text-sm text-blue-500 underline">What are these?</span>
                 </ContextualTooltip>
               </div>
-              
+
               {userProgress.superpuzzles.length > 0 ? (
                 <div className="space-y-3 mb-3">
                   {userProgress.superpuzzles.map((puzzle: any, index: number) => (
@@ -456,15 +462,20 @@ export function MobileDashboard({ userId }: MobileDashboardProps) {
                   Contribute to community superpuzzles to earn SCQ tokens
                 </p>
               )}
-              
+
               <Link href="/superpuzzles">
-                <Button variant={userProgress.superpuzzles.length > 0 ? "outline" : "default"} className="w-full">
-                  {userProgress.superpuzzles.length > 0 ? 'View All Superpuzzles' : 'Explore Superpuzzles'}
+                <Button
+                  variant={userProgress.superpuzzles.length > 0 ? 'outline' : 'default'}
+                  className="w-full"
+                >
+                  {userProgress.superpuzzles.length > 0
+                    ? 'View All Superpuzzles'
+                    : 'Explore Superpuzzles'}
                 </Button>
               </Link>
             </CardContent>
           </Card>
-          
+
           {/* Community Links */}
           <Card className="border-zinc-800">
             <CardContent className="p-4">

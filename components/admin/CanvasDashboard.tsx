@@ -92,7 +92,9 @@ const CanvasDashboard: React.FC = () => {
         {relatedLearnings.map(learning => (
           <li key={learning.id}>
             <em>{learning.summary}</em>
-            {learning.details && <div style={{ fontSize: '0.95em', color: '#555' }}>{learning.details}</div>}
+            {learning.details && (
+              <div style={{ fontSize: '0.95em', color: '#555' }}>{learning.details}</div>
+            )}
           </li>
         ))}
       </ul>
@@ -132,7 +134,9 @@ const CanvasDashboard: React.FC = () => {
               {canvasEntries.map(entry => (
                 <li key={entry.id} style={{ marginBottom: 24 }}>
                   <h3>{entry.title}</h3>
-                  <div><strong>Type:</strong> {entry.canvas_type}</div>
+                  <div>
+                    <strong>Type:</strong> {entry.canvas_type}
+                  </div>
                   <div>{entry.description}</div>
                   <div style={{ marginTop: 8 }}>
                     <strong>Experiments:</strong>

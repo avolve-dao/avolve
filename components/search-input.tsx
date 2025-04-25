@@ -1,24 +1,24 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { useState } from "react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, X } from "lucide-react"
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Search, X } from 'lucide-react';
 
 export function SearchInput() {
-  const [query, setQuery] = useState("")
+  const [query, setQuery] = useState('');
 
   const handleClear = () => {
-    setQuery("")
-  }
+    setQuery('');
+  };
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     // In a real app, this would search the database
-    console.log("Searching for:", query)
-  }
+    console.log('Searching for:', query);
+  };
 
   return (
     <form onSubmit={handleSearch} className="relative">
@@ -28,7 +28,7 @@ export function SearchInput() {
         placeholder="Search for people, topics, or keywords..."
         className="pl-10 pr-10"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={e => setQuery(e.target.value)}
       />
       {query && (
         <Button
@@ -45,6 +45,5 @@ export function SearchInput() {
         Search
       </Button>
     </form>
-  )
+  );
 }
-

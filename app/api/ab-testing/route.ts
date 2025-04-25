@@ -9,8 +9,16 @@ import { rateLimit } from '@/lib/rate-limit';
 
 // Define the A/B testing schema for validation
 const abTestingSchema = z.object({
-  testId: z.string().min(1).max(50).regex(/^[a-zA-Z0-9_\-]+$/),
-  variant: z.string().min(1).max(50).regex(/^[a-zA-Z0-9_\-]+$/),
+  testId: z
+    .string()
+    .min(1)
+    .max(50)
+    .regex(/^[a-zA-Z0-9_\-]+$/),
+  variant: z
+    .string()
+    .min(1)
+    .max(50)
+    .regex(/^[a-zA-Z0-9_\-]+$/),
   action: z.enum(['impression', 'conversion']),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
@@ -55,9 +63,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (!rateLimitResult.success) {
       return NextResponse.json<ErrorResponse>(
         { error: 'Rate limit exceeded. Please try again later.' },
-        { 
+        {
           status: 429,
-          headers: rateLimitResult.headers
+          headers: rateLimitResult.headers,
         }
       );
     }
@@ -70,7 +78,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Parse the request body
     const body = await req.json();
-    
+
     // Explicit runtime type checks
     if (
       typeof body !== 'object' ||
@@ -84,53 +92,46 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Validate the request body
     const validationResult = abTestingSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json<ErrorResponse>(
-        { 
-          error: 'Invalid A/B testing data', 
-          details: validationResult.error.format() 
+        {
+          error: 'Invalid A/B testing data',
+          details: validationResult.error.format(),
         },
         { status: 400 }
       );
     }
-    
+
     const validatedData = validationResult.data;
-    
+
     // Sanitize the metadata
-    const sanitizedMetadata = validatedData.metadata 
+    const sanitizedMetadata = validatedData.metadata
       ? JSON.parse(sanitizeJson(JSON.stringify(validatedData.metadata)))
       : {};
-    
+
     // Create a Supabase client
     const cookieStore = cookies();
     const supabase = createClient(undefined, undefined, { cookies: cookieStore });
-    
+
     // Get the user ID from the request headers
     const userId = getUserId(req);
-    
+
     if (!userId) {
-      return NextResponse.json<ErrorResponse>(
-        { error: 'User ID not found' },
-        { status: 401 }
-      );
+      return NextResponse.json<ErrorResponse>({ error: 'User ID not found' }, { status: 401 });
     }
-    
+
     // Insert the A/B testing event into the database
-    const { error } = await supabase
-      .from('ab_testing_events')
-      .insert({
-        user_id: userId,
-        test_id: validatedData.testId,
-        variant: validatedData.variant,
-        action: validatedData.action,
-        metadata: sanitizedMetadata,
-        // Only store IP in production and with user consent
-        ip_address: env.IS_PRODUCTION && sanitizedMetadata.consentToTracking === true 
-          ? ip 
-          : null,
-      });
-    
+    const { error } = await supabase.from('ab_testing_events').insert({
+      user_id: userId,
+      test_id: validatedData.testId,
+      variant: validatedData.variant,
+      action: validatedData.action,
+      metadata: sanitizedMetadata,
+      // Only store IP in production and with user consent
+      ip_address: env.IS_PRODUCTION && sanitizedMetadata.consentToTracking === true ? ip : null,
+    });
+
     // Handle database errors
     if (error) {
       console.error('Error inserting A/B testing event:', error);
@@ -139,33 +140,32 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         { status: 500 }
       );
     }
-    
+
     // Return success response with no-cache headers
     const response = NextResponse.json<SuccessResponse>(
-      { 
+      {
         success: true,
         message: 'A/B testing event recorded successfully',
       },
       { status: 201 }
     );
-    
+
     // Add cache control headers
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     response.headers.set('Pragma', 'no-cache');
     response.headers.set('Expires', '0');
-    
+
     return response;
   } catch (error) {
-    console.error(JSON.stringify({
-      route: '/api/ab-testing',
-      error: error instanceof Error ? error.message : error,
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    }));
-    return NextResponse.json<ErrorResponse>(
-      { error: 'Internal Server Error' },
-      { status: 500 }
+    console.error(
+      JSON.stringify({
+        route: '/api/ab-testing',
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      })
     );
+    return NextResponse.json<ErrorResponse>({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
@@ -176,10 +176,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 export async function GET(req: NextRequest): Promise<NextResponse> {
   // Check if A/B testing is enabled
   if (!env.AB_TESTING_ENABLED_BOOL) {
-    return NextResponse.json<ErrorResponse>(
-      { error: 'A/B testing is disabled' },
-      { status: 403 }
-    );
+    return NextResponse.json<ErrorResponse>({ error: 'A/B testing is disabled' }, { status: 403 });
   }
 
   try {
@@ -192,23 +189,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // Create a Supabase client
     const cookieStore2 = cookies();
     const supabase2 = createClient(undefined, undefined, { cookies: cookieStore2 });
-    
+
     // Get the user ID from the request headers
     const userId = getUserId(req) as string | undefined;
-    
+
     if (!userId) {
-      return NextResponse.json<ErrorResponse>(
-        { error: 'User ID not found' },
-        { status: 401 }
-      );
+      return NextResponse.json<ErrorResponse>({ error: 'User ID not found' }, { status: 401 });
     }
-    
+
     // Get the user's A/B testing configuration
     const { data, error } = await supabase2
       .from('ab_testing_assignments')
       .select('test_id, variant')
       .eq('user_id', userId);
-    
+
     // Handle database errors
     if (error) {
       console.error('Error fetching A/B testing configuration:', error);
@@ -217,19 +211,19 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         { status: 500 }
       );
     }
-    
+
     // Return the A/B testing configuration
     const response = NextResponse.json({
       tests: data || [],
     });
-    
+
     // Add cache control headers
     response.headers.set('Cache-Control', 'private, max-age=300'); // 5 minutes
-    
+
     return response;
   } catch (error) {
     console.error('Error fetching A/B testing configuration:', error);
-    
+
     return NextResponse.json<ErrorResponse>(
       { error: 'An unexpected error occurred' },
       { status: 500 }

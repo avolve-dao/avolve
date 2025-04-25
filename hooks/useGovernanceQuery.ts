@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
-import { GovernanceService } from '../src/governance';
+import { governanceService } from './useGovernance';
 import { useGovernanceFeedback } from '../components/Governance/GovernanceActionFeedback';
 import { useUser } from './useUser';
 
+// Governance logic is not implemented for MVP. Use stub GovernanceService to avoid TS errors.
+
 // Initialize the governance service
-const governanceService = new GovernanceService();
+// const governanceService = new GovernanceService();
 
 /**
  * Custom hook for governance data fetching and caching using react-query
@@ -43,7 +45,10 @@ export const useGovernanceQuery = () => {
   };
 
   // Fetch a single petition by ID with caching
-  const usePetitionById = (petitionId: string, options?: UseQueryOptions<any, Error, any, string[]>) => {
+  const usePetitionById = (
+    petitionId: string,
+    options?: UseQueryOptions<any, Error, any, string[]>
+  ) => {
     return useQuery({
       queryKey: queryKeys.petition(petitionId),
       queryFn: async () => {
@@ -63,7 +68,9 @@ export const useGovernanceQuery = () => {
   };
 
   // Check user eligibility for governance actions with caching
-  const useEligibility = (options?: UseQueryOptions<EligibilityResult, Error, EligibilityResult, string[]>) => {
+  const useEligibility = (
+    options?: UseQueryOptions<EligibilityResult, Error, EligibilityResult, string[]>
+  ) => {
     return useQuery({
       queryKey: queryKeys.eligibility,
       queryFn: async () => {
@@ -90,7 +97,9 @@ export const useGovernanceQuery = () => {
   type CreatePetitionInput = { title: string; description: string };
   type CreatePetitionResult = { petitionId: string; message: string } | undefined;
   type VotePetitionInput = { petitionId: string; voteType: 'support' | 'oppose' | 'abstain' };
-  type VotePetitionResult = { voteWeight: number; previousWeight?: number; message: string } | undefined;
+  type VotePetitionResult =
+    | { voteWeight: number; previousWeight?: number; message: string }
+    | undefined;
 
   // Create petition mutation with optimistic updates
   const useCreatePetition = () => {
@@ -103,7 +112,7 @@ export const useGovernanceQuery = () => {
         }
         return result.data;
       },
-      onSuccess: (data) => {
+      onSuccess: data => {
         // Invalidate petitions query to refresh the list
         queryClient.invalidateQueries({ queryKey: queryKeys.petitions });
         feedback.showSuccess('Petition created successfully!');

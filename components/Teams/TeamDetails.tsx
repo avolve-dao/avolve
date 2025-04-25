@@ -58,19 +58,17 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
   const supabase = createClient();
 
   const loadTeamAndUser = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     setCurrentUser(user as User | null);
-    
+
     if (!user) {
       setLoading(false);
       return;
     }
 
-    const { data: team } = await supabase
-      .from('teams')
-      .select('*')
-      .eq('id', teamId)
-      .single();
+    const { data: team } = await supabase.from('teams').select('*').eq('id', teamId).single();
 
     setTeam(team);
     setLoading(false);
@@ -85,15 +83,13 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
       // Removed unused useToast import
       return;
     }
-    
+
     setJoining(true);
     try {
-      const { error } = await supabase
-        .from('team_members')
-        .insert({
-          team_id: teamId,
-          user_id: currentUser.id
-        });
+      const { error } = await supabase.from('team_members').insert({
+        team_id: teamId,
+        user_id: currentUser.id,
+      });
 
       if (error) {
         // Removed unused useToast import
@@ -108,7 +104,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
 
   const handleLeaveTeam = async () => {
     if (!currentUser) return;
-    
+
     setLeaving(true);
     try {
       const { error } = await supabase
@@ -143,7 +139,9 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertTitle>Error</AlertTitle>
-        <AlertDescription>Team not found or you don&apos;t have access to view it.</AlertDescription>
+        <AlertDescription>
+          Team not found or you don&apos;t have access to view it.
+        </AlertDescription>
       </Alert>
     );
   }
@@ -167,24 +165,20 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                 <Users className="mr-1 h-3 w-3" />
                 {team.members?.length || 0} Members
               </Badge>
-              
+
               {isLeader && (
-                <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500">
-                  Team Leader
-                </Badge>
+                <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500">Team Leader</Badge>
               )}
             </div>
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <p className="text-slate-600 mb-6">
-            {team.description || "No description provided."}
-          </p>
-          
+          <p className="text-slate-600 mb-6">{team.description || 'No description provided.'}</p>
+
           {!isMember && (
             <div className="flex justify-center mb-6">
-              <Button 
-                onClick={handleJoinTeam} 
+              <Button
+                onClick={handleJoinTeam}
                 disabled={joining}
                 className="bg-gradient-to-r from-slate-700 to-slate-900 text-white"
               >
@@ -192,11 +186,11 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
               </Button>
             </div>
           )}
-          
+
           {isMember && !isLeader && (
             <div className="flex justify-center mb-6">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleLeaveTeam}
                 disabled={leaving}
                 className="text-red-600 border-red-200 hover:bg-red-50"
@@ -205,14 +199,14 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
               </Button>
             </div>
           )}
-          
+
           <Tabs value="overview" onValueChange={() => {}} className="mt-6">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="members">Members</TabsTrigger>
               <TabsTrigger value="superpuzzles">Superpuzzles</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="overview" className="mt-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
@@ -227,7 +221,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                     <p className="text-sm text-slate-500">members</p>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
@@ -240,7 +234,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                     <p className="text-sm text-slate-500">in progress</p>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-lg flex items-center">
@@ -250,16 +244,18 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-3xl font-bold">
-                      {Math.ceil((Date.now() - new Date(team.created_at).getTime()) / (1000 * 60 * 60 * 24))}
+                      {Math.ceil(
+                        (Date.now() - new Date(team.created_at).getTime()) / (1000 * 60 * 60 * 24)
+                      )}
                     </p>
                     <p className="text-sm text-slate-500">days</p>
                   </CardContent>
                 </Card>
               </div>
-              
+
               {isLeader && (
                 <div className="mt-6">
-                  <Button 
+                  <Button
                     onClick={() => router.push(`/teams/${teamId}/manage`)}
                     variant="outline"
                     className="w-full"
@@ -270,11 +266,14 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                 </div>
               )}
             </TabsContent>
-            
+
             <TabsContent value="members" className="mt-6">
               <div className="space-y-4">
                 {team.members?.map((member: Member) => (
-                  <div key={member.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-4 border rounded-lg"
+                  >
                     <div className="flex items-center">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={member.profile?.avatar_url} />
@@ -284,14 +283,17 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                       </Avatar>
                       <div className="ml-4">
                         <p className="font-medium">
-                          {member.profile?.full_name || member.profile?.username || 'Anonymous User'}
+                          {member.profile?.full_name ||
+                            member.profile?.username ||
+                            'Anonymous User'}
                         </p>
                         <p className="text-sm text-slate-500">
-                          Joined {formatDistanceToNow(new Date(member.joinedAt), { addSuffix: true })}
+                          Joined{' '}
+                          {formatDistanceToNow(new Date(member.joinedAt), { addSuffix: true })}
                         </p>
                       </div>
                     </div>
-                    
+
                     <div>
                       {team.leader_id === member.userId && (
                         <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500">
@@ -303,7 +305,7 @@ export const TeamDetails: React.FC<TeamDetailsProps> = ({ teamId }) => {
                 ))}
               </div>
             </TabsContent>
-            
+
             <TabsContent value="superpuzzles" className="mt-6">
               <div className="text-center py-12 border rounded-lg bg-slate-50">
                 <Trophy className="mx-auto h-12 w-12 text-slate-400" />

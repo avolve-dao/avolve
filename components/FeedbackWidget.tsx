@@ -20,13 +20,16 @@ export default function FeedbackWidget({ context }: { context: string }) {
     setSubmitted(true);
   };
 
-  if (submitted) return <div className="p-4 rounded bg-green-50 text-green-700">Thank you for your feedback!</div>;
+  if (submitted)
+    return (
+      <div className="p-4 rounded bg-green-50 text-green-700">Thank you for your feedback!</div>
+    );
 
   return (
     <div className="p-4 bg-white rounded shadow-md max-w-xs border border-zinc-200">
       <div className="font-semibold mb-2">How was your experience?</div>
       <div className="flex gap-1 mb-2">
-        {[1,2,3,4,5].map(n => (
+        {[1, 2, 3, 4, 5].map(n => (
           <button
             key={n}
             type="button"

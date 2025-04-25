@@ -4,21 +4,28 @@ import { useEffect, useState } from 'react';
 import { useTokens } from '@/hooks/use-tokens';
 import { TokenDisplay } from '@/components/token/token-display';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
-import { 
-  Trophy, 
-  Award, 
-  Star, 
-  Zap, 
-  CheckCircle, 
-  Clock, 
-  ArrowRight, 
-  ChevronRight, 
-  Gift 
+import {
+  Trophy,
+  Award,
+  Star,
+  Zap,
+  CheckCircle,
+  Clock,
+  ArrowRight,
+  ChevronRight,
+  Gift,
 } from 'lucide-react';
 
 /**
@@ -30,20 +37,20 @@ import {
  * 4. Endgame - Advanced achievements and community contributions
  */
 export function JourneyDashboard() {
-  const { 
-    tokens, 
-    userBalances, 
-    transactions, 
-    balanceChanges, 
-    getToken, 
-    getUserToken, 
-    getTokenBalance, 
-    getAllTokenTypes, 
-    getUserTokenBalance, 
+  const {
+    tokens,
+    userBalances,
+    transactions,
+    balanceChanges,
+    getToken,
+    getUserToken,
+    getTokenBalance,
+    getAllTokenTypes,
+    getUserTokenBalance,
     isLoading,
     getAllPillarsProgress,
   } = useTokens();
-  
+
   const [pillarsProgress, setPillarsProgress] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('progress');
@@ -87,8 +94,8 @@ export function JourneyDashboard() {
 
   // Determine which experience phase the user is in based on their progress
   const determineExperiencePhase = (
-    tokens: any[] | null, 
-    progress: any[] | null, 
+    tokens: any[] | null,
+    progress: any[] | null,
     achievements: any[] | null
   ) => {
     if (!tokens || tokens.length === 0) {
@@ -96,11 +103,11 @@ export function JourneyDashboard() {
       setShowGettingStarted(true);
       return;
     }
-    
+
     const hasCompletedPillar = progress?.some(p => p.progress_percentage >= 100);
     const achievementCount = achievements?.filter(a => a.earned_at)?.length || 0;
     const tokenCount = tokens.length;
-    
+
     if (tokenCount >= 7 && hasCompletedPillar && achievementCount >= 10) {
       setExperiencePhase('endgame');
       setShowGettingStarted(false);
@@ -115,7 +122,7 @@ export function JourneyDashboard() {
       setShowGettingStarted(true);
     }
   };
-  
+
   // Handle claiming achievement rewards
   const handleClaimReward = async (achievementId: string) => {
     setClaimingId(achievementId);
@@ -130,7 +137,7 @@ export function JourneyDashboard() {
     }
     setClaimingId(null);
   };
-  
+
   if (isLoading && tokens.length === 0) {
     return (
       <div className="flex justify-center py-12">
@@ -148,12 +155,15 @@ export function JourneyDashboard() {
             <h3 className="text-lg font-medium">Your Journey Phase</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               {experiencePhase === 'discovery' && 'Discovering the Avolve platform'}
-              {experiencePhase === 'onboarding' && 'Learning the basics and earning your first tokens'}
-              {experiencePhase === 'scaffolding' && 'Building your token portfolio and making progress'}
-              {experiencePhase === 'endgame' && 'Mastering the platform and contributing to the community'}
+              {experiencePhase === 'onboarding' &&
+                'Learning the basics and earning your first tokens'}
+              {experiencePhase === 'scaffolding' &&
+                'Building your token portfolio and making progress'}
+              {experiencePhase === 'endgame' &&
+                'Mastering the platform and contributing to the community'}
             </p>
           </div>
-          <Badge 
+          <Badge
             className={`
               ${experiencePhase === 'discovery' ? 'bg-blue-500' : ''}
               ${experiencePhase === 'onboarding' ? 'bg-green-500' : ''}
@@ -169,7 +179,7 @@ export function JourneyDashboard() {
           </Badge>
         </div>
       </div>
-      
+
       {/* Getting Started Guide - Only shown for Discovery and Onboarding phases */}
       {showGettingStarted && (
         <Card className="border-2 border-blue-200 dark:border-blue-800 shadow-md">
@@ -192,20 +202,21 @@ export function JourneyDashboard() {
                 <div>
                   <h4 className="font-medium">Explore the Three Pillars</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Discover the Superachiever, Superachievers, and Supercivilization pillars to understand the Avolve ecosystem.
+                    Discover the Superachiever, Superachievers, and Supercivilization pillars to
+                    understand the Avolve ecosystem.
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
-                    onClick={() => window.location.href = '/'}
+                    onClick={() => (window.location.href = '/')}
                   >
                     <ChevronRight className="h-4 w-4 mr-1" />
                     View Pillars
                   </Button>
                 </div>
               </div>
-              
+
               {/* Step 2 */}
               <div className="flex items-start">
                 <div className="flex-shrink-0 bg-green-100 dark:bg-green-900/50 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
@@ -214,20 +225,21 @@ export function JourneyDashboard() {
                 <div>
                   <h4 className="font-medium">Complete Your First Section</h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    Start with the Superachiever pillar and complete your first section to earn tokens.
+                    Start with the Superachiever pillar and complete your first section to earn
+                    tokens.
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
-                    onClick={() => window.location.href = '/superachiever'}
+                    onClick={() => (window.location.href = '/superachiever')}
                   >
                     <ChevronRight className="h-4 w-4 mr-1" />
                     Start Superachiever
                   </Button>
                 </div>
               </div>
-              
+
               {/* Step 3 */}
               <div className="flex items-start">
                 <div className="flex-shrink-0 bg-purple-100 dark:bg-purple-900/50 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
@@ -238,9 +250,9 @@ export function JourneyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Complete activities to unlock achievements and earn token rewards.
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
                     onClick={() => setActiveTab('achievements')}
                   >
@@ -249,7 +261,7 @@ export function JourneyDashboard() {
                   </Button>
                 </div>
               </div>
-              
+
               {/* Step 4 */}
               <div className="flex items-start">
                 <div className="flex-shrink-0 bg-amber-100 dark:bg-amber-900/50 w-8 h-8 rounded-full flex items-center justify-center mr-3 mt-0.5">
@@ -260,9 +272,9 @@ export function JourneyDashboard() {
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     View your token portfolio and learn how to use tokens to unlock more content.
                   </p>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="mt-2"
                     onClick={() => setActiveTab('tokens')}
                   >
@@ -274,32 +286,33 @@ export function JourneyDashboard() {
             </div>
           </CardContent>
           <CardFooter className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 flex justify-between">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => setShowGettingStarted(false)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => setShowGettingStarted(false)}>
               Hide Guide
             </Button>
             <Button
               variant="default"
               size="sm"
               className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
-              onClick={() => window.location.href = '/superachiever'}
+              onClick={() => (window.location.href = '/superachiever')}
             >
               Start Your Journey
             </Button>
           </CardFooter>
         </Card>
       )}
-      
+
       {/* Experience Phase Banner */}
-      <Card className={`bg-gradient-to-r ${
-        experiencePhase === 'discovery' ? 'from-blue-500 to-purple-500' :
-        experiencePhase === 'onboarding' ? 'from-green-500 to-teal-500' :
-        experiencePhase === 'scaffolding' ? 'from-orange-500 to-amber-500' :
-        'from-red-500 to-pink-500'
-      } text-white`}>
+      <Card
+        className={`bg-gradient-to-r ${
+          experiencePhase === 'discovery'
+            ? 'from-blue-500 to-purple-500'
+            : experiencePhase === 'onboarding'
+              ? 'from-green-500 to-teal-500'
+              : experiencePhase === 'scaffolding'
+                ? 'from-orange-500 to-amber-500'
+                : 'from-red-500 to-pink-500'
+        } text-white`}
+      >
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             {experiencePhase === 'discovery' && <Star className="h-6 w-6" />}
@@ -309,10 +322,14 @@ export function JourneyDashboard() {
             <span className="capitalize">{experiencePhase} Phase</span>
           </CardTitle>
           <CardDescription className="text-white/80">
-            {experiencePhase === 'discovery' && 'Welcome to Avolve! Discover the platform and earn your first token.'}
-            {experiencePhase === 'onboarding' && 'You\'re learning the ropes. Complete sections to earn more tokens.'}
-            {experiencePhase === 'scaffolding' && 'You\'re making great progress! Continue your journey through the pillars.'}
-            {experiencePhase === 'endgame' && 'You\'re a veteran! Share your knowledge and help others on their journey.'}
+            {experiencePhase === 'discovery' &&
+              'Welcome to Avolve! Discover the platform and earn your first token.'}
+            {experiencePhase === 'onboarding' &&
+              "You're learning the ropes. Complete sections to earn more tokens."}
+            {experiencePhase === 'scaffolding' &&
+              "You're making great progress! Continue your journey through the pillars."}
+            {experiencePhase === 'endgame' &&
+              "You're a veteran! Share your knowledge and help others on their journey."}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -337,7 +354,7 @@ export function JourneyDashboard() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3 mb-6">
@@ -345,18 +362,22 @@ export function JourneyDashboard() {
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
           <TabsTrigger value="tokens">Tokens</TabsTrigger>
         </TabsList>
-        
+
         {/* Progress Tab */}
         <TabsContent value="progress" className="space-y-6">
           <h3 className="text-xl font-semibold">Your Pillar Progress</h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {pillarsProgress.map(pillar => (
               <Card key={pillar.pillar_id} className={`${!pillar.has_access ? 'opacity-70' : ''}`}>
-                <CardHeader className={`bg-gradient-to-r ${
-                  pillar.pillar_token_symbol === 'GEN' ? 'from-zinc-500 to-zinc-700' :
-                  pillar.pillar_token_symbol === 'SAP' ? 'from-stone-500 to-stone-700' :
-                  'from-slate-500 to-slate-700'
-                } text-white rounded-t-lg`}>
+                <CardHeader
+                  className={`bg-gradient-to-r ${
+                    pillar.pillar_token_symbol === 'GEN'
+                      ? 'from-zinc-500 to-zinc-700'
+                      : pillar.pillar_token_symbol === 'SAP'
+                        ? 'from-stone-500 to-stone-700'
+                        : 'from-slate-500 to-slate-700'
+                  } text-white rounded-t-lg`}
+                >
                   <CardTitle>{pillar.pillar_title}</CardTitle>
                   <CardDescription className="text-white/80">
                     {pillar.completed_sections} of {pillar.total_sections} sections completed
@@ -376,29 +397,27 @@ export function JourneyDashboard() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    disabled={!pillar.has_access}
-                  >
+                  <Button variant="outline" className="w-full" disabled={!pillar.has_access}>
                     {pillar.has_access ? (
-                      <>Continue <ArrowRight className="ml-2 h-4 w-4" /></>
+                      <>
+                        Continue <ArrowRight className="ml-2 h-4 w-4" />
+                      </>
                     ) : (
-                      <>Locked <Clock className="ml-2 h-4 w-4" /></>
+                      <>
+                        Locked <Clock className="ml-2 h-4 w-4" />
+                      </>
                     )}
                   </Button>
                 </CardFooter>
               </Card>
             ))}
           </div>
-          
+
           {/* Next Steps based on Experience Phase */}
           <Card>
             <CardHeader>
               <CardTitle>Next Steps</CardTitle>
-              <CardDescription>
-                Recommended actions based on your current progress
-              </CardDescription>
+              <CardDescription>Recommended actions based on your current progress</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
@@ -418,7 +437,7 @@ export function JourneyDashboard() {
                     </li>
                   </>
                 )}
-                
+
                 {experiencePhase === 'onboarding' && (
                   <>
                     <li className="flex items-start">
@@ -435,7 +454,7 @@ export function JourneyDashboard() {
                     </li>
                   </>
                 )}
-                
+
                 {experiencePhase === 'scaffolding' && (
                   <>
                     <li className="flex items-start">
@@ -444,7 +463,9 @@ export function JourneyDashboard() {
                     </li>
                     <li className="flex items-start">
                       <ChevronRight className="h-5 w-5 mr-2 text-orange-500 flex-shrink-0 mt-0.5" />
-                      <span>Earn specialized tokens (PSP, BSP, SMS) by completing their sections</span>
+                      <span>
+                        Earn specialized tokens (PSP, BSP, SMS) by completing their sections
+                      </span>
                     </li>
                     <li className="flex items-start">
                       <ChevronRight className="h-5 w-5 mr-2 text-orange-500 flex-shrink-0 mt-0.5" />
@@ -452,7 +473,7 @@ export function JourneyDashboard() {
                     </li>
                   </>
                 )}
-                
+
                 {experiencePhase === 'endgame' && (
                   <>
                     <li className="flex items-start">
@@ -473,66 +494,77 @@ export function JourneyDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         {/* Achievements Tab */}
         <TabsContent value="achievements" className="space-y-6">
           <h3 className="text-xl font-semibold">Your Achievements</h3>
           <div className="grid gap-4 md:grid-cols-2">
-            {achievements.filter(a => a.earned_at).map(achievement => (
-              <Card key={achievement.id} className="overflow-hidden">
-                <CardHeader className={`bg-gradient-to-r ${achievement.gradient_class || 'from-gray-500 to-gray-700'} text-white`}>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Trophy className="h-5 w-5" />
-                    <span>{achievement.title}</span>
-                  </CardTitle>
-                  <CardDescription className="text-white/80">
-                    {achievement.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <Badge variant="outline" className="capitalize">
-                        {achievement.difficulty || 'Standard'}
-                      </Badge>
-                      <span className="text-sm text-gray-500">
-                        Earned: {new Date(achievement.earned_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    {achievement.token_symbol && achievement.token_amount && (
+            {achievements
+              .filter(a => a.earned_at)
+              .map(achievement => (
+                <Card key={achievement.id} className="overflow-hidden">
+                  <CardHeader
+                    className={`bg-gradient-to-r ${achievement.gradient_class || 'from-gray-500 to-gray-700'} text-white`}
+                  >
+                    <CardTitle className="flex items-center space-x-2">
+                      <Trophy className="h-5 w-5" />
+                      <span>{achievement.title}</span>
+                    </CardTitle>
+                    <CardDescription className="text-white/80">
+                      {achievement.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">Reward:</span>
-                        <Badge className={`bg-gradient-to-r ${
-                          achievement.token_symbol === 'GEN' ? 'from-zinc-500 to-zinc-700' :
-                          achievement.token_symbol === 'SAP' ? 'from-stone-500 to-stone-700' :
-                          achievement.token_symbol === 'SCQ' ? 'from-slate-500 to-slate-700' :
-                          'from-gray-500 to-gray-700'
-                        }`}>
-                          {achievement.token_amount} {achievement.token_symbol}
+                        <Badge variant="outline" className="capitalize">
+                          {achievement.difficulty || 'Standard'}
                         </Badge>
+                        <span className="text-sm text-gray-500">
+                          Earned: {new Date(achievement.earned_at).toLocaleDateString()}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </CardContent>
-                {achievement.token_symbol && achievement.token_amount && !achievement.is_claimed && (
-                  <CardFooter className="pt-0">
-                    <Button 
-                      className="w-full"
-                      onClick={() => handleClaimReward(achievement.id)}
-                      disabled={claimingId === achievement.id}
-                    >
-                      {claimingId === achievement.id ? (
-                        <Spinner size="sm" className="mr-2" />
-                      ) : (
-                        <Gift className="mr-2 h-4 w-4" />
+                      {achievement.token_symbol && achievement.token_amount && (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-medium">Reward:</span>
+                          <Badge
+                            className={`bg-gradient-to-r ${
+                              achievement.token_symbol === 'GEN'
+                                ? 'from-zinc-500 to-zinc-700'
+                                : achievement.token_symbol === 'SAP'
+                                  ? 'from-stone-500 to-stone-700'
+                                  : achievement.token_symbol === 'SCQ'
+                                    ? 'from-slate-500 to-slate-700'
+                                    : 'from-gray-500 to-gray-700'
+                            }`}
+                          >
+                            {achievement.token_amount} {achievement.token_symbol}
+                          </Badge>
+                        </div>
                       )}
-                      Claim Reward
-                    </Button>
-                  </CardFooter>
-                )}
-              </Card>
-            ))}
-            
+                    </div>
+                  </CardContent>
+                  {achievement.token_symbol &&
+                    achievement.token_amount &&
+                    !achievement.is_claimed && (
+                      <CardFooter className="pt-0">
+                        <Button
+                          className="w-full"
+                          onClick={() => handleClaimReward(achievement.id)}
+                          disabled={claimingId === achievement.id}
+                        >
+                          {claimingId === achievement.id ? (
+                            <Spinner size="sm" className="mr-2" />
+                          ) : (
+                            <Gift className="mr-2 h-4 w-4" />
+                          )}
+                          Claim Reward
+                        </Button>
+                      </CardFooter>
+                    )}
+                </Card>
+              ))}
+
             {achievements.filter(a => a.earned_at).length === 0 && (
               <div className="col-span-2 p-8 text-center">
                 <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -545,52 +577,55 @@ export function JourneyDashboard() {
               </div>
             )}
           </div>
-          
+
           {/* Locked Achievements */}
           {achievements.filter(a => !a.earned_at).length > 0 && (
             <>
               <h3 className="text-xl font-semibold mt-8">Locked Achievements</h3>
               <div className="grid gap-4 md:grid-cols-2">
-                {achievements.filter(a => !a.earned_at).slice(0, 4).map(achievement => (
-                  <Card key={achievement.id} className="overflow-hidden opacity-70">
-                    <CardHeader className="bg-gray-200 dark:bg-gray-800">
-                      <CardTitle className="flex items-center space-x-2">
-                        <Clock className="h-5 w-5" />
-                        <span>{achievement.title}</span>
-                      </CardTitle>
-                      <CardDescription>
-                        {achievement.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="capitalize">
-                          {achievement.difficulty || 'Standard'}
-                        </Badge>
-                        {achievement.token_symbol && achievement.token_amount && (
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium">Reward:</span>
-                            <Badge variant="outline">
-                              {achievement.token_amount} {achievement.token_symbol}
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {achievements
+                  .filter(a => !a.earned_at)
+                  .slice(0, 4)
+                  .map(achievement => (
+                    <Card key={achievement.id} className="overflow-hidden opacity-70">
+                      <CardHeader className="bg-gray-200 dark:bg-gray-800">
+                        <CardTitle className="flex items-center space-x-2">
+                          <Clock className="h-5 w-5" />
+                          <span>{achievement.title}</span>
+                        </CardTitle>
+                        <CardDescription>{achievement.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline" className="capitalize">
+                            {achievement.difficulty || 'Standard'}
+                          </Badge>
+                          {achievement.token_symbol && achievement.token_amount && (
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium">Reward:</span>
+                              <Badge variant="outline">
+                                {achievement.token_amount} {achievement.token_symbol}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
               </div>
             </>
           )}
         </TabsContent>
-        
+
         {/* Tokens Tab */}
         <TabsContent value="tokens" className="space-y-6">
           <h3 className="text-xl font-semibold">Your Tokens</h3>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tokens.map(token => (
               <Card key={token.id}>
-                <CardHeader className={`bg-gradient-to-r ${token.gradient_class} text-white rounded-t-lg`}>
+                <CardHeader
+                  className={`bg-gradient-to-r ${token.gradient_class} text-white rounded-t-lg`}
+                >
                   <CardTitle className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       {token.symbol}
@@ -625,12 +660,16 @@ export function JourneyDashboard() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button variant="outline" size="sm">Transfer</Button>
-                  <Button variant="outline" size="sm">Stake</Button>
+                  <Button variant="outline" size="sm">
+                    Transfer
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Stake
+                  </Button>
                 </CardFooter>
               </Card>
             ))}
-            
+
             {tokens.length === 0 && (
               <div className="col-span-3 p-8 text-center">
                 <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -643,14 +682,12 @@ export function JourneyDashboard() {
               </div>
             )}
           </div>
-          
+
           {/* Token Acquisition Guide */}
           <Card>
             <CardHeader>
               <CardTitle>How to Earn Tokens</CardTitle>
-              <CardDescription>
-                Complete these actions to earn more tokens
-              </CardDescription>
+              <CardDescription>Complete these actions to earn more tokens</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
@@ -658,28 +695,36 @@ export function JourneyDashboard() {
                   <CheckCircle className="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Complete Sections</span>
-                    <p className="text-sm text-gray-500">Finish sections in each pillar to earn tokens</p>
+                    <p className="text-sm text-gray-500">
+                      Finish sections in each pillar to earn tokens
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Earn Achievements</span>
-                    <p className="text-sm text-gray-500">Unlock achievements to receive token rewards</p>
+                    <p className="text-sm text-gray-500">
+                      Unlock achievements to receive token rewards
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Stake Your Tokens</span>
-                    <p className="text-sm text-gray-500">Stake tokens to earn passive rewards over time</p>
+                    <p className="text-sm text-gray-500">
+                      Stake tokens to earn passive rewards over time
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <CheckCircle className="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Contribute to the Community</span>
-                    <p className="text-sm text-gray-500">Help others and create content to earn special tokens</p>
+                    <p className="text-sm text-gray-500">
+                      Help others and create content to earn special tokens
+                    </p>
                   </div>
                 </li>
               </ul>

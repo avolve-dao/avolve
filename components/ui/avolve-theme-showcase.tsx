@@ -1,12 +1,12 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import * as React from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 /**
  * AvolveThemeShowcase Component
- * 
+ *
  * This component showcases the Avolve conceptual framework color system
  * and provides examples of how to use the different color schemes in your application.
  */
@@ -29,7 +29,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
           <Card>
             <CardHeader>
               <CardTitle>Supercivilization</CardTitle>
-              <CardDescription>The ecosystem journey for transformation (Zinc gradient)</CardDescription>
+              <CardDescription>
+                The ecosystem journey for transformation (Zinc gradient)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
@@ -58,7 +60,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
             <Card>
               <CardHeader>
                 <CardTitle>Superachiever</CardTitle>
-                <CardDescription>The individual journey of transformation (Stone gradient)</CardDescription>
+                <CardDescription>
+                  The individual journey of transformation (Stone gradient)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-20 rounded-md bg-superachiever-gradient flex items-center justify-center">
@@ -70,7 +74,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
             <Card>
               <CardHeader>
                 <CardTitle>Superachievers</CardTitle>
-                <CardDescription>The collective journey of transformation (Slate gradient)</CardDescription>
+                <CardDescription>
+                  The collective journey of transformation (Slate gradient)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-20 rounded-md bg-superachievers-gradient flex items-center justify-center">
@@ -99,7 +105,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
                   </div>
                   <div className="p-4 border rounded-md border-psp-token">
                     <h3 className="font-medium text-psp-token">Wealth & Career</h3>
-                    <p className="text-sm text-muted-foreground">Financial growth and career development</p>
+                    <p className="text-sm text-muted-foreground">
+                      Financial growth and career development
+                    </p>
                   </div>
                   <div className="p-4 border rounded-md border-psp-token">
                     <h3 className="font-medium text-psp-token">Peace & People</h3>
@@ -127,11 +135,15 @@ export function AvolveThemeShowcase(): React.ReactNode {
                   </div>
                   <div className="p-4 border rounded-md border-bsp-token">
                     <h3 className="font-medium text-bsp-token">Back-Stage Admin</h3>
-                    <p className="text-sm text-muted-foreground">Internal operations and management</p>
+                    <p className="text-sm text-muted-foreground">
+                      Internal operations and management
+                    </p>
                   </div>
                   <div className="p-4 border rounded-md border-bsp-token">
                     <h3 className="font-medium text-bsp-token">Bottom-Line Profit</h3>
-                    <p className="text-sm text-muted-foreground">Financial performance and growth</p>
+                    <p className="text-sm text-muted-foreground">
+                      Financial performance and growth
+                    </p>
                   </div>
                 </div>
               </div>
@@ -141,7 +153,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
           <Card>
             <CardHeader>
               <CardTitle>Supermind Superpowers</CardTitle>
-              <CardDescription>Go Further, Faster, & Forever (Violet-Purple-Fuchsia-Pink gradient)</CardDescription>
+              <CardDescription>
+                Go Further, Faster, & Forever (Violet-Purple-Fuchsia-Pink gradient)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
@@ -171,7 +185,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
           <Card>
             <CardHeader>
               <CardTitle>Superpuzzle Developments</CardTitle>
-              <CardDescription>Conceive, Believe, & Achieve (Red-Green-Blue gradient)</CardDescription>
+              <CardDescription>
+                Conceive, Believe, & Achieve (Red-Green-Blue gradient)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
@@ -186,7 +202,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
             <Card>
               <CardHeader>
                 <CardTitle>Superhuman Enhancements</CardTitle>
-                <CardDescription>Super Enhanced Individuals (Rose-Red-Orange gradient)</CardDescription>
+                <CardDescription>
+                  Super Enhanced Individuals (Rose-Red-Orange gradient)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-20 rounded-md bg-superhuman-gradient flex items-center justify-center">
@@ -198,7 +216,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
             <Card>
               <CardHeader>
                 <CardTitle>Supersociety Advancements</CardTitle>
-                <CardDescription>Super Advanced Collectives (Lime-Green-Emerald gradient)</CardDescription>
+                <CardDescription>
+                  Super Advanced Collectives (Lime-Green-Emerald gradient)
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-20 rounded-md bg-supersociety-gradient flex items-center justify-center">
@@ -211,7 +231,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
           <Card>
             <CardHeader>
               <CardTitle>Supergenius Breakthroughs</CardTitle>
-              <CardDescription>Super Balanced Ecosystems (Sky-Blue-Indigo gradient)</CardDescription>
+              <CardDescription>
+                Super Balanced Ecosystems (Sky-Blue-Indigo gradient)
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col space-y-4">
@@ -227,7 +249,9 @@ export function AvolveThemeShowcase(): React.ReactNode {
       <Card>
         <CardHeader>
           <CardTitle>Token Colors</CardTitle>
-          <CardDescription>The token colors associated with each section of the Avolve framework</CardDescription>
+          <CardDescription>
+            The token colors associated with each section of the Avolve framework
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-5 gap-2">
@@ -275,5 +299,5 @@ export function AvolveThemeShowcase(): React.ReactNode {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

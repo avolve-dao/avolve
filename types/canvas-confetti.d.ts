@@ -28,11 +28,17 @@ declare module 'canvas-confetti' {
 
   interface ConfettiModule {
     default: ConfettiFunction;
-    create: (canvas: HTMLCanvasElement, options?: { resize?: boolean, useWorker?: boolean }) => ConfettiCannon;
+    create: (
+      canvas: HTMLCanvasElement,
+      options?: { resize?: boolean; useWorker?: boolean }
+    ) => ConfettiCannon;
   }
 
   const confetti: ConfettiFunction & {
-    create: (canvas: HTMLCanvasElement, options?: { resize?: boolean, useWorker?: boolean }) => ConfettiCannon;
+    create: (
+      canvas: HTMLCanvasElement,
+      options?: { resize?: boolean; useWorker?: boolean }
+    ) => ConfettiCannon;
   };
 
   export = confetti;

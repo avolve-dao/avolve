@@ -2,10 +2,10 @@
 
 /**
  * Feature Flag System
- * 
+ *
  * This module provides a comprehensive feature flag system for the Avolve platform.
  * It allows toggling experimental features without redeploying the application.
- * 
+ *
  * Features can be controlled via:
  * 1. Environment variables
  * 2. Remote configuration (Supabase)
@@ -62,18 +62,18 @@ const DEFAULT_FLAGS: FeatureFlags = {
 // Get environment variable feature flags
 const getEnvFlags = (): Partial<FeatureFlags> => {
   const flags: Partial<FeatureFlags> = {};
-  
+
   // Process environment variables
-  Object.keys(FEATURE_FLAGS).forEach((flag) => {
+  Object.keys(FEATURE_FLAGS).forEach(flag => {
     const flagKey = flag as FeatureFlagName;
     const envVarName = `NEXT_PUBLIC_FEATURE_${flag}`;
     const envValue = process.env[envVarName];
-    
+
     if (envValue !== undefined) {
       flags[flagKey] = envValue === 'true';
     }
   });
-  
+
   return flags;
 };
 
@@ -82,7 +82,7 @@ const getLocalStorageFlags = (): Partial<FeatureFlags> => {
   if (typeof window === 'undefined') {
     return {};
   }
-  
+
   try {
     const storedFlags = localStorage.getItem('avolve_feature_flags');
     return storedFlags ? JSON.parse(storedFlags) : {};
@@ -96,22 +96,22 @@ const getLocalStorageFlags = (): Partial<FeatureFlags> => {
 export const initializeFeatureFlags = (userOverrides?: Partial<FeatureFlags>): FeatureFlags => {
   // Start with default flags
   const flags = { ...DEFAULT_FLAGS };
-  
+
   // Apply environment variable flags
   const envFlags = getEnvFlags();
   Object.assign(flags, envFlags);
-  
+
   // Apply local storage overrides (for development)
   if (process.env.NODE_ENV === 'development') {
     const localFlags = getLocalStorageFlags();
     Object.assign(flags, localFlags);
   }
-  
+
   // Apply user-specific overrides
   if (userOverrides) {
     Object.assign(flags, userOverrides);
   }
-  
+
   return flags;
 };
 
@@ -141,10 +141,7 @@ interface FeatureFlagProviderProps {
 }
 
 // Feature flag provider component
-export const FeatureFlagProvider = ({ 
-  children, 
-  initialFlags 
-}: FeatureFlagProviderProps) => {
+export const FeatureFlagProvider = ({ children, initialFlags }: FeatureFlagProviderProps) => {
   const supabase = createClient();
   const [flags, setFlags] = useState<FeatureFlags>(initializeFeatureFlags(initialFlags));
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -154,12 +151,12 @@ export const FeatureFlagProvider = ({
   const isEnabled = (flag: FeatureFlagName): boolean => {
     return flags[flag] === true;
   };
-  
+
   // Set a feature flag value
   const setFlag = (flag: FeatureFlagName, value: boolean): void => {
     const newFlags = { ...flags, [flag]: value };
     setFlags(newFlags);
-    
+
     // Save to local storage in development
     if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
       try {
@@ -171,89 +168,91 @@ export const FeatureFlagProvider = ({
       }
     }
   };
-  
+
   // Fetch remote feature flags from Supabase
   const fetchRemoteFlags = async (): Promise<Partial<FeatureFlags>> => {
     try {
       // Fetch all feature flags from Supabase
-      const { data, error } = await supabase
-        .from('feature_flags')
-        .select('*');
-      
+      const { data, error } = await supabase.from('feature_flags').select('*');
+
       if (error) {
         throw error;
       }
-      
+
       if (!data || data.length === 0) {
         return {};
       }
-      
+
       // Process flags
       const processedFlags: Partial<FeatureFlags> = {};
-      
+
       data.forEach((flag: any) => {
         // Only process flags that match our known feature flag names
         const flagName = flag.name as string;
         if (!(flagName in FEATURE_FLAGS)) {
           return;
         }
-        
+
         const typedFlagName = flagName as FeatureFlagName;
         let isEnabledForUser = flag.enabled;
-        
+
         // Apply percentage rollout if defined
         if (isEnabledForUser && flag.percentage_rollout !== undefined) {
           // Generate a consistent hash from user ID + flag name
           const hash = hashString(`${flagName}`);
           const normalizedHash = hash % 100; // 0-99
-          
+
           isEnabledForUser = normalizedHash < (flag.percentage_rollout as number);
         }
-        
+
         processedFlags[typedFlagName] = isEnabledForUser;
       });
-      
+
       return processedFlags;
     } catch (error) {
       console.error('Error fetching remote feature flags:', error);
       throw new Error('Failed to fetch remote feature flags');
     }
   };
-  
+
   // Refresh all flags from remote and local sources
   const refreshFlags = async (): Promise<void> => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Start with default flags
       const newFlags = { ...DEFAULT_FLAGS };
-      
+
       // Apply environment variable flags
       const envFlags = getEnvFlags();
       Object.assign(newFlags, envFlags);
-      
+
       // Apply remote flags if available
       try {
         const remoteFlags = await fetchRemoteFlags();
         Object.assign(newFlags, remoteFlags);
       } catch (remoteError) {
         console.error('Error fetching remote flags:', remoteError);
-        setError(remoteError instanceof Error ? remoteError : new Error('Failed to fetch remote feature flags'));
+        setError(
+          remoteError instanceof Error
+            ? remoteError
+            : new Error('Failed to fetch remote feature flags')
+        );
         // Continue with other flag sources
       }
-      
+
       // Apply local storage overrides (for development)
       if (process.env.NODE_ENV === 'development') {
         const localFlags = getLocalStorageFlags();
         Object.assign(newFlags, localFlags);
       }
-      
+
       // Apply initial flags passed to provider
       if (initialFlags) {
         Object.assign(newFlags, initialFlags);
       }
-      
+
       setFlags(newFlags);
     } catch (error) {
       console.error('Error refreshing feature flags:', error);
@@ -262,7 +261,7 @@ export const FeatureFlagProvider = ({
       setIsLoading(false);
     }
   };
-  
+
   // Fetch remote flags on mount
   useEffect(() => {
     refreshFlags();
@@ -274,24 +273,20 @@ export const FeatureFlagProvider = ({
     setFlag,
     refreshFlags,
     isLoading,
-    error
+    error,
   };
-  
-  return (
-    <FeatureFlagContext.Provider value={contextValue}>
-      {children}
-    </FeatureFlagContext.Provider>
-  );
+
+  return <FeatureFlagContext.Provider value={contextValue}>{children}</FeatureFlagContext.Provider>;
 };
 
 // Hook to use feature flags
 export const useFeatureFlags = (): FeatureFlagContextType => {
   const context = useContext(FeatureFlagContext);
-  
+
   if (context === undefined) {
     throw new Error('useFeatureFlags must be used within a FeatureFlagProvider');
   }
-  
+
   return context;
 };
 
@@ -302,11 +297,7 @@ interface FeatureFlaggedProps {
   fallback?: ReactNode;
 }
 
-export const FeatureFlagged = ({ 
-  flag, 
-  children, 
-  fallback = null 
-}: FeatureFlaggedProps) => {
+export const FeatureFlagged = ({ flag, children, fallback = null }: FeatureFlaggedProps) => {
   const { isEnabled } = useFeatureFlags();
   return isEnabled(flag) ? <Fragment>{children}</Fragment> : <Fragment>{fallback}</Fragment>;
 };
@@ -316,7 +307,7 @@ const hashString = (str: string): number => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return Math.abs(hash);

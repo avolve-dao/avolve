@@ -21,14 +21,10 @@ type UserAchievement = {
   reward_token_symbol: string;
 };
 
-export function AchievementNotification({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function AchievementNotification({ children }: { children: React.ReactNode }) {
   const { supabase } = useSupabase();
   const { claimAchievementReward, trackActivity } = useTokens();
-  
+
   const [displayedAchievement, setDisplayedAchievement] = useState<UserAchievement | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [claimingId, setClaimingId] = useState<string | null>(null);
@@ -46,9 +42,10 @@ export function AchievementNotification({
       });
       if (userAchievements) {
         const normalized: UserAchievement[] = userAchievements.map((a: Achievement) => {
-          const meta = (a.data && typeof a.data === 'object' && !Array.isArray(a.data))
-            ? a.data as Record<string, any>
-            : {};
+          const meta =
+            a.data && typeof a.data === 'object' && !Array.isArray(a.data)
+              ? (a.data as Record<string, any>)
+              : {};
           return {
             id: a.id,
             title: meta.title ?? '',
@@ -58,10 +55,10 @@ export function AchievementNotification({
             claimed_at: meta.claimed_at ?? null,
             earned_at: meta.earned_at ?? null,
             reward_amount: meta.reward_amount ?? 0,
-            reward_token_symbol: meta.reward_token_symbol ?? ''
+            reward_token_symbol: meta.reward_token_symbol ?? '',
           };
         });
-        const unclaimed = normalized.find((a) => !a.reward_token_symbol);
+        const unclaimed = normalized.find(a => !a.reward_token_symbol);
         if (unclaimed && !displayedAchievement) {
           setDisplayedAchievement(unclaimed);
           setIsVisible(true);
@@ -125,32 +122,35 @@ export function AchievementNotification({
                   <div className="mt-3 flex items-center gap-2 bg-blue-50 p-2 rounded-md">
                     <CoinsIcon className="h-4 w-4 text-blue-600" />
                     <span className="text-blue-700 font-medium">
-                      {displayedAchievement.reward_amount} {displayedAchievement.reward_token_symbol}
+                      {displayedAchievement.reward_amount}{' '}
+                      {displayedAchievement.reward_token_symbol}
                     </span>
                   </div>
                 )}
 
                 <div className="mt-4 flex gap-2">
-                  {displayedAchievement.reward_amount && displayedAchievement.reward_amount > 0 && !displayedAchievement.reward_token_symbol && (
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-amber-500 to-amber-600 text-white"
-                      onClick={() => handleClaim(displayedAchievement.id)}
-                      disabled={claimingId === displayedAchievement.id}
-                    >
-                      {claimingId === displayedAchievement.id ? (
-                        <div className="flex items-center gap-1">
-                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Claiming...
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1">
-                          <CoinsIcon className="h-4 w-4" />
-                          Claim Reward
-                        </div>
-                      )}
-                    </Button>
-                  )}
+                  {displayedAchievement.reward_amount &&
+                    displayedAchievement.reward_amount > 0 &&
+                    !displayedAchievement.reward_token_symbol && (
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-amber-500 to-amber-600 text-white"
+                        onClick={() => handleClaim(displayedAchievement.id)}
+                        disabled={claimingId === displayedAchievement.id}
+                      >
+                        {claimingId === displayedAchievement.id ? (
+                          <div className="flex items-center gap-1">
+                            <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Claiming...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <CoinsIcon className="h-4 w-4" />
+                            Claim Reward
+                          </div>
+                        )}
+                      </Button>
+                    )}
                   <Button size="sm" variant="outline" onClick={handleDismiss}>
                     Dismiss
                   </Button>

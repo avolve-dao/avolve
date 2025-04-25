@@ -1,47 +1,60 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import { X } from 'lucide-react';
 
 // Define the tour steps based on experience phases
 const tourSteps = [
   {
     title: 'Welcome to Avolve!',
-    description: 'This guided tour will help you understand the key features of the platform. You can exit anytime and resume later.',
+    description:
+      'This guided tour will help you understand the key features of the platform. You can exit anytime and resume later.',
     phase: 'discovery',
     image: '/onboarding/welcome.png',
   },
   {
     title: 'Your Dashboard',
-    description: 'This is your personal dashboard where you can track your progress, see upcoming events, and access all features.',
+    description:
+      'This is your personal dashboard where you can track your progress, see upcoming events, and access all features.',
     phase: 'discovery',
     image: '/onboarding/dashboard.png',
   },
   {
     title: 'Tokens & Achievements',
-    description: 'Earn tokens by completing activities and unlocking achievements. Tokens give you access to advanced features.',
+    description:
+      'Earn tokens by completing activities and unlocking achievements. Tokens give you access to advanced features.',
     phase: 'onboarding',
     image: '/onboarding/tokens.png',
   },
   {
     title: 'Journey Map',
-    description: 'Follow your personalized journey to unlock new features and capabilities as you progress.',
+    description:
+      'Follow your personalized journey to unlock new features and capabilities as you progress.',
     phase: 'onboarding',
     image: '/onboarding/journey.png',
   },
   {
     title: 'Community & Teams',
-    description: 'Collaborate with other members through teams and community puzzles to accelerate your progress.',
+    description:
+      'Collaborate with other members through teams and community puzzles to accelerate your progress.',
     phase: 'scaffolding',
     image: '/onboarding/community.png',
   },
   {
     title: 'Superpuzzles',
-    description: 'Contribute to community superpuzzles to earn SCQ tokens and boost your Community Health metrics.',
+    description:
+      'Contribute to community superpuzzles to earn SCQ tokens and boost your Community Health metrics.',
     phase: 'endgame',
     image: '/onboarding/superpuzzles.png',
   },
@@ -56,7 +69,7 @@ export function GuidedTour({ userId, onComplete }: GuidedTourProps) {
   const [open, setOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [userPhase, setUserPhase] = useState<string>('discovery');
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Calculate progress percentage
   const progress = ((currentStep + 1) / tourSteps.length) * 100;
@@ -111,13 +124,11 @@ export function GuidedTour({ userId, onComplete }: GuidedTourProps) {
   // Handle tour completion
   const handleComplete = async () => {
     // Save tour completion status
-    await supabase
-      .from('user_onboarding')
-      .upsert({ 
-        user_id: userId, 
-        completed_tour: true,
-        completed_at: new Date().toISOString()
-      });
+    await supabase.from('user_onboarding').upsert({
+      user_id: userId,
+      completed_tour: true,
+      completed_at: new Date().toISOString(),
+    });
 
     setOpen(false);
     if (onComplete) onComplete();
@@ -125,8 +136,8 @@ export function GuidedTour({ userId, onComplete }: GuidedTourProps) {
 
   // Filter steps based on user's experience phase
   const phaseOrder = ['discovery', 'onboarding', 'scaffolding', 'endgame'];
-  const visibleSteps = tourSteps.filter(step => 
-    phaseOrder.indexOf(step.phase) <= phaseOrder.indexOf(userPhase)
+  const visibleSteps = tourSteps.filter(
+    step => phaseOrder.indexOf(step.phase) <= phaseOrder.indexOf(userPhase)
   );
 
   return (
@@ -134,13 +145,11 @@ export function GuidedTour({ userId, onComplete }: GuidedTourProps) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{visibleSteps[currentStep]?.title}</DialogTitle>
-          <DialogDescription>
-            {visibleSteps[currentStep]?.description}
-          </DialogDescription>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="absolute right-4 top-4" 
+          <DialogDescription>{visibleSteps[currentStep]?.description}</DialogDescription>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 top-4"
             onClick={() => setOpen(false)}
           >
             <X className="h-4 w-4" />
@@ -150,9 +159,9 @@ export function GuidedTour({ userId, onComplete }: GuidedTourProps) {
         <div className="my-6">
           {visibleSteps[currentStep]?.image && (
             <div className="relative rounded-md overflow-hidden aspect-video mb-4">
-              <img 
-                src={visibleSteps[currentStep].image} 
-                alt={visibleSteps[currentStep].title} 
+              <img
+                src={visibleSteps[currentStep].image}
+                alt={visibleSteps[currentStep].title}
                 className="object-cover w-full h-full"
               />
             </div>
@@ -164,23 +173,14 @@ export function GuidedTour({ userId, onComplete }: GuidedTourProps) {
         </div>
 
         <DialogFooter className="flex justify-between">
-          <Button 
-            variant="outline" 
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
-          >
+          <Button variant="outline" onClick={handlePrevious} disabled={currentStep === 0}>
             Previous
           </Button>
           <div className="space-x-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Skip for now
             </Button>
-            <Button 
-              onClick={handleNext}
-            >
+            <Button onClick={handleNext}>
               {currentStep < visibleSteps.length - 1 ? 'Next' : 'Complete'}
             </Button>
           </div>

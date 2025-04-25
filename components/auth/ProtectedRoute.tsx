@@ -30,8 +30,10 @@ export default function ProtectedRoute({
     async function checkAuth() {
       try {
         // Check if user is authenticated
-        const { data: { user } } = await supabase.auth.getUser();
-        
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
         if (!user) {
           router.push('/auth/login?returnUrl=' + encodeURIComponent(window.location.pathname));
           return;
@@ -54,11 +56,13 @@ export default function ProtectedRoute({
         // If tokens are required, check user's token balances
         if (requiredTokens.length > 0) {
           // Use a different approach to avoid join issues
-          const { data: tokenData, error: tokenError } = await supabase
-            .rpc('get_user_token_balances', {
+          const { data: tokenData, error: tokenError } = await supabase.rpc(
+            'get_user_token_balances',
+            {
               p_user_id: user.id,
-              p_symbols: requiredTokens.map(t => t.symbol)
-            });
+              p_symbols: requiredTokens.map(t => t.symbol),
+            }
+          );
 
           if (tokenError || !tokenData) {
             router.push('/tokens?returnUrl=' + encodeURIComponent(window.location.pathname));
@@ -67,7 +71,9 @@ export default function ProtectedRoute({
 
           // Check if user has sufficient token balances
           const hasRequiredTokens = requiredTokens.every(requiredToken => {
-            const userToken = tokenData.find((t: { symbol: string; balance: number }) => t.symbol === requiredToken.symbol);
+            const userToken = tokenData.find(
+              (t: { symbol: string; balance: number }) => t.symbol === requiredToken.symbol
+            );
             return userToken && userToken.balance >= requiredToken.amount;
           });
 
@@ -85,7 +91,7 @@ export default function ProtectedRoute({
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
     checkAuth();
   }, [router, requiredTrustLevel, requiredTokens, supabase]);

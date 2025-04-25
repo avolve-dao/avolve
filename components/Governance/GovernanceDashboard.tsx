@@ -32,29 +32,31 @@ const GovernanceDashboard: React.FC = () => {
   const { user } = useUser();
   const { usePetitions, useEligibility, useCreatePetition, useVotePetition } = useGovernanceQuery();
   const feedback = useGovernanceFeedback();
-  
+
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [consentGiven, setConsentGiven] = useState(false);
-  
+
   // Get governance data with react-query
   const { data: petitions, isLoading: petitionsLoading } = usePetitions();
   const { data: eligibility, isLoading: eligibilityLoading } = useEligibility();
-  
+
   // Mutations
   const createPetitionMutation = useCreatePetition();
   const votePetitionMutation = useVotePetition();
-  
+
   // Handle petition creation
   const handleCreatePetition = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!consentGiven) {
-      feedback.showWarning('You must provide consent to create a petition in accordance with The Prime Law');
+      feedback.showWarning(
+        'You must provide consent to create a petition in accordance with The Prime Law'
+      );
       return;
     }
-    
+
     try {
       await createPetitionMutation.mutateAsync({ title, description });
       // Reset form on success
@@ -65,7 +67,7 @@ const GovernanceDashboard: React.FC = () => {
       // Error handling is done in the mutation
     }
   };
-  
+
   // Handle voting
   const handleVote = async (petitionId: string, voteType: 'support' | 'oppose' | 'abstain') => {
     try {
@@ -74,7 +76,7 @@ const GovernanceDashboard: React.FC = () => {
       // Error handling is done in the mutation
     }
   };
-  
+
   if (!user) {
     return (
       <div className="p-6 bg-gray-50 rounded-lg shadow-sm">
@@ -82,35 +84,35 @@ const GovernanceDashboard: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-8">
       {/* Include the feedback component */}
       <GovernanceActionFeedback />
-      
+
       {/* Eligibility Status */}
       <div className="p-6 bg-white rounded-lg shadow-sm">
         <h2 className="text-2xl font-bold mb-4">Governance Eligibility</h2>
-        
+
         {eligibilityLoading ? (
           <p className="text-gray-500">Checking eligibility...</p>
         ) : eligibility ? (
           <div className="space-y-2">
-            <div className={`p-4 rounded-lg bg-gradient-to-r ${eligibility.eligible ? 'from-green-500 to-emerald-600' : 'from-amber-500 to-orange-600'} text-white`}>
+            <div
+              className={`p-4 rounded-lg bg-gradient-to-r ${eligibility.eligible ? 'from-green-500 to-emerald-600' : 'from-amber-500 to-orange-600'} text-white`}
+            >
               <p className="font-semibold">
-                {eligibility.eligible 
-                  ? 'You are eligible to participate in governance' 
+                {eligibility.eligible
+                  ? 'You are eligible to participate in governance'
                   : 'You are not yet eligible to participate in governance'}
               </p>
-              <p className="text-sm mt-1">
-                {eligibility.message}
-              </p>
+              <p className="text-sm mt-1">{eligibility.message}</p>
             </div>
-            
+
             <div className="flex items-center mt-2">
               <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div 
-                  className={`h-2.5 rounded-full bg-gradient-to-r ${tokenGradients.GEN}`} 
+                <div
+                  className={`h-2.5 rounded-full bg-gradient-to-r ${tokenGradients.GEN}`}
                   style={{ width: `${Math.min(100, (eligibility.tokenBalance / 100) * 100)}%` }}
                 ></div>
               </div>
@@ -123,44 +125,48 @@ const GovernanceDashboard: React.FC = () => {
           <p className="text-red-500">Failed to check eligibility</p>
         )}
       </div>
-      
+
       {/* Create Petition Form */}
       <div className="p-6 bg-white rounded-lg shadow-sm">
         <h2 className="text-2xl font-bold mb-4">Create a Petition</h2>
-        
+
         {eligibility?.eligible ? (
           <form onSubmit={handleCreatePetition} className="space-y-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                Title
+              </label>
               <input
                 type="text"
                 id="title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={e => setTitle(e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 required
               />
             </div>
-            
+
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">Description</label>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
               <textarea
                 id="description"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 rows={4}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 required
               ></textarea>
             </div>
-            
+
             <div className="flex items-start">
               <div className="flex items-center h-5">
                 <input
                   id="consent"
                   type="checkbox"
                   checked={consentGiven}
-                  onChange={(e) => setConsentGiven(e.target.checked)}
+                  onChange={e => setConsentGiven(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                   required
                 />
@@ -170,11 +176,12 @@ const GovernanceDashboard: React.FC = () => {
                   I voluntarily consent to create this petition in accordance with The Prime Law
                 </label>
                 <p className="text-gray-500">
-                  By checking this box, you confirm that you are creating this petition of your own free will, without coercion.
+                  By checking this box, you confirm that you are creating this petition of your own
+                  free will, without coercion.
                 </p>
               </div>
             </div>
-            
+
             <button
               type="submit"
               disabled={createPetitionMutation.isPending}
@@ -186,20 +193,23 @@ const GovernanceDashboard: React.FC = () => {
         ) : (
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-md">
             <p className="text-amber-800">
-              You need at least 10 GEN tokens to create petitions. Participate in platform activities to earn more tokens.
+              You need at least 10 GEN tokens to create petitions. Participate in platform
+              activities to earn more tokens.
             </p>
           </div>
         )}
       </div>
-      
+
       {/* Petitions List */}
       <div className="p-6 bg-white rounded-lg shadow-sm">
         <h2 className="text-2xl font-bold mb-4">Active Petitions</h2>
-        
+
         {petitionsLoading ? (
           <p className="text-gray-500">Loading petitions...</p>
         ) : petitions && petitions.length === 0 ? (
-          <div className="text-gray-500 text-center py-8">No petitions found. Be the first to create one!</div>
+          <div className="text-gray-500 text-center py-8">
+            No petitions found. Be the first to create one!
+          </div>
         ) : petitions && petitions.map ? (
           <div className="space-y-6">
             {petitions.map((petition: Petition) => (
@@ -211,7 +221,7 @@ const GovernanceDashboard: React.FC = () => {
               >
                 <h3 className="text-lg font-semibold">{petition.title}</h3>
                 <p className="text-gray-600 mt-1">{petition.description}</p>
-                
+
                 <div className="mt-4 flex items-center justify-between">
                   <div className="flex space-x-2">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -221,7 +231,7 @@ const GovernanceDashboard: React.FC = () => {
                       {petition.oppose_count} Oppose
                     </span>
                   </div>
-                  
+
                   <div className="flex space-x-2">
                     {!petition.user_vote ? (
                       <>

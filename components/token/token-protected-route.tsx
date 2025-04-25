@@ -27,7 +27,7 @@ export default function TokenProtectedRoute({
   const router = useRouter();
   const { session, user } = useSupabase();
   const { tokens, userBalances } = useTokens();
-  
+
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
   const [userPhase, setUserPhase] = useState<string>('discovery');
   const [isChecking, setIsChecking] = useState(true);
@@ -48,13 +48,13 @@ export default function TokenProtectedRoute({
         //   resourceId,
         //   { path: router.asPath }
         // );
-        
+
         // Get user experience phase
         // const phaseResult = await getUserExperiencePhase();
         // if (phaseResult.data) {
         //   setUserPhase(phaseResult.data);
         // }
-        
+
         // Check for introductory content access
         if (isIntroductory) {
           // const introAccess = await hasIntroductoryAccess(requiredToken || 'introductory');
@@ -64,7 +64,7 @@ export default function TokenProtectedRoute({
           //   return;
           // }
         }
-        
+
         // Check if this is the first section in a pillar (for free access)
         if (resourceType === 'section' && resourceId) {
           // const firstSectionCheck = await isFirstSection(resourceId);
@@ -95,13 +95,7 @@ export default function TokenProtectedRoute({
     };
 
     checkAccess();
-  }, [
-    session, 
-    requiredToken, 
-    resourceType, 
-    resourceId,
-    router.asPath
-  ]);
+  }, [session, requiredToken, resourceType, resourceId, router.asPath]);
 
   if (isChecking) {
     return <LoadingSpinner />;
@@ -109,8 +103,8 @@ export default function TokenProtectedRoute({
 
   if (!hasAccess) {
     return (
-      <AccessDeniedView 
-        requiredToken={requiredToken} 
+      <AccessDeniedView
+        requiredToken={requiredToken}
         resourceType={resourceType}
         resourceId={resourceId}
         userPhase={userPhase}

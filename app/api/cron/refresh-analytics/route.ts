@@ -12,25 +12,28 @@ export async function GET(request: Request) {
 
     // Create Supabase client with admin privileges
     const supabase = await createClient();
-    
+
     // Call the function to refresh all materialized views
     const { error } = await (supabase as any).rpc('refresh_and_log_network_analytics');
-    
+
     if (error) {
       console.error('Error refreshing network analytics:', error);
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: 'Network state analytics refreshed successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Unexpected error in refresh-analytics endpoint:', error);
-    return NextResponse.json({ 
-      success: false, 
-      error: error instanceof Error ? error.message : 'Unknown error' 
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      { status: 500 }
+    );
   }
 }

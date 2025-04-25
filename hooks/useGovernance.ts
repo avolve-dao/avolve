@@ -1,7 +1,50 @@
 import { useState, useEffect } from 'react';
-import { governanceService } from '../src/governance';
 import { tokensService } from '../src/tokens';
 import { useToast } from '@/components/ui/use-toast';
+
+// Governance logic is not implemented for MVP. Export stubs to avoid TS errors.
+export const governanceService = {
+  checkPetitionEligibility: async (_userId: string) => ({
+    success: false,
+    data: { isEligible: false, genBalance: 0, requiredGen: 0, reason: 'Not implemented' },
+    error: 'Not implemented',
+  }),
+  createPetition: async (_userId: string, _title: string, _description: string) => ({
+    success: false,
+    data: { petitionId: '', message: '' },
+    error: 'Not implemented',
+  }),
+  voteOnPetition: async (_userId: string, _petitionId: string) => ({
+    success: false,
+    data: { voteWeight: 0, message: '', previousWeight: 0 },
+    error: 'Not implemented',
+  }),
+  processPetition: async (_petitionId: string, _status: 'approved' | 'rejected') => ({
+    success: false,
+    data: {},
+    error: 'Not implemented',
+  }),
+  getAllPetitions: async (_status?: 'pending' | 'approved' | 'rejected') => ({
+    success: false,
+    data: [],
+    error: 'Not implemented',
+  }),
+  getUserPetitions: async (_userId: string) => ({
+    success: false,
+    data: [],
+    error: 'Not implemented',
+  }),
+  getPetitionDetails: async (_petitionId: string) => ({
+    success: false,
+    data: { message: '' },
+    error: 'Not implemented',
+  }),
+  getUserVote: async (_userId: string, _petitionId: string) => ({
+    success: false,
+    data: null,
+    error: 'Not implemented',
+  }),
+};
 
 /**
  * Hook for managing governance functionality
@@ -101,12 +144,12 @@ export const useGovernance = () => {
           // shadcn/ui only supports 'default' or 'destructive' for variant
           variant: 'default',
         });
-        
+
         // Refresh petition details if we're viewing this petition
         if (selectedPetition && selectedPetition.id === petitionId) {
           await loadPetitionDetails(petitionId);
         }
-        
+
         await checkUserVote(petitionId);
         return { success: true, voteWeight: result.data.voteWeight };
       } else {
@@ -142,12 +185,12 @@ export const useGovernance = () => {
           // shadcn/ui only supports 'default' or 'destructive' for variant
           variant: 'default',
         });
-        
+
         // Refresh petition details
         if (selectedPetition && selectedPetition.id === petitionId) {
           await loadPetitionDetails(petitionId);
         }
-        
+
         await loadPetitions();
         return { success: true };
       } else {
@@ -274,7 +317,7 @@ export const useGovernance = () => {
     loadUserPetitions,
     loadPetitionDetails,
     checkUserVote,
-    setSelectedPetition
+    setSelectedPetition,
   };
 };
 

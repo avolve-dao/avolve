@@ -1,6 +1,6 @@
 /**
  * Identity API Client
- * 
+ *
  * This client handles interactions with the identity system of the Avolve platform,
  * including genius profiles, achievements, and level definitions.
  */
@@ -27,7 +27,7 @@ export class IdentityApi extends ApiClient {
       .select('*')
       .eq('user_id', userId)
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -41,18 +41,18 @@ export class IdentityApi extends ApiClient {
    * @returns The ID of the created profile
    */
   async createGeniusProfile(
-    userId: string, 
-    geniusId: string, 
-    avatarUrl?: string, 
+    userId: string,
+    geniusId: string,
+    avatarUrl?: string,
     bio?: string
   ): Promise<string> {
     const { data, error } = await this.client.rpc('create_genius_profile', {
       p_user_id: userId,
       p_genius_id: geniusId,
       p_avatar_url: avatarUrl,
-      p_bio: bio
+      p_bio: bio,
     });
-    
+
     this.handleError(error);
     return data;
   }
@@ -64,7 +64,7 @@ export class IdentityApi extends ApiClient {
    * @returns The updated profile
    */
   async updateGeniusProfile(
-    profileId: string, 
+    profileId: string,
     updates: Partial<Omit<GeniusProfile, 'id' | 'user_id' | 'created_at' | 'updated_at'>>
   ): Promise<GeniusProfile> {
     const { data, error } = await this.client
@@ -73,7 +73,7 @@ export class IdentityApi extends ApiClient {
       .eq('id', profileId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -87,9 +87,9 @@ export class IdentityApi extends ApiClient {
   async updateDegenRegenScore(userId: string, scoreChange: number): Promise<number> {
     const { data, error } = await this.client.rpc('update_degen_regen_score', {
       p_user_id: userId,
-      p_score_change: scoreChange
+      p_score_change: scoreChange,
     });
-    
+
     this.handleError(error);
     return data;
   }
@@ -105,7 +105,7 @@ export class IdentityApi extends ApiClient {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -121,11 +121,11 @@ export class IdentityApi extends ApiClient {
    * @returns The ID of the created achievement
    */
   async awardAchievement(
-    userId: string, 
-    achievementType: any, 
-    title: string, 
-    description?: string, 
-    points?: number, 
+    userId: string,
+    achievementType: any,
+    title: string,
+    description?: string,
+    points?: number,
     metadata?: any
   ): Promise<string> {
     const { data, error } = await this.client.rpc('award_achievement', {
@@ -134,9 +134,9 @@ export class IdentityApi extends ApiClient {
       p_title: title,
       p_description: description,
       p_points: points,
-      p_metadata: metadata
+      p_metadata: metadata,
     });
-    
+
     this.handleError(error);
     return data;
   }
@@ -168,7 +168,7 @@ export class IdentityApi extends ApiClient {
       .select('*')
       .eq('level_number', levelNumber)
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -181,40 +181,48 @@ export class IdentityApi extends ApiClient {
   async calculateUserLevel(userId: string): Promise<{ level: number; progress: number }> {
     // Get user's achievements and their total points
     const achievements = await this.getUserAchievements(userId);
-    const totalPoints = achievements.reduce((sum, achievement) => sum + (achievement.points || 0), 0);
-    
+    const totalPoints = achievements.reduce(
+      (sum, achievement) => sum + (achievement.points || 0),
+      0
+    );
+
     // Get all level definitions
-    const levelDefinitions = (await this.getLevelDefinitions()) as unknown as GeniusLevelDefinition[];
-    
+    const levelDefinitions =
+      (await this.getLevelDefinitions()) as unknown as GeniusLevelDefinition[];
+
     // Defensive: filter out any items missing the required fields
     const validLevelDefinitions: GeniusLevelDefinition[] = (levelDefinitions as any[]).filter(
       (def: any): def is GeniusLevelDefinition =>
-        typeof def === 'object' && def !== null &&
+        typeof def === 'object' &&
+        def !== null &&
         typeof (def as GeniusLevelDefinition).level_number === 'number' &&
         typeof (def as GeniusLevelDefinition).points_threshold === 'number'
     );
-    
+
     // Find the user's current level
     let currentLevel = 1;
     let nextLevelThreshold = 0;
     for (let i = 0; i < validLevelDefinitions.length; i++) {
       if (totalPoints >= validLevelDefinitions[i].points_threshold) {
         currentLevel = validLevelDefinitions[i].level_number;
-        nextLevelThreshold = i < validLevelDefinitions.length - 1 
-          ? validLevelDefinitions[i + 1].points_threshold 
-          : validLevelDefinitions[i].points_threshold;
+        nextLevelThreshold =
+          i < validLevelDefinitions.length - 1
+            ? validLevelDefinitions[i + 1].points_threshold
+            : validLevelDefinitions[i].points_threshold;
       } else {
         nextLevelThreshold = validLevelDefinitions[i].points_threshold;
         break;
       }
     }
-    
+
     // Calculate progress to next level
-    const currentLevelThreshold = validLevelDefinitions.find(def => def.level_number === currentLevel)?.points_threshold || 0;
-    const progress = nextLevelThreshold > currentLevelThreshold
-      ? (totalPoints - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)
-      : 1; // If at max level, progress is 100%
-    
+    const currentLevelThreshold =
+      validLevelDefinitions.find(def => def.level_number === currentLevel)?.points_threshold || 0;
+    const progress =
+      nextLevelThreshold > currentLevelThreshold
+        ? (totalPoints - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)
+        : 1; // If at max level, progress is 100%
+
     return { level: currentLevel, progress };
   }
 }

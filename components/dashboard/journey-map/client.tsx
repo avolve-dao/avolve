@@ -2,7 +2,7 @@
 
 /**
  * Journey Map Client Component
- * 
+ *
  * Client-side interactive component for displaying user journey through experience phases
  * Copyright © 2025 Avolve DAO. All rights reserved.
  */
@@ -31,27 +31,27 @@ export function JourneyMapClient({
   phaseProgress,
   currentPhase,
   phaseTransitions,
-  predictedCompletionDates
+  predictedCompletionDates,
 }: JourneyMapClientProps) {
   const [selectedPhase, setSelectedPhase] = useState<string>(currentPhase);
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   // Sort phases by sequence
   const sortedPhases = [...phaseProgress].sort((a, b) => a.sequence - b.sequence);
-  
+
   // Get details of selected phase
   const phaseDetails = phaseProgress.find(p => p.phaseId === selectedPhase);
-  
+
   // Format transition dates for display
   const formatTransitionDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     }).format(date);
   };
-  
+
   return (
     <div className="space-y-6">
       {/* Journey progress visualization */}
@@ -62,19 +62,20 @@ export function JourneyMapClient({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
-                    variant={phase.phaseId === selectedPhase ? "default" : "outline"}
+                    variant={phase.phaseId === selectedPhase ? 'default' : 'outline'}
                     size="sm"
                     className={`rounded-full px-4 ${
-                      phase.completed ? "bg-green-100 border-green-500 text-green-700" : 
-                      phase.isCurrentPhase ? "bg-blue-100 border-blue-500 text-blue-700" : ""
+                      phase.completed
+                        ? 'bg-green-100 border-green-500 text-green-700'
+                        : phase.isCurrentPhase
+                          ? 'bg-blue-100 border-blue-500 text-blue-700'
+                          : ''
                     }`}
                     onClick={() => setSelectedPhase(phase.phaseId)}
                   >
                     {phase.completed && <Award className="w-4 h-4 mr-1" />}
                     {phase.phaseName}
-                    <span className="ml-2 text-xs font-normal">
-                      {phase.progress}%
-                    </span>
+                    <span className="ml-2 text-xs font-normal">{phase.progress}%</span>
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -89,14 +90,14 @@ export function JourneyMapClient({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
+
             {index < sortedPhases.length - 1 && (
               <ChevronRight className="w-4 h-4 mx-1 text-muted-foreground" />
             )}
           </div>
         ))}
       </div>
-      
+
       {/* Selected phase details */}
       {phaseDetails && (
         <Card>
@@ -106,7 +107,7 @@ export function JourneyMapClient({
                 <h3 className="text-lg font-medium">{phaseDetails.phaseName} Phase</h3>
                 <p className="text-muted-foreground">{phaseDetails.description}</p>
               </div>
-              
+
               {!phaseDetails.completed && predictedCompletionDates[phaseDetails.phaseId] && (
                 <div className="flex items-center text-sm text-muted-foreground">
                   <Clock className="w-4 h-4 mr-1" />
@@ -114,25 +115,21 @@ export function JourneyMapClient({
                 </div>
               )}
             </div>
-            
+
             <Progress value={phaseDetails.progress} className="h-2 mb-4" />
-            
+
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>Progress: {phaseDetails.progress}%</span>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? "Show less" : "Show details"}
+              <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
+                {isExpanded ? 'Show less' : 'Show details'}
               </Button>
             </div>
-            
+
             {/* Expandable journey history */}
             {isExpanded && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
+                animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 className="mt-4 pt-4 border-t"
@@ -140,15 +137,18 @@ export function JourneyMapClient({
                 <h4 className="text-sm font-medium mb-2">Journey History</h4>
                 <div className="space-y-2">
                   {phaseTransitions
-                    .filter(t => t.to_phase === phaseDetails.phaseId || t.from_phase === phaseDetails.phaseId)
+                    .filter(
+                      t =>
+                        t.to_phase === phaseDetails.phaseId || t.from_phase === phaseDetails.phaseId
+                    )
                     .map((transition, i) => (
                       <div key={i} className="flex items-center text-sm">
                         <Calendar className="w-4 h-4 mr-2 text-muted-foreground" />
                         <span>
-                          {transition.from_phase === phaseDetails.phaseId 
-                            ? `Progressed to ${transition.to_phase} phase` 
-                            : `Started ${phaseDetails.phaseName} phase`
-                          } on {formatTransitionDate(transition.transitioned_at)}
+                          {transition.from_phase === phaseDetails.phaseId
+                            ? `Progressed to ${transition.to_phase} phase`
+                            : `Started ${phaseDetails.phaseName} phase`}{' '}
+                          on {formatTransitionDate(transition.transitioned_at)}
                         </span>
                       </div>
                     ))}

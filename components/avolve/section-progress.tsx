@@ -3,7 +3,14 @@
 import React, { useEffect, useState } from 'react';
 import { getSectionsForPillar, getUserSectionProgress } from '@/lib/utils/avolve-db';
 import type { Section, UserSectionProgress } from '@/lib/types/database.types';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -23,14 +30,14 @@ export function SectionProgress({ pillarId, userId }: SectionProgressProps) {
     async function loadData() {
       try {
         setLoading(true);
-        
+
         // Load sections for the pillar
         const sectionsData = await getSectionsForPillar(pillarId);
         setSections(sectionsData || []);
-        
+
         // Load progress for each section
         const progressData: Record<string, UserSectionProgress | null> = {};
-        
+
         for (const section of sectionsData) {
           try {
             const sectionProgress = await getUserSectionProgress(userId, section.id);
@@ -40,7 +47,7 @@ export function SectionProgress({ pillarId, userId }: SectionProgressProps) {
             progressData[section.id] = null;
           }
         }
-        
+
         setProgress(progressData);
         setError(null);
       } catch {
@@ -60,7 +67,7 @@ export function SectionProgress({ pillarId, userId }: SectionProgressProps) {
     return (
       <div className="space-y-4" aria-busy="true" aria-live="polite">
         <h2 className="text-2xl font-bold">Sections</h2>
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <Card key={i} className="w-full" aria-label="Loading section">
             <CardHeader>
               <Skeleton className="h-6 w-1/3" />
@@ -141,10 +148,10 @@ export function SectionProgress({ pillarId, userId }: SectionProgressProps) {
   return (
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Sections</h2>
-      {sections.map((section) => {
+      {sections.map(section => {
         const sectionProgress = progress[section.id];
         const progressValue = sectionProgress ? getProgressPercentage(sectionProgress.status) : 0;
-        
+
         return (
           <Card key={section.id} className="w-full">
             <CardHeader>
@@ -152,11 +159,17 @@ export function SectionProgress({ pillarId, userId }: SectionProgressProps) {
               {section.subtitle && <CardDescription>{section.subtitle}</CardDescription>}
             </CardHeader>
             <CardContent>
-              <p className="text-gray-700 mb-4">{section.description || 'No description available'}</p>
+              <p className="text-gray-700 mb-4">
+                {section.description || 'No description available'}
+              </p>
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">Progress</span>
-                  {sectionProgress ? getStatusBadge(sectionProgress.status) : <Badge variant="outline">Not Started</Badge>}
+                  {sectionProgress ? (
+                    getStatusBadge(sectionProgress.status)
+                  ) : (
+                    <Badge variant="outline">Not Started</Badge>
+                  )}
                 </div>
                 <Progress value={progressValue} className="h-2" />
               </div>
@@ -169,7 +182,9 @@ export function SectionProgress({ pillarId, userId }: SectionProgressProps) {
                   <span>Not started yet</span>
                 )}
                 {sectionProgress?.completed_at && (
-                  <span className="ml-4">Completed: {new Date(sectionProgress.completed_at).toLocaleDateString()}</span>
+                  <span className="ml-4">
+                    Completed: {new Date(sectionProgress.completed_at).toLocaleDateString()}
+                  </span>
                 )}
               </div>
             </CardFooter>

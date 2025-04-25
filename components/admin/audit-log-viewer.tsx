@@ -1,181 +1,207 @@
-"use client"
+'use client';
 
-import React, { useState, useEffect } from "react"
-import { useAuth } from "@/lib/hooks/use-auth"
-import { AuditService, AuditLog, AuditLogFilter } from "@/lib/auth/audit-service"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Spinner } from "@/components/ui/spinner"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Search, Clock, Filter, Download, RefreshCw, Shield, User, FileText } from "lucide-react"
-import { ProtectedPage } from "@/components/auth/protected-page"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DatePicker } from "@/components/ui/date-picker"
-import { format } from "date-fns"
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/hooks/use-auth';
+import { AuditService, AuditLog, AuditLogFilter } from '@/lib/auth/audit-service';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Spinner } from '@/components/ui/spinner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Search, Clock, Filter, Download, RefreshCw, Shield, User, FileText } from 'lucide-react';
+import { ProtectedPage } from '@/components/auth/protected-page';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 import {
   Select,
   SelectTrigger,
   SelectValue,
   SelectContent,
-  SelectItem
+  SelectItem,
 } from '@/components/ui/select';
 
 /**
  * RBAC Audit Log Viewer Component
- * 
+ *
  * This component provides an interface for administrators to view and analyze
  * RBAC audit logs. It allows filtering by action type, entity type, and date range.
  */
 export function AuditLogViewer() {
-  const { user } = useAuth()
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeTab, setActiveTab] = useState("all")
+  const { user } = useAuth();
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
   const [filter, setFilter] = useState<AuditLogFilter>({
     limit: 100,
-    offset: 0
-  })
-  const [showFilters, setShowFilters] = useState(false)
-  const [actionTypes, setActionTypes] = useState<string[]>([])
-  const [entityTypes, setEntityTypes] = useState<string[]>([])
-  
-  const auditService = AuditService.getBrowserInstance()
-  
+    offset: 0,
+  });
+  const [showFilters, setShowFilters] = useState(false);
+  const [actionTypes, setActionTypes] = useState<string[]>([]);
+  const [entityTypes, setEntityTypes] = useState<string[]>([]);
+
+  const auditService = AuditService.getBrowserInstance();
+
   // Load audit logs
   useEffect(() => {
     const loadAuditLogs = async () => {
-      setLoading(true)
-      setError(null)
-      
+      setLoading(true);
+      setError(null);
+
       try {
         let result;
-        
-        if (activeTab === "all") {
-          result = await auditService.getAllAuditLogs(filter)
-        } else if (activeTab === "user" && user) {
-          result = await auditService.getUserAuditLogs(user.id, filter.limit, filter.offset)
+
+        if (activeTab === 'all') {
+          result = await auditService.getAllAuditLogs(filter);
+        } else if (activeTab === 'user' && user) {
+          result = await auditService.getUserAuditLogs(user.id, filter.limit, filter.offset);
         }
-        
+
         if (result?.error) {
-          throw new Error(`Failed to load audit logs: ${result.error.message}`)
+          throw new Error(`Failed to load audit logs: ${result.error.message}`);
         }
-        
+
         if (result?.data) {
-          setAuditLogs(result.data)
-          
+          setAuditLogs(result.data);
+
           // Extract unique action types and entity types for filters
-          const actions = [...new Set(result.data.map(log => log.action_type))]
-          const entities = [...new Set(result.data.map(log => log.entity_type))]
-          
-          setActionTypes(actions)
-          setEntityTypes(entities)
+          const actions = [...new Set(result.data.map(log => log.action_type))];
+          const entities = [...new Set(result.data.map(log => log.entity_type))];
+
+          setActionTypes(actions);
+          setEntityTypes(entities);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "An unknown error occurred")
-        console.error("Error loading audit logs:", err)
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        console.error('Error loading audit logs:', err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    
-    loadAuditLogs()
-  }, [activeTab, filter, user, auditService])
-  
+    };
+
+    loadAuditLogs();
+  }, [activeTab, filter, user, auditService]);
+
   // Filter logs based on search query
-  const filteredLogs = auditLogs.filter(log => 
-    log.action_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    log.entity_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    log.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (log.details && JSON.stringify(log.details).toLowerCase().includes(searchQuery.toLowerCase()))
-  )
-  
+  const filteredLogs = auditLogs.filter(
+    log =>
+      log.action_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.entity_type.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (log.details && JSON.stringify(log.details).toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   // Reset filters
   const resetFilters = () => {
     setFilter({
       limit: 100,
-      offset: 0
-    })
-    setShowFilters(false)
-  }
-  
+      offset: 0,
+    });
+    setShowFilters(false);
+  };
+
   // Export logs to CSV
   const exportToCsv = () => {
-    if (filteredLogs.length === 0) return
-    
-    const headers = ["ID", "User ID", "Action Type", "Entity Type", "Entity ID", "Target ID", "Details", "Created At"]
+    if (filteredLogs.length === 0) return;
+
+    const headers = [
+      'ID',
+      'User ID',
+      'Action Type',
+      'Entity Type',
+      'Entity ID',
+      'Target ID',
+      'Details',
+      'Created At',
+    ];
     const csvRows = [
-      headers.join(","),
-      ...filteredLogs.map(log => [
-        log.id,
-        log.user_id,
-        log.action_type,
-        log.entity_type,
-        log.entity_id,
-        log.target_id || "",
-        log.details ? `"${JSON.stringify(log.details).replace(/"/g, '""')}"` : "",
-        log.created_at
-      ].join(","))
-    ]
-    
-    const csvContent = csvRows.join("\n")
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement("a")
-    
-    link.setAttribute("href", url)
-    link.setAttribute("download", `rbac-audit-logs-${format(new Date(), "yyyy-MM-dd")}.csv`)
-    link.style.visibility = "hidden"
-    
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-  
+      headers.join(','),
+      ...filteredLogs.map(log =>
+        [
+          log.id,
+          log.user_id,
+          log.action_type,
+          log.entity_type,
+          log.entity_id,
+          log.target_id || '',
+          log.details ? `"${JSON.stringify(log.details).replace(/"/g, '""')}"` : '',
+          log.created_at,
+        ].join(',')
+      ),
+    ];
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `rbac-audit-logs-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Get action type badge color
   const getActionTypeBadgeVariant = (actionType: string) => {
     switch (actionType) {
-      case "assign_role":
-      case "assign_permission":
-        return "default"
-      case "remove_role":
-      case "remove_permission":
-        return "destructive"
+      case 'assign_role':
+      case 'assign_permission':
+        return 'default';
+      case 'remove_role':
+      case 'remove_permission':
+        return 'destructive';
       default:
-        return "secondary"
+        return 'secondary';
     }
-  }
-  
+  };
+
   // Format date for display
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "MMM d, yyyy h:mm a")
-  }
-  
+    return format(new Date(dateString), 'MMM d, yyyy h:mm a');
+  };
+
   // Render entity type icon
   const renderEntityTypeIcon = (entityType: string) => {
     switch (entityType) {
-      case "user_role":
-        return <User className="h-4 w-4" />
-      case "role_permission":
-        return <Shield className="h-4 w-4" />
+      case 'user_role':
+        return <User className="h-4 w-4" />;
+      case 'role_permission':
+        return <Shield className="h-4 w-4" />;
       default:
-        return <FileText className="h-4 w-4" />
+        return <FileText className="h-4 w-4" />;
     }
-  }
-  
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center p-8">
         <Spinner size="lg" />
       </div>
-    )
+    );
   }
-  
+
   return (
     <ProtectedPage requiredRoles="admin" title="RBAC Audit Logs">
       <Card className="w-full">
@@ -186,30 +212,26 @@ export function AuditLogViewer() {
               <CardTitle>RBAC Audit Logs</CardTitle>
             </div>
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
                 <Filter className="h-4 w-4 mr-2" />
-                {showFilters ? "Hide Filters" : "Show Filters"}
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => {
-                  setLoading(true)
+                  setLoading(true);
                   setTimeout(() => {
-                    const currentFilter = { ...filter }
-                    setFilter({ ...currentFilter })
-                  }, 100)
+                    const currentFilter = { ...filter };
+                    setFilter({ ...currentFilter });
+                  }, 100);
                 }}
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={exportToCsv}
                 disabled={filteredLogs.length === 0}
@@ -219,9 +241,7 @@ export function AuditLogViewer() {
               </Button>
             </div>
           </div>
-          <CardDescription>
-            View and analyze role-based access control audit logs
-          </CardDescription>
+          <CardDescription>View and analyze role-based access control audit logs</CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -229,14 +249,14 @@ export function AuditLogViewer() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-4">
               <TabsTrigger value="all">All Logs</TabsTrigger>
               <TabsTrigger value="user">My Logs</TabsTrigger>
             </TabsList>
           </Tabs>
-          
+
           <div className="mb-4">
             <div className="relative">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -244,11 +264,11 @@ export function AuditLogViewer() {
                 placeholder="Search audit logs..."
                 className="pl-8"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
-          
+
           {showFilters && (
             <div className="mb-4 p-4 border rounded-md bg-muted">
               <h3 className="font-medium mb-2">Filters</h3>
@@ -256,8 +276,10 @@ export function AuditLogViewer() {
                 <div>
                   <Label htmlFor="action-type">Action Type</Label>
                   <Select
-                    value={filter.actionType || ""}
-                    onValueChange={(value) => setFilter({ ...filter, actionType: value || undefined })}
+                    value={filter.actionType || ''}
+                    onValueChange={value =>
+                      setFilter({ ...filter, actionType: value || undefined })
+                    }
                   >
                     <SelectTrigger id="action-type">
                       <SelectValue placeholder="All actions" />
@@ -265,7 +287,9 @@ export function AuditLogViewer() {
                     <SelectContent>
                       <SelectItem value="">All actions</SelectItem>
                       {actionTypes.map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -273,8 +297,10 @@ export function AuditLogViewer() {
                 <div>
                   <Label htmlFor="entity-type">Entity Type</Label>
                   <Select
-                    value={filter.entityType || ""}
-                    onValueChange={(value) => setFilter({ ...filter, entityType: value || undefined })}
+                    value={filter.entityType || ''}
+                    onValueChange={value =>
+                      setFilter({ ...filter, entityType: value || undefined })
+                    }
                   >
                     <SelectTrigger id="entity-type">
                       <SelectValue placeholder="All entities" />
@@ -282,7 +308,9 @@ export function AuditLogViewer() {
                     <SelectContent>
                       <SelectItem value="">All entities</SelectItem>
                       {entityTypes.map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -291,7 +319,7 @@ export function AuditLogViewer() {
                   <Label htmlFor="from-date">From Date</Label>
                   <DatePicker
                     date={filter.fromDate}
-                    setDate={(date) => setFilter({ ...filter, fromDate: date })}
+                    setDate={date => setFilter({ ...filter, fromDate: date })}
                     placeholder="Select from date"
                   />
                 </div>
@@ -299,7 +327,7 @@ export function AuditLogViewer() {
                   <Label htmlFor="to-date">To Date</Label>
                   <DatePicker
                     date={filter.toDate}
-                    setDate={(date) => setFilter({ ...filter, toDate: date })}
+                    setDate={date => setFilter({ ...filter, toDate: date })}
                     placeholder="Select to date"
                   />
                 </div>
@@ -311,7 +339,7 @@ export function AuditLogViewer() {
               </div>
             </div>
           )}
-          
+
           {filteredLogs.length === 0 ? (
             <div className="text-center p-8 border rounded-md">
               <Clock className="h-12 w-12 mx-auto mb-2 text-muted-foreground/50" />
@@ -330,7 +358,7 @@ export function AuditLogViewer() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredLogs.map((log) => (
+                    {filteredLogs.map(log => (
                       <TableRow key={log.id}>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -376,7 +404,12 @@ export function AuditLogViewer() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setFilter({ ...filter, offset: Math.max(0, (filter.offset || 0) - (filter.limit || 100)) })}
+              onClick={() =>
+                setFilter({
+                  ...filter,
+                  offset: Math.max(0, (filter.offset || 0) - (filter.limit || 100)),
+                })
+              }
               disabled={filter.offset === 0}
             >
               Previous
@@ -384,7 +417,9 @@ export function AuditLogViewer() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setFilter({ ...filter, offset: (filter.offset || 0) + (filter.limit || 100) })}
+              onClick={() =>
+                setFilter({ ...filter, offset: (filter.offset || 0) + (filter.limit || 100) })
+              }
               disabled={filteredLogs.length < (filter.limit || 100)}
             >
               Next
@@ -393,5 +428,5 @@ export function AuditLogViewer() {
         </CardFooter>
       </Card>
     </ProtectedPage>
-  )
+  );
 }

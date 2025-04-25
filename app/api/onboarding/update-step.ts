@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest) {
 
     const {
       data: { user },
-      error: authError
+      error: authError,
     } = await (supabase as any).auth.getUser();
     if (authError || !user) {
       console.warn('Unauthorized onboarding update attempt', authError);
@@ -47,16 +47,17 @@ export async function PATCH(req: NextRequest) {
     const onboardingDone = ALL_STEPS.every(s => completedSteps.includes(s));
 
     // Upsert onboarding progress
-    const { error: updateError } = await (supabase as any)
-      .from('user_onboarding')
-      .upsert([
+    const { error: updateError } = await (supabase as any).from('user_onboarding').upsert(
+      [
         {
           user_id: user.id,
           completed_steps: completedSteps,
           completed_at: onboardingDone ? new Date().toISOString() : null,
-          updated_at: new Date().toISOString()
-        }
-      ], { onConflict: 'user_id' });
+          updated_at: new Date().toISOString(),
+        },
+      ],
+      { onConflict: 'user_id' }
+    );
 
     if (updateError) {
       console.error('Error updating onboarding progress:', updateError);
@@ -69,12 +70,14 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ completedSteps, onboardingDone });
   } catch (error) {
-    console.error(JSON.stringify({
-      route: '/api/onboarding/update-step',
-      error: error instanceof Error ? error.message : error,
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    }));
+    console.error(
+      JSON.stringify({
+        route: '/api/onboarding/update-step',
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      })
+    );
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

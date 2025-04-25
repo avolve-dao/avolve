@@ -42,15 +42,15 @@ The Avolve platform user journey consists of three main phases:
 
 The Avolve platform implements a daily token claim system where specific tokens are available on designated days of the week:
 
-| Day | Token | Full Name | Gradient |
-|-----|-------|-----------|----------|
-| Sunday | SPD | Superpuzzle Developments | Red-Green-Blue |
-| Monday | SHE | Superhuman Enhancements | Rose-Red-Orange |
-| Tuesday | PSP | Personal Success Puzzle | Amber-Yellow |
-| Wednesday | SSA | Supersociety Advancements | Lime-Green-Emerald |
-| Thursday | BSP | Business Success Puzzle | Teal-Cyan |
-| Friday | SGB | Supergenius Breakthroughs | Sky-Blue-Indigo |
-| Saturday | SMS | Supermind Superpowers | Violet-Purple-Fuchsia-Pink |
+| Day       | Token | Full Name                 | Gradient                   |
+| --------- | ----- | ------------------------- | -------------------------- |
+| Sunday    | SPD   | Superpuzzle Developments  | Red-Green-Blue             |
+| Monday    | SHE   | Superhuman Enhancements   | Rose-Red-Orange            |
+| Tuesday   | PSP   | Personal Success Puzzle   | Amber-Yellow               |
+| Wednesday | SSA   | Supersociety Advancements | Lime-Green-Emerald         |
+| Thursday  | BSP   | Business Success Puzzle   | Teal-Cyan                  |
+| Friday    | SGB   | Supergenius Breakthroughs | Sky-Blue-Indigo            |
+| Saturday  | SMS   | Supermind Superpowers     | Violet-Purple-Fuchsia-Pink |
 
 ### Token Hierarchy
 
@@ -96,6 +96,7 @@ supabase db query "SELECT avg(worth_it::int) as satisfaction_rate FROM user_feed
 ```
 
 Key deployment metrics to monitor:
+
 - **SSA Completion Rate**: Target >80% (visible in dashboard)
 - **User Satisfaction**: Target >85% "Worth It" responses
 - **Time-to-Value**: Target <30 seconds from login to first token claim
@@ -250,11 +251,11 @@ If you encounter slow performance:
 supabase.ai.analyze('query_name')
 
 # Check for missing indexes
-supabase db query "SELECT relname as table_name, 
-                         seq_scan, 
+supabase db query "SELECT relname as table_name,
+                         seq_scan,
                          idx_scan,
                          seq_scan - idx_scan as difference
-                  FROM pg_stat_user_tables 
+                  FROM pg_stat_user_tables
                   WHERE seq_scan > idx_scan
                   ORDER BY difference DESC;"
 
@@ -315,24 +316,26 @@ By following this launch checklist, you'll ensure your Avolve platform provides 
 **Symptoms**: Leaderboard not updating, notifications not appearing, or chat messages not showing in real-time.
 
 **Solutions**:
+
 1. Check subscription status:
+
    ```bash
    # Verify the publication includes the necessary tables
    supabase db query "SELECT * FROM pg_publication_tables WHERE pubname = 'supabase_realtime'"
    ```
 
 2. Verify client subscription:
+
    ```tsx
    // Debug subscription with onPostgresChanges callback
    const channel = supabase
      .channel('debug-channel')
-     .on('postgres_changes', { event: '*', schema: 'public' }, 
-       (payload) => {
-         console.log('Change received!', payload)
-       })
-     .subscribe((status) => {
-       console.log('Subscription status:', status)
+     .on('postgres_changes', { event: '*', schema: 'public' }, payload => {
+       console.log('Change received!', payload);
      })
+     .subscribe(status => {
+       console.log('Subscription status:', status);
+     });
    ```
 
 3. Check for CORS issues in browser console
@@ -342,16 +345,19 @@ By following this launch checklist, you'll ensure your Avolve platform provides 
 **Symptoms**: Error messages when applying migrations or database inconsistencies.
 
 **Solutions**:
+
 1. Check migration history:
+
    ```bash
    supabase migration list
    ```
 
 2. Fix conflicts by creating a repair migration:
+
    ```bash
    # Create a repair migration
    supabase migration new fix_schema_inconsistency
-   
+
    # Edit the migration file to fix the issue
    # Then apply it
    supabase migration up
@@ -367,28 +373,32 @@ By following this launch checklist, you'll ensure your Avolve platform provides 
 **Symptoms**: API requests taking too long or timing out.
 
 **Solutions**:
+
 1. Check function logs:
+
    ```bash
    vercel logs --function api/feedback
    ```
 
 2. Optimize database queries:
+
    ```sql
    -- Add indexes for frequently queried columns
    CREATE INDEX IF NOT EXISTS idx_user_activity_log_user_id ON public.user_activity_log(user_id);
    ```
 
 3. Implement caching for expensive operations:
+
    ```tsx
    // Use SWR for client-side caching
-   import useSWR from 'swr'
-   
+   import useSWR from 'swr';
+
    function Profile() {
-     const { data, error } = useSWR('/api/user', fetcher, { 
+     const { data, error } = useSWR('/api/user', fetcher, {
        revalidateOnFocus: false,
-       dedupingInterval: 60000 
-     })
-     
+       dedupingInterval: 60000,
+     });
+
      // ...
    }
    ```
@@ -398,6 +408,7 @@ By following this launch checklist, you'll ensure your Avolve platform provides 
 **Symptoms**: Users unable to log in or access protected routes.
 
 **Solutions**:
+
 1. Check auth settings in Supabase dashboard
 2. Verify JWT configuration:
    ```bash
@@ -423,4 +434,4 @@ For more detailed information, refer to these documentation resources:
 
 ---
 
-*For questions or support, contact the Avolve team at support@avolve.io*
+_For questions or support, contact the Avolve team at support@avolve.io_

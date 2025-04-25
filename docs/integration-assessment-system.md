@@ -12,6 +12,7 @@
 The Integration Assessment System is a core component of the Avolve platform that helps users identify and strengthen connections between different domains of their transformation journey. It aligns with Avolve's fundamental philosophy that true transformation happens through integration rather than isolated improvement.
 
 This system implements the concept of **Integration** across three levels:
+
 1. **Individual Integration** (Superachiever pillar)
 2. **Collective Integration** (Superachievers pillar)
 3. **Ecosystem Integration** (Supercivilization pillar)
@@ -29,6 +30,7 @@ The Integration Assessment System is built on the understanding that fragmentati
 5. **Fragmentation of purpose** - Multiple pursuits without a unifying direction
 
 The system addresses these challenges by helping users:
+
 - **See connections** between different domains of their life
 - **Identify integration gaps** where fragmentation is occurring
 - **Strengthen integration** through targeted exercises
@@ -42,100 +44,100 @@ The Integration Assessment System is implemented through six interconnected tabl
 
 Stores questions used to evaluate integration across domains.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| domain | text | Primary domain (personal, business, supermind) |
-| subdomain | text | Specific subdomain (e.g., health, wealth, peace) |
-| question_text | text | The assessment question |
-| question_type | text | Format of question (scale, multiple_choice, open) |
-| options | jsonb | Options for multiple choice questions |
-| weight | integer | Importance weight in calculating domain scores |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
+| Column        | Type        | Description                                       |
+| ------------- | ----------- | ------------------------------------------------- |
+| id            | uuid        | Primary key                                       |
+| domain        | text        | Primary domain (personal, business, supermind)    |
+| subdomain     | text        | Specific subdomain (e.g., health, wealth, peace)  |
+| question_text | text        | The assessment question                           |
+| question_type | text        | Format of question (scale, multiple_choice, open) |
+| options       | jsonb       | Options for multiple choice questions             |
+| weight        | integer     | Importance weight in calculating domain scores    |
+| created_at    | timestamptz | Creation timestamp                                |
+| updated_at    | timestamptz | Last update timestamp                             |
 
 ### 2. `integration_assessment_responses`
 
 Records user responses to assessment questions.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| user_id | uuid | Foreign key to auth.users |
-| question_id | uuid | Foreign key to integration_assessment_questions |
-| response_value | jsonb | User's response in flexible format |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
+| Column         | Type        | Description                                     |
+| -------------- | ----------- | ----------------------------------------------- |
+| id             | uuid        | Primary key                                     |
+| user_id        | uuid        | Foreign key to auth.users                       |
+| question_id    | uuid        | Foreign key to integration_assessment_questions |
+| response_value | jsonb       | User's response in flexible format              |
+| created_at     | timestamptz | Creation timestamp                              |
+| updated_at     | timestamptz | Last update timestamp                           |
 
 ### 3. `integration_profiles`
 
 Stores calculated integration scores and personalized integration paths.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| user_id | uuid | Foreign key to auth.users |
-| personal_health_score | numeric | Score for personal health domain |
-| personal_wealth_score | numeric | Score for personal wealth domain |
-| personal_peace_score | numeric | Score for personal peace domain |
-| business_users_score | numeric | Score for business users domain |
-| business_admin_score | numeric | Score for business admin domain |
-| business_profit_score | numeric | Score for business profit domain |
-| supermind_vision_score | numeric | Score for supermind vision domain |
-| supermind_planning_score | numeric | Score for supermind planning domain |
-| supermind_execution_score | numeric | Score for supermind execution domain |
-| assessment_completed | boolean | Whether assessment is complete |
-| primary_integration_need | text | Domain with greatest integration need |
-| integration_path | jsonb | Personalized integration journey path |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
+| Column                    | Type        | Description                           |
+| ------------------------- | ----------- | ------------------------------------- |
+| id                        | uuid        | Primary key                           |
+| user_id                   | uuid        | Foreign key to auth.users             |
+| personal_health_score     | numeric     | Score for personal health domain      |
+| personal_wealth_score     | numeric     | Score for personal wealth domain      |
+| personal_peace_score      | numeric     | Score for personal peace domain       |
+| business_users_score      | numeric     | Score for business users domain       |
+| business_admin_score      | numeric     | Score for business admin domain       |
+| business_profit_score     | numeric     | Score for business profit domain      |
+| supermind_vision_score    | numeric     | Score for supermind vision domain     |
+| supermind_planning_score  | numeric     | Score for supermind planning domain   |
+| supermind_execution_score | numeric     | Score for supermind execution domain  |
+| assessment_completed      | boolean     | Whether assessment is complete        |
+| primary_integration_need  | text        | Domain with greatest integration need |
+| integration_path          | jsonb       | Personalized integration journey path |
+| created_at                | timestamptz | Creation timestamp                    |
+| updated_at                | timestamptz | Last update timestamp                 |
 
 ### 4. `integration_exercises`
 
 Contains guided exercises for improving domain integration.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| title | text | Exercise title |
-| description | text | Brief description |
-| domain | text | Primary domain |
-| subdomain | text | Specific subdomain |
-| difficulty | text | Difficulty level (beginner, intermediate, advanced) |
-| duration_minutes | integer | Estimated completion time |
-| content | jsonb | Exercise content and instructions |
-| prerequisites | jsonb | Any prerequisites for this exercise |
-| outcomes | jsonb | Expected outcomes from completion |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
+| Column           | Type        | Description                                         |
+| ---------------- | ----------- | --------------------------------------------------- |
+| id               | uuid        | Primary key                                         |
+| title            | text        | Exercise title                                      |
+| description      | text        | Brief description                                   |
+| domain           | text        | Primary domain                                      |
+| subdomain        | text        | Specific subdomain                                  |
+| difficulty       | text        | Difficulty level (beginner, intermediate, advanced) |
+| duration_minutes | integer     | Estimated completion time                           |
+| content          | jsonb       | Exercise content and instructions                   |
+| prerequisites    | jsonb       | Any prerequisites for this exercise                 |
+| outcomes         | jsonb       | Expected outcomes from completion                   |
+| created_at       | timestamptz | Creation timestamp                                  |
+| updated_at       | timestamptz | Last update timestamp                               |
 
 ### 5. `user_exercise_progress`
 
 Tracks user progress through integration exercises.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| user_id | uuid | Foreign key to auth.users |
-| exercise_id | uuid | Foreign key to integration_exercises |
-| status | text | Progress status (not_started, in_progress, completed) |
-| progress_data | jsonb | Detailed progress information |
-| reflection_text | text | User's reflection after completing |
-| completed_at | timestamptz | Completion timestamp |
-| created_at | timestamptz | Creation timestamp |
-| updated_at | timestamptz | Last update timestamp |
+| Column          | Type        | Description                                           |
+| --------------- | ----------- | ----------------------------------------------------- |
+| id              | uuid        | Primary key                                           |
+| user_id         | uuid        | Foreign key to auth.users                             |
+| exercise_id     | uuid        | Foreign key to integration_exercises                  |
+| status          | text        | Progress status (not_started, in_progress, completed) |
+| progress_data   | jsonb       | Detailed progress information                         |
+| reflection_text | text        | User's reflection after completing                    |
+| completed_at    | timestamptz | Completion timestamp                                  |
+| created_at      | timestamptz | Creation timestamp                                    |
+| updated_at      | timestamptz | Last update timestamp                                 |
 
 ### 6. `integration_journey_milestones`
 
 Records significant milestones in the user's integration journey.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| id | uuid | Primary key |
-| user_id | uuid | Foreign key to auth.users |
-| milestone_type | text | Type of milestone (assessment, exercise, reflection, achievement) |
-| milestone_data | jsonb | Details about the milestone |
-| achieved_at | timestamptz | Achievement timestamp |
+| Column         | Type        | Description                                                       |
+| -------------- | ----------- | ----------------------------------------------------------------- |
+| id             | uuid        | Primary key                                                       |
+| user_id        | uuid        | Foreign key to auth.users                                         |
+| milestone_type | text        | Type of milestone (assessment, exercise, reflection, achievement) |
+| milestone_data | jsonb       | Details about the milestone                                       |
+| achieved_at    | timestamptz | Achievement timestamp                                             |
 
 ## 🔧 Database Functions
 
@@ -156,6 +158,7 @@ function calculate_integration_profile(p_user_id uuid) returns uuid
 ```
 
 Generates a comprehensive integration profile for a user by:
+
 - Calculating scores for all domains and subdomains
 - Identifying the primary integration need (lowest score)
 - Creating a personalized integration path
@@ -177,6 +180,7 @@ function get_recommended_exercises(p_user_id uuid) returns table (
 ```
 
 Recommends integration exercises based on:
+
 - User's integration profile scores
 - Areas with lowest integration
 - Exercise difficulty progression
@@ -228,6 +232,7 @@ The system is implemented through three main React components:
 ### 1. `AssessmentQuestionnaire`
 
 A multi-step questionnaire that:
+
 - Presents domain-specific questions
 - Provides immediate visual feedback
 - Tracks completion progress
@@ -236,6 +241,7 @@ A multi-step questionnaire that:
 ### 2. `IntegrationMap`
 
 An interactive visualization that:
+
 - Displays domain nodes sized by integration strength
 - Shows connections between domains
 - Highlights integration opportunities
@@ -245,6 +251,7 @@ An interactive visualization that:
 ### 3. `ExerciseInterface`
 
 A guided exercise experience that:
+
 - Walks users through integration exercises
 - Provides step-by-step instructions
 - Allows note-taking and reflection

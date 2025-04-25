@@ -1,6 +1,6 @@
 /**
  * Feature Definitions
- * 
+ *
  * @module features/definitions
  * Copyright 2025 Avolve DAO and the Joshua Seymour Family. All rights reserved. Proprietary and confidential.
  */
@@ -9,51 +9,39 @@ import type { Feature } from '@/types/features';
 
 export const featureDefinitions: Record<string, Feature> = {
   // Discovery Phase Features
-  'personal_dashboard': {
+  personal_dashboard: {
     name: 'Personal Dashboard',
     description: 'Your personalized dashboard with progress tracking and recommendations',
     phase: 'discovery',
     icon: 'dashboard.svg',
     requirements: {
-      tokens: [
-        { tokenId: 'GEN', amount: 5 }
-      ],
-      milestones: [
-        'discovery_1'
-      ]
-    }
+      tokens: [{ tokenId: 'GEN', amount: 5 }],
+      milestones: ['discovery_1'],
+    },
   },
-  'basic_profile': {
+  basic_profile: {
     name: 'Basic Profile',
     description: 'Create and customize your basic profile with personal information',
     phase: 'discovery',
     icon: 'profile.svg',
     requirements: {
-      tokens: [
-        { tokenId: 'GEN', amount: 10 }
-      ],
-      milestones: [
-        'discovery_2'
-      ]
-    }
+      tokens: [{ tokenId: 'GEN', amount: 10 }],
+      milestones: ['discovery_2'],
+    },
   },
-  'token_wallet': {
+  token_wallet: {
     name: 'Token Wallet',
     description: 'View and manage your token balances and transaction history',
     phase: 'discovery',
     icon: 'wallet.svg',
     requirements: {
-      tokens: [
-        { tokenId: 'GEN', amount: 15 }
-      ],
-      milestones: [
-        'discovery_3'
-      ]
-    }
+      tokens: [{ tokenId: 'GEN', amount: 15 }],
+      milestones: ['discovery_3'],
+    },
   },
-  
+
   // Onboarding Phase Features
-  'superachiever_modules': {
+  superachiever_modules: {
     name: 'Superachiever Modules',
     description: 'Access to core Superachiever training modules and assessments',
     phase: 'onboarding',
@@ -61,15 +49,12 @@ export const featureDefinitions: Record<string, Feature> = {
     requirements: {
       tokens: [
         { tokenId: 'GEN', amount: 25 },
-        { tokenId: 'SAP', amount: 10 }
+        { tokenId: 'SAP', amount: 10 },
       ],
-      milestones: [
-        'discovery_5',
-        'onboarding_1'
-      ]
-    }
+      milestones: ['discovery_5', 'onboarding_1'],
+    },
   },
-  'achievement_tracker': {
+  achievement_tracker: {
     name: 'Achievement Tracker',
     description: 'Track and visualize your progress through achievements and milestones',
     phase: 'onboarding',
@@ -77,14 +62,12 @@ export const featureDefinitions: Record<string, Feature> = {
     requirements: {
       tokens: [
         { tokenId: 'GEN', amount: 30 },
-        { tokenId: 'SAP', amount: 15 }
+        { tokenId: 'SAP', amount: 15 },
       ],
-      milestones: [
-        'onboarding_2'
-      ]
-    }
+      milestones: ['onboarding_2'],
+    },
   },
-  'goal_setting': {
+  goal_setting: {
     name: 'Goal Setting Tools',
     description: 'Advanced tools for setting, tracking, and achieving personal and business goals',
     phase: 'onboarding',
@@ -92,16 +75,14 @@ export const featureDefinitions: Record<string, Feature> = {
     requirements: {
       tokens: [
         { tokenId: 'GEN', amount: 40 },
-        { tokenId: 'PSP', amount: 10 }
+        { tokenId: 'PSP', amount: 10 },
       ],
-      milestones: [
-        'onboarding_3'
-      ]
-    }
+      milestones: ['onboarding_3'],
+    },
   },
-  
+
   // Scaffolding Phase Features
-  'community_forums': {
+  community_forums: {
     name: 'Community Forums',
     description: 'Connect with other users, share experiences, and participate in discussions',
     phase: 'scaffolding',
@@ -110,15 +91,12 @@ export const featureDefinitions: Record<string, Feature> = {
       tokens: [
         { tokenId: 'GEN', amount: 75 },
         { tokenId: 'SAP', amount: 25 },
-        { tokenId: 'SSA', amount: 10 }
+        { tokenId: 'SSA', amount: 10 },
       ],
-      milestones: [
-        'onboarding_5',
-        'scaffolding_1'
-      ]
-    }
+      milestones: ['onboarding_5', 'scaffolding_1'],
+    },
   },
-  'business_tools': {
+  business_tools: {
     name: 'Business Success Tools',
     description: 'Advanced tools for business planning, strategy, and execution',
     phase: 'scaffolding',
@@ -126,14 +104,12 @@ export const featureDefinitions: Record<string, Feature> = {
     requirements: {
       tokens: [
         { tokenId: 'GEN', amount: 100 },
-        { tokenId: 'BSP', amount: 30 }
+        { tokenId: 'BSP', amount: 30 },
       ],
-      milestones: [
-        'scaffolding_2'
-      ]
-    }
+      milestones: ['scaffolding_2'],
+    },
   },
-  'mentorship': {
+  mentorship: {
     name: 'Mentorship Program',
     description: 'Connect with mentors and receive personalized guidance for your journey',
     phase: 'scaffolding',
@@ -142,17 +118,14 @@ export const featureDefinitions: Record<string, Feature> = {
       tokens: [
         { tokenId: 'GEN', amount: 150 },
         { tokenId: 'SAP', amount: 50 },
-        { tokenId: 'PSP', amount: 30 }
+        { tokenId: 'PSP', amount: 30 },
       ],
-      milestones: [
-        'scaffolding_3',
-        'scaffolding_4'
-      ]
-    }
+      milestones: ['scaffolding_3', 'scaffolding_4'],
+    },
   },
-  
+
   // Endgame Phase Features
-  'advanced_analytics': {
+  advanced_analytics: {
     name: 'Advanced Analytics',
     description: 'Deep insights into your progress, patterns, and opportunities for growth',
     phase: 'endgame',
@@ -161,15 +134,12 @@ export const featureDefinitions: Record<string, Feature> = {
       tokens: [
         { tokenId: 'GEN', amount: 250 },
         { tokenId: 'SAP', amount: 75 },
-        { tokenId: 'SCQ', amount: 40 }
+        { tokenId: 'SCQ', amount: 40 },
       ],
-      milestones: [
-        'scaffolding_5',
-        'endgame_1'
-      ]
-    }
+      milestones: ['scaffolding_5', 'endgame_1'],
+    },
   },
-  'content_creation': {
+  content_creation: {
     name: 'Content Creation Tools',
     description: 'Create and share your own content, courses, and resources with the community',
     phase: 'endgame',
@@ -178,14 +148,12 @@ export const featureDefinitions: Record<string, Feature> = {
       tokens: [
         { tokenId: 'GEN', amount: 300 },
         { tokenId: 'SPD', amount: 50 },
-        { tokenId: 'SHE', amount: 30 }
+        { tokenId: 'SHE', amount: 30 },
       ],
-      milestones: [
-        'endgame_2'
-      ]
-    }
+      milestones: ['endgame_2'],
+    },
   },
-  'governance': {
+  governance: {
     name: 'Governance Participation',
     description: 'Participate in platform governance, voting, and decision-making processes',
     phase: 'endgame',
@@ -193,13 +161,9 @@ export const featureDefinitions: Record<string, Feature> = {
     requirements: {
       tokens: [
         { tokenId: 'GEN', amount: 500 },
-        { tokenId: 'SGB', amount: 100 }
+        { tokenId: 'SGB', amount: 100 },
       ],
-      milestones: [
-        'endgame_3',
-        'endgame_4',
-        'endgame_5'
-      ]
-    }
-  }
+      milestones: ['endgame_3', 'endgame_4', 'endgame_5'],
+    },
+  },
 };

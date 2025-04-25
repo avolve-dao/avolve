@@ -40,6 +40,7 @@ Welcome to Avolve! This checklist ensures you experience a smooth, delightful, a
 ---
 
 ## 🚀 Next Steps
+
 - [ ] Invite new members and admins.
 - [ ] Participate in the first community milestone challenge.
 - [ ] Provide feedback on your onboarding experience!
@@ -48,4 +49,4 @@ Welcome to Avolve! This checklist ensures you experience a smooth, delightful, a
 
 For help, see the README or contact support@avolve.io.
 
-*Let’s co-create a regenerative future—one intention at a time!*
+_Let’s co-create a regenerative future—one intention at a time!_

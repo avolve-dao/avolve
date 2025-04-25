@@ -15,10 +15,15 @@ const supabase = createClient(
  * @returns {() => void} Unsubscribe function
  */
 export function subscribeToFeedUpdates(onUpdate: (payload: any) => void) {
-  const channel = supabase.channel('public:supercivilization_feed')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'supercivilization_feed' }, payload => {
-      onUpdate(payload);
-    })
+  const channel = supabase
+    .channel('public:supercivilization_feed')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'supercivilization_feed' },
+      payload => {
+        onUpdate(payload);
+      }
+    )
     .subscribe();
 
   return () => {
@@ -30,10 +35,15 @@ export function subscribeToFeedUpdates(onUpdate: (payload: any) => void) {
  * Example: Subscribe to collective_progress updates
  */
 export function subscribeToProgressUpdates(onUpdate: (payload: any) => void) {
-  const channel = supabase.channel('public:collective_progress')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'collective_progress' }, payload => {
-      onUpdate(payload);
-    })
+  const channel = supabase
+    .channel('public:collective_progress')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'collective_progress' },
+      payload => {
+        onUpdate(payload);
+      }
+    )
     .subscribe();
 
   return () => {

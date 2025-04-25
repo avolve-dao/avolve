@@ -1,19 +1,19 @@
-import { useState } from 'react'
-import { RadioGroup } from '@headlessui/react'
-import { motion } from 'framer-motion'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { toast } from 'sonner'
+import { useState } from 'react';
+import { RadioGroup } from '@headlessui/react';
+import { motion } from 'framer-motion';
+import { createClient } from '../../lib/supabase/client';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
-type Focus = 'individual' | 'collective' | 'ecosystem'
+type Focus = 'individual' | 'collective' | 'ecosystem';
 
 interface FocusOption {
-  id: Focus
-  title: string
-  description: string
-  gradient: string
-  frequency: string
+  id: Focus;
+  title: string;
+  description: string;
+  gradient: string;
+  frequency: string;
 }
 
 const focusOptions: FocusOption[] = [
@@ -22,62 +22,62 @@ const focusOptions: FocusOption[] = [
     title: 'Individual Focus',
     description: 'Accelerate your personal transformation through PSP, BSP, and SMS tokens.',
     gradient: 'from-amber-500 to-yellow-500',
-    frequency: '174hz-396hz'
+    frequency: '174hz-396hz',
   },
   {
     id: 'collective',
     title: 'Collective Focus',
     description: 'Drive collective transformation through SPD, SHE, SSA, and SBG tokens.',
     gradient: 'from-emerald-500 to-teal-500',
-    frequency: '417hz-852hz'
+    frequency: '417hz-852hz',
   },
   {
     id: 'ecosystem',
     title: 'Ecosystem Focus',
     description: 'Shape the future of Supercivilization through GEN token governance.',
     gradient: 'from-violet-500 to-purple-500',
-    frequency: '963hz'
-  }
-]
+    frequency: '963hz',
+  },
+];
 
 export function FocusSelector() {
-  const [selected, setSelected] = useState<Focus>('individual')
-  const [isLoading, setIsLoading] = useState(false)
-  const supabase = createClientComponentClient()
-  const router = useRouter()
+  const [selected, setSelected] = useState<Focus>('individual');
+  const [isLoading, setIsLoading] = useState(false);
+  const supabase = createClient();
+  const router = useRouter();
 
   const handleFocusChange = async () => {
     try {
-      setIsLoading(true)
-      
+      setIsLoading(true);
+
       const { error } = await supabase
         .from('user_profiles')
-        .upsert({ focus: selected }, { onConflict: 'id' })
+        .upsert({ focus: selected }, { onConflict: 'id' });
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast.success('Focus area updated successfully')
-      router.refresh()
+      toast.success('Focus area updated successfully');
+      router.refresh();
 
       // Redirect based on focus
       switch (selected) {
         case 'individual':
-          router.push('/superachiever')
-          break
+          router.push('/superachiever');
+          break;
         case 'collective':
-          router.push('/superachievers')
-          break
+          router.push('/superachievers');
+          break;
         case 'ecosystem':
-          router.push('/supercivilization')
-          break
+          router.push('/supercivilization');
+          break;
       }
     } catch (error) {
-      console.error('Error updating focus:', error)
-      toast.error('Failed to update focus area')
+      console.error('Error updating focus:', error);
+      toast.error('Failed to update focus area');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="w-full px-4 py-16">
@@ -85,7 +85,7 @@ export function FocusSelector() {
         <RadioGroup value={selected} onChange={setSelected}>
           <RadioGroup.Label className="sr-only">Focus Area</RadioGroup.Label>
           <div className="space-y-4">
-            {focusOptions.map((option) => (
+            {focusOptions.map(option => (
               <RadioGroup.Option
                 key={option.id}
                 value={option.id}
@@ -111,7 +111,9 @@ export function FocusSelector() {
                             className={`inline ${checked ? 'text-white/90' : 'text-gray-500'}`}
                           >
                             <span>{option.description}</span>
-                            <span className="block text-xs mt-1">Frequency: {option.frequency}</span>
+                            <span className="block text-xs mt-1">
+                              Frequency: {option.frequency}
+                            </span>
                           </RadioGroup.Description>
                         </div>
                       </div>
@@ -147,7 +149,7 @@ export function FocusSelector() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -162,5 +164,5 @@ function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }

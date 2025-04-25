@@ -1,18 +1,18 @@
 /**
  * Governance API Client
- * 
+ *
  * This client handles interactions with the governance system of the Avolve platform,
  * including weekly meetings, meeting groups, participants, and consensus notes.
  */
 
 import { ApiClient } from './client';
-import type { 
-  WeeklyMeeting, 
-  MeetingGroup, 
-  MeetingParticipant, 
+import type {
+  WeeklyMeeting,
+  MeetingGroup,
+  MeetingParticipant,
   MeetingNote,
   MeetingStatus,
-  ParticipantStatus
+  ParticipantStatus,
 } from '../types/database.types';
 
 export class GovernanceApi extends ApiClient {
@@ -28,7 +28,7 @@ export class GovernanceApi extends ApiClient {
       .gte('scheduled_date', new Date().toISOString())
       .order('scheduled_date', { ascending: true })
       .limit(limit);
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -44,7 +44,7 @@ export class GovernanceApi extends ApiClient {
       .select('*')
       .eq('id', meetingId)
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -54,13 +54,15 @@ export class GovernanceApi extends ApiClient {
    * @param meeting The meeting data to create
    * @returns The created meeting
    */
-  async createMeeting(meeting: Omit<WeeklyMeeting, 'id' | 'created_at' | 'updated_at'>): Promise<WeeklyMeeting> {
+  async createMeeting(
+    meeting: Omit<WeeklyMeeting, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<WeeklyMeeting> {
     const { data, error } = await this.client
       .from('weekly_meetings')
       .insert(meeting)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -72,7 +74,7 @@ export class GovernanceApi extends ApiClient {
    * @returns The updated meeting
    */
   async updateMeeting(
-    meetingId: string, 
+    meetingId: string,
     updates: Partial<Omit<WeeklyMeeting, 'id' | 'created_at' | 'updated_at'>>
   ): Promise<WeeklyMeeting> {
     const { data, error } = await this.client
@@ -81,7 +83,7 @@ export class GovernanceApi extends ApiClient {
       .eq('id', meetingId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -97,7 +99,7 @@ export class GovernanceApi extends ApiClient {
       .select('*')
       .eq('meeting_id', meetingId)
       .order('created_at', { ascending: true });
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -107,13 +109,15 @@ export class GovernanceApi extends ApiClient {
    * @param group The group data to create
    * @returns The created group
    */
-  async createMeetingGroup(group: Omit<MeetingGroup, 'id' | 'created_at' | 'updated_at'>): Promise<MeetingGroup> {
+  async createMeetingGroup(
+    group: Omit<MeetingGroup, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<MeetingGroup> {
     const { data, error } = await this.client
       .from('meeting_groups')
       .insert(group)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -125,7 +129,7 @@ export class GovernanceApi extends ApiClient {
    * @returns The updated group
    */
   async updateMeetingGroup(
-    groupId: string, 
+    groupId: string,
     updates: Partial<Omit<MeetingGroup, 'id' | 'created_at' | 'updated_at'>>
   ): Promise<MeetingGroup> {
     const { data, error } = await this.client
@@ -134,7 +138,7 @@ export class GovernanceApi extends ApiClient {
       .eq('id', groupId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -148,9 +152,9 @@ export class GovernanceApi extends ApiClient {
   async registerForMeeting(userId: string, meetingId: string): Promise<string> {
     const { data, error } = await this.client.rpc('register_for_meeting', {
       p_user_id: userId,
-      p_meeting_id: meetingId
+      p_meeting_id: meetingId,
     });
-    
+
     this.handleError(error);
     return data;
   }
@@ -165,7 +169,7 @@ export class GovernanceApi extends ApiClient {
       .from('meeting_participants')
       .select('*')
       .eq('meeting_id', meetingId);
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -177,7 +181,7 @@ export class GovernanceApi extends ApiClient {
    * @returns The updated participant record
    */
   async updateParticipantStatus(
-    participantId: string, 
+    participantId: string,
     status: ParticipantStatus
   ): Promise<MeetingParticipant> {
     const { data, error } = await this.client
@@ -186,7 +190,7 @@ export class GovernanceApi extends ApiClient {
       .eq('id', participantId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -202,7 +206,7 @@ export class GovernanceApi extends ApiClient {
       .select('*')
       .eq('meeting_id', meetingId)
       .order('created_at', { ascending: true });
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -212,13 +216,11 @@ export class GovernanceApi extends ApiClient {
    * @param note The note data to create
    * @returns The created note
    */
-  async createMeetingNote(note: Omit<MeetingNote, 'id' | 'created_at' | 'updated_at'>): Promise<MeetingNote> {
-    const { data, error } = await this.client
-      .from('meeting_notes')
-      .insert(note)
-      .select()
-      .single();
-    
+  async createMeetingNote(
+    note: Omit<MeetingNote, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<MeetingNote> {
+    const { data, error } = await this.client.from('meeting_notes').insert(note).select().single();
+
     this.handleError(error);
     return data;
   }
@@ -230,7 +232,7 @@ export class GovernanceApi extends ApiClient {
    * @returns The updated note
    */
   async updateMeetingNote(
-    noteId: string, 
+    noteId: string,
     updates: Partial<Omit<MeetingNote, 'id' | 'created_at' | 'updated_at'>>
   ): Promise<MeetingNote> {
     const { data, error } = await this.client
@@ -239,7 +241,7 @@ export class GovernanceApi extends ApiClient {
       .eq('id', noteId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -251,9 +253,9 @@ export class GovernanceApi extends ApiClient {
    */
   async distributeMeetingRespect(meetingId: string): Promise<boolean> {
     const { data, error } = await this.client.rpc('distribute_meeting_respect', {
-      p_meeting_id: meetingId
+      p_meeting_id: meetingId,
     });
-    
+
     this.handleError(error);
     return data;
   }
@@ -267,14 +269,16 @@ export class GovernanceApi extends ApiClient {
   async getUserMeetings(userId: string, limit: number = 10): Promise<any[]> {
     const { data, error } = await this.client
       .from('meeting_participants')
-      .select(`
+      .select(
+        `
         *,
         meeting:meeting_id(*)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit);
-    
+
     this.handleError(error);
     return data || [];
   }

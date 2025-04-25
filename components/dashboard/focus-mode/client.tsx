@@ -2,22 +2,22 @@
 
 /**
  * Focus Mode Client Component
- * 
+ *
  * Client-side interactive component for displaying personalized focus areas and recommendations
  * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Target, 
-  BookOpen, 
-  Award, 
-  ArrowRight, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Target,
+  BookOpen,
+  Award,
+  ArrowRight,
+  CheckCircle,
+  AlertCircle,
   Lightbulb,
-  Sparkles
+  Sparkles,
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -84,13 +84,13 @@ export function FocusModeClient({
   contentRecommendations,
   featureRecommendations,
   learningPathRecommendations,
-  nextMilestones
+  nextMilestones,
 }: FocusModeClientProps) {
   const [activeTab, setActiveTab] = useState<string>('focus');
-  
+
   // Get priority focus area
   const priorityFocus = focusAreas.find(area => area.priority === 'high') || focusAreas[0];
-  
+
   return (
     <div className="space-y-6">
       {/* Welcome and progress overview */}
@@ -107,21 +107,21 @@ export function FocusModeClient({
             <span className="text-sm font-medium">{Math.round(overallProgress)}% Complete</span>
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
             <span>Overall Progress</span>
             <span>{Math.round(overallProgress)}%</span>
           </div>
           <Progress value={overallProgress} className="h-2" />
-          
+
           <div className="grid grid-cols-4 gap-2 mt-4">
-            {(['discovery', 'onboarding', 'scaffolding', 'endgame'] as PhaseId[]).map((phase) => (
+            {(['discovery', 'onboarding', 'scaffolding', 'endgame'] as PhaseId[]).map(phase => (
               <div key={phase} className="text-center">
                 <div className="text-xs text-muted-foreground mb-1">{phase}</div>
-                <Progress 
-                  value={phaseProgress[phase]} 
-                  className={`h-1 ${currentPhase === phase ? 'bg-blue-100' : ''}`} 
+                <Progress
+                  value={phaseProgress[phase]}
+                  className={`h-1 ${currentPhase === phase ? 'bg-blue-100' : ''}`}
                 />
                 <div className="text-xs mt-1">{Math.round(phaseProgress[phase])}%</div>
               </div>
@@ -129,7 +129,7 @@ export function FocusModeClient({
           </div>
         </div>
       </div>
-      
+
       {/* Tabs for different focus areas */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3">
@@ -137,7 +137,7 @@ export function FocusModeClient({
           <TabsTrigger value="milestones">Next Milestones</TabsTrigger>
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
         </TabsList>
-        
+
         {/* Focus Areas Tab */}
         <TabsContent value="focus" className="space-y-4 pt-2">
           {priorityFocus && (
@@ -161,7 +161,7 @@ export function FocusModeClient({
                 )}
                 <div className="flex space-x-2 mt-2">
                   {priorityFocus.actions.map((action, i) => (
-                    <Button key={i} size="sm" variant={i === 0 ? "default" : "outline"}>
+                    <Button key={i} size="sm" variant={i === 0 ? 'default' : 'outline'}>
                       {action.label}
                     </Button>
                   ))}
@@ -169,12 +169,12 @@ export function FocusModeClient({
               </CardContent>
             </Card>
           )}
-          
+
           {/* Other focus areas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {focusAreas
               .filter(area => area !== priorityFocus)
-              .map((area) => (
+              .map(area => (
                 <Card key={area.id}>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center">
@@ -207,12 +207,12 @@ export function FocusModeClient({
               ))}
           </div>
         </TabsContent>
-        
+
         {/* Milestones Tab */}
         <TabsContent value="milestones" className="space-y-4 pt-2">
           {nextMilestones.length > 0 ? (
             <div className="space-y-4">
-              {nextMilestones.map((milestone) => (
+              {nextMilestones.map(milestone => (
                 <Card key={milestone.milestone_id}>
                   <CardContent className="pt-6">
                     <div className="flex items-start justify-between mb-2">
@@ -223,7 +223,10 @@ export function FocusModeClient({
                             Milestone: {milestone.milestone_id}
                           </div>
                           <div className="text-xs text-gray-500">
-                            Completed: {milestone.completed_at ? new Date(milestone.completed_at).toLocaleDateString() : 'Not yet'}
+                            Completed:{' '}
+                            {milestone.completed_at
+                              ? new Date(milestone.completed_at).toLocaleDateString()
+                              : 'Not yet'}
                           </div>
                         </div>
                       </div>
@@ -240,7 +243,7 @@ export function FocusModeClient({
             </div>
           )}
         </TabsContent>
-        
+
         {/* Recommendations Tab */}
         <TabsContent value="recommendations" className="pt-2">
           <Tabs defaultValue="content">
@@ -249,11 +252,11 @@ export function FocusModeClient({
               <TabsTrigger value="features">Features</TabsTrigger>
               <TabsTrigger value="learning">Learning</TabsTrigger>
             </TabsList>
-            
+
             {/* Content recommendations */}
             <TabsContent value="content" className="space-y-3 pt-2">
-              {contentRecommendations.map((content) => (
-                <div 
+              {contentRecommendations.map(content => (
+                <div
                   key={content.id}
                   className="flex items-start p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
@@ -270,11 +273,11 @@ export function FocusModeClient({
                 </div>
               ))}
             </TabsContent>
-            
+
             {/* Feature recommendations */}
             <TabsContent value="features" className="space-y-3 pt-2">
-              {featureRecommendations.map((feature) => (
-                <div 
+              {featureRecommendations.map(feature => (
+                <div
                   key={feature.id}
                   className="flex items-start p-3 border rounded-lg hover:bg-muted/50 transition-colors"
                 >
@@ -291,10 +294,10 @@ export function FocusModeClient({
                 </div>
               ))}
             </TabsContent>
-            
+
             {/* Learning path recommendations */}
             <TabsContent value="learning" className="space-y-3 pt-2">
-              {learningPathRecommendations.map((path) => (
+              {learningPathRecommendations.map(path => (
                 <Card key={path.id}>
                   <CardContent className="pt-6">
                     <div className="flex items-start mb-2">

@@ -1,36 +1,35 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { createContext, useContext, useState, useEffect } from "react"
-import { setupRealtimeAuth } from "@/lib/realtime-auth"
+import { createContext, useContext, useState, useEffect } from 'react';
+import { setupRealtimeAuth } from '@/lib/realtime-auth';
 
 interface MessagingContextType {
-  isRealtimeAuthenticated: boolean
+  isRealtimeAuthenticated: boolean;
 }
 
 const MessagingContext = createContext<MessagingContextType>({
   isRealtimeAuthenticated: false,
-})
+});
 
-export const useMessaging = () => useContext(MessagingContext)
+export const useMessaging = () => useContext(MessagingContext);
 
-export function MessagingProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const [isRealtimeAuthenticated, setIsRealtimeAuthenticated] = useState(false)
+export function MessagingProvider({ children }: { children: React.ReactNode }) {
+  const [isRealtimeAuthenticated, setIsRealtimeAuthenticated] = useState(false);
 
   useEffect(() => {
     const initializeRealtime = async () => {
-      const isAuthenticated = await setupRealtimeAuth()
-      setIsRealtimeAuthenticated(isAuthenticated)
-    }
+      const isAuthenticated = await setupRealtimeAuth();
+      setIsRealtimeAuthenticated(isAuthenticated);
+    };
 
-    initializeRealtime()
-  }, [])
+    initializeRealtime();
+  }, []);
 
-  return <MessagingContext.Provider value={{ isRealtimeAuthenticated }}>{children}</MessagingContext.Provider>
+  return (
+    <MessagingContext.Provider value={{ isRealtimeAuthenticated }}>
+      {children}
+    </MessagingContext.Provider>
+  );
 }
-

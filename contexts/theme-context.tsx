@@ -1,15 +1,15 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { createContext, useContext, useState, useEffect } from "react"
-import { useTheme as useNextTheme } from "next-themes"
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useTheme as useNextTheme } from 'next-themes';
 
 interface ThemeContextType {
-  isDark: boolean
-  toggleTheme: () => void
-  theme: string | null
-  setTheme: (theme: string) => void
+  isDark: boolean;
+  toggleTheme: () => void;
+  theme: string | null;
+  setTheme: (theme: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
@@ -17,32 +17,32 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
   theme: null,
   setTheme: () => {},
-})
+});
 
-export const useMessagingTheme = () => useContext(ThemeContext)
+export const useMessagingTheme = () => useContext(ThemeContext);
 
-export function MessagingThemeProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export function MessagingThemeProvider({ children }: { children: React.ReactNode }) {
   // Use the app's theme system
-  const { theme: nextTheme, setTheme: setNextTheme } = useNextTheme()
-  const [isDark, setIsDark] = useState(false)
+  const { theme: nextTheme, setTheme: setNextTheme } = useNextTheme();
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    setIsDark(nextTheme === "dark")
-  }, [nextTheme])
+    setIsDark(nextTheme === 'dark');
+  }, [nextTheme]);
 
   const toggleTheme = () => {
-    setNextTheme(isDark ? "light" : "dark")
-  }
+    setNextTheme(isDark ? 'light' : 'dark');
+  };
 
   const setTheme = (theme: string) => {
-    setNextTheme(theme)
-  }
+    setNextTheme(theme);
+  };
 
-  return <ThemeContext.Provider value={{ isDark, toggleTheme, theme: nextTheme ?? null, setTheme }}>{children}</ThemeContext.Provider>
+  return (
+    <ThemeContext.Provider value={{ isDark, toggleTheme, theme: nextTheme ?? null, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
-export const useTheme = () => useContext(ThemeContext)
+export const useTheme = () => useContext(ThemeContext);

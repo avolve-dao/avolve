@@ -14,22 +14,49 @@ interface MainLayoutProps {
   showPhaseGuide?: boolean;
 }
 
-export default function MainLayout({ 
-  children,
-  showPhaseGuide = true 
-}: MainLayoutProps) {
+export default function MainLayout({ children, showPhaseGuide = true }: MainLayoutProps) {
   const router = useRouter();
   const { supabase } = useSupabase();
   const [user, setUser] = useState<{ id: string } | null>(null);
   const [session, setSession] = useState<any>(null);
-  const { tokens, userBalances, transactions, balanceChanges, isLoading: tokensLoading, error: tokensError, fetchAllTokens, fetchUserBalances, fetchUserTransactions, transferTokens, spendGenTokens, addTokens, getTokenDetails, setSelectedToken, getTokenBalance, hasEnoughTokens, getTokenSupply, getToken, getUserToken, getTokenBalanceById, getAllTokenTypes, getUserTokenBalance, claimAchievementReward, trackActivity } = useTokens();
+  const {
+    tokens,
+    userBalances,
+    transactions,
+    balanceChanges,
+    isLoading: tokensLoading,
+    error: tokensError,
+    fetchAllTokens,
+    fetchUserBalances,
+    fetchUserTransactions,
+    transferTokens,
+    spendGenTokens,
+    addTokens,
+    getTokenDetails,
+    setSelectedToken,
+    getTokenBalance,
+    hasEnoughTokens,
+    getTokenSupply,
+    getToken,
+    getUserToken,
+    getTokenBalanceById,
+    getAllTokenTypes,
+    getUserTokenBalance,
+    claimAchievementReward,
+    trackActivity,
+  } = useTokens();
 
   useEffect(() => {
     const fetchUserAndSession = async () => {
       try {
-        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+        const {
+          data: { user: currentUser },
+          error: userError,
+        } = await supabase.auth.getUser();
         setUser(currentUser ? { id: currentUser.id } : null);
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
         setSession(currentSession || null);
       } catch (err) {
         setUser(null);
@@ -78,9 +105,7 @@ export default function MainLayout({
     return (
       <div className="flex flex-col min-h-screen">
         <Header />
-        <main className="flex-1">
-          {children}
-        </main>
+        <main className="flex-1">{children}</main>
       </div>
     );
   }
@@ -103,10 +128,7 @@ export default function MainLayout({
             <DialogHeader>
               <DialogTitle>Welcome to Avolve</DialogTitle>
             </DialogHeader>
-            <DiscoveryTutorial 
-              onComplete={handleTutorialComplete} 
-              className="mt-4"
-            />
+            <DiscoveryTutorial onComplete={handleTutorialComplete} className="mt-4" />
             {!isFirstVisit && (
               <div className="flex justify-end mt-4">
                 <Button variant="outline" onClick={() => setShowDiscoveryTutorial(false)}>

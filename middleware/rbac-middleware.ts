@@ -3,10 +3,10 @@ import { createClient } from '@/lib/supabase/client';
 
 /**
  * Role-Based Access Control (RBAC) Middleware
- * 
+ *
  * This middleware checks if the user has the required roles or permissions
  * to access a protected route. If not, it redirects them to the unauthorized page.
- * 
+ *
  * @param req - The Next.js request object
  * @param options - Configuration options for the middleware
  * @returns NextResponse object
@@ -15,28 +15,25 @@ export type RouteProtection = {
   requiredRoles: string[];
   requiredPermissions: string[];
   unauthorizedRedirect?: string;
-}
+};
 
 export type Cookie = {
   name: string;
   value: string;
   options?: any;
-}
+};
 
 const defaultRouteProtection: RouteProtection = {
   requiredRoles: [],
   requiredPermissions: [],
-  unauthorizedRedirect: '/unauthorized'
-}
+  unauthorizedRedirect: '/unauthorized',
+};
 
-export async function rbacMiddleware(
-  req: NextRequest,
-  options: Partial<RouteProtection> = {}
-) {
+export async function rbacMiddleware(req: NextRequest, options: Partial<RouteProtection> = {}) {
   const {
     requiredRoles = defaultRouteProtection.requiredRoles,
     requiredPermissions = defaultRouteProtection.requiredPermissions,
-    unauthorizedRedirect = defaultRouteProtection.unauthorizedRedirect
+    unauthorizedRedirect = defaultRouteProtection.unauthorizedRedirect,
   } = options;
 
   // If no roles or permissions are required, allow access
@@ -51,7 +48,11 @@ export async function rbacMiddleware(
         return req.cookies.get(name)?.value;
       },
       set(name: string, value: string, options: any = {}) {
-        const { name: cookieName, value: cookieValue, ...cookieOptions } = { name, value, ...options };
+        const {
+          name: cookieName,
+          value: cookieValue,
+          ...cookieOptions
+        } = { name, value, ...options };
         req.cookies.set(cookieName, cookieValue);
       },
       remove(name: string) {
@@ -61,7 +62,9 @@ export async function rbacMiddleware(
   });
 
   // Get session
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
   // If no session, redirect to login
   if (!session) {
@@ -71,7 +74,9 @@ export async function rbacMiddleware(
   }
 
   // Get user
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     const loginUrl = new URL('/login', req.url);
@@ -91,7 +96,7 @@ export async function rbacMiddleware(
     for (const role of requiredRoles) {
       const { data } = await supabase.rpc('has_role', {
         p_user_id: user.id,
-        p_role_name: role
+        p_role_name: role,
       });
 
       if (data) {
@@ -113,11 +118,11 @@ export async function rbacMiddleware(
   if (requiredPermissions.length > 0) {
     for (const permission of requiredPermissions) {
       const [resource, action] = permission.split(':');
-      
+
       const { data } = await supabase.rpc('has_permission', {
         p_user_id: user.id,
         p_resource: resource,
-        p_action: action
+        p_action: action,
       });
 
       if (!data) {

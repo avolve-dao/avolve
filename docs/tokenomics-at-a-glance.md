@@ -14,18 +14,18 @@ Avolve is built around three value pillars:
 
 ### **Token Structure**
 
-| Pillar             | Token(s)      | Description                                  |
-|--------------------|---------------|----------------------------------------------|
-| Supercivilization  | GEN           | Top-level, ecosystem-wide token              |
-| Superachiever      | SAP           | Main individual token                        |
-|                    | PSP           | Personal Success Puzzle (Health, Wealth, Peace) |
-|                    | BSP           | Business Success Puzzle (Users, Admin, Profit) |
-|                    | SMS           | Supermind Superpowers (Vision, Planning, Execution) |
-| Superachievers     | SCQ           | Main collective token                        |
-|                    | SPD           | Superpuzzle Developments                     |
-|                    | SHE           | Superhuman Enhancements                      |
-|                    | SSA           | Supersociety Advancements                    |
-|                    | SBG           | Supergenius Breakthroughs                    |
+| Pillar            | Token(s) | Description                                         |
+| ----------------- | -------- | --------------------------------------------------- |
+| Supercivilization | GEN      | Top-level, ecosystem-wide token                     |
+| Superachiever     | SAP      | Main individual token                               |
+|                   | PSP      | Personal Success Puzzle (Health, Wealth, Peace)     |
+|                   | BSP      | Business Success Puzzle (Users, Admin, Profit)      |
+|                   | SMS      | Supermind Superpowers (Vision, Planning, Execution) |
+| Superachievers    | SCQ      | Main collective token                               |
+|                   | SPD      | Superpuzzle Developments                            |
+|                   | SHE      | Superhuman Enhancements                             |
+|                   | SSA      | Supersociety Advancements                           |
+|                   | SBG      | Supergenius Breakthroughs                           |
 
 ---
 

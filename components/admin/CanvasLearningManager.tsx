@@ -2,9 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '../../lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormItem, FormLabel, FormControl, FormMessage, FormDescription, FormField } from '@/components/ui/form';
+import {
+  Form,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+  FormDescription,
+  FormField,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 
@@ -80,18 +94,16 @@ const CanvasLearningManager: React.FC<{ onCreated?: () => void }> = ({ onCreated
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Experiment</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={val => field.onChange(val)}
-                    required
-                  >
+                  <Select value={field.value} onValueChange={val => field.onChange(val)} required>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Experiment" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">-- Select Experiment --</SelectItem>
                       {experiments.map(exp => (
-                        <SelectItem key={exp.id} value={exp.id}>{exp.title}</SelectItem>
+                        <SelectItem key={exp.id} value={exp.id}>
+                          {exp.title}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -121,7 +133,9 @@ const CanvasLearningManager: React.FC<{ onCreated?: () => void }> = ({ onCreated
                   <FormControl>
                     <Textarea {...field} />
                   </FormControl>
-                  <FormDescription>Optional: Add more detail about the learning/insight.</FormDescription>
+                  <FormDescription>
+                    Optional: Add more detail about the learning/insight.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

@@ -1,20 +1,20 @@
 /**
  * Network API Client
- * 
+ *
  * This client handles interactions with the physical network system of the Avolve platform,
  * including physical nodes, memberships, funding, and census tracking.
  */
 
 import { ApiClient } from './client';
-import type { 
-  PhysicalNode, 
-  NodeMembership, 
-  NodeFunding, 
+import type {
+  PhysicalNode,
+  NodeMembership,
+  NodeFunding,
   NetworkCensus,
   NodeType,
   NodeStatus,
   MembershipType,
-  MembershipStatus
+  MembershipStatus,
 } from '../types/database.types';
 
 export class NetworkApi extends ApiClient {
@@ -28,11 +28,11 @@ export class NetworkApi extends ApiClient {
       .from('physical_nodes')
       .select('*')
       .order('created_at', { ascending: false });
-    
+
     if (status) {
       query = query.eq('status', status);
     }
-    
+
     const { data, error } = await query;
     this.handleError(error);
     return data || [];
@@ -49,7 +49,7 @@ export class NetworkApi extends ApiClient {
       .select('*')
       .eq('id', nodeId)
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -59,13 +59,11 @@ export class NetworkApi extends ApiClient {
    * @param node The node data to create
    * @returns The created node
    */
-  async createPhysicalNode(node: Omit<PhysicalNode, 'id' | 'created_at' | 'updated_at'>): Promise<PhysicalNode> {
-    const { data, error } = await this.client
-      .from('physical_nodes')
-      .insert(node)
-      .select()
-      .single();
-    
+  async createPhysicalNode(
+    node: Omit<PhysicalNode, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<PhysicalNode> {
+    const { data, error } = await this.client.from('physical_nodes').insert(node).select().single();
+
     this.handleError(error);
     return data;
   }
@@ -77,7 +75,7 @@ export class NetworkApi extends ApiClient {
    * @returns The updated node
    */
   async updatePhysicalNode(
-    nodeId: string, 
+    nodeId: string,
     updates: Partial<Omit<PhysicalNode, 'id' | 'created_at' | 'updated_at'>>
   ): Promise<PhysicalNode> {
     const { data, error } = await this.client
@@ -86,7 +84,7 @@ export class NetworkApi extends ApiClient {
       .eq('id', nodeId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -103,11 +101,11 @@ export class NetworkApi extends ApiClient {
       .select('*')
       .eq('node_id', nodeId)
       .order('created_at', { ascending: false });
-    
+
     if (status) {
       query = query.eq('status', status);
     }
-    
+
     const { data, error } = await query;
     this.handleError(error);
     return data || [];
@@ -122,17 +120,19 @@ export class NetworkApi extends ApiClient {
   async getUserMemberships(userId: string, status?: MembershipStatus): Promise<NodeMembership[]> {
     let query = this.client
       .from('node_memberships')
-      .select(`
+      .select(
+        `
         *,
         node:node_id(*)
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    
+
     if (status) {
       query = query.eq('status', status);
     }
-    
+
     const { data, error } = await query;
     this.handleError(error);
     return data || [];
@@ -151,7 +151,7 @@ export class NetworkApi extends ApiClient {
       .insert(membership)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -163,7 +163,7 @@ export class NetworkApi extends ApiClient {
    * @returns The updated membership
    */
   async updateNodeMembership(
-    membershipId: string, 
+    membershipId: string,
     updates: Partial<Omit<NodeMembership, 'id' | 'created_at' | 'updated_at'>>
   ): Promise<NodeMembership> {
     const { data, error } = await this.client
@@ -172,7 +172,7 @@ export class NetworkApi extends ApiClient {
       .eq('id', membershipId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -188,7 +188,7 @@ export class NetworkApi extends ApiClient {
       .select('*')
       .eq('node_id', nodeId)
       .order('created_at', { ascending: false });
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -206,7 +206,7 @@ export class NetworkApi extends ApiClient {
       .insert(funding)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -218,7 +218,7 @@ export class NetworkApi extends ApiClient {
    * @returns The updated funding record
    */
   async updateNodeFunding(
-    fundingId: string, 
+    fundingId: string,
     updates: Partial<Omit<NodeFunding, 'id' | 'created_at' | 'updated_at'>>
   ): Promise<NodeFunding> {
     const { data, error } = await this.client
@@ -227,7 +227,7 @@ export class NetworkApi extends ApiClient {
       .eq('id', fundingId)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -243,7 +243,7 @@ export class NetworkApi extends ApiClient {
       .order('census_date', { ascending: false })
       .limit(1)
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -259,7 +259,7 @@ export class NetworkApi extends ApiClient {
       .select('*')
       .order('census_date', { ascending: false })
       .limit(limit);
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -277,7 +277,7 @@ export class NetworkApi extends ApiClient {
       .insert(census)
       .select()
       .single();
-    
+
     this.handleError(error);
     return data;
   }
@@ -289,27 +289,21 @@ export class NetworkApi extends ApiClient {
    * @param city Optional city filter
    * @returns Array of physical nodes matching the geographic criteria
    */
-  async getNodesByRegion(
-    country?: string, 
-    state?: string, 
-    city?: string
-  ): Promise<PhysicalNode[]> {
-    let query = this.client
-      .from('physical_nodes')
-      .select('*');
-    
+  async getNodesByRegion(country?: string, state?: string, city?: string): Promise<PhysicalNode[]> {
+    let query = this.client.from('physical_nodes').select('*');
+
     if (country) {
       query = query.eq('country', country);
     }
-    
+
     if (state) {
       query = query.eq('state_province', state);
     }
-    
+
     if (city) {
       query = query.eq('city', city);
     }
-    
+
     const { data, error } = await query;
     this.handleError(error);
     return data || [];
@@ -325,7 +319,7 @@ export class NetworkApi extends ApiClient {
       .from('physical_nodes')
       .select('*')
       .eq('node_type', nodeType);
-    
+
     this.handleError(error);
     return data || [];
   }
@@ -344,36 +338,39 @@ export class NetworkApi extends ApiClient {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - months);
-    
+
     const { data: censusData, error: censusError } = await this.client
       .from('network_census')
       .select('*')
       .gte('census_date', startDate.toISOString())
       .lte('census_date', endDate.toISOString())
       .order('census_date', { ascending: true });
-    
+
     this.handleError(censusError);
-    
+
     // Transform census data into growth metrics
-    const nodeGrowth = censusData?.map((census: { census_date: string; total_nodes: number }) => ({
-      date: census.census_date,
-      count: census.total_nodes
-    })) || [];
-    
-    const memberGrowth = censusData?.map((census: { census_date: string; total_members: number }) => ({
-      date: census.census_date,
-      count: census.total_members
-    })) || [];
-    
-    const fundingGrowth = censusData?.map((census: { census_date: string; total_funding: number }) => ({
-      date: census.census_date,
-      amount: census.total_funding
-    })) || [];
-    
+    const nodeGrowth =
+      censusData?.map((census: { census_date: string; total_nodes: number }) => ({
+        date: census.census_date,
+        count: census.total_nodes,
+      })) || [];
+
+    const memberGrowth =
+      censusData?.map((census: { census_date: string; total_members: number }) => ({
+        date: census.census_date,
+        count: census.total_members,
+      })) || [];
+
+    const fundingGrowth =
+      censusData?.map((census: { census_date: string; total_funding: number }) => ({
+        date: census.census_date,
+        amount: census.total_funding,
+      })) || [];
+
     return {
       nodeGrowth,
       memberGrowth,
-      fundingGrowth
+      fundingGrowth,
     };
   }
 }

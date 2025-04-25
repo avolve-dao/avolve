@@ -10,7 +10,9 @@ export async function GET(request: Request) {
   // const service = new TokenService(supabase);
   // const result = await service.getCommunityMilestoneById(id);
   // Placeholder: respond with a test message
-  return NextResponse.json({ message: 'GET handler reached. Context param removed for build test.' });
+  return NextResponse.json({
+    message: 'GET handler reached. Context param removed for build test.',
+  });
 }
 
 export async function PATCH(request: Request) {
@@ -21,5 +23,7 @@ export async function PATCH(request: Request) {
   // const updates = await request.json();
   // const result = await service.updateCommunityMilestone(id, updates);
   // Placeholder: respond with a test message
-  return NextResponse.json({ message: 'PATCH handler reached. Context param removed for build test.' });
+  return NextResponse.json({
+    message: 'PATCH handler reached. Context param removed for build test.',
+  });
 }

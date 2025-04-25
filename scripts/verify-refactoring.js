@@ -1,9 +1,9 @@
 /**
  * Avolve Refactoring Verification
- * 
+ *
  * This script verifies that all refactored components are working correctly.
  * It tests user profiles, token system, notifications, audit logs, and user settings.
- * 
+ *
  * Usage:
  * 1. Set the SUPABASE_ANON_KEY environment variable or pass it as an argument
  * 2. Run the script with: node scripts/verify-refactoring.js [SUPABASE_ANON_KEY]
@@ -21,7 +21,9 @@ const ORGANIZATION_ID = 'vercel_icfg_D0rjqr9um8t994YH9IDUTQnu';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.argv[2];
 
 if (!supabaseAnonKey) {
-  console.error('Error: SUPABASE_ANON_KEY environment variable or command line argument is required');
+  console.error(
+    'Error: SUPABASE_ANON_KEY environment variable or command line argument is required'
+  );
   console.error('Usage: SUPABASE_ANON_KEY=your_key node scripts/verify-refactoring.js');
   console.error('   or: node scripts/verify-refactoring.js your_key');
   process.exit(1);
@@ -37,7 +39,7 @@ const testResults = {
   passed: 0,
   failed: 0,
   skipped: 0,
-  total: 0
+  total: 0,
 };
 
 // Test utility functions
@@ -68,14 +70,16 @@ async function runTests() {
   console.log(`📊 Project ID: ${PROJECT_ID}`);
   console.log(`📊 Organization ID: ${ORGANIZATION_ID}`);
   console.log(`📊 Supabase URL: ${supabaseUrl}`);
-  
+
   let userId = null;
   let session = null;
-  
+
   try {
     // Test 1: Database Connection
     await runTest('Database Connection', async () => {
-      const { data, error } = await supabase.from('profiles').select('count(*)', { count: 'exact' });
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('count(*)', { count: 'exact' });
       if (error) throw error;
       console.log(`   Database has profiles: ${data}`);
     });
@@ -84,7 +88,7 @@ async function runTests() {
     await runTest('Authentication - Get Session', async () => {
       const { data, error } = await supabase.auth.getSession();
       if (error) throw error;
-      
+
       session = data.session;
       if (session) {
         userId = session.user.id;
@@ -101,12 +105,8 @@ async function runTests() {
 
     // Test 3: User Profiles
     await runTest('User Profiles - Get Profile', async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+
       if (error) throw error;
       console.log(`   Profile found: ${data.username || 'No username'}`);
     });
@@ -115,18 +115,18 @@ async function runTests() {
       const { data, error } = await supabase.rpc('update_user_profile', {
         p_user_id: userId,
         p_bio: `Updated bio from verification test at ${new Date().toISOString()}`,
-        p_status: 'active'
+        p_status: 'active',
       });
-      
+
       if (error) throw error;
       console.log('   Profile updated successfully');
     });
 
     await runTest('User Profiles - Update Last Active', async () => {
       const { data, error } = await supabase.rpc('update_user_last_active', {
-        p_user_id: userId
+        p_user_id: userId,
       });
-      
+
       if (error) throw error;
       console.log('   Last active timestamp updated successfully');
     });
@@ -137,9 +137,9 @@ async function runTests() {
         p_user_id: userId,
         p_theme: 'dark',
         p_preferences: { sidebar_collapsed: false },
-        p_notification_preferences: { email: true, push: false, in_app: true }
+        p_notification_preferences: { email: true, push: false, in_app: true },
       });
-      
+
       if (error) throw error;
       console.log('   User settings updated successfully');
     });
@@ -150,7 +150,7 @@ async function runTests() {
         .select('*')
         .eq('user_id', userId)
         .single();
-      
+
       if (error) throw error;
       console.log(`   User settings found: ${JSON.stringify(data.preferences)}`);
     });
@@ -161,29 +161,33 @@ async function runTests() {
         .from('token_balances')
         .select('*, tokens(*)')
         .eq('user_id', userId);
-      
+
       if (error) throw error;
       console.log(`   Found ${data.length} user tokens`);
-      
+
       // Store token data for later tests
       global.userTokens = data;
     });
 
     // Test 6: Notifications
     await runTest('Notifications - Create Notification', async () => {
-      const { data, error } = await supabase.from('notifications').insert({
-        user_id: userId,
-        type: 'verification_test',
-        title: 'Verification Test Notification',
-        message: `This is a test notification created at ${new Date().toISOString()}`,
-        is_read: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }).select().single();
-      
+      const { data, error } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: userId,
+          type: 'verification_test',
+          title: 'Verification Test Notification',
+          message: `This is a test notification created at ${new Date().toISOString()}`,
+          is_read: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
       if (error) throw error;
       console.log(`   Notification created: ${data.id}`);
-      
+
       // Store notification ID for later tests
       global.testNotificationId = data.id;
     });
@@ -194,7 +198,7 @@ async function runTests() {
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       console.log(`   Found ${data.length} notifications`);
     });
@@ -207,7 +211,7 @@ async function runTests() {
           .eq('id', global.testNotificationId)
           .select()
           .single();
-        
+
         if (error) throw error;
         console.log('   Notification marked as read successfully');
       });
@@ -215,15 +219,19 @@ async function runTests() {
 
     // Test 7: Audit Logs
     await runTest('Audit Logs - Create Audit Log', async () => {
-      const { data, error } = await supabase.from('audit_logs').insert({
-        user_id: userId,
-        action: 'verification_test',
-        entity_type: 'test',
-        entity_id: `test-${Date.now()}`,
-        metadata: { test: true, timestamp: new Date().toISOString() },
-        created_at: new Date().toISOString()
-      }).select().single();
-      
+      const { data, error } = await supabase
+        .from('audit_logs')
+        .insert({
+          user_id: userId,
+          action: 'verification_test',
+          entity_type: 'test',
+          entity_id: `test-${Date.now()}`,
+          metadata: { test: true, timestamp: new Date().toISOString() },
+          created_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
       if (error) throw error;
       console.log(`   Audit log created: ${data.id}`);
     });
@@ -235,7 +243,7 @@ async function runTests() {
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(10);
-      
+
       if (error) throw error;
       console.log(`   Found ${data.length} audit logs`);
     });
@@ -248,11 +256,11 @@ async function runTests() {
         .select('id')
         .neq('id', userId)
         .limit(1);
-      
+
       if (!otherUsersError && otherUsers && otherUsers.length > 0) {
         const otherUserId = otherUsers[0].id;
         const userToken = global.userTokens[0];
-        
+
         // Check if user has enough tokens to transfer
         if (userToken.balance >= 1) {
           await runTest('Token System - Transfer Tokens', async () => {
@@ -260,22 +268,27 @@ async function runTests() {
               p_from_user_id: userId,
               p_to_user_id: otherUserId,
               p_token_id: userToken.token_id,
-              p_amount: 1
+              p_amount: 1,
             });
-            
+
             if (error) throw error;
             console.log(`   Token transfer successful: ${JSON.stringify(data)}`);
           });
         } else {
-          await skipTest('Token System - Transfer Tokens', 'Insufficient balance for transfer test');
+          await skipTest(
+            'Token System - Transfer Tokens',
+            'Insufficient balance for transfer test'
+          );
         }
       } else {
-        await skipTest('Token System - Transfer Tokens', 'No other users available for transfer test');
+        await skipTest(
+          'Token System - Transfer Tokens',
+          'No other users available for transfer test'
+        );
       }
     } else {
       await skipTest('Token System - Transfer Tokens', 'No tokens available for transfer test');
     }
-
   } catch (error) {
     console.error('❌ Unexpected error during tests:', error);
   } finally {
@@ -285,7 +298,7 @@ async function runTests() {
     console.log(`   Passed: ${testResults.passed}`);
     console.log(`   Failed: ${testResults.failed}`);
     console.log(`   Skipped: ${testResults.skipped}`);
-    
+
     if (testResults.failed > 0) {
       console.log('\n❌ Some tests failed. Please check the logs for details.');
       process.exit(1);

@@ -1,188 +1,412 @@
-"use client";
+'use client';
 
-// Minimal placeholder page for future implementation
-import DashboardTour from '../../../components/DashboardTour';
-import Tooltip from '../../../components/Tooltip';
-import ThankPeerModal from '../../components/ThankPeerModal';
-import ConfirmDialog from '../../components/ConfirmDialog';
-import Toast from '../../components/Toast';
-import { useEffect, useState, useRef } from 'react';
-import { createClientComponentClient, User } from '@supabase/auth-helpers-nextjs';
-import { realtimeClient } from '../../lib/supabase/realtimeClient';
+import { useEffect, useState } from 'react';
+import { useSupabase } from '@/lib/supabase/use-supabase';
+import DashboardTour from '@/components/DashboardTour';
+import Tooltip from '@/components/Tooltip';
+import { RecognitionForm } from '@/components/recognition/RecognitionForm';
+import RecognitionFeed from '@/components/recognition/RecognitionFeed';
+import { useToast } from '@/components/ui/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Award,
+  Bell,
+  Heart,
+  LineChart,
+  MessageSquare,
+  Plus,
+  ThumbsUp,
+  Trophy,
+  Users,
+  Info
+} from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+import ThankPeerModal from '@/app/components/ThankPeerModal';
 
-function PeerRecognitionFeed({ key }: { key: number }) {
-  const [recognitions, setRecognitions] = useState<any[]>([]);
-  const [profiles, setProfiles] = useState<Record<string, { full_name: string; avatar_url?: string }>>({});
-  const [loading, setLoading] = useState(true);
-  const subscriptionRef = useRef<any>(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [toDeleteId, setToDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [error, setError] = useState("");
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ open: boolean; message: string; type?: 'success' | 'error' } | null>(null);
-
-  useEffect(() => {
-    // Get current user id
-    const supabase = createClientComponentClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setCurrentUserId(data?.user?.id || null);
-    });
-  }, []);
-
-  const handleDelete = (id: string) => {
-    setToDeleteId(id);
-    setConfirmOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (!toDeleteId) return;
-    setDeleting(true);
-    setError("");
-    try {
-      const res = await fetch('/api/peer-recognition', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: toDeleteId }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || 'Failed to delete recognition.');
-        setToast({ open: true, message: data.error || 'Failed to delete recognition.', type: 'error' });
-      } else {
-        setToast({ open: true, message: 'Recognition deleted.', type: 'success' });
-      }
-    } catch {
-      setError('Unexpected error.');
-      setToast({ open: true, message: 'Unexpected error.', type: 'error' });
-    }
-    setDeleting(false);
-    setConfirmOpen(false);
-    setToDeleteId(null);
-  };
-
-  useEffect(() => {
-    async function fetchAll() {
-      setLoading(true);
-      const [recRes, profRes] = await Promise.all([
-        fetch('/api/peer-recognition'),
-        fetch('/api/user/profiles'),
-      ]);
-      const recData = await recRes.json();
-      const profData = await profRes.json();
-      setRecognitions(recData.recognitions || []);
-      const profileMap: Record<string, { full_name: string; avatar_url?: string }> = {};
-      (profData.profiles || []).forEach((p: any) => {
-        profileMap[p.id] = { full_name: p.full_name || 'Unknown', avatar_url: p.avatar_url };
-      });
-      setProfiles(profileMap);
-      setLoading(false);
-    }
-    fetchAll();
-
-    // Subscribe to realtime peer_recognition inserts and deletes
-    if (subscriptionRef.current) {
-      subscriptionRef.current.unsubscribe();
-    }
-    subscriptionRef.current = realtimeClient
-      .channel('public:peer_recognition')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'peer_recognition' }, (_payload: any) => {
-        fetchAll();
-      })
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'peer_recognition' }, (_payload: any) => {
-        fetchAll();
-      })
-      .subscribe();
-    return () => {
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
-      }
-    };
-  }, [key]);
-
-  if (loading) return <div className="text-gray-500">Loading recognitions...</div>;
-  if (!recognitions.length) return <div className="text-gray-400">No recognitions yet. Start by thanking a peer!</div>;
-  return (
-    <div className="space-y-3 mt-6">
-      <h2 className="text-lg font-semibold mb-2 flex items-center gap-2">
-        Recent Recognitions
-        <Tooltip label="This feed updates in real-time. Recognize your peers to help build a culture of gratitude and collaboration!">
-          <span className="ml-1" aria-label="Info" tabIndex={0} role="img">ℹ️</span>
-        </Tooltip>
-      </h2>
-      {recognitions.map((rec) => (
-        <div
-          key={rec.id}
-          className="bg-white rounded shadow p-3 flex items-center gap-3 group relative animate-fade-in-fast transition-all duration-300"
-          tabIndex={0}
-          aria-label={`Recognition from ${profiles[rec.sender_id]?.full_name || rec.sender_id} to ${profiles[rec.recipient_id]?.full_name || rec.recipient_id}: ${rec.message}`}
-        >
-          <span className="text-blue-600 font-bold" aria-hidden="true">{rec.badge ? `🏅 ${rec.badge}` : '👏'}</span>
-          {profiles[rec.sender_id]?.avatar_url && (
-            <img src={profiles[rec.sender_id].avatar_url} alt={profiles[rec.sender_id].full_name} className="w-7 h-7 rounded-full" />
-          )}
-          <span className="font-semibold">{profiles[rec.sender_id]?.full_name || rec.sender_id}</span>
-          <span>thanked</span>
-          {profiles[rec.recipient_id]?.avatar_url && (
-            <img src={profiles[rec.recipient_id].avatar_url} alt={profiles[rec.recipient_id].full_name} className="w-7 h-7 rounded-full" />
-          )}
-          <span className="font-semibold">{profiles[rec.recipient_id]?.full_name || rec.recipient_id}</span>
-          <span>: {rec.message}</span>
-          <span className="ml-auto text-xs text-gray-400">{new Date(rec.created_at).toLocaleString()}</span>
-          {/* Only show delete button if current user is sender */}
-          {currentUserId === rec.sender_id && (
-            <button
-              className="ml-2 opacity-0 group-hover:opacity-100 transition text-red-500 hover:text-red-700 focus:opacity-100 focus:outline-none"
-              aria-label="Delete recognition"
-              onClick={() => handleDelete(rec.id)}
-              tabIndex={0}
-            >
-              🗑️
-            </button>
-          )}
-        </div>
-      ))}
-      <ConfirmDialog
-        open={confirmOpen}
-        title="Delete Recognition?"
-        message="Are you sure you want to delete this recognition? This cannot be undone."
-        onConfirm={confirmDelete}
-        onCancel={() => { setConfirmOpen(false); setToDeleteId(null); }}
-        loading={deleting}
-      />
-      {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-      <Toast
-        open={!!toast?.open}
-        message={toast?.message || ''}
-        type={toast?.type}
-        onClose={() => setToast(null)}
-      />
-    </div>
-  );
-}
-
-export default function PlaceholderPage() {
+/**
+ * Dashboard Page
+ *
+ * Main hub for users to view their progress, interact with peers,
+ * and access key platform features.
+ */
+export default function DashboardPage() {
+  const { user } = useSupabase();
+  const { toast } = useToast();
   const [modalOpen, setModalOpen] = useState(false);
-  const [feedKey, setFeedKey] = useState(0); // for refreshing feed
+  const [showTour, setShowTour] = useState(false);
+  const [userStats, setUserStats] = useState<{
+    tokens: { [key: string]: number };
+    recognitionsSent: number;
+    recognitionsReceived: number;
+    milestones: number;
+    lastActive: string | null;
+  }>({
+    tokens: {},
+    recognitionsSent: 0,
+    recognitionsReceived: 0,
+    milestones: 0,
+    lastActive: null,
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Check if this is the user's first visit
+  useEffect(() => {
+    const isFirstVisit = localStorage.getItem('avolve_dashboard_visited') === null;
+    if (isFirstVisit && user) {
+      localStorage.setItem('avolve_dashboard_visited', 'true');
+      setShowTour(true);
+    }
+  }, [user]);
+
+  // Fetch user stats
+  useEffect(() => {
+    if (!user) return;
+
+    async function fetchUserStats() {
+      try {
+        const response = await fetch('/api/user/dashboard-stats');
+        const data = await response.json();
+
+        if (data.error) {
+          console.error('Error fetching user stats:', data.error);
+          return;
+        }
+
+        setUserStats({
+          tokens: data.tokens || {},
+          recognitionsSent: data.recognitionsSent || 0,
+          recognitionsReceived: data.recognitionsReceived || 0,
+          milestones: data.milestones || 0,
+          lastActive: data.lastActive,
+        });
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUserStats();
+  }, [user]);
+
+  // Handle recognition sent
+  const handleRecognitionSent = () => {
+    setModalOpen(false);
+    toast({
+      title: 'Recognition Sent!',
+      description: 'Your peer will be notified of your appreciation.',
+      variant: 'default',
+    });
+
+    // Update local stats
+    setUserStats(prev => ({
+      ...prev,
+      recognitionsSent: prev.recognitionsSent + 1,
+    }));
+  };
+
+  // Token display component
+  const TokenDisplay = ({ type, amount }: { type: string; amount: number }) => {
+    const tokenColors: Record<string, { bg: string; text: string; icon: React.ReactNode }> = {
+      GEN: {
+        bg: 'bg-zinc-100',
+        text: 'text-zinc-800',
+        icon: <Trophy className="h-4 w-4" />,
+      },
+      SAP: {
+        bg: 'bg-stone-100',
+        text: 'text-stone-800',
+        icon: <Award className="h-4 w-4" />,
+      },
+      SCQ: {
+        bg: 'bg-slate-100',
+        text: 'text-slate-800',
+        icon: <Users className="h-4 w-4" />,
+      },
+      PSP: {
+        bg: 'bg-amber-100',
+        text: 'text-amber-800',
+        icon: <ThumbsUp className="h-4 w-4" />,
+      },
+      BSP: {
+        bg: 'bg-cyan-100',
+        text: 'text-cyan-800',
+        icon: <LineChart className="h-4 w-4" />,
+      },
+      SPD: {
+        bg: 'bg-blue-100',
+        text: 'text-blue-800',
+        icon: <MessageSquare className="h-4 w-4" />,
+      },
+      SHE: {
+        bg: 'bg-rose-100',
+        text: 'text-rose-800',
+        icon: <Heart className="h-4 w-4" />,
+      },
+    };
+
+    const { bg, text, icon } = tokenColors[type] || {
+      bg: 'bg-gray-100',
+      text: 'text-gray-800',
+      icon: <Bell className="h-4 w-4" />,
+    };
+
+    return (
+      <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${bg} ${text}`}>
+        {icon}
+        <span className="text-sm font-medium">
+          {amount} {type}
+        </span>
+      </div>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6 max-w-7xl mx-auto">
+        <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-8"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <div className="h-96 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+          <div>
+            <div className="h-64 bg-gray-200 rounded animate-pulse mb-6"></div>
+            <div className="h-28 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
-      <DashboardTour />
-      <div className="flex items-center gap-2 mb-4">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <Tooltip label="This is your main hub for tracking progress, recognizing peers, and accessing analytics.">{null}</Tooltip>
+    <div className="p-4 md:p-6 space-y-6 max-w-7xl mx-auto">
+      {/* Welcome Banner */}
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg p-6 text-white mb-8 shadow-md">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold mb-2">Welcome to Avolve</h1>
+            <p className="text-indigo-100">
+              Your journey to building a supercivilization starts here. Track your progress, connect with peers, and unlock new features.
+            </p>
+          </div>
+          <Button 
+            variant="secondary" 
+            className="whitespace-nowrap"
+            onClick={() => setShowTour(true)}
+          >
+            <Info className="mr-2 h-4 w-4" />
+            Take Tour
+          </Button>
+        </div>
       </div>
-      <div className="mb-6 flex items-center gap-2">
-        <button
-          className="py-2 px-4 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition font-semibold"
-          onClick={() => setModalOpen(true)}
-        >
-          Thank a Peer
-        </button>
-        <Tooltip label="Show appreciation to a peer by sending them recognition. This boosts morale and builds community!">{null}</Tooltip>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Tokens Earned</p>
+                <h3 className="text-2xl font-bold mt-1">
+                  {Object.values(userStats.tokens).reduce((sum, val) => sum + val, 0)}
+                </h3>
+              </div>
+              <div className="p-2 bg-blue-100 rounded-full text-blue-600">
+                <Trophy className="h-5 w-5" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Recognitions Received</p>
+                <h3 className="text-2xl font-bold mt-1">{userStats.recognitionsReceived}</h3>
+              </div>
+              <div className="p-2 bg-green-100 rounded-full text-green-600">
+                <Award className="h-5 w-5" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Recognitions Sent</p>
+                <h3 className="text-2xl font-bold mt-1">{userStats.recognitionsSent}</h3>
+              </div>
+              <div className="p-2 bg-amber-100 rounded-full text-amber-600">
+                <ThumbsUp className="h-5 w-5" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Milestones</p>
+                <h3 className="text-2xl font-bold mt-1">{userStats.milestones}</h3>
+              </div>
+              <div className="p-2 bg-purple-100 rounded-full text-purple-600">
+                <LayersIcon className="h-5 w-5" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-      <ThankPeerModal open={modalOpen} onClose={() => setModalOpen(false)} onSuccess={() => setFeedKey(k => k + 1)} />
-      <PeerRecognitionFeed key={feedKey} />
-      <div className="text-gray-600">Coming soon: analytics, recognitions, and more ways to engage!</div>
+
+      {/* Token Overview */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Your Tokens</h2>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(userStats.tokens).map(([type, amount]) => (
+            <TokenDisplay key={type} type={type} amount={amount} />
+          ))}
+        </div>
+      </div>
+
+      {/* Next Actions */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Next Actions</CardTitle>
+          <CardDescription>Complete these to progress on your journey</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-3">
+            <li className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                Completed
+              </Badge>
+              <span>Create your profile</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                In Progress
+              </Badge>
+              <span>Earn 10 SAP tokens</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                In Progress
+              </Badge>
+              <span>Reach phase 2</span>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="feed" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="feed">Recognition Feed</TabsTrigger>
+          <TabsTrigger value="personal">Personal Progress</TabsTrigger>
+          <TabsTrigger value="community">Community</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="feed" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <RecognitionFeed />
+            </div>
+
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Send Recognition</CardTitle>
+                  <CardDescription>
+                    Appreciate someone who helped you or did great work
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {user ? (
+                    <RecognitionForm recipientId="" onRecognitionSent={handleRecognitionSent} />
+                  ) : (
+                    <p className="text-muted-foreground">Please sign in to send recognition</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Contributors</CardTitle>
+                  <CardDescription>Most active community members</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    <li className="flex items-center justify-between">
+                      <span>Alex Thompson</span>
+                      <Badge>23 recognitions</Badge>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Jamie Rivera</span>
+                      <Badge>19 recognitions</Badge>
+                    </li>
+                    <li className="flex items-center justify-between">
+                      <span>Sam Wilson</span>
+                      <Badge>15 recognitions</Badge>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="personal">
+          <Card>
+            <CardHeader>
+              <CardTitle>Personal Progress</CardTitle>
+              <CardDescription>Track your journey and achievements</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Your personal progress dashboard is coming soon! Here you'll be able to track your
+                achievements, token earnings, and journey through the platform.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="community">
+          <Card>
+            <CardHeader>
+              <CardTitle>Community Progress</CardTitle>
+              <CardDescription>See how the community is growing together</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                The community dashboard is coming soon! Here you'll be able to see collective
+                milestones, community challenges, and how everyone is contributing to building the
+                supercivilization.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Thank Peer Modal */}
+      <ThankPeerModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={handleRecognitionSent}
+      />
+      
+      {/* Dashboard Tour */}
+      {showTour && (
+        <DashboardTour 
+          onComplete={() => setShowTour(false)}
+          onSkip={() => setShowTour(false)}
+        />
+      )}
     </div>
   );
 }

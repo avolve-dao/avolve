@@ -18,7 +18,7 @@ const filesToFix = [
   'hooks/useOnboarding.ts',
   'hooks/useSuperpuzzles.ts',
   'hooks/useSubscription.ts',
-  'hooks/useTeams.ts'
+  'hooks/useTeams.ts',
 ];
 
 // Root directory of the project
@@ -27,11 +27,11 @@ const rootDir = path.resolve(__dirname, '..');
 // Add "use client" directive to each file
 filesToFix.forEach(filePath => {
   const fullPath = path.join(rootDir, filePath);
-  
+
   try {
     if (fs.existsSync(fullPath)) {
       let content = fs.readFileSync(fullPath, 'utf8');
-      
+
       // Only add the directive if it doesn't already exist
       if (!content.includes('"use client"') && !content.includes("'use client'")) {
         content = '"use client";\n\n' + content;

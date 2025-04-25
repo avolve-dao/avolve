@@ -1,6 +1,6 @@
 /**
  * Identity Dashboard Widget
- * 
+ *
  * Displays user's genius profile and achievements
  */
 
@@ -22,7 +22,10 @@ export function IdentityWidget() {
   const identityApi = useIdentityApi();
   const { user } = useUser();
   const [profile, setProfile] = useState<GeniusProfile | null>(null);
-  const [levelInfo, setLevelInfo] = useState<{ level: number; progress: number }>({ level: 1, progress: 0 });
+  const [levelInfo, setLevelInfo] = useState<{ level: number; progress: number }>({
+    level: 1,
+    progress: 0,
+  });
   const [levelDefinition, setLevelDefinition] = useState<any | null>(null);
   const [milestones, setMilestones] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +86,9 @@ export function IdentityWidget() {
         <div className="flex items-center space-x-4 mb-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={profile?.avatar_url || undefined} alt="Profile" />
-            <AvatarFallback className="text-lg">{profile?.genius_id?.substring(0, 2).toUpperCase() || '??'}</AvatarFallback>
+            <AvatarFallback className="text-lg">
+              {profile?.genius_id?.substring(0, 2).toUpperCase() || '??'}
+            </AvatarFallback>
           </Avatar>
           <div className="space-y-1">
             <h3 className="font-medium">{profile?.genius_id || 'User'}</h3>
@@ -98,7 +103,7 @@ export function IdentityWidget() {
             </div>
           </div>
         </div>
-        
+
         <div className="mb-4">
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">Progress to Level {levelInfo.level + 1}</span>
@@ -106,15 +111,17 @@ export function IdentityWidget() {
           </div>
           <Progress value={levelInfo.progress * 100} className="h-2" />
         </div>
-        
+
         <div>
           <h3 className="text-sm font-medium mb-2">Milestones</h3>
           {milestones.length === 0 ? (
             <div className="text-zinc-400">No milestones yet. Start your journey!</div>
           ) : (
             <ul className="list-disc pl-5">
-              {milestones.slice(0, 3).map((milestone) => (
-                <li key={milestone.id} className="text-sm text-zinc-700">{milestone.name}</li>
+              {milestones.slice(0, 3).map(milestone => (
+                <li key={milestone.id} className="text-sm text-zinc-700">
+                  {milestone.name}
+                </li>
               ))}
             </ul>
           )}

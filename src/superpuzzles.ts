@@ -88,13 +88,16 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export class SuperpuzzlesService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = supabaseAnonKey) {
+  constructor(
+    supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    supabaseKey: string = supabaseAnonKey
+  ) {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
   /**
    * Get all active superpuzzles
-   * 
+   *
    * @returns List of active superpuzzles
    */
   async getActiveSuperpuzzles(): Promise<{
@@ -104,12 +107,14 @@ export class SuperpuzzlesService {
   }> {
     try {
       // The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
-      throw new Error("The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
+      throw new Error(
+        "The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database."
+      );
     } catch (error) {
       console.error('Get active superpuzzles error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting superpuzzles'
+        error: error instanceof Error ? error.message : 'Unknown error getting superpuzzles',
       };
     }
   }
@@ -117,7 +122,7 @@ export class SuperpuzzlesService {
   /**
    * Get superpuzzles by day of the week
    * Filters superpuzzles based on their associated token's day
-   * 
+   *
    * @param dayIndex Day of the week (0 = Sunday, 1 = Monday, etc.)
    * @returns List of superpuzzles for the specified day
    */
@@ -128,19 +133,21 @@ export class SuperpuzzlesService {
   }> {
     try {
       // The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
-      throw new Error("The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
+      throw new Error(
+        "The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database."
+      );
     } catch (error) {
       console.error('Get superpuzzles by day error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting superpuzzles by day'
+        error: error instanceof Error ? error.message : 'Unknown error getting superpuzzles by day',
       };
     }
   }
 
   /**
    * Get a superpuzzle's details
-   * 
+   *
    * @param superpuzzleId Superpuzzle ID to get details for
    * @returns Superpuzzle details with team contributions
    */
@@ -151,25 +158,31 @@ export class SuperpuzzlesService {
   }> {
     try {
       // The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
-      throw new Error("The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
+      throw new Error(
+        "The 'superpuzzles' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database."
+      );
     } catch (error) {
       console.error('Get superpuzzle details error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting superpuzzle details'
+        error: error instanceof Error ? error.message : 'Unknown error getting superpuzzle details',
       };
     }
   }
 
   /**
    * Check if a user can contribute to a superpuzzle
-   * 
+   *
    * @param userId User ID to check eligibility for
    * @param teamId Team ID to contribute through
    * @param superpuzzleId Superpuzzle ID to contribute to
    * @returns Eligibility status and details
    */
-  async checkContributionEligibility(userId: string, teamId: string, superpuzzleId: string): Promise<{
+  async checkContributionEligibility(
+    userId: string,
+    teamId: string,
+    superpuzzleId: string
+  ): Promise<{
     success: boolean;
     data?: {
       isEligible: boolean;
@@ -181,20 +194,23 @@ export class SuperpuzzlesService {
       const { data, error } = await this.supabase.rpc('check_contribution_eligibility', {
         p_user_id: userId,
         p_team_id: teamId,
-        p_superpuzzle_id: superpuzzleId
+        p_superpuzzle_id: superpuzzleId,
       });
 
       if (error) throw error;
 
       return {
         success: true,
-        data
+        data,
       };
     } catch (error) {
       console.error('Check contribution eligibility error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error checking contribution eligibility'
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unknown error checking contribution eligibility',
       };
     }
   }
@@ -203,14 +219,19 @@ export class SuperpuzzlesService {
    * Contribute to a superpuzzle
    * - Awards SCQ tokens on completion
    * - Boosts Community Health metrics
-   * 
+   *
    * @param userId User ID contributing
    * @param teamId Team ID to contribute through
    * @param superpuzzleId Superpuzzle ID to contribute to
    * @param points Number of points to contribute
    * @returns Result of the contribution
    */
-  async contributeToSuperpuzzle(userId: string, teamId: string, superpuzzleId: string, points: number): Promise<{
+  async contributeToSuperpuzzle(
+    userId: string,
+    teamId: string,
+    superpuzzleId: string,
+    points: number
+  ): Promise<{
     success: boolean;
     data?: ContributionResult;
     error?: string;
@@ -220,7 +241,7 @@ export class SuperpuzzlesService {
         p_user_id: userId,
         p_team_id: teamId,
         p_superpuzzle_id: superpuzzleId,
-        p_points: points
+        p_points: points,
       });
 
       if (error) throw error;
@@ -228,26 +249,26 @@ export class SuperpuzzlesService {
       if (!data.success) {
         return {
           success: false,
-          error: data.message
+          error: data.message,
         };
       }
 
       return {
         success: true,
-        data
+        data,
       };
     } catch (error) {
       console.error('Contribute to superpuzzle error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error contributing to superpuzzle'
+        error: error instanceof Error ? error.message : 'Unknown error contributing to superpuzzle',
       };
     }
   }
 
   /**
    * Get a team's contributions to superpuzzles
-   * 
+   *
    * @param teamId Team ID to get contributions for
    * @returns List of the team's superpuzzle contributions
    */
@@ -275,31 +296,39 @@ export class SuperpuzzlesService {
           id: row.superpuzzles?.[0]?.id || '',
           name: row.superpuzzles?.[0]?.name || '',
           description: row.superpuzzles?.[0]?.description || '',
-          required_points: typeof row.superpuzzles?.[0]?.required_points === 'number' ? row.superpuzzles[0].required_points : 0,
+          required_points:
+            typeof row.superpuzzles?.[0]?.required_points === 'number'
+              ? row.superpuzzles[0].required_points
+              : 0,
           status: row.superpuzzles?.[0]?.status || '',
           token_id: row.superpuzzles?.[0]?.token_id || '',
-          tokens: (row.superpuzzles?.[0]?.tokens && Array.isArray(row.superpuzzles[0].tokens)) ? (row.superpuzzles[0].tokens[0] && !Array.isArray(row.superpuzzles[0].tokens[0]) ? row.superpuzzles[0].tokens[0] : { id: '', name: '', symbol: '', color: '' }) : (row.superpuzzles?.[0]?.tokens || { id: '', name: '', symbol: '', color: '' })
+          tokens:
+            row.superpuzzles?.[0]?.tokens && Array.isArray(row.superpuzzles[0].tokens)
+              ? row.superpuzzles[0].tokens[0] && !Array.isArray(row.superpuzzles[0].tokens[0])
+                ? row.superpuzzles[0].tokens[0]
+                : { id: '', name: '', symbol: '', color: '' }
+              : row.superpuzzles?.[0]?.tokens || { id: '', name: '', symbol: '', color: '' },
         },
         progress: typeof row.progress === 'number' ? row.progress : 0,
-        isCompleted: !!row.completed_at
+        isCompleted: !!row.completed_at,
       }));
 
       return {
         success: true,
-        data: mappedContributions
+        data: mappedContributions,
       };
     } catch (error) {
       console.error('Get team contributions error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown team contributions error'
+        error: error instanceof Error ? error.message : 'Unknown team contributions error',
       };
     }
   }
 
   /**
    * Get a user's contributions to superpuzzles
-   * 
+   *
    * @param userId User ID to get contributions for
    * @returns List of the user's superpuzzle contributions
    */
@@ -311,7 +340,8 @@ export class SuperpuzzlesService {
     try {
       const { data, error } = await this.supabase
         .from('contributions')
-        .select(`
+        .select(
+          `
           id,
           team_superpuzzle_id,
           points,
@@ -341,7 +371,8 @@ export class SuperpuzzlesService {
               )
             )
           )
-        `)
+        `
+        )
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
@@ -358,24 +389,27 @@ export class SuperpuzzlesService {
           teamName: contribution.team_superpuzzles?.[0]?.teams?.[0]?.name || '',
           superpuzzleId: contribution.team_superpuzzles?.[0]?.superpuzzle_id || '',
           superpuzzleName: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.name || '',
-          superpuzzleDescription: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.description || '',
-          tokenSymbol: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.tokens?.[0]?.symbol || '',
-          tokenColor: contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.tokens?.[0]?.color || '',
-          isCompleted: contribution.team_superpuzzles?.[0]?.completed_at !== null
-        }))
+          superpuzzleDescription:
+            contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.description || '',
+          tokenSymbol:
+            contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.tokens?.[0]?.symbol || '',
+          tokenColor:
+            contribution.team_superpuzzles?.[0]?.superpuzzles?.[0]?.tokens?.[0]?.color || '',
+          isCompleted: contribution.team_superpuzzles?.[0]?.completed_at !== null,
+        })),
       };
     } catch (error) {
       console.error('Get user contributions error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting user contributions'
+        error: error instanceof Error ? error.message : 'Unknown error getting user contributions',
       };
     }
   }
 
   /**
    * Check if a sub-token is eligible to be unlocked
-   * 
+   *
    * @param tokenSymbol Symbol of the token to check
    * @returns Eligibility status and details
    */
@@ -393,27 +427,30 @@ export class SuperpuzzlesService {
   }> {
     try {
       const { data, error } = await this.supabase.rpc('check_sub_token_unlock_eligibility', {
-        p_token_symbol: tokenSymbol
+        p_token_symbol: tokenSymbol,
       });
 
       if (error) throw error;
 
       return {
         success: true,
-        data
+        data,
       };
     } catch (error) {
       console.error('Check sub-token unlock eligibility error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error checking sub-token unlock eligibility'
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Unknown error checking sub-token unlock eligibility',
       };
     }
   }
 
   /**
    * Unlock a sub-token
-   * 
+   *
    * @param tokenSymbol Symbol of the token to unlock
    * @returns Result of the unlock operation
    */
@@ -424,20 +461,20 @@ export class SuperpuzzlesService {
   }> {
     try {
       const { data, error } = await this.supabase.rpc('unlock_sub_token', {
-        p_token_symbol: tokenSymbol
+        p_token_symbol: tokenSymbol,
       });
 
       if (error) throw error;
 
       return {
         success: data.success,
-        message: data.message
+        message: data.message,
       };
     } catch (error) {
       console.error('Unlock sub-token error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error unlocking sub-token'
+        error: error instanceof Error ? error.message : 'Unknown error unlocking sub-token',
       };
     }
   }

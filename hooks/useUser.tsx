@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../lib/supabase/client';
 import { User } from '@supabase/supabase-js';
 
 /**
@@ -9,7 +9,7 @@ import { User } from '@supabase/supabase-js';
  * This replaces the deprecated useUser hook from @supabase/auth-helpers-react
  */
 export const useUser = () => {
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -17,7 +17,9 @@ export const useUser = () => {
     // Get the initial session
     const getInitialSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         setUser(session?.user || null);
       } catch (error) {
         console.error('Error getting session:', error);
@@ -29,11 +31,11 @@ export const useUser = () => {
     getInitialSession();
 
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user || null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
 
     // Cleanup subscription on unmount
     return () => {

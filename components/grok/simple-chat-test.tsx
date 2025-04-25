@@ -1,16 +1,16 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { useState } from "react"
-import { useChat } from "ai/react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Bot, Send } from "lucide-react"
+import { useState } from 'react';
+import { useChat } from 'ai/react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Bot, Send } from 'lucide-react';
 
 export function SimpleChatTest() {
-  const [input, setInput] = useState("")
+  const [input, setInput] = useState('');
 
   const {
     messages,
@@ -18,17 +18,17 @@ export function SimpleChatTest() {
     handleSubmit,
     setInput: setChatInput,
   } = useChat({
-    api: "/api/chat-test",
-  })
+    api: '/api/chat-test',
+  });
 
   const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!input.trim() || isLoading) return
+    if (!input.trim() || isLoading) return;
 
-    setChatInput(input)
-    setInput("")
-  }
+    setChatInput(input);
+    setInput('');
+  };
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -45,11 +45,14 @@ export function SimpleChatTest() {
           </div>
         ) : (
           <div className="space-y-4">
-            {messages.map((message) => (
-              <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            {messages.map(message => (
+              <div
+                key={message.id}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
                 <div
                   className={`rounded-lg px-4 py-2 max-w-[80%] ${
-                    message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                    message.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'
                   }`}
                 >
                   {message.content}
@@ -63,7 +66,7 @@ export function SimpleChatTest() {
         <form onSubmit={handleSendMessage} className="flex w-full gap-2">
           <Input
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={e => setInput(e.target.value)}
             placeholder="Type a message..."
             disabled={isLoading}
             className="flex-1"
@@ -74,6 +77,5 @@ export function SimpleChatTest() {
         </form>
       </CardFooter>
     </Card>
-  )
+  );
 }
-

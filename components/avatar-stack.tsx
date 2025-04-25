@@ -1,8 +1,8 @@
-import { cn } from '@/lib/utils'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { cva, type VariantProps } from 'class-variance-authority'
-import * as React from 'react'
+import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from 'react';
 
 const avatarStackVariants = cva('flex -space-x-4 -space-y-4', {
   variants: {
@@ -14,13 +14,13 @@ const avatarStackVariants = cva('flex -space-x-4 -space-y-4', {
   defaultVariants: {
     orientation: 'vertical',
   },
-})
+});
 
 export interface AvatarStackProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof avatarStackVariants> {
-  avatars: { name: string; image: string }[]
-  maxAvatarsAmount?: number
+  avatars: { name: string; image: string }[];
+  maxAvatarsAmount?: number;
 }
 
 const AvatarStack = ({
@@ -30,8 +30,8 @@ const AvatarStack = ({
   maxAvatarsAmount = 3,
   ...props
 }: AvatarStackProps) => {
-  const shownAvatars = avatars.slice(0, maxAvatarsAmount)
-  const hiddenAvatars = avatars.slice(maxAvatarsAmount)
+  const shownAvatars = avatars.slice(0, maxAvatarsAmount);
+  const hiddenAvatars = avatars.slice(maxAvatarsAmount);
 
   return (
     <div
@@ -50,7 +50,7 @@ const AvatarStack = ({
               <AvatarFallback>
                 {name
                   ?.split(' ')
-                  ?.map((word) => word[0])
+                  ?.map(word => word[0])
                   ?.join('')
                   ?.toUpperCase()}
               </AvatarFallback>
@@ -77,8 +77,7 @@ const AvatarStack = ({
         </Tooltip>
       ) : null}
     </div>
-  )
-}
+  );
+};
 
-export { AvatarStack, avatarStackVariants }
-
+export { AvatarStack, avatarStackVariants };

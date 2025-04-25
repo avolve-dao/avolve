@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Home, 
-  Compass, 
-  MessageSquare, 
-  Bell, 
+import {
+  Home,
+  Compass,
+  MessageSquare,
+  Bell,
   Menu,
   X,
   ChevronRight,
@@ -19,9 +19,9 @@ import {
   Users,
   Award,
   Puzzle,
-  Coins
+  Coins,
 } from 'lucide-react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,7 +39,7 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Fetch user data
   useEffect(() => {
@@ -50,7 +50,7 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
         .select('*')
         .eq('user_id', userId)
         .single();
-      
+
       if (profile) {
         setUserProfile(profile);
       }
@@ -61,7 +61,7 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
         .select('*', { count: 'exact', head: true })
         .eq('recipient_id', userId)
         .eq('read', false);
-      
+
       setUnreadMessages(messageCount || 0);
 
       // Fetch unread notifications count
@@ -70,7 +70,7 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('read', false);
-      
+
       setUnreadNotifications(notificationCount || 0);
     }
 
@@ -85,7 +85,7 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
           event: '*',
           schema: 'public',
           table: 'messages',
-          filter: `recipient_id=eq.${userId}`
+          filter: `recipient_id=eq.${userId}`,
         },
         () => {
           fetchUserData();
@@ -101,7 +101,7 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
           event: '*',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${userId}`
+          filter: `user_id=eq.${userId}`,
         },
         () => {
           fetchUserData();
@@ -117,33 +117,33 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
 
   // Define main navigation items
   const mainNavItems = [
-    { 
-      icon: <Home className="h-6 w-6" />, 
-      label: 'Home', 
-      path: '/dashboard' 
+    {
+      icon: <Home className="h-6 w-6" />,
+      label: 'Home',
+      path: '/dashboard',
     },
-    { 
-      icon: <Compass className="h-6 w-6" />, 
-      label: 'Discover', 
-      path: '/dashboard/discover' 
+    {
+      icon: <Compass className="h-6 w-6" />,
+      label: 'Discover',
+      path: '/dashboard/discover',
     },
-    { 
-      icon: <MessageSquare className="h-6 w-6" />, 
-      label: 'Messages', 
+    {
+      icon: <MessageSquare className="h-6 w-6" />,
+      label: 'Messages',
       path: '/messages',
-      badge: unreadMessages > 0 ? unreadMessages : undefined
+      badge: unreadMessages > 0 ? unreadMessages : undefined,
     },
-    { 
-      icon: <Bell className="h-6 w-6" />, 
-      label: 'Notifications', 
+    {
+      icon: <Bell className="h-6 w-6" />,
+      label: 'Notifications',
       path: '/notifications',
-      badge: unreadNotifications > 0 ? unreadNotifications : undefined
+      badge: unreadNotifications > 0 ? unreadNotifications : undefined,
     },
-    { 
-      icon: <Menu className="h-6 w-6" />, 
-      label: 'Menu', 
-      action: () => setIsMenuOpen(true)
-    }
+    {
+      icon: <Menu className="h-6 w-6" />,
+      label: 'Menu',
+      action: () => setIsMenuOpen(true),
+    },
   ];
 
   // Define menu sections
@@ -151,58 +151,58 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
     journey: {
       title: 'Your Journey',
       items: [
-        { 
-          icon: <Layers className="h-5 w-5" />, 
-          label: 'Journey Map', 
-          path: '/dashboard/journey' 
+        {
+          icon: <Layers className="h-5 w-5" />,
+          label: 'Journey Map',
+          path: '/dashboard/journey',
         },
-        { 
-          icon: <Award className="h-5 w-5" />, 
-          label: 'Achievements', 
-          path: '/dashboard/achievements' 
+        {
+          icon: <Award className="h-5 w-5" />,
+          label: 'Achievements',
+          path: '/dashboard/achievements',
         },
-        { 
-          icon: <Coins className="h-5 w-5" />, 
-          label: 'Tokens', 
-          path: '/tokens' 
-        }
-      ]
+        {
+          icon: <Coins className="h-5 w-5" />,
+          label: 'Tokens',
+          path: '/tokens',
+        },
+      ],
     },
     community: {
       title: 'Community',
       items: [
-        { 
-          icon: <Users className="h-5 w-5" />, 
-          label: 'Teams', 
-          path: '/teams' 
+        {
+          icon: <Users className="h-5 w-5" />,
+          label: 'Teams',
+          path: '/teams',
         },
-        { 
-          icon: <Puzzle className="h-5 w-5" />, 
-          label: 'Superpuzzles', 
-          path: '/superpuzzles' 
-        }
-      ]
+        {
+          icon: <Puzzle className="h-5 w-5" />,
+          label: 'Superpuzzles',
+          path: '/superpuzzles',
+        },
+      ],
     },
     account: {
       title: 'Account',
       items: [
-        { 
-          icon: <User className="h-5 w-5" />, 
-          label: 'Profile', 
-          path: '/dashboard/profile' 
+        {
+          icon: <User className="h-5 w-5" />,
+          label: 'Profile',
+          path: '/dashboard/profile',
         },
-        { 
-          icon: <Settings className="h-5 w-5" />, 
-          label: 'Settings', 
-          path: '/settings' 
+        {
+          icon: <Settings className="h-5 w-5" />,
+          label: 'Settings',
+          path: '/settings',
         },
-        { 
-          icon: <LogOut className="h-5 w-5" />, 
-          label: 'Logout', 
-          path: '/auth/logout' 
-        }
-      ]
-    }
+        {
+          icon: <LogOut className="h-5 w-5" />,
+          label: 'Logout',
+          path: '/auth/logout',
+        },
+      ],
+    },
   };
 
   // Check if a path is active
@@ -261,17 +261,16 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3">
                     <AvatarImage src={userProfile?.avatar_url} />
-                    <AvatarFallback>
-                      {userProfile?.display_name?.charAt(0) || 'U'}
-                    </AvatarFallback>
+                    <AvatarFallback>{userProfile?.display_name?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
                   <div>
                     <h2 className="font-medium">
                       {userProfile?.display_name || userProfile?.full_name || 'User'}
                     </h2>
                     <p className="text-xs text-muted-foreground">
-                      {userProfile?.experience_phase?.charAt(0).toUpperCase() + 
-                       userProfile?.experience_phase?.slice(1) || 'Discovery'} Phase
+                      {userProfile?.experience_phase?.charAt(0).toUpperCase() +
+                        userProfile?.experience_phase?.slice(1) || 'Discovery'}{' '}
+                      Phase
                     </p>
                   </div>
                 </div>
@@ -297,29 +296,31 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
                       <ArrowLeft className="h-5 w-5 mr-2" />
                       Back to Menu
                     </button>
-                    
+
                     <h2 className="text-xl font-bold mb-4">
                       {menuSections[activeSection as keyof typeof menuSections].title}
                     </h2>
-                    
+
                     <div className="space-y-2">
-                      {menuSections[activeSection as keyof typeof menuSections].items.map((item, index) => (
-                        <button
-                          key={index}
-                          className={`flex items-center justify-between w-full p-4 rounded-md ${
-                            isActive(item.path) 
-                              ? 'bg-primary/10 text-primary' 
-                              : 'hover:bg-zinc-900'
-                          }`}
-                          onClick={() => handleNavigation(item)}
-                        >
-                          <div className="flex items-center">
-                            {item.icon}
-                            <span className="ml-3">{item.label}</span>
-                          </div>
-                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                        </button>
-                      ))}
+                      {menuSections[activeSection as keyof typeof menuSections].items.map(
+                        (item, index) => (
+                          <button
+                            key={index}
+                            className={`flex items-center justify-between w-full p-4 rounded-md ${
+                              isActive(item.path)
+                                ? 'bg-primary/10 text-primary'
+                                : 'hover:bg-zinc-900'
+                            }`}
+                            onClick={() => handleNavigation(item)}
+                          >
+                            <div className="flex items-center">
+                              {item.icon}
+                              <span className="ml-3">{item.label}</span>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                          </button>
+                        )
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -342,8 +343,8 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
                     <div>
                       <h2 className="text-lg font-bold mb-2">Quick Access</h2>
                       <div className="grid grid-cols-3 gap-2">
-                        <Link 
-                          href="/dashboard" 
+                        <Link
+                          href="/dashboard"
                           className="flex flex-col items-center justify-center p-4 rounded-md border border-zinc-800 hover:bg-zinc-900"
                           onClick={() => {
                             setIsMenuOpen(false);
@@ -353,8 +354,8 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
                           <Home className="h-6 w-6 mb-2" />
                           <span className="text-xs text-center">Dashboard</span>
                         </Link>
-                        <Link 
-                          href="/tokens" 
+                        <Link
+                          href="/tokens"
                           className="flex flex-col items-center justify-center p-4 rounded-md border border-zinc-800 hover:bg-zinc-900"
                           onClick={() => {
                             setIsMenuOpen(false);
@@ -364,8 +365,8 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
                           <Coins className="h-6 w-6 mb-2" />
                           <span className="text-xs text-center">Tokens</span>
                         </Link>
-                        <Link 
-                          href="/dashboard/journey" 
+                        <Link
+                          href="/dashboard/journey"
                           className="flex flex-col items-center justify-center p-4 rounded-md border border-zinc-800 hover:bg-zinc-900"
                           onClick={() => {
                             setIsMenuOpen(false);
@@ -387,7 +388,9 @@ export function TouchNavigation({ userId }: TouchNavigationProps) {
                         </div>
                         <div className="p-4 rounded-md border border-zinc-800">
                           <h3 className="text-sm text-muted-foreground">Achievements</h3>
-                          <p className="text-xl font-bold">{userProfile?.achievements_count || 0}</p>
+                          <p className="text-xl font-bold">
+                            {userProfile?.achievements_count || 0}
+                          </p>
                         </div>
                       </div>
                     </div>

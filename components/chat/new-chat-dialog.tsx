@@ -1,21 +1,27 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Search, Plus } from "lucide-react"
-import { messagingDb } from "@/lib/db-messaging"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Search, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 interface NewChatDialogProps {
-  userId: string
-  trigger?: React.ReactNode
+  userId: string;
+  trigger?: React.ReactNode;
 }
 
 interface User {
@@ -33,134 +39,124 @@ interface Chat {
 }
 
 export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
-  const [isGroup, setIsGroup] = useState(false)
-  const [groupName, setGroupName] = useState("")
-  const [creating, setCreating] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [isGroup, setIsGroup] = useState(false);
+  const [groupName, setGroupName] = useState('');
+  const [creating, setCreating] = useState(false);
 
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const loadUsers = async () => {
       try {
-        setLoading(true)
-        // Use the Supabase client directly since messagingDb doesn't have getSuggestedUsers
-        const supabase = messagingDb.getSupabaseClient()
+        setLoading(true);
+        const supabase = createClient();
         const { data, error } = await supabase
           .from('profiles')
           .select('id, username, full_name, avatar_url')
           .neq('id', userId)
           .order('full_name', { ascending: true })
-          .limit(20)
-        
-        if (error) {
-          throw error
-        }
-        
-        setUsers(data || [])
+          .limit(20);
+        if (error) throw error;
+        setUsers(data || []);
       } catch (error) {
-        console.error("Error loading users:", error)
+        console.error('Error loading users:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-
-    if (open) {
-      loadUsers()
-    }
-  }, [userId, open])
+    };
+    loadUsers();
+  }, [userId]);
 
   const filteredUsers = users.filter(
-    (user) =>
+    user =>
       user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username?.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      user.username?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleUserSelect = (userId: string) => {
-    setSelectedUsers((prev) => {
+    setSelectedUsers(prev => {
       if (prev.includes(userId)) {
-        return prev.filter((id) => id !== userId)
+        return prev.filter(id => id !== userId);
       } else {
-        return [...prev, userId]
+        return [...prev, userId];
       }
-    })
-  }
+    });
+  };
 
   const handleCreateChat = async () => {
-    if (selectedUsers.length === 0) return
-
+    if (selectedUsers.length === 0) return;
     try {
-      setCreating(true)
-
+      setCreating(true);
+      const supabase = createClient();
+      let newChatId = null;
       // For 1-on-1 chats, check if a chat already exists
       if (!isGroup && selectedUsers.length === 1) {
-        // Use the direct chat creation method from messagingDb
-        const existingChats = await messagingDb.getUserChats(userId)
-        const existingChat = existingChats.find(
-          (chat: Chat) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === selectedUsers[0],
-        )
-
-        if (existingChat) {
-          setOpen(false)
-          router.push(`/messages/${existingChat.id}`)
-          return
-        }
-      }
-
-      // Create a new chat
-      let newChatId: string;
-      
-      if (!isGroup && selectedUsers.length === 1) {
-        // Create a direct chat
-        newChatId = await messagingDb.createDirectChat(userId, selectedUsers[0]);
-      } else {
-        // For group chats, we need to use a different approach
-        // This is a simplified version since messagingDb doesn't have a direct createChat method
-        const supabase = messagingDb.getSupabaseClient()
-        
-        // Create a new chat
-        const { data: newChat, error: chatError } = await supabase
+        const { data: existingChats, error: existingChatsError } = await supabase
           .from('chats')
-          .insert({
-            created_by: userId,
-            is_group: isGroup,
-            name: isGroup ? groupName || 'Group Chat' : null,
-          })
-          .select()
-          
-        if (chatError || !newChat || newChat.length === 0) {
-          throw new Error('Failed to create chat')
+          .select('id, is_group, participants:chat_participants(user_id)')
+          .eq('is_group', false)
+          .contains('chat_participants', [{ user_id }, { user_id: selectedUsers[0] }]);
+        if (existingChatsError) throw existingChatsError;
+        const directChat = (existingChats || []).find(
+          (chat: any) =>
+            Array.isArray(chat.participants) &&
+            chat.participants.length === 2 &&
+            chat.participants.some((p: any) => p.user_id === userId) &&
+            chat.participants.some((p: any) => p.user_id === selectedUsers[0])
+        );
+        if (directChat) {
+          setOpen(false);
+          router.push(`/messages/${directChat.id}`);
+          return;
         }
-        
-        newChatId = newChat[0].id
-        
+        // Create a new direct chat
+        const { data: newChat, error: newChatError } = await supabase
+          .from('chats')
+          .insert({ is_group: false })
+          .select('id')
+          .single();
+        if (newChatError) throw newChatError;
+        newChatId = newChat.id;
+        // Add both participants
+        const { error: participantsError } = await supabase
+          .from('chat_participants')
+          .insert([
+            { chat_id: newChatId, user_id },
+            { chat_id: newChatId, user_id: selectedUsers[0] }
+          ]);
+        if (participantsError) throw participantsError;
+      } else {
+        // Create group chat
+        const { data: newGroupChat, error: groupChatError } = await supabase
+          .from('chats')
+          .insert({ is_group: true, name: groupName })
+          .select('id')
+          .single();
+        if (groupChatError) throw groupChatError;
+        newChatId = newGroupChat.id;
         // Add all participants
         const participants = [userId, ...selectedUsers].map(id => ({
           chat_id: newChatId,
-          user_id: id
-        }))
-        
-        const { error: participantError } = await supabase
+          user_id: id,
+        }));
+        const { error: participantsError } = await supabase
           .from('chat_participants')
-          .insert(participants)
-          
-        if (participantError) {
-          throw participantError
-        }
+          .insert(participants);
+        if (participantsError) throw participantsError;
       }
-
-      setOpen(false)
-      router.push(`/messages/${newChatId}`)
+      setOpen(false);
+      router.push(`/messages/${newChatId}`);
     } catch (error) {
-      console.error("Error creating chat:", error)
+      console.error('Error creating chat:', error);
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -178,7 +174,11 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
         </DialogHeader>
 
         <div className="flex items-center gap-2 mt-4">
-          <Checkbox id="is-group" checked={isGroup} onCheckedChange={(checked) => setIsGroup(checked === true)} />
+          <Checkbox
+            id="is-group"
+            checked={isGroup}
+            onCheckedChange={checked => setIsGroup(checked === true)}
+          />
           <Label htmlFor="is-group" className="cursor-pointer">
             Create a group chat
           </Label>
@@ -188,7 +188,7 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
           <Input
             placeholder="Group name"
             value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
+            onChange={e => setGroupName(e.target.value)}
             className="mt-2"
           />
         )}
@@ -199,7 +199,7 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
             placeholder="Search users..."
             className="pl-8"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
           />
         </div>
 
@@ -209,10 +209,13 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
             <p className="text-sm text-muted-foreground">No users selected</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {selectedUsers.map((id) => {
-                const user = users.find((u) => u.id === id)
+              {selectedUsers.map(id => {
+                const user = users.find(u => u.id === id);
                 return (
-                  <div key={id} className="flex items-center gap-1 bg-accent rounded-full px-2 py-1">
+                  <div
+                    key={id}
+                    className="flex items-center gap-1 bg-accent rounded-full px-2 py-1"
+                  >
                     <span className="text-xs">{user?.full_name || user?.username}</span>
                     <button
                       onClick={() => handleUserSelect(id)}
@@ -221,7 +224,7 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
                       ×
                     </button>
                   </div>
-                )
+                );
               })}
             </div>
           )}
@@ -235,7 +238,7 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
             <p className="text-sm text-muted-foreground">No users found</p>
           ) : (
             <div className="space-y-2">
-              {filteredUsers.map((user) => (
+              {filteredUsers.map(user => (
                 <div
                   key={user.id}
                   className="flex items-center justify-between p-2 hover:bg-accent rounded-md cursor-pointer"
@@ -269,10 +272,10 @@ export function NewChatDialog({ userId, trigger }: NewChatDialogProps) {
             Cancel
           </Button>
           <Button onClick={handleCreateChat} disabled={selectedUsers.length === 0 || creating}>
-            {creating ? "Creating..." : "Start Chat"}
+            {creating ? 'Creating...' : 'Start Chat'}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

@@ -42,5 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .update({ used: true, used_at: new Date().toISOString() })
     .eq('id', invites[0].id);
 
-  return res.status(200).json({ message: 'Registration successful! Please check your email to verify your account.' });
+  return res
+    .status(200)
+    .json({ message: 'Registration successful! Please check your email to verify your account.' });
 }

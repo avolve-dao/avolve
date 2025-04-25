@@ -111,19 +111,17 @@ export function useRoles(userId: string) {
   const assignRole = async (
     targetUserId: string,
     roleName: string,
-    expiresAt?: Date,
+    expiresAt?: Date
   ): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from('user_roles')
-        .insert([
-          {
-            user_id: targetUserId,
-            role_name: roleName,
-            expires_at: expiresAt ? expiresAt.toISOString() : null,
-          },
-        ]);
+      const { data, error } = await supabase.from('user_roles').insert([
+        {
+          user_id: targetUserId,
+          role_name: roleName,
+          expires_at: expiresAt ? expiresAt.toISOString() : null,
+        },
+      ]);
       return !error;
     } catch {
       return false;
@@ -135,10 +133,7 @@ export function useRoles(userId: string) {
   /**
    * Remove a role from a user (admin only)
    */
-  const removeRole = async (
-    targetUserId: string,
-    roleName: string
-  ): Promise<boolean> => {
+  const removeRole = async (targetUserId: string, roleName: string): Promise<boolean> => {
     try {
       setIsLoading(true);
       const { error } = await supabase

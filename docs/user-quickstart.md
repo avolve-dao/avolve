@@ -13,23 +13,23 @@ Welcome to **Avolve**! Here’s how you can start earning, using, and enjoying t
 
 ## 2. Ways to Earn Tokens
 
-| **Action**                    | **Reward**                        |
-|-------------------------------|-----------------------------------|
-| Complete onboarding/assessment| Tokens, badges, progress          |
-| Daily check-in                | Daily token bonus                 |
-| Finish exercises/challenges   | Immediate tokens, achievements    |
-| Join meetings/events          | Collective tokens, special rewards|
-| Refer friends/help others     | Referral tokens, recognition      |
+| **Action**                     | **Reward**                         |
+| ------------------------------ | ---------------------------------- |
+| Complete onboarding/assessment | Tokens, badges, progress           |
+| Daily check-in                 | Daily token bonus                  |
+| Finish exercises/challenges    | Immediate tokens, achievements     |
+| Join meetings/events           | Collective tokens, special rewards |
+| Refer friends/help others      | Referral tokens, recognition       |
 
 ---
 
 ## 3. Ways to Spend Tokens
 
-| **Action**                    | **Benefit**                       |
-|-------------------------------|-----------------------------------|
-| Unlock features               | Access premium content/tools      |
-| Marketplace                   | Redeem for goods/services         |
-| Governance                    | Vote/shape the platform           |
+| **Action**      | **Benefit**                  |
+| --------------- | ---------------------------- |
+| Unlock features | Access premium content/tools |
+| Marketplace     | Redeem for goods/services    |
+| Governance      | Vote/shape the platform      |
 
 ---
 

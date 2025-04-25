@@ -1,12 +1,12 @@
-import { updateSession } from "@/lib/supabase/middleware"
-import { rateLimit } from "@/lib/rate-limit"
-import type { NextRequest } from "next/server"
-import { NextResponse } from "next/server"
-import { getRouteProtection } from "@/middleware/rbac-config"
-import { rbacMiddleware } from "@/middleware/rbac-middleware"
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { updateSession } from '@/lib/supabase/middleware';
+import { rateLimit } from '@/lib/rate-limit';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
+import { getRouteProtection } from '@/middleware/rbac-config';
+import { rbacMiddleware } from '@/middleware/rbac-middleware';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 // IMPORTANT: Use Database type from supabase-schema to ensure all tables (including user_roles) are available
-import { Database } from '@/types/supabase-schema'
+import { Database } from '@/types/supabase-schema';
 
 // Initialize Supabase client with error handling for URL
 let supabase: SupabaseClient<Database> | undefined;
@@ -19,7 +19,10 @@ try {
     console.error('Supabase URL or Key not set. Client initialization skipped.');
   }
 } catch (error: unknown) {
-  console.error('Error initializing Supabase client:', error instanceof Error ? error.message : 'Unknown error');
+  console.error(
+    'Error initializing Supabase client:',
+    error instanceof Error ? error.message : 'Unknown error'
+  );
 }
 
 // Function to create middleware client for session handling
@@ -34,7 +37,10 @@ function getMiddlewareSupabaseClient({ req, res }: { req: NextRequest; res: Next
       try {
         return createClient<Database>(supabaseUrl, supabaseKey);
       } catch (error: unknown) {
-        console.error('Error creating fallback Supabase client:', error instanceof Error ? error.message : 'Unknown error');
+        console.error(
+          'Error creating fallback Supabase client:',
+          error instanceof Error ? error.message : 'Unknown error'
+        );
         throw new Error('Failed to create Supabase client');
       }
     } else {
@@ -44,7 +50,16 @@ function getMiddlewareSupabaseClient({ req, res }: { req: NextRequest; res: Next
 }
 
 // Define auth routes that should be rate limited
-const AUTH_ROUTES = ["/auth/login", "/auth/sign-up", "/auth/forgot-password", "/api/auth/"]
+const AUTH_ROUTES = ['/auth/login', '/auth/sign-up', '/auth/forgot-password', '/api/auth/'];
+
+// Define API routes that should be rate limited
+const API_ROUTES = [
+  '/api/features',
+  '/api/invitations',
+  '/api/onboarding',
+  '/api/tokens',
+  '/api/user',
+];
 
 // Define static asset paths that should be excluded from middleware
 const STATIC_ASSET_PATTERNS = [
@@ -53,22 +68,26 @@ const STATIC_ASSET_PATTERNS = [
   /^\/favicon\.ico$/,
   /\.(svg|png|jpg|jpeg|gif|webp)$/,
   /^\/api\/health$/,
-]
+];
 
 // Define onboarding A/B test variants
-const AB_TEST_COOKIE = 'avolve-onboarding-variant'
-const AB_VARIANTS = ['A', 'B'] // A = streamlined (2-step), B = original (4-step)
+const AB_TEST_COOKIE = 'avolve-onboarding-variant';
+const AB_VARIANTS = ['A', 'B']; // A = streamlined (2-step), B = original (4-step)
 
 // Define security headers
 const securityHeaders = {
-  "X-DNS-Prefetch-Control": "on",
-  "X-XSS-Protection": "1; mode=block",
-  "X-Frame-Options": "SAMEORIGIN",
-  "X-Content-Type-Options": "nosniff",
-  "Referrer-Policy": "strict-origin-when-cross-origin",
-  "Permissions-Policy": "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
-}
+  'X-DNS-Prefetch-Control': 'on',
+  'X-XSS-Protection': '1; mode=block',
+  'X-Frame-Options': 'SAMEORIGIN',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+  'X-Permitted-Cross-Domain-Policies': 'none',
+  'Cross-Origin-Embedder-Policy': 'require-corp',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+  'Cross-Origin-Resource-Policy': 'same-origin',
+};
 
 // Generate a CSP nonce for each request using Web Crypto API
 function generateNonce() {
@@ -79,22 +98,22 @@ function generateNonce() {
 
 // Add CSP header with nonce to responses
 function addCSPHeader(response: NextResponse, nonce: string) {
-  const csp = process.env.NODE_ENV === 'development' 
-    ? `default-src 'self'; script-src 'self' 'unsafe-eval' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; media-src 'self'; frame-src 'self'; child-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';`
-    : `default-src 'self'; script-src 'self' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; media-src 'self'; frame-src 'self'; child-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';`;
+  // Enhanced CSP policy for production
+  const csp =
+    process.env.NODE_ENV === 'development'
+      ? `default-src 'self'; script-src 'self' 'unsafe-eval' 'nonce-${nonce}'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.cloudinary.com; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.avolve.io; media-src 'self'; frame-src 'self'; child-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';`
+      : `default-src 'self'; script-src 'self' 'nonce-${nonce}' https://cdn.avolve.io; style-src 'self' 'unsafe-inline' https://cdn.avolve.io; img-src 'self' data: https://*.cloudinary.com https://cdn.avolve.io; font-src 'self' https://cdn.avolve.io; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.avolve.io; media-src 'self' https://cdn.avolve.io; frame-src 'self'; child-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; block-all-mixed-content;`;
+
   response.headers.set('Content-Security-Policy', csp);
   return response;
 }
 
 // Cache for rate limiting results to avoid recalculating for the same IP
-const rateLimitCache = new Map<string, { result: any; timestamp: number }>()
-const RATE_LIMIT_CACHE_TTL = 1000 // 1 second TTL
+const rateLimitCache = new Map<string, { result: any; timestamp: number }>();
+const RATE_LIMIT_CACHE_TTL = 1000; // 1 second TTL
 
 // Define route patterns
-const publicRoutes = [
-  '/',
-  '/unauthorized',
-]
+const publicRoutes = ['/', '/unauthorized'];
 
 const authRoutes = [
   '/signin',
@@ -104,7 +123,7 @@ const authRoutes = [
   '/update-password',
   '/error',
   '/invite',
-]
+];
 
 const authenticatedRoutes = [
   '/profile',
@@ -114,7 +133,7 @@ const authenticatedRoutes = [
   '/teams/[id]',
   '/tokens',
   '/subscription',
-]
+];
 
 const superRoutes = [
   '/super/puzzles',
@@ -130,17 +149,12 @@ const superRoutes = [
   '/super/human',
   '/super/society',
   '/super/genius',
-  '/super/civilization'
-]
+  '/super/civilization',
+];
 
-const adminRoutes = [
-  '/admin/security',
-]
+const adminRoutes = ['/admin/security'];
 
-const systemRoutes = [
-  '/api/health',
-  '/protected',
-]
+const systemRoutes = ['/api/health', '/protected'];
 
 // Permission check functions
 // Use direct query to user_roles and roles since 'has_role' RPC is not available in the generated types
@@ -158,7 +172,7 @@ const checkSuperPermission = async (userId: string): Promise<boolean> => {
   } catch {
     return false;
   }
-}
+};
 
 const checkAdminRole = async (userId: string): Promise<boolean> => {
   if (!supabase) return false;
@@ -183,7 +197,7 @@ const checkAdminRole = async (userId: string): Promise<boolean> => {
   } catch {
     return false;
   }
-}
+};
 
 const getOnboardingStatus = async (userId: string) => {
   if (!supabase) return { completed: false };
@@ -192,21 +206,21 @@ const getOnboardingStatus = async (userId: string) => {
     .from('profiles')
     .select('regeneration_status')
     .eq('id', userId)
-    .single()
+    .single();
 
-  if (error) return { completed: false }
+  if (error) return { completed: false };
   // Treat regeneration_status as proxy: if set, onboarding is complete
-  return { completed: !!data?.regeneration_status }
-}
+  return { completed: !!data?.regeneration_status };
+};
 
 // Route protection middleware
 async function protectRoute(req: NextRequest) {
-  const { pathname } = req.nextUrl
+  const { pathname } = req.nextUrl;
   console.log(`Processing request for path: ${pathname}`);
-  const isStaticAsset = STATIC_ASSET_PATTERNS.some(pattern => pattern.test(pathname))
+  const isStaticAsset = STATIC_ASSET_PATTERNS.some(pattern => pattern.test(pathname));
   if (isStaticAsset) {
     console.log(`Static asset detected, bypassing protection: ${pathname}`);
-    return null
+    return null;
   }
 
   // Get session from Supabase
@@ -216,7 +230,10 @@ async function protectRoute(req: NextRequest) {
     supabaseClient = getMiddlewareSupabaseClient({ req, res });
     console.log(`Supabase client initialized for path: ${pathname}`);
   } catch (error: unknown) {
-    console.error('Error getting Supabase client:', error instanceof Error ? error.message : 'Unknown error');
+    console.error(
+      'Error getting Supabase client:',
+      error instanceof Error ? error.message : 'Unknown error'
+    );
     // Allow public routes even if Supabase client initialization fails
     if (publicRoutes.includes(pathname)) {
       console.log(`Allowing public route despite Supabase error: ${pathname}`);
@@ -228,31 +245,31 @@ async function protectRoute(req: NextRequest) {
 
   const {
     data: { session },
-  } = await supabaseClient.auth.getSession()
+  } = await supabaseClient.auth.getSession();
   console.log(`Session retrieved for path: ${pathname}, session exists: ${!!session}`);
 
   // Check public routes
   if (publicRoutes.includes(pathname)) {
     console.log(`Public route allowed: ${pathname}`);
-    return null
+    return null;
   }
 
   // Check auth routes
   if (authRoutes.some(route => pathname.startsWith(route))) {
     if (session) {
       console.log(`Authenticated user accessing auth route, redirecting to dashboard: ${pathname}`);
-      return NextResponse.redirect(new URL('/dashboard', req.url))
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
     console.log(`Unauthenticated user accessing auth route, allowing: ${pathname}`);
-    return null
+    return null;
   }
 
   // Check onboarding status for authenticated routes
   if (authenticatedRoutes.includes(pathname) && pathname !== '/welcome') {
-    const onboarding = await getOnboardingStatus(session?.user?.id || '')
+    const onboarding = await getOnboardingStatus(session?.user?.id || '');
     if (!onboarding.completed) {
       console.log(`User not onboarded, redirecting to welcome: ${pathname}`);
-      return NextResponse.redirect(new URL('/welcome', req.url))
+      return NextResponse.redirect(new URL('/welcome', req.url));
     }
     console.log(`User onboarded, allowing authenticated route: ${pathname}`);
   }
@@ -261,19 +278,21 @@ async function protectRoute(req: NextRequest) {
   if (superRoutes.some(route => pathname.startsWith(route))) {
     if (!session) {
       console.log(`Unauthenticated user accessing super route, redirecting to signin: ${pathname}`);
-      return NextResponse.redirect(new URL('/signin?redirect=' + encodeURIComponent(pathname), req.url))
+      return NextResponse.redirect(
+        new URL('/signin?redirect=' + encodeURIComponent(pathname), req.url)
+      );
     }
     if (supabaseClient) {
-      const hasSuperPermission = await checkSuperPermission(session.user.id)
+      const hasSuperPermission = await checkSuperPermission(session.user.id);
       if (!hasSuperPermission) {
         console.log(`User lacks super permission, redirecting to unauthorized: ${pathname}`);
-        return NextResponse.redirect(new URL('/unauthorized', req.url))
+        return NextResponse.redirect(new URL('/unauthorized', req.url));
       }
       console.log(`User has super permission, allowing: ${pathname}`);
     } else {
       console.error('Supabase client not initialized, cannot check permissions.');
       console.log(`Supabase client not initialized, redirecting to unauthorized: ${pathname}`);
-      return NextResponse.redirect(new URL('/unauthorized', req.url))
+      return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
   }
 
@@ -281,138 +300,161 @@ async function protectRoute(req: NextRequest) {
   if (adminRoutes.some(route => pathname.startsWith(route))) {
     if (!session) {
       console.log(`Unauthenticated user accessing admin route, redirecting to signin: ${pathname}`);
-      return NextResponse.redirect(new URL('/signin?redirect=' + encodeURIComponent(pathname), req.url))
+      return NextResponse.redirect(
+        new URL('/signin?redirect=' + encodeURIComponent(pathname), req.url)
+      );
     }
     if (supabaseClient) {
-      const hasAdminRole = await checkAdminRole(session.user.id)
+      const hasAdminRole = await checkAdminRole(session.user.id);
       if (!hasAdminRole) {
         console.log(`User lacks admin role, redirecting to unauthorized: ${pathname}`);
-        return NextResponse.redirect(new URL('/unauthorized', req.url))
+        return NextResponse.redirect(new URL('/unauthorized', req.url));
       }
       console.log(`User has admin role, allowing: ${pathname}`);
     } else {
       console.error('Supabase client not initialized, cannot check roles.');
       console.log(`Supabase client not initialized, redirecting to unauthorized: ${pathname}`);
-      return NextResponse.redirect(new URL('/unauthorized', req.url))
+      return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
   }
 
   // Check system routes
   if (systemRoutes.some(route => pathname.startsWith(route))) {
     console.log(`System route accessed, redirecting to unauthorized: ${pathname}`);
-    return NextResponse.redirect(new URL('/unauthorized', req.url))
+    return NextResponse.redirect(new URL('/unauthorized', req.url));
   }
 
   console.log(`Route allowed by default: ${pathname}`);
-  return null
+  return null;
 }
 
 export async function middleware(request: NextRequest) {
   console.log(`Processing request for path: ${request.nextUrl.pathname}`);
   // Check if the request is for a static asset
-  const url = request.nextUrl.pathname
-  if (STATIC_ASSET_PATTERNS.some((pattern) => pattern.test(url))) {
+  const url = request.nextUrl.pathname;
+  if (STATIC_ASSET_PATTERNS.some(pattern => pattern.test(url))) {
     console.log(`Static asset detected, bypassing middleware: ${url}`);
-    return NextResponse.next()
+    return NextResponse.next();
   }
 
   // Skip middleware for auth callback routes to prevent interference with the auth flow
-  if (request.nextUrl.pathname.startsWith("/auth/callback")) {
+  if (request.nextUrl.pathname.startsWith('/auth/callback')) {
     console.log(`Auth callback route detected, bypassing middleware: ${url}`);
-    return NextResponse.next()
+    return NextResponse.next();
   }
-  
+
   // Handle A/B testing for onboarding flow
   if (url === '/onboarding') {
     console.log(`Onboarding route detected, handling A/B testing: ${url}`);
     // Get or set A/B test variant
-    let response = NextResponse.next()
-    let variant = request.cookies.get(AB_TEST_COOKIE)?.value
-    
+    let response = NextResponse.next();
+    let variant = request.cookies.get(AB_TEST_COOKIE)?.value;
+
     // If no variant is set, randomly assign one
     if (!variant || !AB_VARIANTS.includes(variant)) {
-      variant = AB_VARIANTS[Math.floor(Math.random() * AB_VARIANTS.length)]
-      response.cookies.set(AB_TEST_COOKIE, variant, { 
+      variant = AB_VARIANTS[Math.floor(Math.random() * AB_VARIANTS.length)];
+      response.cookies.set(AB_TEST_COOKIE, variant, {
         maxAge: 60 * 60 * 24 * 30, // 30 days
-        path: '/' 
-      })
+        path: '/',
+      });
     }
-    
+
     // For variant B (original), redirect to the original onboarding flow
     if (variant === 'B') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/onboarding/original'
-      response = NextResponse.redirect(url)
+      const url = request.nextUrl.clone();
+      url.pathname = '/onboarding/original';
+      response = NextResponse.redirect(url);
     }
-    
+
     // Add analytics headers to track the variant
-    response.headers.set('x-avolve-ab-variant', variant)
-    
+    response.headers.set('x-avolve-ab-variant', variant);
+
     // Update session and add security headers
-    response = await updateSession(request)
+    response = await updateSession(request);
     Object.entries(securityHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value)
-    })
-    
+      response.headers.set(key, value);
+    });
+
     // Generate nonce for CSP
     const nonce = generateNonce();
     return addCSPHeader(response, nonce);
   }
 
   // Apply route protection
-  const protectionResponse = await protectRoute(request)
+  const protectionResponse = await protectRoute(request);
   if (protectionResponse) {
     console.log(`Route protection applied, returning response: ${request.nextUrl.pathname}`);
     // Generate nonce for CSP
     const nonce = generateNonce();
     Object.entries(securityHeaders).forEach(([key, value]) => {
-      protectionResponse.headers.set(key, value)
-    })
+      protectionResponse.headers.set(key, value);
+    });
     return addCSPHeader(protectionResponse, nonce);
   }
 
-  // Apply rate limiting to auth routes
-  if (AUTH_ROUTES.some((route) => request.nextUrl.pathname.startsWith(route))) {
-    console.log(`Rate limiting applied to auth route: ${request.nextUrl.pathname}`);
-    // Get client IP
-    const ip = request.headers.get("x-forwarded-for") || "anonymous"
-    const cacheKey = `${ip}:${url}`
+  // Apply rate limiting to auth routes and API routes
+  if (
+    AUTH_ROUTES.some(route => request.nextUrl.pathname.startsWith(route)) ||
+    API_ROUTES.some(route => request.nextUrl.pathname.startsWith(route))
+  ) {
+    console.log(`Rate limiting applied to route: ${request.nextUrl.pathname}`);
+    // Get client IP with fallbacks
+    const ip =
+      request.headers.get('x-forwarded-for') ||
+      request.headers.get('x-real-ip') ||
+      request.ip ||
+      'anonymous';
+
+    const cacheKey = `${ip}:${url}`;
 
     // Check cache first
-    const cachedResult = rateLimitCache.get(cacheKey)
-    let rateLimitResult
+    const cachedResult = rateLimitCache.get(cacheKey);
+    let rateLimitResult;
 
     if (cachedResult && Date.now() - cachedResult.timestamp < RATE_LIMIT_CACHE_TTL) {
-      rateLimitResult = cachedResult.result
+      rateLimitResult = cachedResult.result;
     } else {
-      rateLimitResult = await rateLimit(request)
+      // Apply stricter rate limits for auth routes
+      const isAuthRoute = AUTH_ROUTES.some(route => request.nextUrl.pathname.startsWith(route));
+      rateLimitResult = await rateLimit(request, {
+        // Stricter limits for auth routes to prevent brute force attacks
+        limit: isAuthRoute ? 10 : 60,
+        timeframe: 60, // 60 seconds
+      });
+
       // Cache the result
       rateLimitCache.set(cacheKey, {
         result: rateLimitResult,
         timestamp: Date.now(),
-      })
+      });
 
       // Clean up old cache entries
       setTimeout(() => {
-        rateLimitCache.delete(cacheKey)
-      }, RATE_LIMIT_CACHE_TTL)
+        rateLimitCache.delete(cacheKey);
+      }, RATE_LIMIT_CACHE_TTL);
     }
 
     // If rate limit is exceeded, return the error response
     if (!rateLimitResult.success) {
       console.log(`Rate limit exceeded, returning error response: ${request.nextUrl.pathname}`);
-      const response = NextResponse.json({ error: rateLimitResult.message }, { status: 429 })
+      const response = NextResponse.json(
+        {
+          error: rateLimitResult.message,
+          retryAfter: rateLimitResult.headers.get('Retry-After') || '60',
+        },
+        { status: 429 }
+      );
 
       // Copy rate limit headers to the response
       for (const [key, value] of rateLimitResult.headers.entries()) {
-        response.headers.set(key, value)
+        response.headers.set(key, value);
       }
 
       // Add security headers
       Object.entries(securityHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value)
-      })
-      
+        response.headers.set(key, value);
+      });
+
       // Generate nonce for CSP
       const nonce = generateNonce();
       return addCSPHeader(response, nonce);
@@ -420,19 +462,21 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check for RBAC protection
-  const routeProtection = getRouteProtection(url)
+  const routeProtection = getRouteProtection(url);
   if (routeProtection) {
     console.log(`RBAC protection applied to route: ${request.nextUrl.pathname}`);
-    const rbacResponse = await rbacMiddleware(request, routeProtection)
-    
+    const rbacResponse = await rbacMiddleware(request, routeProtection);
+
     // If the RBAC middleware returns a response (redirect or error),
     // add security headers and return it
     if (rbacResponse !== NextResponse.next()) {
-      console.log(`RBAC middleware returned response, adding security headers: ${request.nextUrl.pathname}`);
+      console.log(
+        `RBAC middleware returned response, adding security headers: ${request.nextUrl.pathname}`
+      );
       Object.entries(securityHeaders).forEach(([key, value]) => {
-        rbacResponse.headers.set(key, value)
-      })
-      
+        rbacResponse.headers.set(key, value);
+      });
+
       // Generate nonce for CSP
       const nonce = generateNonce();
       return addCSPHeader(rbacResponse, nonce);
@@ -440,14 +484,14 @@ export async function middleware(request: NextRequest) {
   }
 
   // Update the session
-  const response = await updateSession(request)
+  const response = await updateSession(request);
 
   // Add security headers to all responses
   console.log(`Adding security headers to response: ${request.nextUrl.pathname}`);
   Object.entries(securityHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value)
-  })
-  
+    response.headers.set(key, value);
+  });
+
   // Generate nonce for CSP
   const nonce = generateNonce();
   return addCSPHeader(response, nonce);
@@ -464,4 +508,4 @@ export const config = {
      */
     '/((?!api|_next/static|_next/image|favicon\\.ico).*)',
   ],
-}
+};

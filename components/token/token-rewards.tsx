@@ -27,8 +27,10 @@ export function TokenRewards() {
 
   useEffect(() => {
     async function loadTokenRewards() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -41,9 +43,9 @@ export function TokenRewards() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load token rewards",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load token rewards',
+          variant: 'destructive',
         });
         return;
       }
@@ -54,13 +56,14 @@ export function TokenRewards() {
       // Subscribe to reward updates
       const channel = supabase
         .channel('reward_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'user_token_rewards',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadTokenRewards();
           }
@@ -96,7 +99,7 @@ export function TokenRewards() {
 
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      {rewards.map((reward) => (
+      {rewards.map(reward => (
         <Card key={`${reward.token_type}-${reward.description}`}>
           <CardContent className="p-6">
             <div className="space-y-4">
@@ -107,7 +110,7 @@ export function TokenRewards() {
                   <p className="text-2xl font-bold">+{reward.amount}</p>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex justify-between mb-2">
                   <p className="text-sm text-gray-600">{reward.description}</p>
@@ -115,10 +118,7 @@ export function TokenRewards() {
                     {reward.progress} / {reward.total_required}
                   </span>
                 </div>
-                <Progress 
-                  value={(reward.progress / reward.total_required) * 100} 
-                  className="h-2" 
-                />
+                <Progress value={(reward.progress / reward.total_required) * 100} className="h-2" />
               </div>
             </div>
           </CardContent>

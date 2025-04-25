@@ -1,11 +1,11 @@
 /**
  * AI Insights Server Component
- * 
+ *
  * Displays AI-powered insights and predictions about user progress
  * Copyright 2025 Avolve DAO. All rights reserved.
  */
 
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createServerComponentClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { AIInsightsClient } from './client';
 
@@ -27,11 +27,11 @@ function isPhaseId(val: any): val is PhaseId {
 }
 
 export async function AIInsightsServer({ userId }: { userId: string }) {
-  const supabase = createServerComponentClient<Database>({ cookies });
-  
+  const supabase = createServerComponentClient({ cookies });
+
   // Fetch user's current phase
   const { data: phaseDataRaw } = await supabase.rpc('get_user_progress', {
-    p_user_id: userId
+    p_user_id: userId,
   });
   // Defensive: handle both array (legacy) and object (current)
   const phaseData = Array.isArray(phaseDataRaw) ? phaseDataRaw[0] : phaseDataRaw;
@@ -43,89 +43,92 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
     .from('user_balances')
     .select('token_id, balance')
     .eq('user_id', userId);
-  
+
   // Fetch token metadata
-  const { data: tokens } = await supabase
-    .from('tokens')
-    .select('id, symbol, name');
-  
+  const { data: tokens } = await supabase.from('tokens').select('id, symbol, name');
+
   // Create a map of token symbols to balances
   const tokenBalanceMap: Record<string, number> = {};
-  
+
   if (tokenBalances && tokens) {
-    tokenBalances.forEach(balance => {
-      const token = tokens.find(t => t.id === balance.token_id);
+    tokenBalances.forEach((balance: { token_id: string; balance: number }) => {
+      const token = tokens.find((t: { id: string }) => t.id === balance.token_id);
       if (token) {
         tokenBalanceMap[token.symbol] = balance.balance;
       }
     });
   }
-  
+
   // Fetch user's completed milestones
   const { data: completedMilestones } = await supabase
     .from('user_phase_milestones')
     .select('milestone_id, completed_at')
     .eq('user_id', userId)
     .order('completed_at');
-  
+
   // Fetch phase transitions for journey history
   const { data: phaseTransitions } = await supabase
     .from('user_phase_transitions')
     .select('from_phase, to_phase, transitioned_at')
     .eq('user_id', userId)
     .order('transitioned_at');
-  
+
   // Fetch all experience phases for reference
-  const { data: phases } = await supabase
-    .from('experience_phases')
-    .select('*')
-    .order('sequence');
-  
+  const { data: phases } = await supabase.from('experience_phases').select('*').order('sequence');
+
   // Calculate progress percentage for each phase
-  const phaseProgress = phases?.map(phase => {
-    const phaseMilestones = completedMilestones?.filter(
-      milestone => milestone.milestone_id.startsWith(`${phase.id}_`)
+  const phaseProgress =
+    phases?.map(
+      (phase: {
+        id: string;
+        name: string;
+        description: string;
+        sequence: number;
+        requirements: any;
+      }) => {
+        const phaseMilestones =
+          completedMilestones?.filter((milestone: { milestone_id: string }) =>
+            milestone.milestone_id.startsWith(`${phase.id}_`)
+          ) || [];
+
+        // Get total milestones for this phase from the phase requirements
+        const requirements = phase.requirements;
+        const totalMilestones =
+          requirements &&
+          typeof requirements === 'object' &&
+          !Array.isArray(requirements) &&
+          requirements !== null &&
+          'milestones' in requirements &&
+          Array.isArray((requirements as any).milestones)
+            ? (requirements as any).milestones.length
+            : 0;
+        const completedCount = phaseMilestones.length;
+
+        return {
+          phaseId: phase.id,
+          phaseName: phase.name,
+          description: phase.description,
+          sequence: phase.sequence,
+          completed: completedCount === totalMilestones && totalMilestones > 0,
+          progress: totalMilestones > 0 ? Math.round((completedCount / totalMilestones) * 100) : 0,
+          completedMilestones: phaseMilestones.map((m: { milestone_id: string }) => m.milestone_id),
+          isCurrentPhase: safePhase === phase.id,
+        };
+      }
     ) || [];
-    
-    // Get total milestones for this phase from the phase requirements
-    const requirements = phase.requirements;
-    const totalMilestones =
-      requirements &&
-      typeof requirements === 'object' &&
-      !Array.isArray(requirements) &&
-      requirements !== null &&
-      'milestones' in requirements &&
-      Array.isArray((requirements as any).milestones)
-        ? (requirements as any).milestones.length
-        : 0;
-    const completedCount = phaseMilestones.length;
-    
-    return {
-      phaseId: phase.id,
-      phaseName: phase.name,
-      description: phase.description,
-      sequence: phase.sequence,
-      completed: completedCount === totalMilestones && totalMilestones > 0,
-      progress: totalMilestones > 0 
-        ? Math.round((completedCount / totalMilestones) * 100) 
-        : 0,
-      completedMilestones: phaseMilestones.map(m => m.milestone_id),
-      isCurrentPhase: safePhase === phase.id
-    };
-  }) || [];
-  
+
   // Calculate AI-based predictions for phase completion
   const predictedCompletionDates = await calculatePredictedCompletionDates(
     userId,
     phaseProgress,
     completedMilestones || []
   );
-  
+
   // Get personalized recommendations
   const recommendations = await getPersonalizedRecommendations(userId);
 
   // --- Remove broken analytics queries (regen_analytics_mv, transactions) and mock analytics for now ---
-  
+
   // Mock regen analytics (replace with real analytics when available)
   const regenAnalytics = {
     regen_score: 0,
@@ -150,12 +153,13 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
     const weeklyTransactions = recentTransactions.filter(
-      tx => new Date(tx.created_at) >= oneWeekAgo && tx.to_user_id === userId
+      (tx: { created_at: string; to_user_id: string }) =>
+        new Date(tx.created_at) >= oneWeekAgo && tx.to_user_id === userId
     );
     // Group by token
     const tokenTotals: Record<string, number> = {};
-    weeklyTransactions.forEach(tx => {
-      const token = tokens.find(t => t.id === tx.token_id);
+    weeklyTransactions.forEach((tx: { token_id: string; amount: number }) => {
+      const token = tokens.find((t: { id: string }) => t.id === tx.token_id);
       if (token) {
         if (!tokenTotals[token.symbol]) {
           tokenTotals[token.symbol] = 0;
@@ -170,39 +174,54 @@ export async function AIInsightsServer({ userId }: { userId: string }) {
   }
 
   // Predict when user will reach token thresholds
-  const tokenPredictions: Record<string, { target: number, daysToTarget: number }> = {};
-  
+  const tokenPredictions: Record<string, { target: number; daysToTarget: number }> = {};
+
   // Define token thresholds based on current phase
   const tokenThresholds: Record<string, number> = {
-    SAP: safePhase === 'discovery' ? 50 : 
-         safePhase === 'onboarding' ? 200 : 
-         safePhase === 'scaffolding' ? 500 : 1000,
-    SCQ: safePhase === 'discovery' ? 10 : 
-         safePhase === 'onboarding' ? 50 : 
-         safePhase === 'scaffolding' ? 200 : 500,
-    GEN: safePhase === 'discovery' ? 5 : 
-         safePhase === 'onboarding' ? 20 : 
-         safePhase === 'scaffolding' ? 50 : 200
+    SAP:
+      safePhase === 'discovery'
+        ? 50
+        : safePhase === 'onboarding'
+          ? 200
+          : safePhase === 'scaffolding'
+            ? 500
+            : 1000,
+    SCQ:
+      safePhase === 'discovery'
+        ? 10
+        : safePhase === 'onboarding'
+          ? 50
+          : safePhase === 'scaffolding'
+            ? 200
+            : 500,
+    GEN:
+      safePhase === 'discovery'
+        ? 5
+        : safePhase === 'onboarding'
+          ? 20
+          : safePhase === 'scaffolding'
+            ? 50
+            : 200,
   };
-  
+
   // Calculate days to reach thresholds
   Object.entries(tokenThresholds).forEach(([symbol, threshold]) => {
     const currentBalance = tokenBalanceMap[symbol] || 0;
     const weeklyRate = tokenEarningRates[symbol] || 0;
-    
+
     if (currentBalance < threshold && weeklyRate > 0) {
       const remaining = threshold - currentBalance;
       const daysToTarget = Math.ceil((remaining / weeklyRate) * 7);
-      
+
       tokenPredictions[symbol] = {
         target: threshold,
-        daysToTarget
+        daysToTarget,
       };
     }
   });
-  
+
   return (
-    <AIInsightsClient 
+    <AIInsightsClient
       currentPhase={safePhase}
       regenScore={regenAnalytics.regen_score}
       regenLevel={regenAnalytics.regen_level}

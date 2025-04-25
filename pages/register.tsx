@@ -28,7 +28,7 @@ export default function RegisterPage() {
   };
 
   if (showOnboarding) {
-    return <OnboardingWizard onComplete={() => window.location.href = '/dashboard'} />;
+    return <OnboardingWizard onComplete={() => (window.location.href = '/dashboard')} />;
   }
 
   return (
@@ -59,7 +59,9 @@ export default function RegisterPage() {
           placeholder="Invitation Code"
           className="w-full p-2 border rounded"
         />
-        <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded font-semibold">Register</button>
+        <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded font-semibold">
+          Register
+        </button>
         {error && <div className="text-red-600 mt-2">{error}</div>}
         {success && <div className="text-green-600 mt-2">{success}</div>}
       </form>

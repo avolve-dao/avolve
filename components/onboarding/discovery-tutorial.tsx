@@ -20,15 +20,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BookOpenIcon, 
-  RocketIcon, 
-  LayersIcon, 
+import {
+  BookOpenIcon,
+  RocketIcon,
+  LayersIcon,
   TrophyIcon,
   ArrowRightIcon,
   CheckCircleIcon,
   CoinsIcon,
-  StarIcon
+  StarIcon,
 } from 'lucide-react';
 
 type TutorialStep = {
@@ -50,25 +50,23 @@ type DiscoveryTutorialProps = {
   className?: string;
 };
 
-export default function DiscoveryTutorial({
-  onComplete,
-  className = '',
-}: DiscoveryTutorialProps) {
+export default function DiscoveryTutorial({ onComplete, className = '' }: DiscoveryTutorialProps) {
   const router = useRouter();
   const { supabase, user } = useSupabase();
   // user may be undefined, so add appropriate null checks where user is used if not present already
   const { trackActivity } = useTokens();
-  
+
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Define tutorial steps
   const tutorialSteps: TutorialStep[] = [
     {
       id: 'intro',
       title: 'Welcome to Avolve',
-      description: 'Avolve is a platform designed to help you transform your life through three main pillars: Superachiever, Superachievers, and Supercivilization.',
+      description:
+        'Avolve is a platform designed to help you transform your life through three main pillars: Superachiever, Superachievers, and Supercivilization.',
       gradientClass: 'from-stone-400 to-stone-600',
       image: '/images/onboarding/welcome.png',
       action: {
@@ -79,7 +77,8 @@ export default function DiscoveryTutorial({
     {
       id: 'superachiever',
       title: 'Superachiever',
-      description: 'Create your personal and business success puzzles with joy and ease by becoming a greater superachiever.',
+      description:
+        'Create your personal and business success puzzles with joy and ease by becoming a greater superachiever.',
       gradientClass: 'from-stone-400 to-stone-600',
       tokenSymbol: 'SAP',
       image: '/images/onboarding/superachiever.png',
@@ -91,7 +90,8 @@ export default function DiscoveryTutorial({
     {
       id: 'personal-success',
       title: 'Personal Success Puzzle',
-      description: 'Achieve greater personal successes in Health & Energy, Wealth & Career, and Peace & People.',
+      description:
+        'Achieve greater personal successes in Health & Energy, Wealth & Career, and Peace & People.',
       gradientClass: 'from-amber-400 to-yellow-600',
       tokenSymbol: 'PSP',
       image: '/images/onboarding/personal-success.png',
@@ -103,7 +103,8 @@ export default function DiscoveryTutorial({
     {
       id: 'business-success',
       title: 'Business Success Puzzle',
-      description: 'Achieve greater business successes with Front-Stage Users, Back-Stage Admin, and Bottom-Line Profit.',
+      description:
+        'Achieve greater business successes with Front-Stage Users, Back-Stage Admin, and Bottom-Line Profit.',
       gradientClass: 'from-teal-400 to-cyan-600',
       tokenSymbol: 'BSP',
       image: '/images/onboarding/business-success.png',
@@ -115,7 +116,8 @@ export default function DiscoveryTutorial({
     {
       id: 'supermind',
       title: 'Supermind Superpowers',
-      description: 'Go further, faster, and forever with superpowers for starting, focusing, and finishing.',
+      description:
+        'Go further, faster, and forever with superpowers for starting, focusing, and finishing.',
       gradientClass: 'from-violet-400 via-purple-500 to-fuchsia-600',
       tokenSymbol: 'SMS',
       image: '/images/onboarding/supermind.png',
@@ -127,7 +129,8 @@ export default function DiscoveryTutorial({
     {
       id: 'superachievers',
       title: 'Superachievers',
-      description: 'Co-create your superpuzzle with other superachievers through collective transformation.',
+      description:
+        'Co-create your superpuzzle with other superachievers through collective transformation.',
       gradientClass: 'from-slate-400 to-slate-600',
       tokenSymbol: 'SCQ',
       image: '/images/onboarding/superachievers.png',
@@ -139,7 +142,8 @@ export default function DiscoveryTutorial({
     {
       id: 'supercivilization',
       title: 'Supercivilization',
-      description: 'Evolve from a degen in an anticivilization into a regen in a supercivilization within your lifetime.',
+      description:
+        'Evolve from a degen in an anticivilization into a regen in a supercivilization within your lifetime.',
       gradientClass: 'from-zinc-400 to-zinc-600',
       tokenSymbol: 'GEN',
       image: '/images/onboarding/supercivilization.png',
@@ -151,7 +155,8 @@ export default function DiscoveryTutorial({
     {
       id: 'tokens',
       title: 'Token System',
-      description: 'Avolve uses a hierarchical token system to gamify your progress and unlock new content as you advance.',
+      description:
+        'Avolve uses a hierarchical token system to gamify your progress and unlock new content as you advance.',
       gradientClass: 'from-blue-400 to-blue-600',
       image: '/images/onboarding/tokens.png',
       action: {
@@ -162,7 +167,8 @@ export default function DiscoveryTutorial({
     {
       id: 'completion',
       title: 'Congratulations!',
-      description: 'You\'ve completed the discovery tutorial and earned your first achievement. Continue your journey to unlock more content and tokens.',
+      description:
+        "You've completed the discovery tutorial and earned your first achievement. Continue your journey to unlock more content and tokens.",
       gradientClass: 'from-green-400 to-green-600',
       image: '/images/onboarding/completion.png',
       action: {
@@ -171,23 +177,23 @@ export default function DiscoveryTutorial({
       },
     },
   ];
-  
+
   useEffect(() => {
     const fetchUserProgress = async () => {
       setIsLoading(true);
       try {
         if (!user?.id) return;
-        
+
         // Track this view for analytics
         await trackActivity('view_discovery_tutorial', 'tutorial', 'discovery');
-        
+
         // Get completed tutorial steps
         const { data: progress } = await supabase
           .from('user_progress')
           .select('content_id')
           .eq('user_id', user.id)
           .like('content_id', 'tutorial_%');
-        
+
         if (progress) {
           setCompletedSteps(progress.map(p => p.content_id.replace('tutorial_', '')));
         }
@@ -197,30 +203,30 @@ export default function DiscoveryTutorial({
         setIsLoading(false);
       }
     };
-    
+
     fetchUserProgress();
   }, [user?.id, supabase, trackActivity]);
-  
+
   const handleStepComplete = async () => {
     try {
       const step = tutorialSteps[currentStep];
-      
+
       // Mark step as completed
       if (!completedSteps.includes(step.id)) {
         // await completeContent(`tutorial_${step.id}`);
-        
+
         // Update local state
         setCompletedSteps([...completedSteps, step.id]);
-        
+
         // Track completion for analytics
         await trackActivity('complete_tutorial_step', 'tutorial_step', step.id);
-        
+
         // If this is the last step, trigger completion callback
         if (currentStep === tutorialSteps.length - 1 && onComplete) {
           onComplete();
         }
       }
-      
+
       // Move to next step if not the last one
       if (currentStep < tutorialSteps.length - 1) {
         setCurrentStep(currentStep + 1);
@@ -229,20 +235,20 @@ export default function DiscoveryTutorial({
       console.error('Error completing tutorial step:', error);
     }
   };
-  
+
   const handleStepAction = async (step: TutorialStep) => {
     // Track the action for analytics
     await trackActivity('tutorial_action_click', 'tutorial_step', step.id, {
       action_label: step.action?.label,
-      action_path: step.action?.path
+      action_path: step.action?.path,
     });
-    
+
     // Navigate to the action path
     if (step.action?.path) {
       router.push(step.action.path);
     }
   };
-  
+
   if (isLoading) {
     return (
       <Card className={`w-full ${className}`}>
@@ -266,10 +272,10 @@ export default function DiscoveryTutorial({
       </Card>
     );
   }
-  
+
   const currentTutorialStep = tutorialSteps[currentStep];
   const progress = ((currentStep + 1) / tutorialSteps.length) * 100;
-  
+
   return (
     <Card className={`w-full ${className}`}>
       <CardHeader className={`bg-gradient-to-r ${currentTutorialStep.gradientClass} text-white`}>
@@ -297,7 +303,7 @@ export default function DiscoveryTutorial({
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-6">
         {/* Progress Bar */}
         <div className="mb-6">
@@ -307,20 +313,20 @@ export default function DiscoveryTutorial({
             <span>Completion</span>
           </div>
         </div>
-        
+
         {/* Tutorial Content */}
         <div className="space-y-6">
           {/* Image or Video */}
           {currentTutorialStep.image && (
             <div className="rounded-lg overflow-hidden border h-64 flex items-center justify-center bg-gray-50">
-              <img 
-                src={currentTutorialStep.image} 
+              <img
+                src={currentTutorialStep.image}
                 alt={currentTutorialStep.title}
                 className="max-w-full max-h-full object-contain"
               />
             </div>
           )}
-          
+
           {currentTutorialStep.videoUrl && (
             <div className="rounded-lg overflow-hidden h-64">
               <iframe
@@ -334,12 +340,12 @@ export default function DiscoveryTutorial({
               ></iframe>
             </div>
           )}
-          
+
           {/* Description */}
           <div className="text-gray-700">
             <p>{currentTutorialStep.description}</p>
           </div>
-          
+
           {/* Completed Badge */}
           {completedSteps.includes(currentTutorialStep.id) && (
             <div className="flex items-center text-green-600 text-sm">
@@ -349,19 +355,19 @@ export default function DiscoveryTutorial({
           )}
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex justify-between border-t pt-6">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           onClick={() => currentStep > 0 && setCurrentStep(currentStep - 1)}
           disabled={currentStep === 0}
         >
           Previous
         </Button>
-        
+
         <div className="flex gap-2">
           {currentTutorialStep.action && (
-            <Button 
+            <Button
               variant="outline"
               className={`border-${currentTutorialStep.gradientClass.split('-')[1]}-500 text-${currentTutorialStep.gradientClass.split('-')[1]}-500`}
               onClick={() => handleStepAction(currentTutorialStep)}
@@ -369,9 +375,9 @@ export default function DiscoveryTutorial({
               {currentTutorialStep.action.label}
             </Button>
           )}
-          
+
           {currentStep < tutorialSteps.length - 1 ? (
-            <Button 
+            <Button
               className={`bg-gradient-to-r ${currentTutorialStep.gradientClass} text-white`}
               onClick={handleStepComplete}
             >
@@ -379,7 +385,7 @@ export default function DiscoveryTutorial({
               <ArrowRightIcon className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button 
+            <Button
               className={`bg-gradient-to-r ${currentTutorialStep.gradientClass} text-white`}
               onClick={handleStepComplete}
             >

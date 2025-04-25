@@ -1,12 +1,12 @@
-import { createClient } from '@/lib/supabase/client'
-import { Database } from '@/types/supabase'
+import { createClient } from '@/lib/supabase/client';
+import { Database } from '@/types/supabase';
 
 /**
  * AnalyticsService provides methods for interacting with the Avolve platform's
  * advanced analytics and real-time engagement features.
  */
 export class AnalyticsService {
-  private supabase = createClient()
+  private supabase = createClient();
 
   /**
    * Logs a user activity with the specified parameters.
@@ -20,12 +20,12 @@ export class AnalyticsService {
     useQueue: boolean = true
   ) {
     try {
-      const { data: userData } = await this.supabase.auth.getUser()
-      if (!userData.user) return null
+      const { data: userData } = await this.supabase.auth.getUser();
+      if (!userData.user) return null;
 
       // Get client information
-      const ipAddress = '0.0.0.0' // This will be replaced by the server
-      const userAgent = navigator.userAgent
+      const ipAddress = '0.0.0.0'; // This will be replaced by the server
+      const userAgent = navigator.userAgent;
 
       if (useQueue) {
         // Use the queue for high-volume activities
@@ -35,11 +35,11 @@ export class AnalyticsService {
           p_details: details,
           p_ip_address: ipAddress,
           p_user_agent: userAgent,
-          p_immersion_level: immersionLevel
-        })
+          p_immersion_level: immersionLevel,
+        });
 
-        if (error) throw error
-        return data
+        if (error) throw error;
+        return data;
       } else {
         // Direct insert for low-volume, high-priority activities
         const { data, error } = await this.supabase.from('user_activity_log').insert({
@@ -49,15 +49,15 @@ export class AnalyticsService {
           ip_address: ipAddress,
           user_agent: userAgent,
           immersion_level: immersionLevel,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        });
 
-        if (error) throw error
-        return data
+        if (error) throw error;
+        return data;
       }
     } catch (error) {
-      console.error('Error logging activity:', error)
-      return null
+      console.error('Error logging activity:', error);
+      return null;
     }
   }
 
@@ -73,11 +73,11 @@ export class AnalyticsService {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'event_completions'
+          table: 'event_completions',
         },
         callback
       )
-      .subscribe()
+      .subscribe();
   }
 
   /**
@@ -85,23 +85,23 @@ export class AnalyticsService {
    */
   async getJourneyAnalytics(journeyType?: string, tokenType?: string) {
     try {
-      let query = this.supabase.from('journey_analytics').select('*')
+      let query = this.supabase.from('journey_analytics').select('*');
 
       if (journeyType) {
-        query = query.eq('primary_journey', journeyType)
+        query = query.eq('primary_journey', journeyType);
       }
 
       if (tokenType) {
-        query = query.eq('token_type', tokenType)
+        query = query.eq('token_type', tokenType);
       }
 
-      const { data, error } = await query
+      const { data, error } = await query;
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error fetching journey analytics:', error)
-      return null
+      console.error('Error fetching journey analytics:', error);
+      return null;
     }
   }
 
@@ -110,19 +110,19 @@ export class AnalyticsService {
    */
   async getCommunityInsights(tokenType?: string) {
     try {
-      let query = this.supabase.from('community_insights').select('*')
+      let query = this.supabase.from('community_insights').select('*');
 
       if (tokenType) {
-        query = query.eq('token_type', tokenType)
+        query = query.eq('token_type', tokenType);
       }
 
-      const { data, error } = await query
+      const { data, error } = await query;
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error fetching community insights:', error)
-      return null
+      console.error('Error fetching community insights:', error);
+      return null;
     }
   }
 
@@ -140,14 +140,14 @@ export class AnalyticsService {
         p_journey_type: journeyType,
         p_token_type: tokenType,
         p_time_period: timePeriod,
-        p_limit: limit
-      })
+        p_limit: limit,
+      });
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error fetching leaderboard:', error)
-      return null
+      console.error('Error fetching leaderboard:', error);
+      return null;
     }
   }
 
@@ -160,21 +160,21 @@ export class AnalyticsService {
     timePeriod: '7days' | '30days' | '90days' | 'alltime' = '30days'
   ) {
     try {
-      const { data: userData } = await this.supabase.auth.getUser()
-      if (!userData.user) return null
+      const { data: userData } = await this.supabase.auth.getUser();
+      if (!userData.user) return null;
 
       const { data, error } = await this.supabase.rpc('get_user_leaderboard_position', {
         p_user_id: userData.user.id,
         p_journey_type: journeyType,
         p_token_type: tokenType,
-        p_time_period: timePeriod
-      })
+        p_time_period: timePeriod,
+      });
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error fetching user leaderboard position:', error)
-      return null
+      console.error('Error fetching user leaderboard position:', error);
+      return null;
     }
   }
 
@@ -183,18 +183,18 @@ export class AnalyticsService {
    */
   async getTesla369Streak() {
     try {
-      const { data: userData } = await this.supabase.auth.getUser()
-      if (!userData.user) return null
+      const { data: userData } = await this.supabase.auth.getUser();
+      if (!userData.user) return null;
 
       const { data, error } = await this.supabase.rpc('calculate_tesla_369_streak', {
-        p_user_id: userData.user.id
-      })
+        p_user_id: userData.user.id,
+      });
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     } catch (error) {
-      console.error('Error fetching Tesla 3-6-9 streak:', error)
-      return null
+      console.error('Error fetching Tesla 3-6-9 streak:', error);
+      return null;
     }
   }
 
@@ -203,23 +203,23 @@ export class AnalyticsService {
    */
   async getImmersionInsights() {
     try {
-      const { data: userData } = await this.supabase.auth.getUser()
-      if (!userData.user) return null
+      const { data: userData } = await this.supabase.auth.getUser();
+      if (!userData.user) return null;
 
       const { data, error } = await this.supabase
         .from('immersion_insights')
         .select('*')
         .eq('user_id', userData.user.id)
-        .single()
+        .single();
 
-      if (error && error.code !== 'PGRST116') throw error // PGRST116 is "No rows returned"
-      return data
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 is "No rows returned"
+      return data;
     } catch (error) {
-      console.error('Error fetching immersion insights:', error)
-      return null
+      console.error('Error fetching immersion insights:', error);
+      return null;
     }
   }
 }
 
 // Export a singleton instance
-export const analyticsService = new AnalyticsService()
+export const analyticsService = new AnalyticsService();

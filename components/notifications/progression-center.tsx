@@ -1,21 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { 
-  Coins, 
-  CheckCircle, 
-  Sparkles, 
-  Trophy, 
-  Bell, 
+import { createClient } from '../../lib/supabase/client';
+import {
+  Coins,
+  CheckCircle,
+  Sparkles,
+  Trophy,
+  Bell,
   Clock,
   ArrowRight,
-  Calendar
+  Calendar,
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
@@ -40,7 +47,7 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
   const [activeTab, setActiveTab] = useState<string>('all');
   const [items, setItems] = useState<ProgressionItem[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   useEffect(() => {
     async function fetchItems() {
@@ -70,7 +77,7 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
 
       // Combine and map all items to unified structure
       const processedItems: ProgressionItem[] = [
-        ...(milestones || []).map((m) => ({
+        ...(milestones || []).map(m => ({
           id: m.id,
           type: 'milestone' as const,
           title: m.milestone_name || 'Milestone Reached',
@@ -80,7 +87,7 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
           data: m,
           link: '/dashboard/journey',
         })),
-        ...(tokens || []).map((t) => ({
+        ...(tokens || []).map(t => ({
           id: t.id,
           type: 'token' as const,
           title: `${t.amount} ${t.token_type} Tokens Earned`,
@@ -90,17 +97,19 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
           data: t,
           link: '/tokens',
         })),
-        ...(completions || []).map((c) => ({
+        ...(completions || []).map(c => ({
           id: c.id,
           type: 'completion' as const,
-          title: c.component_name ? `Component Completed: ${c.component_name}` : 'Component Completed',
+          title: c.component_name
+            ? `Component Completed: ${c.component_name}`
+            : 'Component Completed',
           description: c.component_description || '',
           created_at: c.updated_at || c.created_at,
           read: c.read,
           data: c,
           link: '/dashboard/journey',
         })),
-        ...(features || []).map((f) => ({
+        ...(features || []).map(f => ({
           id: f.id,
           type: 'feature' as const,
           title: f.feature_name ? `New Feature Unlocked: ${f.feature_name}` : 'Feature Unlocked',
@@ -111,7 +120,9 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
           link: f.feature_path || '/dashboard/features',
         })),
       ];
-      processedItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      processedItems.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
       setItems(processedItems);
       setUnreadCount(processedItems.filter(item => !item.read).length);
     }
@@ -137,7 +148,7 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
     }
     if (table) {
       await supabase.from(table).update({ read: true }).eq(idColumn, itemId);
-      setItems(items.map(item => item.id === itemId ? { ...item, read: true } : item));
+      setItems(items.map(item => (item.id === itemId ? { ...item, read: true } : item)));
       setUnreadCount(prev => Math.max(0, prev - 1));
     }
   };
@@ -191,18 +202,11 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
     }
   };
 
-  const filteredItems = activeTab === 'all' 
-    ? items 
-    : items.filter(item => item.type === activeTab);
+  const filteredItems = activeTab === 'all' ? items : items.filter(item => item.type === activeTab);
 
   return (
     <div className="relative">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative"
-      >
+      <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)} className="relative">
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-medium text-white">
@@ -251,15 +255,26 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
                     <div className="text-center py-8 text-zinc-400">No notifications yet.</div>
                   ) : (
                     <ul className="divide-y divide-zinc-100">
-                      {filteredItems.map((item) => (
-                        <li key={item.id} className={`flex items-start gap-3 px-4 py-3 group ${!item.read ? 'bg-zinc-50' : ''}`}>
+                      {filteredItems.map(item => (
+                        <li
+                          key={item.id}
+                          className={`flex items-start gap-3 px-4 py-3 group ${!item.read ? 'bg-zinc-50' : ''}`}
+                        >
                           <div className="pt-1">{getItemIcon(item.type)}</div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm text-zinc-900 line-clamp-1">{item.title}</span>
-                              {!item.read && <Badge variant="outline" className="text-xs">New</Badge>}
+                              <span className="font-medium text-sm text-zinc-900 line-clamp-1">
+                                {item.title}
+                              </span>
+                              {!item.read && (
+                                <Badge variant="outline" className="text-xs">
+                                  New
+                                </Badge>
+                              )}
                             </div>
-                            <div className="text-xs text-zinc-600 line-clamp-2 mb-1">{item.description}</div>
+                            <div className="text-xs text-zinc-600 line-clamp-2 mb-1">
+                              {item.description}
+                            </div>
                             <div className="flex items-center gap-2 text-xs text-zinc-400">
                               <Calendar className="h-3 w-3" />
                               {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
@@ -267,12 +282,19 @@ export function ProgressionCenter({ userId }: ProgressionCenterProps) {
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             {item.link && (
-                              <Link href={item.link} className="text-blue-600 hover:underline text-xs flex items-center gap-1">
+                              <Link
+                                href={item.link}
+                                className="text-blue-600 hover:underline text-xs flex items-center gap-1"
+                              >
                                 View <ArrowRight className="h-3 w-3" />
                               </Link>
                             )}
                             {!item.read && (
-                              <Button variant="link" size="sm" onClick={() => markAsRead(item.id, item.type)}>
+                              <Button
+                                variant="link"
+                                size="sm"
+                                onClick={() => markAsRead(item.id, item.type)}
+                              >
                                 Mark as read
                               </Button>
                             )}

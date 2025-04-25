@@ -1,8 +1,8 @@
-"use client"
-import { Bell, Home, PanelLeft, MessageSquare, Search } from "lucide-react"
+'use client';
+import { Bell, Home, PanelLeft, MessageSquare, Search } from 'lucide-react';
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +11,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { useSidebar } from "@/components/ui/sidebar"
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { useSidebar } from '@/components/ui/sidebar';
 import type { User } from '@supabase/supabase-js';
 
 // Removed unused User type import
@@ -23,12 +23,17 @@ interface AppNavbarProps {
 }
 
 export function AppNavbar({ user }: AppNavbarProps) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar } = useSidebar();
 
   return (
     <div className="sticky top-0 z-30 flex h-14 items-center justify-between w-full apple-blur px-4 border-b border-zinc-200/50 dark:border-zinc-700/50">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8 rounded-full apple-button">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="h-8 w-8 rounded-full apple-button"
+        >
           <PanelLeft className="h-4 w-4 apple-icon" />
           <span className="sr-only">Toggle sidebar</span>
         </Button>
@@ -72,9 +77,9 @@ export function AppNavbar({ user }: AppNavbarProps) {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full apple-button ml-1">
               <Avatar className="h-7 w-7 border border-zinc-200 dark:border-zinc-700">
-                <AvatarImage src={user.user_metadata?.avatar_url || ""} alt={user.email || ""} />
+                <AvatarImage src={user.user_metadata?.avatar_url || ''} alt={user.email || ''} />
                 <AvatarFallback className="text-xs font-medium">
-                  {user.email?.charAt(0).toUpperCase() || "U"}
+                  {user.email?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
               <span className="sr-only">User menu</span>
@@ -96,5 +101,5 @@ export function AppNavbar({ user }: AppNavbarProps) {
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }

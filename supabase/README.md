@@ -84,6 +84,7 @@ The migrations are applied in the following order:
 ## Benefits of Mathematical Patterns in Database Design
 
 ### For Users
+
 1. **Intuitive Token Values**: Token values and relationships feel natural and balanced
 2. **Predictable Rewards**: Rewards follow natural mathematical progressions
 3. **Meaningful Patterns**: Users can recognize patterns in token relationships
@@ -91,6 +92,7 @@ The migrations are applied in the following order:
 5. **Enhanced Engagement**: Mathematical harmony creates a more engaging experience
 
 ### For Administrators
+
 1. **Self-Balancing Economics**: The token economy naturally balances itself
 2. **Reduced Complexity**: Despite sophisticated mathematics, the system is simpler to manage
 3. **Scalable Architecture**: The system can grow while maintaining its proportions
@@ -98,6 +100,7 @@ The migrations are applied in the following order:
 5. **Universal Appeal**: The principles resonate across cultural and educational backgrounds
 
 ### For Developers
+
 1. **Elegant Data Structures**: The mathematics encourages elegant, efficient data structures
 2. **Predictable Patterns**: Token relationships follow predictable patterns
 3. **Testable Relationships**: Mathematical relationships are easier to test
@@ -122,6 +125,7 @@ All tables have Row Level Security (RLS) policies enabled to ensure data privacy
 4. **Automatic Role Assignment** - New users automatically get the Subscriber role
 
 All functions follow these best practices:
+
 - Using `security invoker` to run with caller's permissions
 - Setting `search_path = ''` to prevent search path attacks
 - Using fully qualified names for all database objects
@@ -131,11 +135,13 @@ All functions follow these best practices:
 The platform implements the following roles:
 
 ### User Roles
+
 - **Subscriber** - Basic access to platform content
 - **Participant** - Can participate in community activities
 - **Contributor** - Can contribute content to the platform
 
 ### Admin Roles
+
 - **Associate** - Helping with platform operations
 - **Builder** - Building platform features
 - **Partner** - Funding and strategic direction
@@ -145,6 +151,7 @@ The platform implements the following roles:
 The following key functions are available:
 
 ### Role Functions
+
 - `get_user_roles()` - Returns all roles assigned to the current user
 - `has_role(role_name)` - Checks if the current user has a specific role
 - `is_admin()` - Checks if the current user has admin privileges
@@ -152,6 +159,7 @@ The following key functions are available:
 - `remove_role(user_id, role_name)` - Removes a role from a user (admin only)
 
 ### Token Functions
+
 - `get_token_hierarchy()` - Returns the hierarchical structure of all tokens
 - `get_user_tokens(user_id)` - Returns all tokens owned by a user
 - `has_token_access(token_symbol, user_id)` - Checks if a user has access to content requiring a specific token
@@ -160,12 +168,14 @@ The following key functions are available:
 - `has_component_access(component_id, user_id)` - Checks if a user has access to a specific component
 
 ### Mathematical Functions
+
 - `get_digital_root(num)` - Calculates the digital root of a number using modular arithmetic
 - `is_golden_ratio_number(num)` - Checks if a number belongs to the golden ratio sequence
 - `get_token_family(num)` - Returns the token family based on digital root
 - `calculate_token_value(token_id, reference_token_id)` - Calculates token value based on mathematical principles
 
 ### Gamification Functions
+
 - `complete_content(content_id)` - Marks content as completed and grants any associated rewards
 - `get_all_pillars_progress(user_id)` - Returns progress statistics for all pillars
 - `track_user_activity(activity_type, entity_type, entity_id, metadata)` - Records user activity for analytics and gamification

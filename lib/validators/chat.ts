@@ -4,12 +4,15 @@ import { z } from 'zod';
  * Validation schema for chat API requests
  */
 export const chatRequestSchema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant', 'system']),
-      content: z.string().min(1).max(4000),
-    })
-  ).min(1).max(100),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.string().min(1).max(4000),
+      })
+    )
+    .min(1)
+    .max(100),
   model: z.string().optional(),
   systemPrompt: z.string().optional(),
 });
@@ -18,12 +21,15 @@ export const chatRequestSchema = z.object({
  * Validation schema for Grok chat API requests
  */
 export const grokChatRequestSchema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant', 'system']),
-      content: z.string().min(1).max(4000),
-    })
-  ).min(1).max(100),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant', 'system']),
+        content: z.string().min(1).max(4000),
+      })
+    )
+    .min(1)
+    .max(100),
   userId: z.string().optional(),
 });
 
@@ -57,10 +63,10 @@ export function validateGrokChatRequest(data: unknown): GrokChatRequest {
  * Safely validates a chat API request
  * @returns Validation result with success flag
  */
-export function safeValidateChatRequest(data: unknown): { 
-  success: boolean; 
-  data?: ChatRequest; 
-  error?: z.ZodError 
+export function safeValidateChatRequest(data: unknown): {
+  success: boolean;
+  data?: ChatRequest;
+  error?: z.ZodError;
 } {
   try {
     const validData = validateChatRequest(data);
@@ -77,10 +83,10 @@ export function safeValidateChatRequest(data: unknown): {
  * Safely validates a Grok chat API request
  * @returns Validation result with success flag
  */
-export function safeValidateGrokChatRequest(data: unknown): { 
-  success: boolean; 
-  data?: GrokChatRequest; 
-  error?: z.ZodError 
+export function safeValidateGrokChatRequest(data: unknown): {
+  success: boolean;
+  data?: GrokChatRequest;
+  error?: z.ZodError;
 } {
   try {
     const validData = validateGrokChatRequest(data);

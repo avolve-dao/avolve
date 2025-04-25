@@ -4,19 +4,26 @@ import { useEffect, useState } from 'react';
 import { useTokens } from '@/hooks/use-tokens';
 import { TokenDisplay } from '@/components/token/token-display';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
-import { 
-  Coins, 
-  ArrowLeftRight, 
-  LockIcon, 
-  UnlockIcon, 
-  BarChart3, 
-  History, 
+import {
+  Coins,
+  ArrowLeftRight,
+  LockIcon,
+  UnlockIcon,
+  BarChart3,
+  History,
   Info,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
 import {
   Dialog,
@@ -26,16 +33,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 // TokenWithBalance type for dashboard selection
 import type { Token } from '@/hooks/use-tokens';
@@ -46,7 +54,7 @@ type TokenWithBalance = Token & { staked_balance?: number };
  */
 export function TokensDashboard() {
   const { tokens, userBalances, isLoading } = useTokens();
-  
+
   const [activeTab, setActiveTab] = useState('tokens');
   const [isTransferDialogOpen, setIsTransferDialogOpen] = useState(false);
   const [isStakeDialogOpen, setIsStakeDialogOpen] = useState(false);
@@ -93,9 +101,7 @@ export function TokensDashboard() {
             <Coins className="h-5 w-5" />
             <span>Token Overview</span>
           </CardTitle>
-          <CardDescription>
-            Your token balance and portfolio
-          </CardDescription>
+          <CardDescription>Your token balance and portfolio</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
@@ -118,7 +124,7 @@ export function TokensDashboard() {
           </div>
         </CardContent>
       </Card>
-      
+
       {/* Main Content Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3 mb-6">
@@ -126,13 +132,15 @@ export function TokensDashboard() {
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="hierarchy">Token Hierarchy</TabsTrigger>
         </TabsList>
-        
+
         {/* My Tokens Tab */}
         <TabsContent value="tokens" className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tokens.map(token => (
               <Card key={token.id}>
-                <CardHeader className={`bg-gradient-to-r ${token.gradient_class} text-white rounded-t-lg`}>
+                <CardHeader
+                  className={`bg-gradient-to-r ${token.gradient_class} text-white rounded-t-lg`}
+                >
                   <CardTitle className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       {token.symbol}
@@ -167,8 +175,8 @@ export function TokensDashboard() {
                   </div>
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       setSelectedToken(token);
@@ -179,8 +187,8 @@ export function TokensDashboard() {
                     <ArrowLeftRight className="mr-2 h-4 w-4" />
                     Transfer
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       setSelectedToken(token);
@@ -203,7 +211,7 @@ export function TokensDashboard() {
                 </CardFooter>
               </Card>
             ))}
-            
+
             {tokens.length === 0 && (
               <div className="col-span-3 p-8 text-center">
                 <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -216,14 +224,12 @@ export function TokensDashboard() {
               </div>
             )}
           </div>
-          
+
           {/* Token Acquisition Guide */}
           <Card>
             <CardHeader>
               <CardTitle>How to Earn Tokens</CardTitle>
-              <CardDescription>
-                Complete these actions to earn more tokens
-              </CardDescription>
+              <CardDescription>Complete these actions to earn more tokens</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
@@ -231,35 +237,43 @@ export function TokensDashboard() {
                   <ChevronRight className="h-5 w-5 mr-2 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Complete Sections</span>
-                    <p className="text-sm text-gray-500">Finish sections in each pillar to earn tokens</p>
+                    <p className="text-sm text-gray-500">
+                      Finish sections in each pillar to earn tokens
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <ChevronRight className="h-5 w-5 mr-2 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Earn Achievements</span>
-                    <p className="text-sm text-gray-500">Unlock achievements to receive token rewards</p>
+                    <p className="text-sm text-gray-500">
+                      Unlock achievements to receive token rewards
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <ChevronRight className="h-5 w-5 mr-2 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Stake Your Tokens</span>
-                    <p className="text-sm text-gray-500">Stake tokens to earn passive rewards over time</p>
+                    <p className="text-sm text-gray-500">
+                      Stake tokens to earn passive rewards over time
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
                   <ChevronRight className="h-5 w-5 mr-2 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <span className="font-medium">Contribute to the Community</span>
-                    <p className="text-sm text-gray-500">Help others and create content to earn special tokens</p>
+                    <p className="text-sm text-gray-500">
+                      Help others and create content to earn special tokens
+                    </p>
                   </div>
                 </li>
               </ul>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         {/* Transactions Tab */}
         <TabsContent value="transactions" className="space-y-6">
           <Card>
@@ -268,9 +282,7 @@ export function TokensDashboard() {
                 <History className="h-5 w-5" />
                 <span>Recent Transactions</span>
               </CardTitle>
-              <CardDescription>
-                Your recent token transactions
-              </CardDescription>
+              <CardDescription>Your recent token transactions</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -290,7 +302,7 @@ export function TokensDashboard() {
                     <div className="text-sm text-gray-500">Apr 6, 2025</div>
                   </div>
                 </div>
-                
+
                 <div className="p-4 border rounded-lg flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -306,7 +318,7 @@ export function TokensDashboard() {
                     <div className="text-sm text-gray-500">Apr 5, 2025</div>
                   </div>
                 </div>
-                
+
                 <div className="p-4 border rounded-lg flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
@@ -331,7 +343,7 @@ export function TokensDashboard() {
             </CardFooter>
           </Card>
         </TabsContent>
-        
+
         {/* Token Hierarchy Tab */}
         <TabsContent value="hierarchy" className="space-y-6">
           <Card>
@@ -362,12 +374,15 @@ export function TokensDashboard() {
                           <Info className="h-4 w-4 text-gray-400" />
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p className="max-w-xs">The GEN token is the primary token for the Supercivilization pillar. It represents the ecosystem journey of transformation.</p>
+                          <p className="max-w-xs">
+                            The GEN token is the primary token for the Supercivilization pillar. It
+                            represents the ecosystem journey of transformation.
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  
+
                   {/* SAP Token (Level 1) */}
                   <div className="ml-6 border-l-4 border-stone-500 pl-4 mb-4">
                     <div className="flex items-center space-x-2 mb-2">
@@ -379,7 +394,7 @@ export function TokensDashboard() {
                         <div className="text-sm text-gray-500">Individual journey</div>
                       </div>
                     </div>
-                    
+
                     {/* PSP Token (Level 2) */}
                     <div className="ml-6 border-l-4 border-amber-500 pl-4 mb-2">
                       <div className="flex items-center space-x-2">
@@ -392,7 +407,7 @@ export function TokensDashboard() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* BSP Token (Level 2) */}
                     <div className="ml-6 border-l-4 border-teal-500 pl-4 mb-2">
                       <div className="flex items-center space-x-2">
@@ -405,7 +420,7 @@ export function TokensDashboard() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* SMS Token (Level 2) */}
                     <div className="ml-6 border-l-4 border-violet-500 pl-4">
                       <div className="flex items-center space-x-2">
@@ -419,7 +434,7 @@ export function TokensDashboard() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* SCQ Token (Level 1) */}
                   <div className="ml-6 border-l-4 border-slate-500 pl-4">
                     <div className="flex items-center space-x-2 mb-2">
@@ -431,7 +446,7 @@ export function TokensDashboard() {
                         <div className="text-sm text-gray-500">Collective journey</div>
                       </div>
                     </div>
-                    
+
                     {/* SPD Token (Level 2) */}
                     <div className="ml-6 border-l-4 border-red-500 pl-4 mb-2">
                       <div className="flex items-center space-x-2">
@@ -444,7 +459,7 @@ export function TokensDashboard() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* SHE Token (Level 2) */}
                     <div className="ml-6 border-l-4 border-rose-500 pl-4 mb-2">
                       <div className="flex items-center space-x-2">
@@ -457,7 +472,7 @@ export function TokensDashboard() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* SSA Token (Level 2) */}
                     <div className="ml-6 border-l-4 border-lime-500 pl-4 mb-2">
                       <div className="flex items-center space-x-2">
@@ -470,7 +485,7 @@ export function TokensDashboard() {
                         </div>
                       </div>
                     </div>
-                    
+
                     {/* SGB Token (Level 2) */}
                     <div className="ml-6 border-l-4 border-sky-500 pl-4">
                       <div className="flex items-center space-x-2">
@@ -490,19 +505,19 @@ export function TokensDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
-      
+
       {/* Transfer Dialog */}
       <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Transfer Token</DialogTitle>
-            <DialogDescription>
-              Transfer {selectedToken?.name} to another user
-            </DialogDescription>
+            <DialogDescription>Transfer {selectedToken?.name} to another user</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${selectedToken?.gradient_class}`}>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${selectedToken?.gradient_class}`}
+              >
                 {selectedToken?.symbol}
               </div>
               <div>
@@ -510,24 +525,24 @@ export function TokensDashboard() {
                 <div className="text-sm text-gray-500">Balance: {selectedToken?.balance}</div>
               </div>
             </div>
-            
+
             <div className="grid gap-2">
               <Label htmlFor="recipient">Recipient Email</Label>
               <Input
                 id="recipient"
                 value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
+                onChange={e => setRecipientEmail(e.target.value)}
                 placeholder="user@example.com"
               />
             </div>
-            
+
             <div className="grid gap-2">
               <Label htmlFor="amount">Amount</Label>
               <Input
                 id="amount"
                 type="number"
                 value={transferAmount}
-                onChange={(e) => setTransferAmount(e.target.value)}
+                onChange={e => setTransferAmount(e.target.value)}
                 placeholder="0"
                 min="0"
                 max={selectedToken?.balance}
@@ -538,18 +553,15 @@ export function TokensDashboard() {
             </div>
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsTransferDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsTransferDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleTransfer}
               disabled={
-                !transferAmount || 
-                !recipientEmail || 
-                parseFloat(transferAmount) <= 0 || 
+                !transferAmount ||
+                !recipientEmail ||
+                parseFloat(transferAmount) <= 0 ||
                 parseFloat(transferAmount) > (selectedToken?.balance || 0)
               }
             >
@@ -558,91 +570,100 @@ export function TokensDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Stake Dialog */}
       <Dialog open={isStakeDialogOpen} onOpenChange={setIsStakeDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 ? 'Unstake Token' : 'Stake Token'}
+              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0
+                ? 'Unstake Token'
+                : 'Stake Token'}
             </DialogTitle>
             <DialogDescription>
-              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 
+              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0
                 ? `Unstake ${selectedToken?.name} to make it available for transfer`
-                : `Stake ${selectedToken?.name} to earn rewards over time`
-              }
+                : `Stake ${selectedToken?.name} to earn rewards over time`}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${selectedToken?.gradient_class}`}>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-r ${selectedToken?.gradient_class}`}
+              >
                 {selectedToken?.symbol}
               </div>
               <div>
                 <div className="font-medium">{selectedToken?.name}</div>
                 <div className="text-sm text-gray-500">
-                  {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 
+                  {typeof selectedToken?.staked_balance === 'number' &&
+                  selectedToken.staked_balance > 0
                     ? `Staked: ${selectedToken?.staked_balance}`
-                    : `Balance: ${selectedToken?.balance}`
-                  }
+                    : `Balance: ${selectedToken?.balance}`}
                 </div>
               </div>
             </div>
-            
+
             <div className="grid gap-2">
               <Label htmlFor="stakeAmount">Amount</Label>
               <Input
                 id="stakeAmount"
                 type="number"
                 value={stakeAmount}
-                onChange={(e) => setStakeAmount(e.target.value)}
+                onChange={e => setStakeAmount(e.target.value)}
                 placeholder="0"
                 min="0"
-                max={typeof selectedToken?.staked_balance === 'number' && selectedToken?.staked_balance && selectedToken.staked_balance > 0 
-                  ? selectedToken.staked_balance 
-                  : (selectedToken?.balance ?? 0)
+                max={
+                  typeof selectedToken?.staked_balance === 'number' &&
+                  selectedToken?.staked_balance &&
+                  selectedToken.staked_balance > 0
+                    ? selectedToken.staked_balance
+                    : (selectedToken?.balance ?? 0)
                 }
               />
               <div className="text-sm text-gray-500">
-                Maximum: {
-                  typeof selectedToken?.staked_balance === 'number' && selectedToken?.staked_balance && selectedToken.staked_balance > 0 
-                    ? selectedToken.staked_balance 
-                    : (selectedToken?.balance ?? 0)
-                } {selectedToken?.symbol}
+                Maximum:{' '}
+                {typeof selectedToken?.staked_balance === 'number' &&
+                selectedToken?.staked_balance &&
+                selectedToken.staked_balance > 0
+                  ? selectedToken.staked_balance
+                  : (selectedToken?.balance ?? 0)}{' '}
+                {selectedToken?.symbol}
               </div>
             </div>
-            
-            {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance <= 0 && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm text-blue-800 dark:text-blue-300">
-                <div className="font-medium">Staking Benefits</div>
-                <ul className="list-disc list-inside mt-1 space-y-1">
-                  <li>Earn rewards over time</li>
-                  <li>Contribute to platform stability</li>
-                  <li>Unlock special features</li>
-                </ul>
-              </div>
-            )}
+
+            {typeof selectedToken?.staked_balance === 'number' &&
+              selectedToken.staked_balance <= 0 && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md text-sm text-blue-800 dark:text-blue-300">
+                  <div className="font-medium">Staking Benefits</div>
+                  <ul className="list-disc list-inside mt-1 space-y-1">
+                    <li>Earn rewards over time</li>
+                    <li>Contribute to platform stability</li>
+                    <li>Unlock special features</li>
+                  </ul>
+                </div>
+              )}
           </div>
           <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsStakeDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsStakeDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleStake}
               disabled={
-                !stakeAmount || 
-                parseFloat(stakeAmount) <= 0 || 
-                parseFloat(stakeAmount) > (
-                  typeof selectedToken?.staked_balance === 'number' && selectedToken?.staked_balance && selectedToken.staked_balance > 0 
-                    ? selectedToken.staked_balance 
-                    : (selectedToken?.balance ?? 0)
-                )
+                !stakeAmount ||
+                parseFloat(stakeAmount) <= 0 ||
+                parseFloat(stakeAmount) >
+                  (typeof selectedToken?.staked_balance === 'number' &&
+                  selectedToken?.staked_balance &&
+                  selectedToken.staked_balance > 0
+                    ? selectedToken.staked_balance
+                    : (selectedToken?.balance ?? 0))
               }
             >
-              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0 ? 'Unstake' : 'Stake'}
+              {typeof selectedToken?.staked_balance === 'number' && selectedToken.staked_balance > 0
+                ? 'Unstake'
+                : 'Stake'}
             </Button>
           </DialogFooter>
         </DialogContent>

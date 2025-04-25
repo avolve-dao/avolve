@@ -1,11 +1,13 @@
 # Avolve Admin Guide (2025 Launch Edition)
 
 ## Overview
+
 This guide empowers admins and moderators to manage, secure, and optimize the Avolve platform. It covers all RBAC-protected features, analytics, moderation, content management, security best practices, and onboarding operations.
 
 ---
 
 ## 1. Admin Dashboard
+
 - Access via `/app/(authenticated)/admin`
 - View platform analytics, user stats, and system health
 - Track invites sent, accepted, and completed onboarding in the admin dashboard.
@@ -14,27 +16,32 @@ This guide empowers admins and moderators to manage, secure, and optimize the Av
 - Use filters to review feature requests and user feedback.
 
 ## 2. User & Role Management
+
 - Add, remove, or update users and roles
 - Assign admin/moderator privileges
 - Audit logs for sensitive actions
 - All RBAC logic is enforced via Supabase policies and middleware
 
 ## 3. Content & Moderation
+
 - Manage user-generated content (UGC)
 - Approve, reject, or flag submissions
 - Tools for community moderation and feedback
 
 ## 4. Security & Compliance
+
 - Security headers and CSP
 - Rate limiting on sensitive routes
 - RLS (Row Level Security) on all tables
 - Regular audits and logging
 
 ## 5. Analytics & Reporting
+
 - Platform analytics dashboard
 - Export reports for usage, growth, and engagement
 
 ## 6. Onboarding Operations
+
 - See [onboarding-user.md](./onboarding-user.md) for the user onboarding flow and troubleshooting.
 - See [onboarding-admin.md](./onboarding-admin.md) for admin onboarding monitoring, intervention, and delegation best practices.
 - Use the Admin Dashboard to monitor onboarding progress and intervene/support as needed.
@@ -98,6 +105,7 @@ For more information on onboarding steps and best practices, see [Onboarding Ope
 ---
 
 ## Best Practices
+
 - Respond quickly to feedback to keep the community engaged.
 - Use analytics to spot drop-off points and iterate rapidly.
 - Use strong, unique passwords and enable 2FA (if available)
@@ -108,12 +116,14 @@ For more information on onboarding steps and best practices, see [Onboarding Ope
 ---
 
 ## Troubleshooting
+
 - If you lose access, contact another admin or support
 - For RBAC or policy issues, see [../database-schema.md](../database-schema.md)
 
 ---
 
 ## How to Contribute
+
 See [../contributing.md](../contributing.md) for guidelines on improving admin tools or documentation.
 
 ---

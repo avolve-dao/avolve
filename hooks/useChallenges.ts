@@ -25,8 +25,10 @@ export function useChallenges() {
 
   useEffect(() => {
     async function loadChallenges() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -39,9 +41,9 @@ export function useChallenges() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load challenges",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load challenges',
+          variant: 'destructive',
         });
         return;
       }
@@ -52,13 +54,14 @@ export function useChallenges() {
       // Subscribe to challenge updates
       const channel = supabase
         .channel('challenge_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'user_challenges',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadChallenges();
           }
@@ -74,13 +77,15 @@ export function useChallenges() {
   }, [supabase, toast]);
 
   const claimReward = async (challengeId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to claim rewards",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to claim rewards',
+        variant: 'destructive',
       });
       return;
     }
@@ -94,22 +99,22 @@ export function useChallenges() {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to claim reward",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to claim reward',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Challenge reward claimed successfully!",
+      title: 'Success',
+      description: 'Challenge reward claimed successfully!',
     });
   };
 
   return {
     challenges,
     loading,
-    claimReward
+    claimReward,
   };
 }

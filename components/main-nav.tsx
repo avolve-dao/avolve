@@ -4,13 +4,17 @@ import { createClient } from '@/utils/supabase/server';
 import { usePathname } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import {
-  PlusCircle,
-  Search 
-} from 'lucide-react';
+import { PlusCircle, Search } from 'lucide-react';
 
 interface NavItem {
   label: string;
@@ -22,13 +26,15 @@ interface NavItem {
 
 export const MainNav: React.FC = async () => {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const isAuthenticated = !!user;
 
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = React.useState('');
   const [showSearch, setShowSearch] = React.useState(false);
-  
+
   // Function to get critical nav items - placeholder for additional items
   const getCriticalNavItems = (): NavItem[] => {
     return [];
@@ -36,19 +42,18 @@ export const MainNav: React.FC = async () => {
 
   const navItems: NavItem[] = [
     { label: 'Home', href: '/' },
-    ...(isAuthenticated 
+    ...(isAuthenticated
       ? [
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Superachiever Hub', href: '/super' },
           { label: 'Token-Gated Content', href: '/super/token-gated' },
           { label: 'Developer Portal', href: '/developer-portal' },
-          ...getCriticalNavItems()
-        ] 
-      : []
-    ),
+          ...getCriticalNavItems(),
+        ]
+      : []),
   ];
 
-  const authItems: NavItem[] = isAuthenticated 
+  const authItems: NavItem[] = isAuthenticated
     ? [
         { label: 'Profile', href: '/profile' },
         { label: 'Logout', href: '/logout' },
@@ -74,9 +79,7 @@ export const MainNav: React.FC = async () => {
   const getContextActions = () => {
     switch (currentContext) {
       case 'dashboard':
-        return [
-          { label: 'Start Quest', href: '/super/quests/new', icon: PlusCircle },
-        ];
+        return [{ label: 'Start Quest', href: '/super/quests/new', icon: PlusCircle }];
       case 'super':
         return [
           { label: 'New Individual Goal', href: '/super/individual/new', icon: PlusCircle },
@@ -122,32 +125,36 @@ export const MainNav: React.FC = async () => {
               Avolve
             </Link>
           </div>
-          
+
           <div className="hidden md:flex items-center space-x-8">
             <div className="flex space-x-4">
               {navItems.map((item, index) => (
-                <Link 
-                  key={index} 
-                  href={item.href} 
+                <Link
+                  key={index}
+                  href={item.href}
                   className="text-foreground hover:text-primary transition-colors"
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
-            
+
             <div className="flex space-x-4 border-l border-gray-200 pl-4">
               {authItems.map((item, index) => (
-                <Link 
-                  key={index} 
-                  href={item.href} 
-                  className={item.label === 'Logout' ? "text-red-500 hover:text-red-700 transition-colors" : "text-foreground hover:text-primary transition-colors"}
+                <Link
+                  key={index}
+                  href={item.href}
+                  className={
+                    item.label === 'Logout'
+                      ? 'text-red-500 hover:text-red-700 transition-colors'
+                      : 'text-foreground hover:text-primary transition-colors'
+                  }
                 >
                   {item.label}
                 </Link>
               ))}
             </div>
-            
+
             {/* Search bar directly in the navbar */}
             <div className="relative flex-1 max-w-md">
               <form onSubmit={handleSearchSubmit} className="relative">
@@ -158,7 +165,7 @@ export const MainNav: React.FC = async () => {
                   placeholder="Search..."
                   className="w-full pl-9 h-9 bg-background"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                 />
               </form>
               <kbd className="pointer-events-none absolute right-2 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-xs font-medium opacity-100 sm:flex">
@@ -166,18 +173,23 @@ export const MainNav: React.FC = async () => {
               </kbd>
             </div>
           </div>
-          
+
           <div className="md:hidden flex items-center">
             {/* Mobile menu button would go here */}
             <button className="text-foreground focus:outline-none">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>
         </div>
       </div>
-      
+
       {/* Mobile menu would go here with similar conditional rendering */}
       <div className="hidden md:flex items-center space-x-8">
         {/* Context-specific actions dropdown */}
@@ -193,7 +205,7 @@ export const MainNav: React.FC = async () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>Quick Actions</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {contextActions.map((action) => (
+                {contextActions.map(action => (
                   <DropdownMenuItem key={action.href} asChild>
                     <Link href={action.href} className="flex w-full cursor-pointer items-center">
                       <action.icon className="mr-2 h-4 w-4" />

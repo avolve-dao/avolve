@@ -3,7 +3,7 @@ import FeatureGuard from './FeatureGuard';
 
 /**
  * Higher-order component to protect routes based on feature unlock status
- * 
+ *
  * @param Component The component to wrap
  * @param featureName The feature name to check ('teams', 'governance', 'marketplace')
  * @param fallbackUrl The URL to redirect to if the feature is locked
@@ -14,7 +14,7 @@ export function withFeatureGuard<P extends object>(
   featureName: string,
   fallbackUrl: string = '/'
 ): React.FC<P> {
-  const WithFeatureGuard: React.FC<P> = (props) => {
+  const WithFeatureGuard: React.FC<P> = props => {
     return (
       <FeatureGuard featureName={featureName} fallbackUrl={fallbackUrl}>
         <Component {...props} />

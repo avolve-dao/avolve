@@ -3,24 +3,39 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import { 
-  Settings, 
-  Plus, 
-  X, 
-  GripVertical, 
-  Save, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { createClient } from '../../lib/supabase/client';
+import {
+  Settings,
+  Plus,
+  X,
+  GripVertical,
+  Save,
   RotateCcw,
   Maximize2,
   Minimize2,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react';
 
 // Import dashboard widgets
@@ -48,13 +63,13 @@ type Widget = {
 const availableWidgets: { [key: string]: Widget } = {
   today_event: {
     id: 'today_event',
-    title: 'Today\'s Event',
-    description: 'View and participate in today\'s featured event',
+    title: "Today's Event",
+    description: "View and participate in today's featured event",
     component: TodayEventCard,
     defaultSize: 'medium',
     allowedSizes: ['small', 'medium', 'large'],
     defaultEnabled: true,
-    category: 'events'
+    category: 'events',
   },
   journey_map: {
     id: 'journey_map',
@@ -64,7 +79,7 @@ const availableWidgets: { [key: string]: Widget } = {
     defaultSize: 'large',
     allowedSizes: ['medium', 'large', 'full'],
     defaultEnabled: true,
-    category: 'progress'
+    category: 'progress',
   },
   quick_start: {
     id: 'quick_start',
@@ -74,7 +89,7 @@ const availableWidgets: { [key: string]: Widget } = {
     defaultSize: 'medium',
     allowedSizes: ['medium', 'large'],
     defaultEnabled: true,
-    category: 'onboarding'
+    category: 'onboarding',
   },
   // TODO: LeaderboardSection component is missing. Usage commented out for now.
   // leaderboard: {
@@ -95,7 +110,7 @@ const availableWidgets: { [key: string]: Widget } = {
     defaultSize: 'small',
     allowedSizes: ['small', 'medium'],
     defaultEnabled: true,
-    category: 'progress'
+    category: 'progress',
   },
   upcoming_features: {
     id: 'upcoming_features',
@@ -105,8 +120,8 @@ const availableWidgets: { [key: string]: Widget } = {
     defaultSize: 'large',
     allowedSizes: ['medium', 'large', 'full'],
     defaultEnabled: true,
-    category: 'features'
-  }
+    category: 'features',
+  },
 };
 
 // Define widget categories
@@ -115,7 +130,7 @@ const widgetCategories = {
   events: 'Events & Activities',
   community: 'Community',
   features: 'Platform Features',
-  onboarding: 'Onboarding'
+  onboarding: 'Onboarding',
 };
 
 // Define widget sizes
@@ -123,7 +138,7 @@ const widgetSizes = {
   small: 'Small (1x1)',
   medium: 'Medium (2x1)',
   large: 'Large (2x2)',
-  full: 'Full Width (3x1)'
+  full: 'Full Width (3x1)',
 };
 
 interface CustomizableDashboardProps {
@@ -132,12 +147,14 @@ interface CustomizableDashboardProps {
 
 export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
   const [activeWidgets, setActiveWidgets] = useState<Widget[]>([]);
-  const [availableWidgetsState, setAvailableWidgetsState] = useState<{ [key: string]: Widget }>(availableWidgets);
+  const [availableWidgetsState, setAvailableWidgetsState] = useState<{ [key: string]: Widget }>(
+    availableWidgets
+  );
   const [isCustomizing, setIsCustomizing] = useState(false);
   const [focusedWidget, setFocusedWidget] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [dashboardMode, setDashboardMode] = useState<'grid' | 'focus'>('grid');
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Fetch user's dashboard configuration
   useEffect(() => {
@@ -158,9 +175,9 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
           .map((widget: Widget) => ({
             ...widget,
             size: widget.defaultSize,
-            visible: true
+            visible: true,
           }));
-        
+
         setActiveWidgets(defaultWidgets);
       }
     }
@@ -170,13 +187,11 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
 
   // Save dashboard configuration
   const saveDashboardConfig = async () => {
-    await supabase
-      .from('user_dashboard_config')
-      .upsert({
-        user_id: userId,
-        widgets: activeWidgets,
-        updated_at: new Date().toISOString()
-      });
+    await supabase.from('user_dashboard_config').upsert({
+      user_id: userId,
+      widgets: activeWidgets,
+      updated_at: new Date().toISOString(),
+    });
 
     setIsCustomizing(false);
   };
@@ -188,9 +203,9 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
       .map((widget: Widget) => ({
         ...widget,
         size: widget.defaultSize,
-        visible: true
+        visible: true,
       }));
-    
+
     setActiveWidgets(defaultWidgets);
   };
 
@@ -208,15 +223,15 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
   // Add a widget to the dashboard
   const addWidget = (widgetId: string) => {
     const widgetToAdd = availableWidgetsState[widgetId];
-    
+
     if (widgetToAdd) {
       setActiveWidgets([
         ...activeWidgets,
         {
           ...widgetToAdd,
           size: widgetToAdd.defaultSize,
-          visible: true
-        }
+          visible: true,
+        },
       ]);
     }
   };
@@ -276,21 +291,13 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
         <h1 className="text-3xl font-bold">Your Dashboard</h1>
         <div className="flex items-center space-x-2">
           {dashboardMode === 'focus' && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={exitFocusMode}
-            >
+            <Button variant="outline" size="sm" onClick={exitFocusMode}>
               <Minimize2 className="h-4 w-4 mr-2" />
               Exit Focus Mode
             </Button>
           )}
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setIsCustomizing(!isCustomizing)}
-          >
+
+          <Button variant="outline" size="sm" onClick={() => setIsCustomizing(!isCustomizing)}>
             <Settings className="h-4 w-4 mr-2" />
             {isCustomizing ? 'Done' : 'Customize'}
           </Button>
@@ -309,19 +316,15 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
             <CardContent>
               <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="widgets">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="space-y-2"
-                    >
+                  {provided => (
+                    <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">
                       {activeWidgets.map((widget: Widget, index: number) => (
-                        <Draggable 
-                          key={`${widget.id}-${index}`} 
-                          draggableId={`${widget.id}-${index}`} 
+                        <Draggable
+                          key={`${widget.id}-${index}`}
+                          draggableId={`${widget.id}-${index}`}
                           index={index}
                         >
-                          {(provided) => (
+                          {provided => (
                             <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
@@ -330,7 +333,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                               <div {...provided.dragHandleProps} className="mr-3">
                                 <GripVertical className="h-5 w-5 text-muted-foreground" />
                               </div>
-                              
+
                               <div className="flex-1">
                                 <h3 className="font-medium">
                                   {availableWidgetsState[widget.id]?.title || widget.id}
@@ -339,20 +342,22 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                                   {availableWidgetsState[widget.id]?.description || ''}
                                 </p>
                               </div>
-                              
+
                               <div className="flex items-center space-x-2 ml-4">
                                 <select
                                   value={widget.size}
-                                  onChange={(e) => changeWidgetSize(index, e.target.value)}
+                                  onChange={e => changeWidgetSize(index, e.target.value)}
                                   className="bg-zinc-900 border border-zinc-800 rounded-md text-sm py-1 px-2"
                                 >
-                                  {availableWidgetsState[widget.id]?.allowedSizes.map((size: string) => (
-                                    <option key={size} value={size}>
-                                      {widgetSizes[size as keyof typeof widgetSizes]}
-                                    </option>
-                                  ))}
+                                  {availableWidgetsState[widget.id]?.allowedSizes.map(
+                                    (size: string) => (
+                                      <option key={size} value={size}>
+                                        {widgetSizes[size as keyof typeof widgetSizes]}
+                                      </option>
+                                    )
+                                  )}
                                 </select>
-                                
+
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -365,7 +370,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                                     <EyeOff className="h-4 w-4" />
                                   )}
                                 </Button>
-                                
+
                                 <Button
                                   variant="ghost"
                                   size="icon"
@@ -395,28 +400,30 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>Add Widgets</DialogTitle>
-                    <DialogDescription>
-                      Choose widgets to add to your dashboard
-                    </DialogDescription>
+                    <DialogDescription>Choose widgets to add to your dashboard</DialogDescription>
                   </DialogHeader>
-                  
+
                   <Tabs defaultValue="all">
                     <TabsList className="mb-4">
                       <TabsTrigger value="all">All</TabsTrigger>
                       {Object.entries(widgetCategories).map(([key, label]) => (
-                        <TabsTrigger key={key} value={key}>{label}</TabsTrigger>
+                        <TabsTrigger key={key} value={key}>
+                          {label}
+                        </TabsTrigger>
                       ))}
                     </TabsList>
-                    
-                    {['all', ...Object.keys(widgetCategories)].map((category) => (
+
+                    {['all', ...Object.keys(widgetCategories)].map(category => (
                       <TabsContent key={category} value={category} className="space-y-2">
                         {Object.values(availableWidgetsState)
-                          .filter((widget: Widget) => category === 'all' || widget.category === category)
+                          .filter(
+                            (widget: Widget) => category === 'all' || widget.category === category
+                          )
                           .map((widget: Widget) => {
                             const isAdded = activeWidgets.some((w: Widget) => w.id === widget.id);
-                            
+
                             return (
-                              <div 
+                              <div
                                 key={widget.id}
                                 className="flex items-center justify-between p-3 border border-zinc-800 rounded-md"
                               >
@@ -427,7 +434,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                                   </p>
                                 </div>
                                 <Button
-                                  variant={isAdded ? "secondary" : "default"}
+                                  variant={isAdded ? 'secondary' : 'default'}
                                   size="sm"
                                   onClick={() => addWidget(widget.id)}
                                   disabled={isAdded}
@@ -440,7 +447,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                       </TabsContent>
                     ))}
                   </Tabs>
-                  
+
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
                       Done
@@ -470,19 +477,12 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                 <CardTitle>
                   {availableWidgetsState[focusedWidget]?.title || focusedWidget}
                 </CardTitle>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={exitFocusMode}
-                >
+                <Button variant="ghost" size="icon" onClick={exitFocusMode}>
                   <Minimize2 className="h-4 w-4" />
                 </Button>
               </CardHeader>
               <CardContent>
-                {React.createElement(
-                  availableWidgetsState[focusedWidget]?.component,
-                  { userId }
-                )}
+                {React.createElement(availableWidgetsState[focusedWidget]?.component, { userId })}
               </CardContent>
             </Card>
           )}
@@ -493,7 +493,7 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
           {activeWidgets
             .filter((widget: Widget) => widget.visible)
             .map((widget: Widget, index: number) => (
-              <Card 
+              <Card
                 key={`${widget.id}-${index}`}
                 className={`${getWidgetSizeClass(widget.size)} overflow-hidden`}
               >
@@ -501,21 +501,13 @@ export function CustomizableDashboard({ userId }: CustomizableDashboardProps) {
                   <CardTitle className="text-lg">
                     {availableWidgetsState[widget.id]?.title || widget.id}
                   </CardTitle>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => focusWidget(widget.id)}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => focusWidget(widget.id)}>
                     <Maximize2 className="h-4 w-4" />
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  {availableWidgetsState[widget.id]?.component && 
-                    React.createElement(
-                      availableWidgetsState[widget.id].component,
-                      { userId }
-                    )
-                  }
+                  {availableWidgetsState[widget.id]?.component &&
+                    React.createElement(availableWidgetsState[widget.id].component, { userId })}
                 </CardContent>
               </Card>
             ))}

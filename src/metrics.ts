@@ -21,7 +21,7 @@ export class MetricsService {
   /**
    * Update user metrics when they log in or perform significant actions
    * Records DAU, updates MAU, calculates retention
-   * 
+   *
    * @param userId User ID to record metrics for
    * @returns Result of the metrics update
    */
@@ -32,19 +32,21 @@ export class MetricsService {
   }> {
     try {
       // The 'update_user_metrics' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
-      throw new Error("The 'update_user_metrics' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
+      throw new Error(
+        "The 'update_user_metrics' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database."
+      );
     } catch (error) {
       console.error('Update metrics error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown metrics update error'
+        error: error instanceof Error ? error.message : 'Unknown metrics update error',
       };
     }
   }
 
   /**
    * Record a specific metric value
-   * 
+   *
    * @param metricType Type of metric to record
    * @param value Numeric value of the metric
    * @param userId Optional user ID if the metric is user-specific
@@ -63,19 +65,21 @@ export class MetricsService {
   }> {
     try {
       // The 'record_metric' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
-      throw new Error("The 'record_metric' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
+      throw new Error(
+        "The 'record_metric' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database."
+      );
     } catch (error) {
       console.error('Record metric error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown metric recording error'
+        error: error instanceof Error ? error.message : 'Unknown metric recording error',
       };
     }
   }
 
   /**
    * Record Net Promoter Score (NPS) for a user
-   * 
+   *
    * @param userId User ID providing the score
    * @param score NPS score (0-10)
    * @param feedback Optional feedback text
@@ -94,22 +98,17 @@ export class MetricsService {
     if (score < 0 || score > 10) {
       return {
         success: false,
-        error: 'NPS score must be between 0 and 10'
+        error: 'NPS score must be between 0 and 10',
       };
     }
 
     // Record the NPS metric
-    return this.recordMetric(
-      MetricTypes.NPS,
-      score,
-      userId,
-      { feedback }
-    );
+    return this.recordMetric(MetricTypes.NPS, score, userId, { feedback });
   }
 
   /**
    * Record time spent on platform for a user
-   * 
+   *
    * @param userId User ID to record time for
    * @param minutes Minutes spent on platform
    * @param activityType Optional type of activity (e.g., 'content', 'social', 'learning')
@@ -124,17 +123,14 @@ export class MetricsService {
     data?: Database['public']['Tables']['metrics']['Row'];
     error?: string;
   }> {
-    return this.recordMetric(
-      MetricTypes.TIME_SPENT,
-      minutes,
-      userId,
-      { activity_type: activityType }
-    );
+    return this.recordMetric(MetricTypes.TIME_SPENT, minutes, userId, {
+      activity_type: activityType,
+    });
   }
 
   /**
    * Record content interaction
-   * 
+   *
    * @param userId User ID interacting with content
    * @param contentId ID of the content being interacted with
    * @param interactionType Type of interaction (e.g., 'view', 'like', 'comment', 'share')
@@ -155,14 +151,14 @@ export class MetricsService {
       userId,
       {
         content_id: contentId,
-        interaction_type: interactionType
+        interaction_type: interactionType,
       }
     );
   }
 
   /**
    * Get current platform metrics summary
-   * 
+   *
    * @param days Number of days to include in the summary (default: 30)
    * @returns Summary of key platform metrics
    */
@@ -173,26 +169,32 @@ export class MetricsService {
   }> {
     try {
       // The 'metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
-      throw new Error("The 'metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
+      throw new Error(
+        "The 'metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database."
+      );
     } catch (error) {
       console.error('Get metrics summary error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting metrics summary'
+        error: error instanceof Error ? error.message : 'Unknown error getting metrics summary',
       };
     }
   }
 
   async trackActivity(userId: string, type: MetricType, value: number): Promise<void> {
     // The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
-    throw new Error("The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
+    throw new Error(
+      "The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database."
+    );
   }
 
   async getActivityMetrics(userId: string): Promise<{
     [key in MetricType]: number;
   }> {
     // The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.
-    throw new Error("The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database.");
+    throw new Error(
+      "The 'user_metrics' table does not exist in the current Supabase schema. Please implement this logic in-app or create the table in your database."
+    );
   }
 }
 

@@ -1,20 +1,14 @@
 /**
  * API Client Hooks
- * 
+ *
  * This file provides React hooks for using the API clients in components.
  * These hooks ensure consistent client creation and caching across the application.
  */
 
 import { useCallback } from 'react';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../supabase/client';
 import type { Database } from '../types/database.types';
-import { 
-  CommunityApi, 
-  EconomyApi, 
-  IdentityApi, 
-  GovernanceApi, 
-  NetworkApi 
-} from './index';
+import { CommunityApi, EconomyApi, IdentityApi, GovernanceApi, NetworkApi } from './index';
 
 // Cache for API clients to avoid recreating them unnecessarily
 const clientCache = new Map<string, any>();
@@ -26,7 +20,7 @@ const clientCache = new Map<string, any>();
 export function useCommunityApi() {
   const getClient = useCallback(() => {
     if (!clientCache.has('community')) {
-      const supabase = createClientComponentClient<Database>();
+      const supabase = createClient();
       clientCache.set('community', new CommunityApi(supabase));
     }
     return clientCache.get('community') as CommunityApi;
@@ -42,7 +36,7 @@ export function useCommunityApi() {
 export function useEconomyApi() {
   const getClient = useCallback(() => {
     if (!clientCache.has('economy')) {
-      const supabase = createClientComponentClient<Database>();
+      const supabase = createClient();
       clientCache.set('economy', new EconomyApi(supabase));
     }
     return clientCache.get('economy') as EconomyApi;
@@ -58,7 +52,7 @@ export function useEconomyApi() {
 export function useIdentityApi() {
   const getClient = useCallback(() => {
     if (!clientCache.has('identity')) {
-      const supabase = createClientComponentClient<Database>();
+      const supabase = createClient();
       clientCache.set('identity', new IdentityApi(supabase));
     }
     return clientCache.get('identity') as IdentityApi;
@@ -74,7 +68,7 @@ export function useIdentityApi() {
 export function useGovernanceApi() {
   const getClient = useCallback(() => {
     if (!clientCache.has('governance')) {
-      const supabase = createClientComponentClient<Database>();
+      const supabase = createClient();
       clientCache.set('governance', new GovernanceApi(supabase));
     }
     return clientCache.get('governance') as GovernanceApi;
@@ -90,7 +84,7 @@ export function useGovernanceApi() {
 export function useNetworkApi() {
   const getClient = useCallback(() => {
     if (!clientCache.has('network')) {
-      const supabase = createClientComponentClient<Database>();
+      const supabase = createClient();
       clientCache.set('network', new NetworkApi(supabase));
     }
     return clientCache.get('network') as NetworkApi;

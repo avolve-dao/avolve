@@ -1,16 +1,16 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Phone, Video, MoreHorizontal } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Phone, Video, MoreHorizontal } from 'lucide-react';
 
 interface ChatHeaderProps {
   conversation: {
-    id: string
-    name: string
-    avatar: string
-    online?: boolean
-    isGroup?: boolean
-    members?: number
-  }
+    id: string;
+    name: string;
+    avatar: string;
+    online?: boolean;
+    isGroup?: boolean;
+    members?: number;
+  };
 }
 
 export function ChatHeader({ conversation }: ChatHeaderProps) {
@@ -21,9 +21,9 @@ export function ChatHeader({ conversation }: ChatHeaderProps) {
           <AvatarImage src={conversation.avatar} alt={conversation.name} />
           <AvatarFallback>
             {conversation.name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")}
+              .split(' ')
+              .map(n => n[0])
+              .join('')}
           </AvatarFallback>
         </Avatar>
         <div>
@@ -49,6 +49,5 @@ export function ChatHeader({ conversation }: ChatHeaderProps) {
         </Button>
       </div>
     </div>
-  )
+  );
 }
-

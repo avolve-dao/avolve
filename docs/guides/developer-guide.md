@@ -54,6 +54,7 @@ Avolve uses a modern tech stack optimized for performance and developer experien
 ## Getting Started
 
 1. **Environment Setup**
+
    ```bash
    # Install dependencies
    pnpm install
@@ -66,6 +67,7 @@ Avolve uses a modern tech stack optimized for performance and developer experien
    ```
 
 2. **Database Setup**
+
    ```bash
    # Start Supabase
    supabase start
@@ -138,11 +140,13 @@ function ClientComponent({ initialData }) {
 ## Security Guidelines
 
 1. **Authentication**
+
    - Use Supabase Auth
    - Implement proper role-based access
    - Secure API routes
 
 2. **Database**
+
    - Enable Row Level Security
    - Use prepared statements
    - Implement rate limiting
@@ -155,17 +159,19 @@ function ClientComponent({ initialData }) {
 ## Testing Strategy
 
 1. **Unit Testing**
+
    ```typescript
-   import { describe, it, expect } from 'vitest'
+   import { describe, it, expect } from 'vitest';
 
    describe('utility', () => {
      it('should work correctly', () => {
-       expect(result).toBe(expected)
-     })
-   })
+       expect(result).toBe(expected);
+     });
+   });
    ```
 
 2. **Integration Testing**
+
    ```typescript
    import { render, screen } from '@testing-library/react'
 
@@ -178,6 +184,7 @@ function ClientComponent({ initialData }) {
 ## Deployment
 
 1. **Production Deployment**
+
    ```bash
    # Build application
    pnpm build
@@ -187,6 +194,7 @@ function ClientComponent({ initialData }) {
    ```
 
 2. **Database Migrations**
+
    ```bash
    # Create migration
    supabase migration new feature_name
@@ -196,14 +204,17 @@ function ClientComponent({ initialData }) {
    ```
 
 ## Troubleshooting
+
 - If you encounter build errors, check the [README Quick Start](../../README.md#quick-start) and ensure all dependencies are installed.
 - For Supabase issues, verify your `.env.local` and Supabase project status.
 - See [FAQ](#faq) below for common problems.
 
 ## Contact & Support
+
 - For dev support, open an issue or contact dev@avolve.io
 
 ## FAQ
+
 - **Q: The build fails with a missing dependency.**
   - A: Run `npm install` and check the package.json for required packages.
 - **Q: Supabase auth is not working.**

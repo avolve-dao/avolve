@@ -1,7 +1,7 @@
 // Haptic feedback utility for mobile devices
 
 // Check if the device supports vibration
-const hasVibration = typeof navigator !== "undefined" && "vibrate" in navigator
+const hasVibration = typeof navigator !== 'undefined' && 'vibrate' in navigator;
 
 // Different haptic patterns for different interactions
 export const hapticPatterns = {
@@ -25,29 +25,30 @@ export const hapticPatterns = {
 
   // Custom pattern
   custom: hasVibration ? (pattern: number[]) => navigator.vibrate(pattern) : () => {},
-}
+};
 
 // Haptic feedback hook
 export function useHaptics() {
   // Check if the device prefers reduced motion
   const prefersReducedMotion =
-    typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
   // Only provide haptic feedback if the device supports it and the user hasn't requested reduced motion
-  const isEnabled = hasVibration && !prefersReducedMotion
+  const isEnabled = hasVibration && !prefersReducedMotion;
 
   return {
     isEnabled,
     ...hapticPatterns,
     // Conditionally trigger haptic feedback
-    trigger: (pattern: keyof typeof hapticPatterns = "light") => {
+    trigger: (pattern: keyof typeof hapticPatterns = 'light') => {
       if (isEnabled && pattern in hapticPatterns) {
         if (pattern === 'custom') {
           // custom pattern expects an argument; skip if not provided
           return;
         }
-        hapticPatterns[pattern]()
+        hapticPatterns[pattern]();
       }
     },
-  }
+  };
 }

@@ -45,7 +45,8 @@ export default function AdminInsights() {
       <ul className="mb-10 space-y-2">
         {events.map(e => (
           <li key={e.id} className="bg-gray-50 p-3 rounded border text-xs">
-            <span className="font-semibold">{e.event_type}</span> — {e.created_at}<br />
+            <span className="font-semibold">{e.event_type}</span> — {e.created_at}
+            <br />
             <span className="text-gray-700">{JSON.stringify(e.event_data)}</span>
           </li>
         ))}
@@ -54,8 +55,12 @@ export default function AdminInsights() {
       <ul className="space-y-2">
         {feedback.map(f => (
           <li key={f.id} className="bg-blue-50 p-3 rounded border text-xs">
-            <span className="font-semibold">{f.context}</span> — {f.submitted_at}<br />
-            <span className="text-blue-700">{f.rating ? `${f.rating}⭐ – ` : ''}{f.feedback_text}</span>
+            <span className="font-semibold">{f.context}</span> — {f.submitted_at}
+            <br />
+            <span className="text-blue-700">
+              {f.rating ? `${f.rating}⭐ – ` : ''}
+              {f.feedback_text}
+            </span>
           </li>
         ))}
       </ul>

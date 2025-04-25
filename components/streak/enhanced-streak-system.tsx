@@ -26,8 +26,10 @@ export function EnhancedStreakSystem() {
 
   useEffect(() => {
     async function loadStreakData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -41,9 +43,9 @@ export function EnhancedStreakSystem() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load streak data",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load streak data',
+          variant: 'destructive',
         });
         return;
       }
@@ -54,13 +56,14 @@ export function EnhancedStreakSystem() {
       // Subscribe to streak updates
       const channel = supabase
         .channel('streak_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'user_streaks',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadStreakData();
           }
@@ -101,9 +104,7 @@ export function EnhancedStreakSystem() {
           <h3 className="text-lg font-semibold">Current Streak</h3>
           <div className="flex items-center justify-between mt-2">
             <p className="text-3xl font-bold">{streakData.current_streak} days</p>
-            <span className="text-sm text-gray-500">
-              Best: {streakData.longest_streak} days
-            </span>
+            <span className="text-sm text-gray-500">Best: {streakData.longest_streak} days</span>
           </div>
         </div>
 
@@ -120,9 +121,7 @@ export function EnhancedStreakSystem() {
         <div className="pt-4 border-t">
           <div className="flex justify-between items-center">
             <p className="text-sm text-gray-500">Current Multiplier</p>
-            <span className="text-lg font-semibold">
-              {streakData.multiplier}x
-            </span>
+            <span className="text-lg font-semibold">{streakData.multiplier}x</span>
           </div>
         </div>
       </div>

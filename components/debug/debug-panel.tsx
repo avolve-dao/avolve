@@ -1,15 +1,24 @@
 /**
  * Debug Panel Component
- * 
+ *
  * This component provides a developer-only debug panel that displays real-time
  * information about Supabase queries, API latencies, and user session data.
- * 
+ *
  * IMPORTANT: This component should only be used in development environments
  * and should never expose sensitive information in production.
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, ChevronDown, ChevronUp, AlertTriangle, Clock, Database, User, Activity } from 'lucide-react';
+import {
+  X,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  Clock,
+  Database,
+  User,
+  Activity,
+} from 'lucide-react';
 import { useSupabase } from '@/lib/supabase/use-supabase';
 import { DebugData, DebugQuery } from '@/lib/supabase/types';
 import { useFeatureFlags, FEATURE_FLAGS } from '@/lib/feature-flags/feature-flags';
@@ -22,14 +31,16 @@ export interface DebugPanelProps {
 
 /**
  * Debug Panel Component
- * 
+ *
  * Displays debugging information for developers.
  * This component is only rendered in development mode and when the appropriate feature flag is enabled.
  */
 const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
   const { supabase } = useSupabase();
   const { isEnabled } = useFeatureFlags();
-  const [activeTab, setActiveTab] = useState<'queries' | 'performance' | 'session' | 'state'>('queries');
+  const [activeTab, setActiveTab] = useState<'queries' | 'performance' | 'session' | 'state'>(
+    'queries'
+  );
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -48,22 +59,19 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
         setIsAuthorized(true);
         return;
       }
-      
+
       // In production, only allow access if the user has the appropriate role
       // This would typically check against a list of admin users or roles
       const user = await getSessionUser();
       if (user) {
         // Example: Check if user email is in an allowed list
-        const allowedEmails = [
-          'admin@avolve.com',
-          'founder@avolve.com',
-        ];
-        
+        const allowedEmails = ['admin@avolve.com', 'founder@avolve.com'];
+
         if (user.email && allowedEmails.includes(user.email)) {
           setIsAuthorized(true);
           return;
         }
-        
+
         // Example: Check if user has metadata indicating they're an admin
         const userMetadata = user.user_metadata;
         if (userMetadata && userMetadata.is_admin === true) {
@@ -71,11 +79,11 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
           return;
         }
       }
-      
+
       // Not authorized
       setIsAuthorized(false);
     };
-    
+
     checkAuthorization();
   }, [supabase]);
 
@@ -86,7 +94,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
         onClose();
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -100,7 +108,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
         onClose();
       }
     };
-    
+
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
@@ -113,7 +121,7 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
   }
 
   return (
-    <div 
+    <div
       className="fixed bottom-0 right-0 w-full md:w-96 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-lg rounded-t-lg z-50 transition-all duration-300 ease-in-out"
       style={{ maxHeight: '80vh' }}
       ref={panelRef}
@@ -123,14 +131,14 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
     >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-zinc-200 dark:border-zinc-700">
-        <h2 
+        <h2
           id="debug-panel-title"
           className="text-sm font-semibold text-gray-700 dark:text-gray-200 flex items-center"
         >
           <AlertTriangle size={16} className="mr-2 text-amber-500" />
           Developer Debug Panel
         </h2>
-        <button 
+        <button
           onClick={onClose}
           className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           aria-label="Close debug panel"
@@ -138,56 +146,48 @@ const DebugPanel: React.FC<DebugPanelProps> = ({ data, onClose }) => {
           <X size={18} />
         </button>
       </div>
-      
+
       {/* Tabs */}
       <div className="flex border-b border-zinc-200 dark:border-zinc-700">
-        <TabButton 
-          active={activeTab === 'queries'} 
+        <TabButton
+          active={activeTab === 'queries'}
           onClick={() => setActiveTab('queries')}
           icon={<Database size={14} />}
           label="Queries"
         />
-        <TabButton 
-          active={activeTab === 'performance'} 
+        <TabButton
+          active={activeTab === 'performance'}
           onClick={() => setActiveTab('performance')}
           icon={<Clock size={14} />}
           label="Performance"
         />
-        <TabButton 
-          active={activeTab === 'session'} 
+        <TabButton
+          active={activeTab === 'session'}
           onClick={() => setActiveTab('session')}
           icon={<User size={14} />}
           label="Session"
         />
-        <TabButton 
-          active={activeTab === 'state'} 
+        <TabButton
+          active={activeTab === 'state'}
           onClick={() => setActiveTab('state')}
           icon={<Activity size={14} />}
           label="State"
         />
       </div>
-      
+
       {/* Content */}
-      <div 
+      <div
         className="overflow-auto p-3"
         style={{ maxHeight: 'calc(80vh - 90px)' }}
         id="debug-panel-description"
       >
-        {activeTab === 'queries' && (
-          <QueriesTab queries={data.queries} />
-        )}
-        
-        {activeTab === 'performance' && (
-          <PerformanceTab performance={data.performance} />
-        )}
-        
-        {activeTab === 'session' && (
-          <SessionTab session={data.session} />
-        )}
-        
-        {activeTab === 'state' && (
-          <StateTab state={data.state} />
-        )}
+        {activeTab === 'queries' && <QueriesTab queries={data.queries} />}
+
+        {activeTab === 'performance' && <PerformanceTab performance={data.performance} />}
+
+        {activeTab === 'session' && <SessionTab session={data.session} />}
+
+        {activeTab === 'state' && <StateTab state={data.state} />}
       </div>
     </div>
   );
@@ -204,8 +204,8 @@ interface TabButtonProps {
 const TabButton: React.FC<TabButtonProps> = ({ active, onClick, icon, label }) => (
   <button
     className={`flex items-center px-3 py-2 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-      active 
-        ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400' 
+      active
+        ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
         : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
     }`}
     onClick={onClick}
@@ -224,32 +224,34 @@ interface QueriesTabProps {
 
 const QueriesTab: React.FC<QueriesTabProps> = ({ queries }) => (
   <div>
-    <h3 className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-200">Recent Database Queries</h3>
+    <h3 className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-200">
+      Recent Database Queries
+    </h3>
     {queries.length === 0 ? (
       <p className="text-xs text-gray-500 dark:text-gray-400">No queries recorded yet.</p>
     ) : (
       <div className="space-y-2">
         {queries.map((query, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="p-2 bg-zinc-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
           >
             <div className="flex justify-between mb-1">
               <span className="font-medium text-gray-700 dark:text-gray-200">{query.table}</span>
-              <span className={`${
-                query.duration > 500 
-                  ? 'text-red-500' 
-                  : query.duration > 200 
-                    ? 'text-amber-500' 
-                    : 'text-green-500'
-              }`}>
+              <span
+                className={`${
+                  query.duration > 500
+                    ? 'text-red-500'
+                    : query.duration > 200
+                      ? 'text-amber-500'
+                      : 'text-green-500'
+                }`}
+              >
                 {query.duration.toFixed(2)}ms
               </span>
             </div>
             <div className="text-gray-600 dark:text-gray-300 break-all">{query.query}</div>
-            {query.error && (
-              <div className="mt-1 text-red-500 break-all">{query.error}</div>
-            )}
+            {query.error && <div className="mt-1 text-red-500 break-all">{query.error}</div>}
           </div>
         ))}
       </div>
@@ -264,24 +266,26 @@ interface PerformanceTabProps {
 
 const PerformanceTab: React.FC<PerformanceTabProps> = ({ performance }) => (
   <div>
-    <h3 className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-200">Performance Metrics</h3>
+    <h3 className="text-xs font-semibold mb-2 text-gray-700 dark:text-gray-200">
+      Performance Metrics
+    </h3>
     {Object.keys(performance).length === 0 ? (
-      <p className="text-xs text-gray-500 dark:text-gray-400">No performance metrics recorded yet.</p>
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        No performance metrics recorded yet.
+      </p>
     ) : (
       <div className="space-y-2">
         {Object.entries(performance).map(([key, value], index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className="flex justify-between p-2 bg-zinc-50 dark:bg-zinc-700 rounded text-xs border border-zinc-200 dark:border-zinc-600"
           >
             <span className="font-medium text-gray-700 dark:text-gray-200">{key}</span>
-            <span className={`${
-              value > 500 
-                ? 'text-red-500' 
-                : value > 200 
-                  ? 'text-amber-500' 
-                  : 'text-green-500'
-            }`}>
+            <span
+              className={`${
+                value > 500 ? 'text-red-500' : value > 200 ? 'text-amber-500' : 'text-green-500'
+              }`}
+            >
               {value.toFixed(2)}ms
             </span>
           </div>
@@ -336,11 +340,11 @@ interface JsonTreeProps {
 
 const JsonTree: React.FC<JsonTreeProps> = ({ data, level = 0, expanded = true }) => {
   const [isExpanded, setIsExpanded] = useState(expanded);
-  
+
   if (data === null || data === undefined) {
     return <span className="text-gray-500 dark:text-gray-400">null</span>;
   }
-  
+
   if (typeof data !== 'object') {
     if (typeof data === 'string') {
       return <span className="text-green-600 dark:text-green-400">"{data}"</span>;
@@ -353,19 +357,19 @@ const JsonTree: React.FC<JsonTreeProps> = ({ data, level = 0, expanded = true })
     }
     return <span>{String(data)}</span>;
   }
-  
+
   const isArray = Array.isArray(data);
   const isEmpty = Object.keys(data).length === 0;
-  
+
   if (isEmpty) {
     return <span className="text-gray-500 dark:text-gray-400">{isArray ? '[]' : '{}'}</span>;
   }
-  
+
   const toggleExpand = () => setIsExpanded(!isExpanded);
-  
+
   return (
     <div className="pl-4 border-l border-zinc-200 dark:border-zinc-700">
-      <div 
+      <div
         className="flex items-center cursor-pointer text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white"
         onClick={toggleExpand}
       >
@@ -374,7 +378,7 @@ const JsonTree: React.FC<JsonTreeProps> = ({ data, level = 0, expanded = true })
           {isArray ? `Array(${Object.keys(data).length})` : 'Object'}
         </span>
       </div>
-      
+
       {isExpanded && (
         <div className="mt-1 space-y-1">
           {Object.entries(data).map(([key, value], index) => (

@@ -1,25 +1,32 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
-import { 
-  MessageSquare, 
-  Award, 
-  Coins, 
-  CheckCircle, 
-  Users, 
-  ThumbsUp, 
+import {
+  MessageSquare,
+  Award,
+  Coins,
+  CheckCircle,
+  Users,
+  ThumbsUp,
   Puzzle,
   RefreshCw,
   ArrowRight,
-  Clock
+  Clock,
 } from 'lucide-react';
 
 interface ActivityFeedProps {
@@ -44,29 +51,30 @@ interface ActivityItem {
   link?: string;
 }
 
-export function ActivityFeed({ 
-  userId, 
-  limit = 10, 
-  showPersonal = true, 
-  showCommunity = true 
+export function ActivityFeed({
+  userId,
+  limit = 10,
+  showPersonal = true,
+  showCommunity = true,
 }: ActivityFeedProps) {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'personal' | 'community'>(
     showPersonal && showCommunity ? 'all' : showPersonal ? 'personal' : 'community'
   );
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // Fetch activity data
   useEffect(() => {
     async function fetchActivities() {
       setIsLoading(true);
-      
+
       try {
         // Fetch user's activities
         const { data: userActivities, error: userError } = await supabase
           .from('user_activities')
-          .select(`
+          .select(
+            `
             id,
             type,
             actor_id,
@@ -77,15 +85,17 @@ export function ActivityFeed({
             action,
             details,
             created_at
-          `)
+          `
+          )
           .eq('actor_id', userId)
           .order('created_at', { ascending: false })
           .limit(limit);
-          
+
         // Fetch community activities
         const { data: communityActivities, error: communityError } = await supabase
           .from('user_activities')
-          .select(`
+          .select(
+            `
             id,
             type,
             actor_id,
@@ -96,19 +106,27 @@ export function ActivityFeed({
             action,
             details,
             created_at
-          `)
+          `
+          )
           .neq('actor_id', userId)
-          .in('type', ['comment', 'reaction', 'team_join', 'superpuzzle_contribution', 'milestone', 'feature'])
+          .in('type', [
+            'comment',
+            'reaction',
+            'team_join',
+            'superpuzzle_contribution',
+            'milestone',
+            'feature',
+          ])
           .order('created_at', { ascending: false })
           .limit(limit);
-          
+
         if (userError || communityError) {
           console.error('Error fetching activities:', userError || communityError);
           setActivities([]);
           setIsLoading(false);
           return;
         }
-        
+
         // Process user activities
         const processedUserActivities = (userActivities || []).map((activity: any) => ({
           id: activity.id,
@@ -122,9 +140,9 @@ export function ActivityFeed({
           action: activity.action,
           details: activity.details,
           created_at: activity.created_at,
-          link: getActivityLink(activity)
+          link: getActivityLink(activity),
         }));
-        
+
         // Process community activities
         const processedCommunityActivities = (communityActivities || []).map((activity: any) => ({
           id: activity.id,
@@ -138,17 +156,17 @@ export function ActivityFeed({
           action: activity.action,
           details: activity.details,
           created_at: activity.created_at,
-          link: getActivityLink(activity)
+          link: getActivityLink(activity),
         }));
-        
+
         // Combine and sort all activities
         const allActivities = [
           ...(showPersonal ? processedUserActivities : []),
-          ...(showCommunity ? processedCommunityActivities : [])
-        ].sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ).slice(0, limit);
-        
+          ...(showCommunity ? processedCommunityActivities : []),
+        ]
+          .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+          .slice(0, limit);
+
         setActivities(allActivities);
       } catch (error) {
         console.error('Error in activity fetch:', error);
@@ -157,9 +175,9 @@ export function ActivityFeed({
         setIsLoading(false);
       }
     }
-    
+
     fetchActivities();
-    
+
     // Set up realtime subscription for new activities
     const activityChannel = supabase
       .channel('activity-feed')
@@ -168,9 +186,9 @@ export function ActivityFeed({
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'user_activities'
+          table: 'user_activities',
         },
-        (payload) => {
+        payload => {
           // Only update if it's relevant to the current view
           if (
             (showPersonal && payload.new.actor_id === userId) ||
@@ -181,7 +199,7 @@ export function ActivityFeed({
         }
       )
       .subscribe();
-      
+
     return () => {
       supabase.removeChannel(activityChannel);
     };
@@ -232,7 +250,7 @@ export function ActivityFeed({
   function formatActivityMessage(activity: ActivityItem): string {
     const isYou = activity.actor_id === userId;
     const actor = isYou ? 'You' : activity.actor_name;
-    
+
     switch (activity.type) {
       case 'token':
         return `${actor} received ${activity.details?.amount} ${activity.details?.token_type} tokens`;
@@ -268,9 +286,9 @@ export function ActivityFeed({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Activity Feed</CardTitle>
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => {
               setIsLoading(true);
               setTimeout(() => setIsLoading(false), 500);
@@ -280,9 +298,7 @@ export function ActivityFeed({
             <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
         </div>
-        <CardDescription>
-          Recent activities and achievements
-        </CardDescription>
+        <CardDescription>Recent activities and achievements</CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         {showPersonal && showCommunity && (
@@ -310,7 +326,7 @@ export function ActivityFeed({
             </Button>
           </div>
         )}
-        
+
         <ScrollArea className="h-[400px]">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
@@ -323,11 +339,9 @@ export function ActivityFeed({
                   <div className="flex">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage src={activity.actor_avatar} />
-                      <AvatarFallback>
-                        {activity.actor_name.charAt(0)}
-                      </AvatarFallback>
+                      <AvatarFallback>{activity.actor_name.charAt(0)}</AvatarFallback>
                     </Avatar>
-                    
+
                     <div className="flex-1">
                       <div className="flex items-start justify-between">
                         <div>
@@ -335,9 +349,7 @@ export function ActivityFeed({
                             <span className="font-medium">
                               {activity.actor_id === userId ? 'You' : activity.actor_name}
                             </span>{' '}
-                            <span className="text-muted-foreground">
-                              {activity.action}
-                            </span>
+                            <span className="text-muted-foreground">{activity.action}</span>
                           </p>
                           <p className="text-sm font-medium mt-1">
                             {formatActivityMessage(activity)}
@@ -347,13 +359,13 @@ export function ActivityFeed({
                           {getActivityIcon(activity.type)}
                         </Badge>
                       </div>
-                      
+
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center text-xs text-muted-foreground">
                           <Clock className="h-3 w-3 mr-1" />
                           {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                         </div>
-                        
+
                         {activity.link && (
                           <Link href={activity.link}>
                             <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">

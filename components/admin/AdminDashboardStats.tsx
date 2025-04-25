@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -109,13 +109,13 @@ export function AdminDashboardStats() {
       <div className="bg-gray-50 rounded-lg px-6 py-4 flex flex-col items-center shadow">
         <div className="text-2xl font-bold text-gray-700">Recent activity</div>
         <div className="flex flex-col gap-2">
-          {stats.recentAchievements.map((achievement) => (
+          {stats.recentAchievements.map(achievement => (
             <div key={achievement.id}>{achievement.title}</div>
           ))}
-          {stats.recentPosts.map((post) => (
+          {stats.recentPosts.map(post => (
             <div key={post.id}>{post.title}</div>
           ))}
-          {stats.recentFeedback.map((feedback) => (
+          {stats.recentFeedback.map(feedback => (
             <div key={feedback.id}>{feedback.title}</div>
           ))}
         </div>
@@ -124,9 +124,13 @@ export function AdminDashboardStats() {
       <div className="bg-gray-50 rounded-lg px-6 py-4 flex flex-col items-center shadow">
         <div className="text-2xl font-bold text-gray-700">Quick actions</div>
         <div className="flex flex-col gap-2">
-          <button className="bg-emerald-50 rounded-lg px-6 py-4 text-emerald-700">Welcome new user</button>
+          <button className="bg-emerald-50 rounded-lg px-6 py-4 text-emerald-700">
+            Welcome new user
+          </button>
           <button className="bg-blue-50 rounded-lg px-6 py-4 text-blue-700">Send nudge</button>
-          <button className="bg-orange-50 rounded-lg px-6 py-4 text-orange-700">Review feature requests</button>
+          <button className="bg-orange-50 rounded-lg px-6 py-4 text-orange-700">
+            Review feature requests
+          </button>
         </div>
       </div>
     </div>

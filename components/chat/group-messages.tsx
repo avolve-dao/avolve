@@ -1,18 +1,18 @@
-"use client"
+'use client';
 
-import { useState, useEffect, useRef } from "react"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { messagingDb } from "@/lib/db-messaging"
-import { Message } from "@/components/chat/message"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Button } from "@/components/ui/button"
-import { RefreshCcw } from "lucide-react"
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
+import { useState, useEffect, useRef } from 'react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { createClient } from '@/lib/supabase/client';
+import { Message } from '@/components/chat/message';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { RefreshCcw } from 'lucide-react';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 interface GroupMessagesProps {
-  chatId: string
-  userId: string
-  groupId: string
+  chatId: string;
+  userId: string;
+  groupId: string;
 }
 
 interface MessageData {
@@ -42,62 +42,71 @@ interface MessagePayload {
 
 // Type guard to check if payload has the expected structure
 function isValidPayload(payload: any): payload is { new: MessagePayload } {
-  return payload && 
-         typeof payload === 'object' && 
-         payload.new && 
-         typeof payload.new === 'object' &&
-         typeof payload.new.id === 'string';
+  return (
+    payload &&
+    typeof payload === 'object' &&
+    payload.new &&
+    typeof payload.new === 'object' &&
+    typeof payload.new.id === 'string'
+  );
 }
 
 export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
-  const [messages, setMessages] = useState<MessageData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const lastMessageRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<MessageData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
   const loadMessages = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const data = await messagingDb.getMessages(chatId)
-      setMessages(data)
+      setLoading(true);
+      setError(null);
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('messages')
+        .select(`*, profiles:user_id (id, username, full_name, avatar_url)`)
+        .eq('chat_id', chatId)
+        .order('created_at', { ascending: true });
+      if (error) throw error;
+      setMessages(data || []);
     } catch (error) {
-      console.error("Error loading messages:", error)
-      setError("Failed to load messages. Please try again.")
+      console.error('Error loading messages:', error);
+      setError('Failed to load messages. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    loadMessages()
+    loadMessages();
 
     // Set up real-time subscription
-    const supabase = messagingDb.getSupabaseClient()
+    const supabase = createClient();
 
     const subscription = supabase
       .channel(`chat:${chatId}`)
       .on(
-        "postgres_changes",
+        'postgres_changes',
         {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
           filter: `chat_id=eq.${chatId}`,
         },
         (payload: any) => {
           // Check if payload has the expected structure
           if (!isValidPayload(payload)) {
-            console.error("Invalid payload structure:", payload);
+            console.error('Invalid payload structure:', payload);
             return;
           }
 
           // Fetch the complete message with user data
           const fetchNewMessage = async () => {
             const { data } = await supabase
-              .from("messages")
-              .select(`
+              .from('messages')
+              .select(
+                `
               *,
               profiles:user_id (
                 id,
@@ -105,37 +114,38 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
                 full_name,
                 avatar_url
               )
-            `)
-              .eq("id", payload.new.id)
-              .single()
+            `
+              )
+              .eq('id', payload.new.id)
+              .single();
 
             if (data) {
-              setMessages((prev) => [...prev, data as MessageData])
+              setMessages(prev => [...prev, data as MessageData]);
             }
-          }
+          };
 
-          fetchNewMessage()
-        },
+          fetchNewMessage();
+        }
       )
-      .subscribe()
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(subscription)
-    }
-  }, [chatId])
+      supabase.removeChannel(subscription);
+    };
+  }, [chatId]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
     if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: "smooth" })
+      lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages])
+  }, [messages]);
 
   if (loading) {
     return (
       <div className="flex-1 p-4">
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map(i => (
             <div key={i} className="flex items-start gap-2">
               <Skeleton className="h-8 w-8 rounded-full" />
               <div className="space-y-2">
@@ -146,7 +156,7 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -160,7 +170,7 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -181,8 +191,8 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
                 media_url: message.media_url,
                 created_at: message.created_at,
                 user: {
-                  id: message.profiles?.id || "",
-                  name: message.profiles?.full_name || message.profiles?.username || "Unknown User",
+                  id: message.profiles?.id || '',
+                  name: message.profiles?.full_name || message.profiles?.username || 'Unknown User',
                   avatar: message.profiles?.avatar_url,
                 },
               }}
@@ -193,5 +203,5 @@ export function GroupMessages({ chatId, userId, groupId }: GroupMessagesProps) {
         </div>
       )}
     </ScrollArea>
-  )
+  );
 }

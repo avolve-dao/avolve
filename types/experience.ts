@@ -1,6 +1,6 @@
 /**
  * Experience Phase Types
- * 
+ *
  * Type definitions for the experience phases system
  * Copyright © 2025 Avolve DAO. All rights reserved.
  */

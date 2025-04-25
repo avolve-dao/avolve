@@ -29,8 +29,10 @@ export function SubscriptionManager() {
 
   useEffect(() => {
     async function loadSubscription() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -42,11 +44,12 @@ export function SubscriptionManager() {
         .eq('user_id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // Not found is okay
+      if (error && error.code !== 'PGRST116') {
+        // Not found is okay
         toast({
-          title: "Error",
-          description: "Failed to load subscription",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load subscription',
+          variant: 'destructive',
         });
         return;
       }
@@ -57,13 +60,14 @@ export function SubscriptionManager() {
       // Subscribe to subscription updates
       const channel = supabase
         .channel('subscription_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'subscriptions',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadSubscription();
           }
@@ -79,31 +83,33 @@ export function SubscriptionManager() {
   }, [supabase, toast]);
 
   const handleCancel = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to cancel subscription",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to cancel subscription',
+        variant: 'destructive',
       });
       return;
     }
 
     if (!subscription?.id) {
       toast({
-        title: "Error",
-        description: "No active subscription found",
-        variant: "destructive"
+        title: 'Error',
+        description: 'No active subscription found',
+        variant: 'destructive',
       });
       return;
     }
 
     const { error } = await supabase
       .from('subscriptions')
-      .update({ 
+      .update({
         status: 'cancelled',
-        auto_renew: false
+        auto_renew: false,
       })
       .eq('id', subscription.id)
       .eq('user_id', user.id)
@@ -111,16 +117,16 @@ export function SubscriptionManager() {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to cancel subscription",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to cancel subscription',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Subscription cancelled successfully!"
+      title: 'Success',
+      description: 'Subscription cancelled successfully!',
     });
   };
 
@@ -140,7 +146,7 @@ export function SubscriptionManager() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            {"You can&apos;t manage your subscription here."}
+            {'You can&apos;t manage your subscription here.'}
           </p>
         </CardContent>
       </Card>
@@ -177,11 +183,7 @@ export function SubscriptionManager() {
             </p>
           </div>
           {subscription.status === 'active' && (
-            <Button 
-              variant="destructive" 
-              onClick={handleCancel}
-              className="w-full"
-            >
+            <Button variant="destructive" onClick={handleCancel} className="w-full">
               Cancel Subscription
             </Button>
           )}

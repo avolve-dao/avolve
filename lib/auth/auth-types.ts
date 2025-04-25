@@ -2,9 +2,9 @@
  * @ai-anchor #AUTH_TYPES
  * @ai-context This file contains all authentication-related type definitions for the Avolve platform
  * @ai-related-to auth-service.ts, auth-repository.ts
- * 
+ *
  * Authentication Types
- * 
+ *
  * This file contains all authentication-related type definitions for the Avolve platform.
  * It provides type safety and documentation for authentication-related data structures.
  */

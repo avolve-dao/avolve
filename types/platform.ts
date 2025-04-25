@@ -9,9 +9,9 @@ export const TokenSymbols = {
   SPD: 'SPD',
   SHE: 'SHE',
   SSA: 'SSA',
-  SGB: 'SGB'
+  SGB: 'SGB',
 } as const;
-export type TokenSymbol = typeof TokenSymbols[keyof typeof TokenSymbols];
+export type TokenSymbol = (typeof TokenSymbols)[keyof typeof TokenSymbols];
 
 // Metric related types
 export const MetricTypes = {
@@ -22,9 +22,9 @@ export const MetricTypes = {
   COMMUNITY: 'COMMUNITY',
   NPS: 'NPS',
   TIME_SPENT: 'TIME_SPENT',
-  INTERACTION: 'INTERACTION'
+  INTERACTION: 'INTERACTION',
 } as const;
-export type MetricType = typeof MetricTypes[keyof typeof MetricTypes];
+export type MetricType = (typeof MetricTypes)[keyof typeof MetricTypes];
 
 // Team related types
 export const TeamRoles = {
@@ -32,14 +32,15 @@ export const TeamRoles = {
   ADMIN: 'ADMIN',
   MEMBER: 'MEMBER',
   CONTRIBUTOR: 'CONTRIBUTOR',
-  OBSERVER: 'OBSERVER'
+  OBSERVER: 'OBSERVER',
 } as const;
-export type TeamRole = typeof TeamRoles[keyof typeof TeamRoles];
+export type TeamRole = (typeof TeamRoles)[keyof typeof TeamRoles];
 
 export const TeamChallengeStatuses = {
   NOT_STARTED: 'NOT_STARTED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED'
+  FAILED: 'FAILED',
 } as const;
-export type TeamChallengeStatus = typeof TeamChallengeStatuses[keyof typeof TeamChallengeStatuses];
+export type TeamChallengeStatus =
+  (typeof TeamChallengeStatuses)[keyof typeof TeamChallengeStatuses];

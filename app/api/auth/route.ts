@@ -18,24 +18,23 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      return NextResponse.redirect(
-        `${requestUrl.origin}/login?error=${error.message}`,
-        {
-          status: 301,
-        }
-      );
+      return NextResponse.redirect(`${requestUrl.origin}/login?error=${error.message}`, {
+        status: 301,
+      });
     }
 
     return NextResponse.redirect(requestUrl.origin, {
       status: 301,
     });
   } catch (error) {
-    console.error(JSON.stringify({
-      route: '/api/auth',
-      error: error instanceof Error ? error.message : error,
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    }));
+    console.error(
+      JSON.stringify({
+        route: '/api/auth',
+        error: error instanceof Error ? error.message : error,
+        stack: error instanceof Error ? error.stack : undefined,
+        timestamp: new Date().toISOString(),
+      })
+    );
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }

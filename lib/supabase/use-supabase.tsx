@@ -1,9 +1,9 @@
 import { useContext, useState, useEffect } from 'react';
 import { SupabaseClient, Session, User } from '@supabase/supabase-js';
-import { Context as SupabaseContext, type SupabaseContext as SupabaseContextType } from './supabase-provider';
+import { SupabaseContext, SupabaseContextType } from '@/components/supabase/provider';
 
 // Re-export the context type and Context for use in hooks
-export type { SupabaseContext };
+export type { SupabaseContextType };
 
 // Define the type for the Supabase context
 export interface UseSupabaseResult {
@@ -38,12 +38,12 @@ export function useSupabase(): UseSupabaseResult {
     };
     getSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event: string, session: Session | null) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+    });
 
     return () => {
       subscription.unsubscribe();
@@ -64,7 +64,9 @@ export function hasUser(hook: UseSupabaseResult): hook is UseSupabaseResult & { 
 }
 
 // Type assertion method
-export function assertUser(hook: UseSupabaseResult): asserts hook is UseSupabaseResult & { user: User } {
+export function assertUser(
+  hook: UseSupabaseResult
+): asserts hook is UseSupabaseResult & { user: User } {
   if (!hook.user) {
     throw new Error('User is not available');
   }

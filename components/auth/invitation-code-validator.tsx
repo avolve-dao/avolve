@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -10,10 +10,11 @@ import { InvitationService } from '@/lib/invitation/invitation-service';
 
 // Form schema using zod for validation
 const invitationCodeSchema = z.object({
-  code: z.string()
-    .min(6, "Invitation code must be at least 6 characters")
-    .max(12, "Invitation code must not exceed 12 characters")
-    .regex(/^[A-Z0-9]+$/, "Invitation code must contain only uppercase letters and numbers"),
+  code: z
+    .string()
+    .min(6, 'Invitation code must be at least 6 characters')
+    .max(12, 'Invitation code must not exceed 12 characters')
+    .regex(/^[A-Z0-9]+$/, 'Invitation code must contain only uppercase letters and numbers'),
 });
 
 type InvitationCodeFormValues = z.infer<typeof invitationCodeSchema>;
@@ -25,7 +26,7 @@ interface InvitationCodeValidatorProps {
 
 /**
  * InvitationCodeValidator Component
- * 
+ *
  * Validates invitation codes during the signup process
  */
 const InvitationCodeValidator: React.FC<InvitationCodeValidatorProps> = ({
@@ -70,29 +71,29 @@ const InvitationCodeValidator: React.FC<InvitationCodeValidatorProps> = ({
   const onSubmit = async (values: InvitationCodeFormValues) => {
     setLoading(true);
     setIsValid(null);
-    
+
     try {
       const invitationService = new InvitationService(supabase);
       const { data, error } = await invitationService.isInvitationCodeValid(values.code);
-      
+
       if (error) {
         throw error;
       }
-      
+
       setIsValid(!!data);
-      
+
       if (data) {
         toast({
-          title: "Valid Invitation",
-          description: "Your invitation code is valid. You can proceed with registration.",
-          variant: "default",
+          title: 'Valid Invitation',
+          description: 'Your invitation code is valid. You can proceed with registration.',
+          variant: 'default',
         });
         onValidCode(values.code);
       } else {
         toast({
-          title: "Invalid Invitation",
-          description: "This invitation code is invalid or has expired.",
-          variant: "destructive",
+          title: 'Invalid Invitation',
+          description: 'This invitation code is invalid or has expired.',
+          variant: 'destructive',
         });
         if (onInvalidCode) onInvalidCode();
       }
@@ -100,9 +101,9 @@ const InvitationCodeValidator: React.FC<InvitationCodeValidatorProps> = ({
       console.error('Error validating invitation code:', error);
       setIsValid(false);
       toast({
-        title: "Error",
-        description: error.message || "Failed to validate invitation code. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: error.message || 'Failed to validate invitation code. Please try again.',
+        variant: 'destructive',
       });
       if (onInvalidCode) onInvalidCode();
     } finally {
@@ -114,11 +115,9 @@ const InvitationCodeValidator: React.FC<InvitationCodeValidatorProps> = ({
     <div className="space-y-4">
       <div className="text-center mb-4">
         <h3 className="text-lg font-medium">Enter Invitation Code</h3>
-        <p className="text-sm text-gray-500">
-          You need a valid invitation code to join Avolve
-        </p>
+        <p className="text-sm text-gray-500">You need a valid invitation code to join Avolve</p>
       </div>
-      
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label htmlFor="invitation-code" className="block text-sm font-medium text-gray-700 mb-1">
@@ -128,20 +127,21 @@ const InvitationCodeValidator: React.FC<InvitationCodeValidatorProps> = ({
             id="invitation-code"
             type="text"
             className={`w-full rounded-md border ${
-              isValid === true ? 'border-green-500' : 
-              isValid === false ? 'border-red-500' : 'border-slate-300'
+              isValid === true
+                ? 'border-green-500'
+                : isValid === false
+                  ? 'border-red-500'
+                  : 'border-slate-300'
             } p-2.5 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500`}
             placeholder="ENTER CODE"
             {...register('code')}
-            onChange={(e) => {
+            onChange={e => {
               e.target.value = e.target.value.toUpperCase();
             }}
           />
-          {errors.code && (
-            <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>
-          )}
+          {errors.code && <p className="text-sm text-red-500 mt-1">{errors.code.message}</p>}
         </div>
-        
+
         <button
           type="submit"
           disabled={loading || !watchCode || watchCode.length < 6}
@@ -154,13 +154,13 @@ const InvitationCodeValidator: React.FC<InvitationCodeValidatorProps> = ({
           {loading ? 'Validating...' : 'Validate Code'}
         </button>
       </form>
-      
+
       {isValid === true && (
         <div className="p-3 rounded bg-green-100 text-green-800 text-sm">
           ✓ Valid invitation code. You can proceed with registration.
         </div>
       )}
-      
+
       {isValid === false && (
         <div className="p-3 rounded bg-red-100 text-red-800 text-sm">
           ✗ Invalid or expired invitation code. Please check and try again.

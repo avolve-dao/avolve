@@ -1,38 +1,38 @@
-"use client"
+'use client';
 
-import React from "react"
-import { cn } from "@/lib/utils"
+import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface QRCodeProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: string
-  size?: number
-  title?: string
+  value: string;
+  size?: number;
+  title?: string;
 }
 
 /**
  * Simple QR Code Component
- * 
+ *
  * A basic component to display QR code data as a link
  * This is a simplified version that doesn't require external dependencies
  */
 export function QRCode({
   value,
   size = 200,
-  title = "Scan this QR code",
+  title = 'Scan this QR code',
   className,
   ...props
 }: QRCodeProps) {
   // Create a URL-friendly version of the value
-  const encodedValue = encodeURIComponent(value)
-  
+  const encodedValue = encodeURIComponent(value);
+
   return (
-    <div className={cn("flex flex-col items-center space-y-2", className)} {...props}>
-      <div 
+    <div className={cn('flex flex-col items-center space-y-2', className)} {...props}>
+      <div
         className="bg-white p-4 rounded-md border border-zinc-200 flex flex-col items-center justify-center"
         style={{ width: size, minHeight: size / 2 }}
       >
         <p className="text-sm text-center mb-4">{title}</p>
-        <a 
+        <a
           href={value}
           target="_blank"
           rel="noopener noreferrer"
@@ -42,8 +42,9 @@ export function QRCode({
         </a>
       </div>
       <p className="text-xs text-muted-foreground text-center max-w-xs">
-        Click the button above to open the link in your authenticator app, or manually enter the code below
+        Click the button above to open the link in your authenticator app, or manually enter the
+        code below
       </p>
     </div>
-  )
+  );
 }

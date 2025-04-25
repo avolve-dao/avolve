@@ -1,12 +1,12 @@
-"use client"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PostFeed } from "@/components/post-feed"
-import { MediaGrid } from "@/components/media-grid"
-import { LikedPosts } from "@/components/liked-posts"
+'use client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PostFeed } from '@/components/post-feed';
+import { MediaGrid } from '@/components/media-grid';
+import { LikedPosts } from '@/components/liked-posts';
 
 interface ProfileTabsProps {
-  userId: string
-  isCurrentUser: boolean
+  userId: string;
+  isCurrentUser: boolean;
 }
 
 export function ProfileTabs({ userId, isCurrentUser }: ProfileTabsProps) {
@@ -35,11 +35,12 @@ export function ProfileTabs({ userId, isCurrentUser }: ProfileTabsProps) {
         <TabsContent value="about">
           <div className="text-center py-12">
             <h3 className="text-lg font-medium">About this user</h3>
-            <p className="text-muted-foreground mt-2">This section will contain more information about the user.</p>
+            <p className="text-muted-foreground mt-2">
+              This section will contain more information about the user.
+            </p>
           </div>
         </TabsContent>
       )}
     </Tabs>
-  )
+  );
 }
-

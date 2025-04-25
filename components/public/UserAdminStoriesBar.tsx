@@ -30,7 +30,10 @@ const UserAdminStoriesBar: React.FC<UserAdminStoriesBarProps> = ({ context, show
     const fetchStories = async () => {
       // @ts-ignore: supabase import path
       const { supabase } = await import('../../lib/supabaseClient');
-      let query = supabase.from('user_admin_stories').select('*').order('created_at', { ascending: false });
+      let query = supabase
+        .from('user_admin_stories')
+        .select('*')
+        .order('created_at', { ascending: false });
       if (context) {
         query = query.ilike('context', `%${context}%`);
       }
@@ -60,7 +63,13 @@ const UserAdminStoriesBar: React.FC<UserAdminStoriesBarProps> = ({ context, show
   return (
     <Card className="relative p-4 mb-4">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-medium">{showTypes && showTypes.length === 1 ? (showTypes[0] === 'admin' ? 'Admin Stories' : 'User Stories') : 'Stories'}</h3>
+        <h3 className="text-sm font-medium">
+          {showTypes && showTypes.length === 1
+            ? showTypes[0] === 'admin'
+              ? 'Admin Stories'
+              : 'User Stories'
+            : 'Stories'}
+        </h3>
       </div>
       <div className="relative">
         <Button
@@ -76,14 +85,16 @@ const UserAdminStoriesBar: React.FC<UserAdminStoriesBarProps> = ({ context, show
           className="flex space-x-4 overflow-x-auto scrollbar-hide py-2 px-1"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {stories.map((story) => (
+          {stories.map(story => (
             <div key={story.id} className="flex flex-col items-center space-y-2 flex-shrink-0 w-64">
-              <div className={cn(
-                'p-0.5 rounded-full',
-                story.type === 'admin'
-                  ? 'bg-gradient-to-tr from-blue-500 via-zinc-500 to-emerald-500'
-                  : 'bg-gradient-to-tr from-amber-400 via-pink-400 to-emerald-300'
-              )}>
+              <div
+                className={cn(
+                  'p-0.5 rounded-full',
+                  story.type === 'admin'
+                    ? 'bg-gradient-to-tr from-blue-500 via-zinc-500 to-emerald-500'
+                    : 'bg-gradient-to-tr from-amber-400 via-pink-400 to-emerald-300'
+                )}
+              >
                 <div className="p-0.5 bg-background rounded-full">
                   <Avatar className="h-12 w-12 border-2 border-background">
                     {story.avatar_url ? (
@@ -95,11 +106,17 @@ const UserAdminStoriesBar: React.FC<UserAdminStoriesBarProps> = ({ context, show
                 </div>
               </div>
               <span className="text-xs font-semibold">{story.author_name}</span>
-              <span className={cn(
-                'text-xs',
-                story.type === 'admin' ? 'text-blue-600 font-bold' : 'text-amber-600 font-bold'
-              )}>{story.type === 'admin' ? 'Admin Story' : 'User Story'}</span>
-              <div className="text-xs text-muted-foreground text-center line-clamp-4">{story.story}</div>
+              <span
+                className={cn(
+                  'text-xs',
+                  story.type === 'admin' ? 'text-blue-600 font-bold' : 'text-amber-600 font-bold'
+                )}
+              >
+                {story.type === 'admin' ? 'Admin Story' : 'User Story'}
+              </span>
+              <div className="text-xs text-muted-foreground text-center line-clamp-4">
+                {story.story}
+              </div>
             </div>
           ))}
         </div>

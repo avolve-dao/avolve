@@ -114,21 +114,25 @@ This will start the development server at [http://localhost:3000](http://localho
 For local development with Supabase:
 
 1. Install the Supabase CLI if you haven't already:
+
    ```bash
    npm install -g supabase
    ```
 
 2. Initialize Supabase in your project (if not already initialized):
+
    ```bash
    npx supabase init
    ```
 
 3. Start the local Supabase instance:
+
    ```bash
    npx supabase start
    ```
 
 4. This will provide you with local URLs and keys to use in your `.env.local` file, similar to:
+
    ```
    NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -144,11 +148,13 @@ For local development with Supabase:
 After starting Supabase, you'll need to initialize your database with the schema and seed data:
 
 1. Apply all migrations:
+
    ```bash
    npx supabase migration up
    ```
 
 2. Seed the database with initial data:
+
    ```bash
    psql -U postgres -h localhost -p 54322 -d postgres -f supabase/seed/initial_data.sql
    ```
@@ -329,9 +335,9 @@ describe('Database Functions', () => {
     const { data, error } = await supabase.rpc('update_token_balance', {
       p_user_id: 'test-user-id',
       p_token_symbol: 'GEN',
-      p_amount: 10
+      p_amount: 10,
     });
-    
+
     expect(error).toBeNull();
     expect(data).not.toBeNull();
     // Additional assertions...
@@ -351,39 +357,39 @@ export const createMockSupabaseClient = () => ({
       eq: jest.fn().mockReturnValue({
         single: jest.fn().mockResolvedValue({
           data: null,
-          error: null
-        })
-      })
+          error: null,
+        }),
+      }),
     }),
     insert: jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({
         single: jest.fn().mockResolvedValue({
           data: null,
-          error: null
-        })
-      })
+          error: null,
+        }),
+      }),
     }),
     update: jest.fn().mockReturnValue({
       eq: jest.fn().mockReturnValue({
         select: jest.fn().mockReturnValue({
           single: jest.fn().mockResolvedValue({
             data: null,
-            error: null
-          })
-        })
-      })
-    })
+            error: null,
+          }),
+        }),
+      }),
+    }),
   }),
   rpc: jest.fn().mockResolvedValue({
     data: null,
-    error: null
+    error: null,
   }),
   auth: {
     getUser: jest.fn().mockResolvedValue({
       data: { user: null },
-      error: null
-    })
-  }
+      error: null,
+    }),
+  },
 });
 ```
 
@@ -407,7 +413,7 @@ describe('ChallengeService', () => {
       // Arrange
       const userId = 'test-user-id';
       const challengeId = 'test-challenge-id';
-      
+
       // Mock streak data
       mockSupabase.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
@@ -415,14 +421,14 @@ describe('ChallengeService', () => {
             single: jest.fn().mockResolvedValue({
               data: {
                 current_daily_streak: 8,
-                token_type: 'PSP'
+                token_type: 'PSP',
               },
-              error: null
-            })
-          })
-        })
+              error: null,
+            }),
+          }),
+        }),
       });
-      
+
       // Mock challenge data
       mockSupabase.from.mockReturnValue({
         select: jest.fn().mockReturnValue({
@@ -431,17 +437,17 @@ describe('ChallengeService', () => {
               data: {
                 id: challengeId,
                 base_points: 10,
-                token_type: 'PSP'
+                token_type: 'PSP',
               },
-              error: null
-            })
-          })
-        })
+              error: null,
+            }),
+          }),
+        }),
       });
-      
+
       // Act
       const result = await challengeService.completeDailyChallenge(userId, challengeId);
-      
+
       // Assert
       expect(result.data?.points).toBe(19); // 10 base * 1.9 multiplier
     });
@@ -456,6 +462,7 @@ describe('ChallengeService', () => {
 We use a feature branch workflow:
 
 1. Create a new branch from `main` for each feature or bugfix:
+
    ```bash
    git checkout -b feature/your-feature-name
    # or
@@ -465,6 +472,7 @@ We use a feature branch workflow:
 2. Make your changes and commit them to your branch
 
 3. Push your branch to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -485,6 +493,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - `chore:` - Changes to the build process or auxiliary tools
 
 Example:
+
 ```
 feat: add token streak multiplier calculation
 ```
@@ -495,12 +504,15 @@ When creating a pull request, please use the following template:
 
 ```markdown
 ## Description
+
 [Provide a brief description of the changes in this PR]
 
 ## Related Issues
+
 [Link to any related issues, e.g., "Fixes #123"]
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
@@ -509,6 +521,7 @@ When creating a pull request, please use the following template:
 - [ ] Performance improvement
 
 ## Checklist
+
 - [ ] I have read the [CONTRIBUTING](../docs/contributing.md) document
 - [ ] My code follows the code style of this project
 - [ ] I have added tests that prove my fix is effective or that my feature works
@@ -518,9 +531,11 @@ When creating a pull request, please use the following template:
 - [ ] I have checked that my changes do not introduce new linting errors
 
 ## Screenshots (if applicable)
+
 [Add screenshots here if UI changes were made]
 
 ## Additional Notes
+
 [Any additional information that might be helpful for reviewers]
 ```
 
@@ -623,13 +638,13 @@ Example:
 /**
  * @ai-anchor #CHALLENGE_SYSTEM
  * @ai-context This service handles challenge completion and rewards
- * 
+ *
  * Completes a daily challenge for a user and awards tokens
- * 
+ *
  * @param userId - The ID of the user completing the challenge
  * @param challengeId - The ID of the challenge to complete
  * @returns A promise resolving to a ChallengeResult containing success status and reward details
- * 
+ *
  * @example
  * const result = await challengeService.completeDailyChallenge(userId, challengeId);
  * if (result.data?.success) {
@@ -658,6 +673,7 @@ When adding new features, please update the relevant user documentation in the `
 ### Supabase Debugging
 
 1. **View Supabase Logs**:
+
    ```bash
    npx supabase logs
    ```
@@ -673,6 +689,7 @@ When adding new features, please update the relevant user documentation in the `
 ### Next.js Debugging
 
 1. **Enable Verbose Logging**:
+
    ```bash
    pnpm dev --debug
    ```
@@ -731,6 +748,7 @@ Before deploying the Avolve platform to production, ensure you complete the foll
 ### Deploying to Vercel
 
 1. **Prepare for Deployment**:
+
    ```bash
    pnpm build
    ```
@@ -739,6 +757,7 @@ Before deploying the Avolve platform to production, ensure you complete the foll
    Check for any build errors or warnings that need to be addressed.
 
 3. **Deploy to Vercel**:
+
    ```bash
    vercel --prod
    ```
@@ -751,16 +770,19 @@ Before deploying the Avolve platform to production, ensure you complete the foll
 ### Running Migrations
 
 1. **Backup the Database**:
+
    ```bash
    pg_dump -U postgres -h your-db-host -d your-db-name > backup_$(date +%Y%m%d).sql
    ```
 
 2. **Apply Migrations to Production**:
+
    ```bash
    npx supabase db push --db-url your-production-db-url
    ```
 
 3. **Verify Migrations**:
+
    ```bash
    npx supabase db lint --db-url your-production-db-url
    ```
@@ -773,11 +795,13 @@ Before deploying the Avolve platform to production, ensure you complete the foll
 ### Testing the Tracking API
 
 1. **Verify Tracking Endpoints**:
+
    - Test the `POST /api/track` endpoint with sample data
    - Ensure all required fields are properly validated
    - Check that tracking data is being stored correctly
 
 2. **Sample Tracking Request**:
+
    ```bash
    curl -X POST https://your-domain.com/api/track \
      -H "Content-Type: application/json" \
@@ -793,6 +817,7 @@ Before deploying the Avolve platform to production, ensure you complete the foll
    ```
 
 3. **Verify Anonymous Tracking**:
+
    - Test tracking for unauthenticated users
    - Ensure proper rate limiting is in place
    - Verify that anonymous data is properly segregated
@@ -809,12 +834,13 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
 ### Next.js
 
 - **App Router**: Use the App Router architecture for all new routes
+
   ```typescript
   // Example: app/dashboard/page.tsx
   export default async function DashboardPage() {
     // Server component code
     const userData = await fetchUserData();
-    
+
     return (
       <Dashboard userData={userData} />
     );
@@ -822,11 +848,12 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
   ```
 
 - **Server Components**: Leverage server components for data fetching and initial rendering
+
   ```typescript
   // Server component with Suspense boundaries
   import { Suspense } from 'react';
   import { LeaderboardSkeleton } from '@/components/skeletons';
-  
+
   export default function LeaderboardPage() {
     return (
       <div className="dashboard-container">
@@ -840,11 +867,12 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
   ```
 
 - **Client Components**: Use the "use client" directive only when necessary
+
   ```typescript
   'use client';
-  
+
   import { useState } from 'react';
-  
+
   export function InteractiveComponent() {
     const [state, setState] = useState(initialState);
     // Client-side logic
@@ -854,6 +882,7 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
 ### Supabase
 
 - **AI Assistant**: Leverage Supabase AI for query optimization
+
   ```typescript
   // Example: Optimizing a complex query
   const { data, error } = await supabase.ai.optimize(`
@@ -865,6 +894,7 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
   ```
 
 - **Real-time Subscriptions**: Use channels for live updates
+
   ```typescript
   // Example: Setting up a real-time subscription
   const channel = supabase
@@ -874,15 +904,15 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
       {
         event: 'INSERT',
         schema: 'public',
-        table: 'event_completions'
+        table: 'event_completions',
       },
-      (payload) => {
+      payload => {
         // Handle the new event completion
         updateLeaderboard(payload.new);
       }
     )
     .subscribe();
-  
+
   // Clean up on component unmount
   return () => {
     supabase.removeChannel(channel);
@@ -890,28 +920,29 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
   ```
 
 - **Edge Functions**: Deploy serverless functions for global performance
+
   ```typescript
   // Example: Creating a Supabase Edge Function
   // supabase/functions/process-event/index.ts
   import { serve } from 'https://deno.land/std@0.177.0/http/server.ts';
   import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
-  
-  serve(async (req) => {
+
+  serve(async req => {
     const { event_id, user_id } = await req.json();
-    
+
     // Process the event
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
-    
-    const { data, error } = await supabase.rpc(
-      'complete_event',
-      { p_event_id: event_id, p_user_id: user_id }
-    );
-    
+
+    const { data, error } = await supabase.rpc('complete_event', {
+      p_event_id: event_id,
+      p_user_id: user_id,
+    });
+
     return new Response(JSON.stringify({ success: true, data }), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   });
   ```
@@ -919,43 +950,46 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
 ### Vercel
 
 - **Edge Runtime**: Optimize API routes with edge functions
+
   ```typescript
   // Example: app/api/track/route.ts
   export const runtime = 'edge';
-  
+
   export async function POST(request: Request) {
     const { event_type, user_id, metadata } = await request.json();
-    
+
     // Process tracking data at the edge
     const result = await processTrackingData(event_type, user_id, metadata);
-    
+
     return new Response(JSON.stringify(result), {
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
-      }
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
     });
   }
   ```
 
 - **ISR and Caching**: Use Incremental Static Regeneration for dynamic content
+
   ```typescript
   // Example: app/events/[id]/page.tsx
   export async function generateStaticParams() {
     // Pre-render the most popular event pages
     return [{ id: 'popular-event-1' }, { id: 'popular-event-2' }];
   }
-  
+
   export const revalidate = 3600; // Revalidate every hour
   ```
 
 ### GitHub
 
 - **CI/CD Pipeline**: Utilize our comprehensive workflow for testing and deployment
+
   ```yaml
   # .github/workflows/deploy.yml
   name: Avolve CI/CD Pipeline
-  
+
   on:
     push:
       branches:
@@ -963,7 +997,7 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
     pull_request:
       branches:
         - main
-  
+
   jobs:
     test:
       name: Test and Validate
@@ -971,18 +1005,18 @@ The Avolve platform adheres to modern development standards optimized for 2025. 
       steps:
         - name: Checkout code
           uses: actions/checkout@v4
-        
+
         - name: Setup Node.js
           uses: actions/setup-node@v4
           with:
             node-version: '20'
-        
+
         - name: Type checking
           run: pnpm run typecheck
-        
+
         - name: Lint
           run: pnpm run lint
-        
+
         - name: Run tests with coverage
           run: pnpm run test -- --coverage
   ```
@@ -1018,7 +1052,7 @@ import type { Database } from '@/types/supabase';
 export function LeaderboardComponent({ initialData }) {
   const [leaderboard, setLeaderboard] = useState(initialData);
   const supabase = createClientComponentClient<Database>();
-  
+
   useEffect(() => {
     // Subscribe to event completions
     const channel = supabase
@@ -1036,13 +1070,13 @@ export function LeaderboardComponent({ initialData }) {
         }
       )
       .subscribe();
-    
+
     // Clean up on component unmount
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
-  
+
   function updateLeaderboardWithNewCompletion(newCompletion) {
     // Logic to update the leaderboard state
     setLeaderboard(currentLeaderboard => {
@@ -1050,24 +1084,24 @@ export function LeaderboardComponent({ initialData }) {
       const userIndex = currentLeaderboard.findIndex(
         entry => entry.user_id === newCompletion.user_id
       );
-      
+
       if (userIndex === -1) {
         // User not in leaderboard yet, fetch their details and add them
         return [...currentLeaderboard];
       }
-      
+
       // Update the user's score
       const updatedLeaderboard = [...currentLeaderboard];
       updatedLeaderboard[userIndex] = {
         ...updatedLeaderboard[userIndex],
         points: updatedLeaderboard[userIndex].points + newCompletion.points
       };
-      
+
       // Sort the leaderboard by points
       return updatedLeaderboard.sort((a, b) => b.points - a.points);
     });
   }
-  
+
   return (
     <div className="leaderboard">
       <h2>Live Leaderboard</h2>
@@ -1104,7 +1138,7 @@ export function EventChat({ eventId, userId }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const supabase = createClientComponentClient();
-  
+
   // Load initial messages
   useEffect(() => {
     async function loadMessages() {
@@ -1123,14 +1157,14 @@ export function EventChat({ eventId, userId }) {
         `)
         .eq('event_id', eventId)
         .order('created_at', { ascending: true });
-      
+
       if (data) {
         setMessages(data as ChatMessage[]);
       }
     }
-    
+
     loadMessages();
-    
+
     // Subscribe to new messages
     const channel = supabase
       .channel(`event-chat-${eventId}`)
@@ -1149,17 +1183,17 @@ export function EventChat({ eventId, userId }) {
         }
       )
       .subscribe();
-    
+
     return () => {
       supabase.removeChannel(channel);
     };
   }, [eventId]);
-  
+
   // Send a new message
   async function sendMessage(e) {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    
+
     const { data, error } = await supabase
       .from('event_messages')
       .insert({
@@ -1167,22 +1201,22 @@ export function EventChat({ eventId, userId }) {
         user_id: userId,
         content: newMessage
       });
-    
+
     setNewMessage('');
   }
-  
+
   return (
     <div className="event-chat">
       <div className="messages-container">
         {messages.map(message => (
-          <div 
-            key={message.id} 
+          <div
+            key={message.id}
             className={`message ${message.user_id === userId ? 'own-message' : ''}`}
           >
             <div className="message-avatar">
-              <img 
-                src={message.profiles?.avatar_url || '/default-avatar.png'} 
-                alt={message.profiles?.full_name || 'User'} 
+              <img
+                src={message.profiles?.avatar_url || '/default-avatar.png'}
+                alt={message.profiles?.full_name || 'User'}
               />
             </div>
             <div className="message-content">
@@ -1192,7 +1226,7 @@ export function EventChat({ eventId, userId }) {
           </div>
         ))}
       </div>
-      
+
       <form onSubmit={sendMessage} className="message-form">
         <input
           type="text"
@@ -1214,17 +1248,14 @@ Track user activity in real-time:
 ```typescript
 // Example: Track user activity
 export async function trackUserActivity(userId, actionType, details) {
-  const { data, error } = await supabase.rpc(
-    'log_user_activity',
-    {
-      p_user_id: userId,
-      p_action_type: actionType,
-      p_details: details,
-      p_ip_address: getClientIP(),
-      p_user_agent: getUserAgent()
-    }
-  );
-  
+  const { data, error } = await supabase.rpc('log_user_activity', {
+    p_user_id: userId,
+    p_action_type: actionType,
+    p_details: details,
+    p_ip_address: getClientIP(),
+    p_user_agent: getUserAgent(),
+  });
+
   return { data, error };
 }
 ```
@@ -1246,6 +1277,7 @@ npx playwright open http://localhost:3000/dashboard --throttling=slowNetwork
 ```
 
 Key areas to verify:
+
 - Ensure Suspense boundaries are properly implemented around data fetching components
 - Verify that loading states appear correctly during data fetching
 - Test that streaming server components render progressively
@@ -1269,6 +1301,7 @@ supabase realtime show
 ```
 
 Ensure these critical jobs are active:
+
 - `update_health_metrics` (daily at 3:00 AM)
 - `process_feedback_to_insights` (runs every 4 hours)
 - `update_journey_metrics` (runs daily at 2:00 AM)
@@ -1291,6 +1324,7 @@ vercel logs --follow
 ```
 
 Pay special attention to:
+
 - Response times (should be under 50ms for edge functions)
 - Error rates (should be below 0.1%)
 - Cold start frequency (should be minimal with proper warming)
@@ -1330,6 +1364,7 @@ POST /api/feedback
 ```
 
 Request body:
+
 ```json
 {
   "rating": 5,
@@ -1339,6 +1374,7 @@ Request body:
 ```
 
 Response (success):
+
 ```json
 {
   "success": true,
@@ -1360,21 +1396,18 @@ import { useToast } from '@/components/ui/use-toast';
 
 export default function EventFeedback({ eventId, userId }) {
   const { toast } = useToast();
-  
+
   const handleFeedbackSuccess = () => {
     toast({
-      title: "Thank you for your feedback!",
-      description: "Your input helps us improve the SSA experience.",
+      title: 'Thank you for your feedback!',
+      description: 'Your input helps us improve the SSA experience.',
     });
   };
-  
+
   return (
     <div className="mt-8">
       <h2 className="text-2xl font-bold mb-4">Share Your Thoughts</h2>
-      <FeedbackForm 
-        userId={userId} 
-        onSuccess={handleFeedbackSuccess} 
-      />
+      <FeedbackForm userId={userId} onSuccess={handleFeedbackSuccess} />
     </div>
   );
 }
@@ -1393,7 +1426,7 @@ import { createClient } from '@/lib/supabase/client';
 export function FeedbackMonitor() {
   const [feedback, setFeedback] = useState([]);
   const supabase = createClient();
-  
+
   useEffect(() => {
     // Load initial feedback
     const fetchFeedback = async () => {
@@ -1402,12 +1435,12 @@ export function FeedbackMonitor() {
         .select('*')
         .order('submitted_at', { ascending: false })
         .limit(50);
-        
+
       if (data) setFeedback(data);
     };
-    
+
     fetchFeedback();
-    
+
     // Subscribe to new feedback
     const channel = supabase
       .channel('feedback-updates')
@@ -1416,19 +1449,19 @@ export function FeedbackMonitor() {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'user_feedback'
+          table: 'user_feedback',
         },
-        (payload) => {
+        payload => {
           setFeedback(current => [payload.new, ...current]);
         }
       )
       .subscribe();
-      
+
     return () => {
       supabase.removeChannel(channel);
     };
   }, []);
-  
+
   return (
     <div className="feedback-monitor">
       <h2>Live Feedback</h2>
@@ -1474,14 +1507,14 @@ export default async function DashboardPage() {
 
 // Prioritize critical images with next/image priority attribute
 // This ensures important visuals load first
-<Image 
-  src="/ssa-network.png" 
-  alt="SSA Network" 
-  width={300} 
+<Image
+  src="/ssa-network.png"
+  alt="SSA Network"
+  width={300}
   height={200}
   priority
   className="object-cover"
-/>
+/>;
 
 // Use route groups for better code organization
 // This doesn't affect URL structure but improves developer experience
@@ -1537,18 +1570,18 @@ Leverage Vercel's platform capabilities for optimal deployment and testing:
 // This allows data-driven optimization of user experiences
 export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
-  
+
   // A/B test for onboarding flow
   if (url.pathname === '/onboarding') {
     // Assign users to variant A or B
     const variant = Math.random() > 0.5 ? 'a' : 'b';
-    
+
     if (variant === 'b') {
       url.pathname = '/onboarding/variant';
       return NextResponse.rewrite(url);
     }
   }
-  
+
   return NextResponse.next();
 }
 
@@ -1558,7 +1591,7 @@ export const config = {
 };
 
 // Implement Vercel Analytics for real-time user insights
-<Analytics />
+<Analytics />;
 ```
 
 These Vercel optimizations can improve global response times by up to 40% and provide valuable user behavior insights for continuous improvement.
@@ -1614,10 +1647,10 @@ import { Switch } from '@/components/ui/switch';
 
 export function WorthItToggle({ userId, activityId }) {
   const [isWorthIt, setIsWorthIt] = useState(false);
-  
+
   const handleToggleChange = async (checked: boolean) => {
     setIsWorthIt(checked);
-    
+
     // Log to user_feedback table
     await fetch('/api/track', {
       method: 'POST',
@@ -1630,12 +1663,12 @@ export function WorthItToggle({ userId, activityId }) {
       }),
     });
   };
-  
+
   return (
     <div className="flex items-center space-x-2">
-      <Switch 
-        checked={isWorthIt} 
-        onCheckedChange={handleToggleChange} 
+      <Switch
+        checked={isWorthIt}
+        onCheckedChange={handleToggleChange}
         aria-label="Was this worth your time?"
       />
       <span>Was this worth your time?</span>
@@ -1661,38 +1694,33 @@ export const runtime = 'edge';
 export async function POST(request: Request) {
   try {
     const { userId, activityId, worth_it, time_spent_seconds } = await request.json();
-    
+
     const supabase = createRouteHandlerClient({ cookies });
-    
+
     // Calculate time_value_score
     // 1.0 means exactly worth the time spent
     // >1.0 means more valuable than time invested
     // <1.0 means less valuable than time invested
-    const time_value_score = worth_it ? 
-      (1.0 * (10 / time_spent_seconds)) : // Worth it score adjusted for time
-      (0.2 * (10 / time_spent_seconds));  // Not worth it base score
-    
-    const { data, error } = await supabase
-      .from('user_satisfaction')
-      .insert({
-        user_id: userId,
-        activity_id: activityId,
-        worth_it,
-        time_spent_seconds,
-        time_value_score
-      });
-    
+    const time_value_score = worth_it
+      ? 1.0 * (10 / time_spent_seconds) // Worth it score adjusted for time
+      : 0.2 * (10 / time_spent_seconds); // Not worth it base score
+
+    const { data, error } = await supabase.from('user_satisfaction').insert({
+      user_id: userId,
+      activity_id: activityId,
+      worth_it,
+      time_spent_seconds,
+      time_value_score,
+    });
+
     if (error) throw error;
-    
-    return NextResponse.json({ 
-      success: true, 
-      time_value_score 
+
+    return NextResponse.json({
+      success: true,
+      time_value_score,
     });
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to track satisfaction' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to track satisfaction' }, { status: 500 });
   }
 }
 ```
@@ -1701,16 +1729,16 @@ Example query to analyze user satisfaction:
 
 ```sql
 -- Get average time value score by activity type
-select 
+select
   a.activity_type,
   avg(s.time_value_score) as avg_value_score,
   count(*) as sample_size
-from 
+from
   user_satisfaction s
   join activities a on s.activity_id = a.id
-group by 
+group by
   a.activity_type
-order by 
+order by
   avg_value_score desc;
 ```
 
@@ -1722,4 +1750,4 @@ Your contributions help make the Avolve platform better for everyone. We appreci
 
 ---
 
-*For more information, see the [Database Schema](./database-schema.md) and [Architecture Overview](./architecture.md).*
+_For more information, see the [Database Schema](./database-schema.md) and [Architecture Overview](./architecture.md)._

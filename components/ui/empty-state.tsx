@@ -1,13 +1,13 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 interface EmptyStateProps {
-  title: string
-  description: string
+  title: string;
+  description: string;
   action?: {
-    label: string
-    href: string
-  }
+    label: string;
+    href: string;
+  };
 }
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
@@ -32,12 +32,10 @@ export function EmptyState({ title, description, action }: EmptyStateProps) {
       {action && (
         <div className="mt-6">
           <Button asChild>
-            <Link href={action.href}>
-              {action.label}
-            </Link>
+            <Link href={action.href}>{action.label}</Link>
           </Button>
         </div>
       )}
     </div>
-  )
+  );
 }

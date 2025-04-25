@@ -1,44 +1,44 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { useQuery } from "@tanstack/react-query"
-import { TokenIcon } from "@/components/token/token-icon"
-import { cn } from "@/lib/utils"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Progress } from "@/components/ui/progress"
+import * as React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { TokenIcon } from '@/components/token/token-icon';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Progress } from '@/components/ui/progress';
 
 interface TokenBalanceBarProps {
-  userId: string
-  focusArea: string
+  userId: string;
+  focusArea: string;
 }
 
 export function TokenBalanceBar({ userId, focusArea }: TokenBalanceBarProps) {
   const { data: tokenData, isLoading } = useQuery({
-    queryKey: ["token-balances", userId, focusArea],
+    queryKey: ['token-balances', userId, focusArea],
     queryFn: async () => {
-      const res = await fetch("/api/token/balance")
-      if (!res.ok) throw new Error("Failed to fetch token balances")
-      const data = await res.json()
-      return data.data || {}
+      const res = await fetch('/api/token/balance');
+      if (!res.ok) throw new Error('Failed to fetch token balances');
+      const data = await res.json();
+      return data.data || {};
     },
-  })
+  });
 
   const { data: stakingData } = useQuery({
-    queryKey: ["token-stakes", userId],
+    queryKey: ['token-stakes', userId],
     queryFn: async () => {
-      const res = await fetch("/api/token/stake")
-      if (!res.ok) throw new Error("Failed to fetch staking info")
-      const data = await res.json()
-      return data.data || { stakes: [], availableRules: [] }
+      const res = await fetch('/api/token/stake');
+      if (!res.ok) throw new Error('Failed to fetch staking info');
+      const data = await res.json();
+      return data.data || { stakes: [], availableRules: [] };
     },
-  })
+  });
 
   if (isLoading) {
     return (
       <div className="border-b border-zinc-200 dark:border-zinc-800">
         <div className="container py-2">
           <div className="flex items-center gap-4">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3].map(i => (
               <div
                 key={i}
                 className="h-8 w-32 animate-pulse rounded-full bg-zinc-100 dark:bg-zinc-800"
@@ -47,10 +47,10 @@ export function TokenBalanceBar({ userId, focusArea }: TokenBalanceBarProps) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const tokens = tokenData.token_holdings || []
+  const tokens = tokenData.token_holdings || [];
 
   return (
     <div className="border-b border-zinc-200 dark:border-zinc-800">
@@ -59,11 +59,11 @@ export function TokenBalanceBar({ userId, focusArea }: TokenBalanceBarProps) {
           {tokens.map((token: any) => {
             const stake = stakingData?.stakes?.find(
               (s: any) => s.token_type_id === token.token_type_id
-            )
-            const totalAmount = token.balance + (token.staked_amount || 0)
+            );
+            const totalAmount = token.balance + (token.staked_amount || 0);
             const stakingPercentage = token.staked_amount
               ? (token.staked_amount / totalAmount) * 100
-              : 0
+              : 0;
 
             return (
               <TooltipProvider key={token.token_type_id}>
@@ -71,21 +71,14 @@ export function TokenBalanceBar({ userId, focusArea }: TokenBalanceBarProps) {
                   <TooltipTrigger asChild>
                     <div
                       className={cn(
-                        "flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer",
-                        "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700",
-                        "transition-colors duration-200"
+                        'flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer',
+                        'bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700',
+                        'transition-colors duration-200'
                       )}
                     >
-                      <TokenIcon
-                        type={token.category}
-                        className="w-4 h-4"
-                      />
-                      <span className="text-sm font-medium">
-                        {totalAmount.toLocaleString()}
-                      </span>
-                      <span className="text-sm text-zinc-500">
-                        {token.token_name}
-                      </span>
+                      <TokenIcon type={token.category} className="w-4 h-4" />
+                      <span className="text-sm font-medium">{totalAmount.toLocaleString()}</span>
+                      <span className="text-sm text-zinc-500">{token.token_name}</span>
                       {stakingPercentage > 0 && (
                         <Progress
                           value={stakingPercentage}
@@ -117,10 +110,10 @@ export function TokenBalanceBar({ userId, focusArea }: TokenBalanceBarProps) {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
+  );
 }

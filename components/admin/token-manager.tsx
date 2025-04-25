@@ -1,15 +1,15 @@
 /**
  * Token Manager Component
- * 
+ *
  * This component provides an interface for administrators to manage tokens and token ownership.
  * It allows creating, assigning, and managing tokens within the Avolve platform.
  */
 
-"use client";
+'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth/use-auth';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,7 +24,7 @@ function useWindowSize() {
   const getSize = useCallback(() => {
     return {
       width: isClient ? window.innerWidth : undefined,
-      height: isClient ? window.innerHeight : undefined
+      height: isClient ? window.innerHeight : undefined,
     };
   }, [isClient]);
   const [windowSize, setWindowSize] = React.useState(getSize);
@@ -67,7 +67,7 @@ export default function TokenManager() {
   const { session } = useAuth();
   const user = session?.user;
   const isAdmin = user?.app_metadata?.role === 'admin';
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
 
   // State for token types
   const [tokenTypes, setTokenTypes] = useState<TokenType[]>([]);
@@ -112,9 +112,7 @@ export default function TokenManager() {
     const fetchTokenTypes = async () => {
       setLoadingTokenTypes(true);
       setError(null);
-      const { data, error } = await supabase
-        .from('token_types')
-        .select('*');
+      const { data, error } = await supabase.from('token_types').select('*');
       if (error) {
         setError(error.message);
         setTokenTypes([]);
@@ -131,9 +129,7 @@ export default function TokenManager() {
     const fetchTokens = async () => {
       setLoadingTokens(true);
       setError(null);
-      const { data, error } = await supabase
-        .from('tokens')
-        .select('*');
+      const { data, error } = await supabase.from('tokens').select('*');
       if (error) {
         setError(error.message);
         setTokens([]);
@@ -150,9 +146,7 @@ export default function TokenManager() {
     const fetchTokenOwnership = async () => {
       setLoadingOwnership(true);
       setError(null);
-      const { data, error } = await supabase
-        .from('token_ownership')
-        .select('*');
+      const { data, error } = await supabase.from('token_ownership').select('*');
       if (error) {
         setError(error.message);
         setTokenOwnership([]);
@@ -170,14 +164,12 @@ export default function TokenManager() {
     setCreatingTokenType(true);
     setError(null);
     setSuccess(null);
-    const { error } = await supabase
-      .from('token_types')
-      .insert({
-        name: newTokenTypeName,
-        symbol: newTokenTypeSymbol,
-        description: newTokenTypeDescription,
-        total_supply: Number(newTokenTypeTotalSupply)
-      });
+    const { error } = await supabase.from('token_types').insert({
+      name: newTokenTypeName,
+      symbol: newTokenTypeSymbol,
+      description: newTokenTypeDescription,
+      total_supply: Number(newTokenTypeTotalSupply),
+    });
     setCreatingTokenType(false);
     if (!error) {
       setSuccess('Token type created successfully!');
@@ -194,7 +186,7 @@ export default function TokenManager() {
     } else {
       setError(error.message);
     }
-  };
+  }
 
   // Handle minting tokens
   async function handleMintTokens(e: React.FormEvent) {
@@ -202,13 +194,11 @@ export default function TokenManager() {
     setMintingTokens(true);
     setError(null);
     setSuccess(null);
-    const { error } = await supabase
-      .from('tokens')
-      .insert({
-        token_type_id: selectedTokenTypeId,
-        amount: Number(mintAmount),
-        created_at: new Date().toISOString()
-      });
+    const { error } = await supabase.from('tokens').insert({
+      token_type_id: selectedTokenTypeId,
+      amount: Number(mintAmount),
+      created_at: new Date().toISOString(),
+    });
     setMintingTokens(false);
     if (!error) {
       setSuccess('Tokens minted successfully!');
@@ -223,7 +213,7 @@ export default function TokenManager() {
     } else {
       setError(error.message);
     }
-  };
+  }
 
   // Handle transferring tokens
   async function handleTransferTokens(e: React.FormEvent) {
@@ -232,14 +222,15 @@ export default function TokenManager() {
     setError(null);
     setSuccess(null);
     // Example: update token_ownership table (adjust logic as needed)
-    const { error } = await supabase
-      .from('token_ownership')
-      .upsert({
+    const { error } = await supabase.from('token_ownership').upsert(
+      {
         token_id: transferTokenId,
         user_id: transferToUserId,
         balance: Number(transferAmount),
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'token_id,user_id' });
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'token_id,user_id' }
+    );
     setTransferringTokens(false);
     if (!error) {
       setSuccess('Tokens transferred successfully!');
@@ -255,7 +246,7 @@ export default function TokenManager() {
     } else {
       setError(error.message);
     }
-  };
+  }
 
   // Helper to get token type name by ID
   const getTokenTypeName = (id: string) => {
@@ -303,7 +294,7 @@ export default function TokenManager() {
             <Input
               id="tokenTypeName"
               value={newTokenTypeName}
-              onChange={(e) => setNewTokenTypeName(e.target.value)}
+              onChange={e => setNewTokenTypeName(e.target.value)}
               placeholder="e.g., Gold Token"
               required
             />
@@ -313,7 +304,7 @@ export default function TokenManager() {
             <Input
               id="tokenTypeSymbol"
               value={newTokenTypeSymbol}
-              onChange={(e) => setNewTokenTypeSymbol(e.target.value)}
+              onChange={e => setNewTokenTypeSymbol(e.target.value)}
               placeholder="e.g., GOLD"
               required
             />
@@ -323,7 +314,7 @@ export default function TokenManager() {
             <Input
               id="tokenTypeDescription"
               value={newTokenTypeDescription}
-              onChange={(e) => setNewTokenTypeDescription(e.target.value)}
+              onChange={e => setNewTokenTypeDescription(e.target.value)}
               placeholder="Optional description"
             />
           </div>
@@ -333,7 +324,7 @@ export default function TokenManager() {
               id="tokenTypeTotalSupply"
               type="number"
               value={newTokenTypeTotalSupply}
-              onChange={(e) => setNewTokenTypeTotalSupply(e.target.value)}
+              onChange={e => setNewTokenTypeTotalSupply(e.target.value)}
               placeholder="e.g., 1000000"
               required
             />
@@ -354,11 +345,15 @@ export default function TokenManager() {
           <div className="text-center py-6">No token types found.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tokenTypes.map((tokenType) => (
+            {tokenTypes.map(tokenType => (
               <Card key={tokenType.id} className="p-4 border rounded shadow-sm">
-                <h3 className="font-medium text-lg">{tokenType.name} ({tokenType.symbol})</h3>
+                <h3 className="font-medium text-lg">
+                  {tokenType.name} ({tokenType.symbol})
+                </h3>
                 <p className="text-sm text-gray-600">Total Supply: {tokenType.total_supply}</p>
-                {tokenType.description && <p className="text-sm text-gray-600">{tokenType.description}</p>}
+                {tokenType.description && (
+                  <p className="text-sm text-gray-600">{tokenType.description}</p>
+                )}
               </Card>
             ))}
           </div>
@@ -373,12 +368,12 @@ export default function TokenManager() {
             <select
               id="tokenTypeSelect"
               value={selectedTokenTypeId}
-              onChange={(e) => setSelectedTokenTypeId(e.target.value)}
+              onChange={e => setSelectedTokenTypeId(e.target.value)}
               className="w-full p-2 border rounded"
               required
             >
               <option value="">Select Token Type</option>
-              {tokenTypes.map((tokenType) => (
+              {tokenTypes.map(tokenType => (
                 <option key={tokenType.id} value={tokenType.id}>
                   {tokenType.name} ({tokenType.symbol})
                 </option>
@@ -391,13 +386,16 @@ export default function TokenManager() {
               id="mintAmount"
               type="number"
               value={mintAmount}
-              onChange={(e) => setMintAmount(e.target.value)}
+              onChange={e => setMintAmount(e.target.value)}
               placeholder="e.g., 1000"
               required
             />
           </div>
           <div className="col-span-1 md:col-span-2">
-            <Button type="submit" disabled={mintingTokens || loadingTokenTypes || tokenTypes.length === 0}>
+            <Button
+              type="submit"
+              disabled={mintingTokens || loadingTokenTypes || tokenTypes.length === 0}
+            >
               {mintingTokens ? 'Minting...' : 'Mint Tokens'}
             </Button>
           </div>
@@ -412,11 +410,13 @@ export default function TokenManager() {
           <div className="text-center py-6">No tokens found.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tokens.map((token) => (
+            {tokens.map(token => (
               <Card key={token.id} className="p-4 border rounded shadow-sm">
                 <h3 className="font-medium text-lg">{getTokenTypeName(token.token_type_id)}</h3>
                 <p className="text-sm text-gray-600">Amount: {token.amount}</p>
-                <p className="text-sm text-gray-600">Created: {new Date(token.created_at || '').toLocaleString()}</p>
+                <p className="text-sm text-gray-600">
+                  Created: {new Date(token.created_at || '').toLocaleString()}
+                </p>
               </Card>
             ))}
           </div>
@@ -431,12 +431,12 @@ export default function TokenManager() {
             <select
               id="transferTokenSelect"
               value={transferTokenId}
-              onChange={(e) => setTransferTokenId(e.target.value)}
+              onChange={e => setTransferTokenId(e.target.value)}
               className="w-full p-2 border rounded"
               required
             >
               <option value="">Select Token</option>
-              {tokens.map((token) => (
+              {tokens.map(token => (
                 <option key={token.id} value={token.id}>
                   {getTokenTypeName(token.token_type_id)} (Amount: {token.amount})
                 </option>
@@ -448,7 +448,7 @@ export default function TokenManager() {
             <Input
               id="transferToUserId"
               value={transferToUserId}
-              onChange={(e) => setTransferToUserId(e.target.value)}
+              onChange={e => setTransferToUserId(e.target.value)}
               placeholder="e.g., user UUID"
               required
             />
@@ -459,13 +459,16 @@ export default function TokenManager() {
               id="transferAmount"
               type="number"
               value={transferAmount}
-              onChange={(e) => setTransferAmount(e.target.value)}
+              onChange={e => setTransferAmount(e.target.value)}
               placeholder="e.g., 100"
               required
             />
           </div>
           <div className="col-span-1 md:col-span-3">
-            <Button type="submit" disabled={transferringTokens || loadingTokens || tokens.length === 0}>
+            <Button
+              type="submit"
+              disabled={transferringTokens || loadingTokens || tokens.length === 0}
+            >
               {transferringTokens ? 'Transferring...' : 'Transfer Tokens'}
             </Button>
           </div>
@@ -480,12 +483,16 @@ export default function TokenManager() {
           <div className="text-center py-6">No token ownership records found.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {tokenOwnership.map((ownership) => (
+            {tokenOwnership.map(ownership => (
               <Card key={ownership.id} className="p-4 border rounded shadow-sm">
                 <h3 className="font-medium text-lg">User: {ownership.user_id}</h3>
-                <p className="text-sm text-gray-600">Token: {getTokenTypeName(ownership.token_id)}</p>
+                <p className="text-sm text-gray-600">
+                  Token: {getTokenTypeName(ownership.token_id)}
+                </p>
                 <p className="text-sm text-gray-600">Balance: {ownership.balance}</p>
-                <p className="text-sm text-gray-600">Updated: {new Date(ownership.updated_at || '').toLocaleString()}</p>
+                <p className="text-sm text-gray-600">
+                  Updated: {new Date(ownership.updated_at || '').toLocaleString()}
+                </p>
               </Card>
             ))}
           </div>

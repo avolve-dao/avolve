@@ -1,6 +1,6 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Shield } from "lucide-react";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Shield } from 'lucide-react';
 
 export function VerificationLoadingSkeleton() {
   return (

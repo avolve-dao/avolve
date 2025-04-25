@@ -25,6 +25,7 @@ The Avolve navigation system provides a unified, accessible, and mobile-first ap
 ```
 
 Each route includes:
+
 - Clear label for display
 - Optional description
 - Associated icon from `lucide-react`
@@ -84,11 +85,11 @@ import { SwipeNavigation } from '@/components/swipe-navigation'
 
 ```typescript
 interface SuperRoute {
-  path: string;        // Route path under /super/
-  label: string;       // Display label
+  path: string; // Route path under /super/
+  label: string; // Display label
   description?: string; // Optional description
-  icon: LucideIcon;    // Icon component
-  priority?: number;   // Optional display priority
+  icon: LucideIcon; // Icon component
+  priority?: number; // Optional display priority
 }
 ```
 
@@ -105,16 +106,19 @@ interface NavigationProps {
 ## Best Practices
 
 1. **Route Naming**
+
    - Use descriptive, lowercase names
    - Avoid special characters
    - Keep paths short and meaningful
 
 2. **Mobile-First Design**
+
    - Implement touch-friendly targets
    - Support gesture navigation
    - Optimize for small screens first
 
 3. **Accessibility**
+
    - Include ARIA labels
    - Support keyboard navigation
    - Maintain focus management
@@ -127,6 +131,7 @@ interface NavigationProps {
 ## Adding New Routes
 
 1. Add route definition to `lib/navigation.ts`:
+
 ```typescript
 export const superRoutes: SuperRoute[] = [
   {
@@ -134,13 +139,14 @@ export const superRoutes: SuperRoute[] = [
     label: 'New Route',
     description: 'Description of the new route',
     icon: NewIcon,
-    priority: 1
+    priority: 1,
   },
   // ...existing routes
 ];
 ```
 
 2. Create the route component:
+
 ```typescript
 // app/(authenticated)/super/new-route/page.tsx
 export default function NewRoutePage() {
@@ -154,6 +160,7 @@ export default function NewRoutePage() {
 ```
 
 3. Update tests:
+
 ```typescript
 // __tests__/navigation.test.tsx
 describe('Navigation with new route', () => {
@@ -167,6 +174,7 @@ describe('Navigation with new route', () => {
 ## Security Considerations
 
 1. **Route Protection**
+
    - All `/super/` routes require authentication
    - Implement proper role-based access
    - Add rate limiting for API routes
@@ -179,11 +187,13 @@ describe('Navigation with new route', () => {
 ## Testing
 
 1. **Unit Tests**
+
    - Test navigation components in isolation
    - Verify route protection
    - Check accessibility features
 
 2. **Integration Tests**
+
    - Test navigation flows
    - Verify route transitions
    - Check mobile interactions
@@ -196,6 +206,7 @@ describe('Navigation with new route', () => {
 ## Performance Monitoring
 
 1. **Metrics to Track**
+
    - Time to First Byte (TTFB)
    - First Contentful Paint (FCP)
    - Navigation timing
@@ -209,11 +220,13 @@ describe('Navigation with new route', () => {
 ## Future Enhancements
 
 1. **AI-Enhanced Navigation**
+
    - Personalized route suggestions
    - Smart search integration
    - Usage pattern optimization
 
 2. **Advanced Features**
+
    - Route-specific themes
    - Animated transitions
    - Progressive loading

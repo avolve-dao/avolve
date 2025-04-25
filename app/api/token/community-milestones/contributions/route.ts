@@ -16,7 +16,10 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const milestoneId = searchParams.get('milestoneId');
   if (!milestoneId) {
-    return NextResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'milestoneId is required' } }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: { code: 'BAD_REQUEST', message: 'milestoneId is required' } },
+      { status: 400 }
+    );
   }
   const result = await service.getMilestoneContributions(milestoneId);
   return NextResponse.json(result);

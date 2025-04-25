@@ -1,7 +1,7 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient, Session } from "@supabase/supabase-js";
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient, Session } from '@supabase/supabase-js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,7 +22,11 @@ export default function Superpuzzle() {
   const [loading, setLoading] = useState<boolean>(true);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<SuperpuzzleProfile | null>(null);
-  const [fields, setFields] = useState({ academy_score: "", company_score: "", ecosystem_score: "" });
+  const [fields, setFields] = useState({
+    academy_score: '',
+    company_score: '',
+    ecosystem_score: '',
+  });
   const [edit, setEdit] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -30,7 +34,7 @@ export default function Superpuzzle() {
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
       if (!data.session) {
-        router.replace("/auth/signin");
+        router.replace('/auth/signin');
         return;
       }
       setSession(data.session);
@@ -43,28 +47,28 @@ export default function Superpuzzle() {
   const fetchSuperpuzzle = async (userId: string) => {
     setLoading(true);
     const { data } = await supabase
-      .from("superpuzzle_developments")
-      .select("*")
-      .eq("user_id", userId)
+      .from('superpuzzle_developments')
+      .select('*')
+      .eq('user_id', userId)
       .single();
     if (data) {
       setProfile({
         id: data.id,
         user_id: data.user_id,
-        academy_score: data.academy_score || "",
-        company_score: data.company_score || "",
-        ecosystem_score: data.ecosystem_score || "",
+        academy_score: data.academy_score || '',
+        company_score: data.company_score || '',
+        ecosystem_score: data.ecosystem_score || '',
         updated_at: data.updated_at,
       });
       setFields({
-        academy_score: data.academy_score || "",
-        company_score: data.company_score || "",
-        ecosystem_score: data.ecosystem_score || "",
+        academy_score: data.academy_score || '',
+        company_score: data.company_score || '',
+        ecosystem_score: data.ecosystem_score || '',
       });
       setShowOnboarding(false);
     } else {
       setProfile(null);
-      setFields({ academy_score: "", company_score: "", ecosystem_score: "" });
+      setFields({ academy_score: '', company_score: '', ecosystem_score: '' });
       setShowOnboarding(true);
     }
     setLoading(false);
@@ -80,23 +84,21 @@ export default function Superpuzzle() {
     const userId = session.user.id;
     if (profile) {
       await supabase
-        .from("superpuzzle_developments")
+        .from('superpuzzle_developments')
         .update({
           academy_score: fields.academy_score,
           company_score: fields.company_score,
           ecosystem_score: fields.ecosystem_score,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", profile.id);
+        .eq('id', profile.id);
     } else {
-      await supabase
-        .from("superpuzzle_developments")
-        .insert({
-          user_id: userId,
-          academy_score: fields.academy_score,
-          company_score: fields.company_score,
-          ecosystem_score: fields.ecosystem_score,
-        });
+      await supabase.from('superpuzzle_developments').insert({
+        user_id: userId,
+        academy_score: fields.academy_score,
+        company_score: fields.company_score,
+        ecosystem_score: fields.ecosystem_score,
+      });
     }
     setEdit(false);
     fetchSuperpuzzle(userId);
@@ -111,13 +113,20 @@ export default function Superpuzzle() {
       <h1 className="text-3xl font-bold text-red-400 mb-6">Superpuzzle Developments</h1>
       {showOnboarding && (
         <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-400 text-red-800 rounded">
-          Welcome! Start your journey by entering your superpuzzle scores below. <span className="font-bold">Tip:</span> Hover over the <span className="underline">info</span> icons for guidance.
+          Welcome! Start your journey by entering your superpuzzle scores below.{' '}
+          <span className="font-bold">Tip:</span> Hover over the{' '}
+          <span className="underline">info</span> icons for guidance.
         </div>
       )}
       {edit ? (
         <div className="space-y-4">
           <div>
-            <label className="block text-zinc-300">Academy Score <span title="How do you rate your academy's progress?" className="ml-1 cursor-help">ℹ️</span></label>
+            <label className="block text-zinc-300">
+              Academy Score{' '}
+              <span title="How do you rate your academy's progress?" className="ml-1 cursor-help">
+                ℹ️
+              </span>
+            </label>
             <input
               type="text"
               name="academy_score"
@@ -127,7 +136,12 @@ export default function Superpuzzle() {
             />
           </div>
           <div>
-            <label className="block text-zinc-300">Company Score <span title="How do you rate your company's progress?" className="ml-1 cursor-help">ℹ️</span></label>
+            <label className="block text-zinc-300">
+              Company Score{' '}
+              <span title="How do you rate your company's progress?" className="ml-1 cursor-help">
+                ℹ️
+              </span>
+            </label>
             <input
               type="text"
               name="company_score"
@@ -137,7 +151,12 @@ export default function Superpuzzle() {
             />
           </div>
           <div>
-            <label className="block text-zinc-300">Ecosystem Score <span title="How do you rate your ecosystem's progress?" className="ml-1 cursor-help">ℹ️</span></label>
+            <label className="block text-zinc-300">
+              Ecosystem Score{' '}
+              <span title="How do you rate your ecosystem's progress?" className="ml-1 cursor-help">
+                ℹ️
+              </span>
+            </label>
             <input
               type="text"
               name="ecosystem_score"
@@ -163,15 +182,15 @@ export default function Superpuzzle() {
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-zinc-300">Academy Score:</span>
-            <span className="text-zinc-100 font-bold">{fields.academy_score || "-"}</span>
+            <span className="text-zinc-100 font-bold">{fields.academy_score || '-'}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-zinc-300">Company Score:</span>
-            <span className="text-zinc-100 font-bold">{fields.company_score || "-"}</span>
+            <span className="text-zinc-100 font-bold">{fields.company_score || '-'}</span>
           </div>
           <div className="flex justify-between items-center">
             <span className="text-zinc-300">Ecosystem Score:</span>
-            <span className="text-zinc-100 font-bold">{fields.ecosystem_score || "-"}</span>
+            <span className="text-zinc-100 font-bold">{fields.ecosystem_score || '-'}</span>
           </div>
           <div className="flex justify-between items-center mt-4">
             <button

@@ -29,9 +29,22 @@ export default function GenieNudge() {
   }, []);
 
   return (
-    <div className="card genie-nudge" style={{padding: '1.5rem', borderRadius: 12, background: '#fffbe6', color: '#b8860b', fontWeight: 500, marginTop: 16}}>
-      <h3 style={{marginBottom: 8}}>Genie Suggests</h3>
-      <span role="img" aria-label="Genie">🧞‍♂️</span> {nextAction}
+    <div
+      className="card genie-nudge"
+      style={{
+        padding: '1.5rem',
+        borderRadius: 12,
+        background: '#fffbe6',
+        color: '#b8860b',
+        fontWeight: 500,
+        marginTop: 16,
+      }}
+    >
+      <h3 style={{ marginBottom: 8 }}>Genie Suggests</h3>
+      <span role="img" aria-label="Genie">
+        🧞‍♂️
+      </span>{' '}
+      {nextAction}
     </div>
   );
 }

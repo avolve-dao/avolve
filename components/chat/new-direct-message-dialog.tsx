@@ -1,19 +1,25 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Search } from "lucide-react"
-import { messagingDb } from "@/lib/db-messaging"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@supabase/supabase-js';
 
 interface NewDirectMessageDialogProps {
-  userId: string
-  trigger?: React.ReactNode
+  userId: string;
+  trigger?: React.ReactNode;
 }
 
 interface User {
@@ -31,77 +37,92 @@ interface Chat {
 }
 
 export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [users, setUsers] = useState<User[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [creating, setCreating] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const loadUsers = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true)
-        // Use the Supabase client directly since messagingDb doesn't have getSuggestedUsers
-        const supabase = messagingDb.getSupabaseClient()
+        const supabase = createClient();
         const { data, error } = await supabase
           .from('profiles')
           .select('id, username, full_name, avatar_url')
           .neq('id', userId)
           .order('full_name', { ascending: true })
-          .limit(20)
-        
-        if (error) {
-          throw error
-        }
-        
-        setUsers(data || [])
+          .limit(20);
+        if (error) throw error;
+        setUsers(data || []);
       } catch (error) {
-        console.error("Error loading users:", error)
+        setError('Failed to load users.');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-
-    if (open) {
-      loadUsers()
-    }
-  }, [userId, open])
+    };
+    loadUsers();
+  }, [userId]);
 
   const filteredUsers = users.filter(
-    (user) =>
+    user =>
       user.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username?.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      user.username?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleStartChat = async (selectedUserId: string) => {
+    setLoading(true);
+    setError(null);
     try {
-      setCreating(true)
-
-      // Check if a chat already exists with this user
-      const existingChats = await messagingDb.getUserChats(userId)
-      const existingChat = existingChats.find(
-        (chat: Chat) => !chat.is_group && chat.participants.length === 1 && chat.participants[0].id === selectedUserId,
-      )
-
-      if (existingChat) {
-        setOpen(false)
-        router.push(`/messages/${existingChat.id}`)
-        return
+      const supabase = createClient();
+      // Check for existing direct chat
+      const { data: existingChats, error: existingChatsError } = await supabase
+        .from('chats')
+        .select('id, is_group, participants:chat_participants(user_id)')
+        .eq('is_group', false)
+        .contains('chat_participants', [{ user_id: userId }, { user_id: selectedUserId }]);
+      if (existingChatsError) throw existingChatsError;
+      const directChat = (existingChats || []).find(
+        (chat: any) =>
+          Array.isArray(chat.participants) &&
+          chat.participants.length === 2 &&
+          chat.participants.some((p: any) => p.user_id === userId) &&
+          chat.participants.some((p: any) => p.user_id === selectedUserId)
+      );
+      if (directChat) {
+        setOpen(false);
+        router.push(`/messages/${directChat.id}`);
+        return;
       }
-
-      // Create a new direct chat
-      const newChatId = await messagingDb.createDirectChat(userId, selectedUserId)
-
-      setOpen(false)
-      router.push(`/messages/${newChatId}`)
+      // Create new direct chat
+      const { data: newChat, error: newChatError } = await supabase
+        .from('chats')
+        .insert({ is_group: false })
+        .select('id')
+        .single();
+      if (newChatError) throw newChatError;
+      const newChatId = newChat.id;
+      // Add both participants
+      const { error: participantsError } = await supabase
+        .from('chat_participants')
+        .insert([
+          { chat_id: newChatId, user_id: userId },
+          { chat_id: newChatId, user_id: selectedUserId }
+        ]);
+      if (participantsError) throw participantsError;
+      setOpen(false);
+      router.push(`/messages/${newChatId}`);
     } catch (error) {
-      console.error("Error creating chat:", error)
+      setError('Failed to start chat.');
     } finally {
-      setCreating(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -117,7 +138,7 @@ export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDial
             placeholder="Search users..."
             className="pl-8"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={e => setSearchQuery(e.target.value)}
           />
         </div>
 
@@ -128,7 +149,7 @@ export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDial
             <p className="text-sm text-muted-foreground">No users found</p>
           ) : (
             <div className="space-y-1">
-              {filteredUsers.map((user) => (
+              {filteredUsers.map(user => (
                 <div
                   key={user.id}
                   className="flex items-center p-2 hover:bg-accent rounded-md cursor-pointer"
@@ -151,5 +172,5 @@ export function NewDirectMessageDialog({ userId, trigger }: NewDirectMessageDial
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

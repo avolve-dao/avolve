@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 import {
   Area,
   Bar,
@@ -9,7 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-} from 'recharts'
+} from 'recharts';
 
 interface ChartData {
   date: string;
@@ -17,9 +17,9 @@ interface ChartData {
 }
 
 interface MetricsChartProps {
-  title: string
-  data?: ChartData[]
-  type?: 'line' | 'bar' | 'area' | 'heatmap'
+  title: string;
+  data?: ChartData[];
+  type?: 'line' | 'bar' | 'area' | 'heatmap';
 }
 
 export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartProps) {
@@ -28,23 +28,23 @@ export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartPr
     return data.map((item: ChartData) => ({
       ...item,
       value: typeof item.value === 'number' ? item.value : 0,
-    }))
-  }, [data])
+    }));
+  }, [data]);
 
   // Get chart component based on type
   const ChartComponent = useMemo(() => {
     switch (type) {
       case 'bar':
-        return Bar
+        return Bar;
       case 'area':
-        return Area
+        return Area;
       case 'heatmap':
         // For heatmap, we'll use a custom implementation
-        return null
+        return null;
       default:
-        return Line
+        return Line;
     }
-  }, [type])
+  }, [type]);
 
   if (type === 'heatmap') {
     return (
@@ -54,8 +54,8 @@ export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartPr
           {data.map((week: ChartData, weekIndex: number) => (
             <div key={weekIndex} className="space-y-1">
               {[week].flat().map((day: ChartData, dayIndex: number) => {
-                const intensity = Math.min(Math.max(day.value / 100, 0), 1)
-                const alpha = Math.round(intensity * 100)
+                const intensity = Math.min(Math.max(day.value / 100, 0), 1);
+                const alpha = Math.round(intensity * 100);
                 return (
                   <div
                     key={dayIndex}
@@ -65,13 +65,13 @@ export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartPr
                     }}
                     title={`${day.date}: ${day.value}`}
                   />
-                )
+                );
               })}
             </div>
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -146,5 +146,5 @@ export function MetricsChart({ title, data = [], type = 'line' }: MetricsChartPr
         </ResponsiveContainer>
       </div>
     </div>
-  )
+  );
 }

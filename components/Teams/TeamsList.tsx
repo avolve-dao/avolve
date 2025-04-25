@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect } from 'react';
 import { useTeams } from '@/hooks/useTeams';
@@ -17,15 +17,10 @@ interface TeamsListProps {
 export const TeamsList: React.FC<TeamsListProps> = ({
   showCreateButton = true,
   showJoinButtons = true,
-  userTeamsOnly = false
+  userTeamsOnly = false,
 }) => {
   const router = useRouter();
-  const { 
-    loading, 
-    userTeams, 
-    loadUserTeams,
-    eligibility
-  } = useTeams();
+  const { loading, userTeams, loadUserTeams, eligibility } = useTeams();
 
   useEffect(() => {
     if (userTeamsOnly) {
@@ -38,13 +33,15 @@ export const TeamsList: React.FC<TeamsListProps> = ({
   };
 
   // Fix for property 'team' does not exist on type 'UserTeam'. Adjust as per actual UserTeam shape.
-  const teamsToDisplay = userTeamsOnly 
-    ? userTeams.map(membership => {
-        if (typeof membership === 'object' && membership !== null && 'team' in membership) {
-          return (membership as { team: unknown }).team;
-        }
-        return null;
-      }).filter(Boolean)
+  const teamsToDisplay = userTeamsOnly
+    ? userTeams
+        .map(membership => {
+          if (typeof membership === 'object' && membership !== null && 'team' in membership) {
+            return (membership as { team: unknown }).team;
+          }
+          return null;
+        })
+        .filter(Boolean)
     : [];
 
   if (!userTeamsOnly && eligibility && typeof eligibility.isEligible !== 'boolean') {
@@ -54,7 +51,7 @@ export const TeamsList: React.FC<TeamsListProps> = ({
   if (loading && (!teamsToDisplay || teamsToDisplay.length === 0)) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <div key={i} className="border rounded-lg p-4">
             <Skeleton className="h-8 w-3/4 mb-2" />
             <Skeleton className="h-4 w-1/2 mb-4" />
@@ -74,7 +71,7 @@ export const TeamsList: React.FC<TeamsListProps> = ({
       {showCreateButton && (
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Teams</h2>
-          <Button 
+          <Button
             onClick={handleCreateTeam}
             disabled={loading || (eligibility ? !eligibility.isEligible : false)}
             className="bg-gradient-to-r from-slate-700 to-slate-900 text-white"
@@ -90,16 +87,12 @@ export const TeamsList: React.FC<TeamsListProps> = ({
           <UsersIcon className="mx-auto h-12 w-12 text-slate-400" />
           <h3 className="mt-4 text-lg font-medium">No teams found</h3>
           <p className="mt-2 text-sm text-slate-500">
-            {userTeamsOnly 
-              ? "You haven't joined any teams yet." 
-              : "There are no teams available at the moment."}
+            {userTeamsOnly
+              ? "You haven't joined any teams yet."
+              : 'There are no teams available at the moment.'}
           </p>
           {userTeamsOnly && (
-            <Button 
-              onClick={() => router.push('/teams')}
-              variant="outline" 
-              className="mt-4"
-            >
+            <Button onClick={() => router.push('/teams')} variant="outline" className="mt-4">
               Browse Teams
             </Button>
           )}
@@ -119,7 +112,16 @@ export const TeamsList: React.FC<TeamsListProps> = ({
               return (
                 <TeamCard
                   key={(team as { id: string }).id}
-                  team={team as { id: string; name: string; description?: string; leader_id: string; created_at: string; memberCount: number }}
+                  team={
+                    team as {
+                      id: string;
+                      name: string;
+                      description?: string;
+                      leader_id: string;
+                      created_at: string;
+                      memberCount: number;
+                    }
+                  }
                   showJoinButton={!!showJoinButtons && !userTeamsOnly}
                 />
               );

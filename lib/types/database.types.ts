@@ -1,6 +1,6 @@
 /**
  * Avolve Platform Database Types
- * 
+ *
  * This file contains TypeScript interfaces for the Avolve platform database schema.
  * It provides type safety when interacting with the Supabase database.
  */
@@ -16,8 +16,20 @@ export type NodeStatus = 'proposed' | 'fundraising' | 'under_development' | 'act
 export type MembershipType = 'founder' | 'resident' | 'member' | 'visitor';
 export type MembershipStatus = 'pending' | 'active' | 'inactive';
 export type StakingStatus = 'active' | 'completed' | 'cancelled';
-export type TransactionType = 'transfer' | 'reward' | 'mint' | 'burn' | 'stake' | 'unstake' | 'pending_release';
-export type ActivityType = 'meeting_attendance' | 'meeting_contribution' | 'content_creation' | 'task_completion' | 'recruitment';
+export type TransactionType =
+  | 'transfer'
+  | 'reward'
+  | 'mint'
+  | 'burn'
+  | 'stake'
+  | 'unstake'
+  | 'pending_release';
+export type ActivityType =
+  | 'meeting_attendance'
+  | 'meeting_contribution'
+  | 'content_creation'
+  | 'task_completion'
+  | 'recruitment';
 
 /**
  * Community Structure Types
@@ -395,7 +407,7 @@ export interface Database {
         Insert: Omit<UserSectionProgress, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<UserSectionProgress, 'id' | 'created_at' | 'updated_at'>>;
       };
-      
+
       // Token Economy
       tokens: {
         Row: Token;
@@ -422,14 +434,14 @@ export interface Database {
         Insert: Omit<TokenStaking, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<TokenStaking, 'id' | 'created_at' | 'updated_at'>>;
       };
-      
+
       // Identity
       genius_profiles: {
         Row: GeniusProfile;
         Insert: Omit<GeniusProfile, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<GeniusProfile, 'id' | 'created_at' | 'updated_at'>>;
       };
-      
+
       // Governance
       weekly_meetings: {
         Row: WeeklyMeeting;
@@ -451,7 +463,7 @@ export interface Database {
         Insert: Omit<MeetingNote, 'id' | 'created_at' | 'updated_at'>;
         Update: Partial<Omit<MeetingNote, 'id' | 'created_at' | 'updated_at'>>;
       };
-      
+
       // Network
       physical_nodes: {
         Row: PhysicalNode;
@@ -506,7 +518,7 @@ export interface Database {
         };
         Returns: Record<string, unknown>;
       };
-      
+
       // Identity Functions
       create_genius_profile: {
         Args: {
@@ -524,7 +536,7 @@ export interface Database {
         };
         Returns: number;
       };
-      
+
       // Governance Functions
       register_for_meeting: {
         Args: {

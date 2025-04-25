@@ -30,18 +30,18 @@ graph TD
 
 ## Papers by Token
 
-| Token | Paper | Description |
-|-------|-------|-------------|
-| GEN   | [gen-supercivilization.md](gen-supercivilization.md) | Ecosystem journey, onboarding philosophy, platform vision |
-| SAP   | [sap-superachiever.md](sap-superachiever.md) | Individual journey, personal transformation |
-| SCQ   | [scq-superachievers.md](scq-superachievers.md) | Collective journey, co-creation |
-| PSP   | [psp-personal-success.md](psp-personal-success.md) | Personal Success Puzzle |
-| BSP   | [bsp-business-success.md](bsp-business-success.md) | Business Success Puzzle |
-| SMS   | [sms-supermind-superpowers.md](sms-supermind-superpowers.md) | Supermind Superpowers |
-| SPD   | [spd-superpuzzle-developments.md](spd-superpuzzle-developments.md) | Superpuzzle Developments |
-| SHE   | [she-superhuman-enhancements.md](she-superhuman-enhancements.md) | Superhuman Enhancements |
-| SSA   | [ssa-supersociety-advancements.md](ssa-supersociety-advancements.md) | Supersociety Advancements |
-| SBG   | [sbg-supergenius-breakthroughs.md](sbg-supergenius-breakthroughs.md) | Supergenius Breakthroughs |
+| Token | Paper                                                                | Description                                               |
+| ----- | -------------------------------------------------------------------- | --------------------------------------------------------- |
+| GEN   | [gen-supercivilization.md](gen-supercivilization.md)                 | Ecosystem journey, onboarding philosophy, platform vision |
+| SAP   | [sap-superachiever.md](sap-superachiever.md)                         | Individual journey, personal transformation               |
+| SCQ   | [scq-superachievers.md](scq-superachievers.md)                       | Collective journey, co-creation                           |
+| PSP   | [psp-personal-success.md](psp-personal-success.md)                   | Personal Success Puzzle                                   |
+| BSP   | [bsp-business-success.md](bsp-business-success.md)                   | Business Success Puzzle                                   |
+| SMS   | [sms-supermind-superpowers.md](sms-supermind-superpowers.md)         | Supermind Superpowers                                     |
+| SPD   | [spd-superpuzzle-developments.md](spd-superpuzzle-developments.md)   | Superpuzzle Developments                                  |
+| SHE   | [she-superhuman-enhancements.md](she-superhuman-enhancements.md)     | Superhuman Enhancements                                   |
+| SSA   | [ssa-supersociety-advancements.md](ssa-supersociety-advancements.md) | Supersociety Advancements                                 |
+| SBG   | [sbg-supergenius-breakthroughs.md](sbg-supergenius-breakthroughs.md) | Supergenius Breakthroughs                                 |
 
 ## How to Use This Library
 
@@ -52,4 +52,4 @@ graph TD
 
 ---
 
-*For suggestions or contributions, open an issue or contact [admin@avolve.io](mailto:admin@avolve.io)*
+_For suggestions or contributions, open an issue or contact [admin@avolve.io](mailto:admin@avolve.io)_

@@ -48,16 +48,19 @@ Each token is claimable on a specific day of the week:
 Avolve follows a clear progression toward becoming a recognized network state:
 
 1. **Startup Society** (Current Stage)
+
    - Building online community
    - Establishing token economy
    - Implementing social contract
 
 2. **Network Union**
+
    - Capacity for collective action
    - Regular virtual gatherings
    - 1,000+ active members
 
 3. **Network Archipelago**
+
    - Crowdfunded physical nodes
    - Connected physical/virtual spaces
    - 10,000+ active members
@@ -74,12 +77,14 @@ Avolve follows a clear progression toward becoming a recognized network state:
 The social contract formalizes the rights, responsibilities, and shared values of all Avolve members. It's implemented as a smart contract that members explicitly agree to, creating a foundation of trust and alignment.
 
 **Key Features:**
+
 - Digital signature and verification
 - Version control for contract evolution
 - Clause-level management for granular updates
 - Membership agreement tracking
 
 **Database Schema:**
+
 - `social_contracts` - Stores contract versions
 - `member_agreements` - Records member consent
 - `contract_clauses` - Manages individual clauses
@@ -89,12 +94,14 @@ The social contract formalizes the rights, responsibilities, and shared values o
 The census system provides a cryptographically auditable record of our network state's growth in population, income, and real estate footprint - the three key metrics for network state progress.
 
 **Key Features:**
+
 - Regular census snapshots
 - Geographic distribution tracking
 - Income and real estate metrics
 - Skills and interests mapping
 
 **Database Schema:**
+
 - `census_records` - Stores aggregate census data
 - `member_census_data` - Individual member information
 
@@ -103,12 +110,14 @@ The census system provides a cryptographically auditable record of our network s
 Our governance system enables democratic decision-making while respecting the token hierarchy and value structure of Avolve.
 
 **Key Features:**
+
 - Proposal creation and voting
 - Multiple voting methods (simple majority, quadratic, etc.)
 - Token-weighted voting options
 - Discussion and deliberation tools
 
 **Database Schema:**
+
 - `proposals` - Stores governance proposals
 - `proposal_options` - Available choices for each proposal
 - `votes` - Records member votes
@@ -119,12 +128,14 @@ Our governance system enables democratic decision-making while respecting the to
 The virtual capital serves as our digital headquarters and gathering space, creating a sense of place and belonging in the digital realm.
 
 **Key Features:**
+
 - Hierarchical space structure (capital, embassies, nodes)
 - Areas for different activities (meetings, galleries, libraries)
 - Event scheduling and management
 - Digital artifacts and cultural elements
 
 **Database Schema:**
+
 - `virtual_spaces` - Main spaces in the virtual capital
 - `virtual_space_areas` - Sub-areas within spaces
 - `virtual_space_events` - Scheduled gatherings
@@ -136,12 +147,14 @@ The virtual capital serves as our digital headquarters and gathering space, crea
 The physical component represents our strategy for "cloud first, land last" - starting with digital community and gradually manifesting in the physical world through crowdfunded nodes.
 
 **Key Features:**
+
 - Crowdfunding for physical locations
 - Node management and membership
 - Physical/virtual event integration
 - Geographic distribution tracking
 
 **Database Schema:**
+
 - `physical_nodes` - Physical locations
 - `physical_node_funding` - Crowdfunding campaigns
 - `physical_node_contributions` - Member contributions
@@ -153,26 +166,31 @@ The physical component represents our strategy for "cloud first, land last" - st
 Each component of the network state architecture is designed to support Avolve's three core values:
 
 ### Social Contract
+
 - **Superachiever**: Defines individual rights and responsibilities
 - **Superachievers**: Establishes collective norms and expectations
 - **Supercivilization**: Creates the constitutional foundation
 
 ### On-Chain Census
+
 - **Superachiever**: Tracks individual contributions and growth
 - **Superachievers**: Measures collective capabilities
 - **Supercivilization**: Demonstrates progress toward network state status
 
 ### Collective Decision-Making
+
 - **Superachiever**: Allows individuals to propose and vote on personal journey matters
 - **Superachievers**: Enables collective decision-making on community issues
 - **Supercivilization**: Provides ecosystem-level governance
 
 ### Virtual Capital
+
 - **Superachiever**: Personal spaces for individual development
 - **Superachievers**: Collaborative areas for collective activities
 - **Supercivilization**: Central capital representing the entire community
 
 ### Physical Manifestation
+
 - **Superachiever**: Personal spaces within physical nodes
 - **Superachievers**: Collective ownership and management
 - **Supercivilization**: Network archipelago of connected territories
@@ -196,6 +214,6 @@ All components are implemented using our core tech stack:
 
 ## Changelog
 
-| Date | Version | Description |
-|------|---------|-------------|
-| 2025-04-09 | 1.0.0 | Initial documentation of network state architecture |
+| Date       | Version | Description                                         |
+| ---------- | ------- | --------------------------------------------------- |
+| 2025-04-09 | 1.0.0   | Initial documentation of network state architecture |

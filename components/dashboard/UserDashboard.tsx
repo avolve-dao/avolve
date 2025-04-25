@@ -1,5 +1,5 @@
 // components/dashboard/UserDashboard.tsx
-'use client'
+'use client';
 
 import React, { useState, useEffect } from 'react';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -10,7 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { shareContent, formatEngagementShareMessage, formatRewardShareMessage } from '@/lib/utils/socialSharing';
+import {
+  shareContent,
+  formatEngagementShareMessage,
+  formatRewardShareMessage,
+} from '@/lib/utils/socialSharing';
 
 interface TokenBalance {
   token_symbol: string;
@@ -66,19 +70,22 @@ const UserDashboard: React.FC = () => {
         }
 
         // Fetch engagement score
-        const { data: engagementData, error: engagementError } = await supabase
-          .rpc('calculate_user_engagement_score', { p_user_id: user.id });
+        const { data: engagementData, error: engagementError } = await supabase.rpc(
+          'calculate_user_engagement_score',
+          { p_user_id: user.id }
+        );
 
         if (engagementError) throw new Error('Failed to fetch engagement score');
         setEngagement({ score: engagementData });
 
         // Fetch rewards
-        const { data: rewardsData, error: rewardsError } = await supabase
-          .rpc('calculate_user_rewards', { p_user_id: user.id });
+        const { data: rewardsData, error: rewardsError } = await supabase.rpc(
+          'calculate_user_rewards',
+          { p_user_id: user.id }
+        );
 
         if (rewardsError) throw new Error('Failed to fetch rewards');
         setRewards(rewardsData || []);
-
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       } finally {
@@ -130,11 +137,25 @@ const UserDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{engagement?.score || 0}</div>
-                <p className="text-xs text-muted-foreground">Your activity level over the last 30 days</p>
+                <p className="text-xs text-muted-foreground">
+                  Your activity level over the last 30 days
+                </p>
                 <Progress value={Math.min((engagement?.score || 0) / 10, 100)} className="mt-2" />
                 <div className="flex space-x-2 mt-2">
-                  <Button variant="outline" size="sm" onClick={() => handleShareEngagement('twitter')}>Share on Twitter</Button>
-                  <Button variant="outline" size="sm" onClick={() => handleShareEngagement('linkedin')}>Share on LinkedIn</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleShareEngagement('twitter')}
+                  >
+                    Share on Twitter
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleShareEngagement('linkedin')}
+                  >
+                    Share on LinkedIn
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -144,9 +165,15 @@ const UserDashboard: React.FC = () => {
                 <CardTitle className="text-sm font-medium">Token Holdings</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{tokenBalances.length > 0 ? tokenBalances.length : 'No'} Tokens</div>
+                <div className="text-2xl font-bold">
+                  {tokenBalances.length > 0 ? tokenBalances.length : 'No'} Tokens
+                </div>
                 <p className="text-xs text-muted-foreground">Manage your token balances</p>
-                <Button variant="link" className="mt-2 p-0" onClick={() => window.location.href = '/tokens'}>
+                <Button
+                  variant="link"
+                  className="mt-2 p-0"
+                  onClick={() => (window.location.href = '/tokens')}
+                >
                   View Details
                 </Button>
               </CardContent>
@@ -157,9 +184,19 @@ const UserDashboard: React.FC = () => {
                 <CardTitle className="text-sm font-medium">Potential Rewards</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{rewards.length > 0 ? rewards.reduce((sum, r) => sum + r.reward_amount, 0).toFixed(2) : '0.00'}</div>
-                <p className="text-xs text-muted-foreground">Based on your engagement and activities</p>
-                <Button variant="link" className="mt-2 p-0" onClick={() => window.location.href = '/rewards'}>
+                <div className="text-2xl font-bold">
+                  {rewards.length > 0
+                    ? rewards.reduce((sum, r) => sum + r.reward_amount, 0).toFixed(2)
+                    : '0.00'}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Based on your engagement and activities
+                </p>
+                <Button
+                  variant="link"
+                  className="mt-2 p-0"
+                  onClick={() => (window.location.href = '/rewards')}
+                >
                   Claim Rewards
                 </Button>
               </CardContent>
@@ -176,7 +213,10 @@ const UserDashboard: React.FC = () => {
               {tokenBalances.length > 0 ? (
                 <ul className="space-y-2">
                   {tokenBalances.map((balance, index) => (
-                    <li key={index} className="flex justify-between items-center p-2 bg-muted rounded-md">
+                    <li
+                      key={index}
+                      className="flex justify-between items-center p-2 bg-muted rounded-md"
+                    >
                       <span>{balance.token_symbol}</span>
                       <span className="font-medium">{balance.balance.toFixed(2)}</span>
                     </li>
@@ -205,8 +245,20 @@ const UserDashboard: React.FC = () => {
                       </div>
                       <p className="text-sm text-muted-foreground">{reward.eligibility_reason}</p>
                       <div className="flex space-x-2 mt-1">
-                        <Button variant="outline" size="sm" onClick={() => handleShareReward('twitter', reward)}>Tweet</Button>
-                        <Button variant="outline" size="sm" onClick={() => handleShareReward('linkedin', reward)}>Post on LinkedIn</Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleShareReward('twitter', reward)}
+                        >
+                          Tweet
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleShareReward('linkedin', reward)}
+                        >
+                          Post on LinkedIn
+                        </Button>
                       </div>
                     </li>
                   ))}

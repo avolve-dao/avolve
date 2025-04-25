@@ -59,17 +59,17 @@ export function ConsensusManager() {
     getParticipantsForGroup,
     reportConsensusRankings,
   } = useConsensus(supabaseClient, userId);
-  
+
   // Only tokens and setTokens are available from useTokenService
   const tokenService = useTokenService();
-  
+
   // Explicit types for all state variables
   const [selectedTab, setSelectedTab] = useState<string>('meetings');
   const [selectedMeeting, setSelectedMeeting] = useState<string | null>(null);
   const [meetingGroups, setMeetingGroups] = useState<ConsensusGroupData[]>([]);
   const [groupParticipants, setGroupParticipants] = useState<Record<string, Participant[]>>({});
   const [rankings, setRankings] = useState<Record<string, number>>({});
-  
+
   // New meeting form state
   const [newMeetingDate, setNewMeetingDate] = useState<string>('');
   const [newMeetingTime, setNewMeetingTime] = useState<string>('');
@@ -84,7 +84,7 @@ export function ConsensusManager() {
       // Removed loadTokenTypes and loadTokens as they do not exist
     }
   }, [user]);
-  
+
   // Load meeting groups when a meeting is selected
   useEffect(() => {
     async function loadGroups() {
@@ -108,7 +108,7 @@ export function ConsensusManager() {
     }
     loadGroups();
   }, [selectedMeeting, getGroupsForMeeting, getParticipantsForGroup]);
-  
+
   // Handle scheduling a new meeting
   const handleScheduleMeeting = async () => {
     if (!newMeetingDate || !newMeetingTime || !newMeetingTokenType) {
@@ -119,9 +119,9 @@ export function ConsensusManager() {
       });
       return;
     }
-    
+
     const meetingDateTime = new Date(`${newMeetingDate}T${newMeetingTime}`);
-    
+
     if (isPast(meetingDateTime)) {
       toast({
         title: 'Invalid Date',
@@ -130,13 +130,9 @@ export function ConsensusManager() {
       });
       return;
     }
-    
+
     try {
-      await scheduleMeeting(
-        meetingDateTime,
-        newMeetingDuration,
-        newMeetingTokenType
-      );
+      await scheduleMeeting(meetingDateTime, newMeetingDuration, newMeetingTokenType);
       toast({
         title: 'Success',
         description: 'Meeting scheduled successfully',
@@ -155,11 +151,11 @@ export function ConsensusManager() {
       });
     }
   };
-  
+
   // Handle checking in to a meeting
   const handleCheckIn = async (meetingId: string) => {
     const success = await checkInToMeeting(meetingId);
-    
+
     if (success) {
       toast({
         title: 'Success',
@@ -175,7 +171,7 @@ export function ConsensusManager() {
       });
     }
   };
-  
+
   // Handle reporting rankings
   const handleReportRankings = async (groupId: string) => {
     if (Object.keys(rankings).length === 0) {
@@ -186,9 +182,9 @@ export function ConsensusManager() {
       });
       return;
     }
-    
+
     const success = await reportConsensusRankings(groupId, rankings);
-    
+
     if (success) {
       toast({
         title: 'Success',
@@ -196,10 +192,13 @@ export function ConsensusManager() {
         variant: 'default',
       });
       setRankings({});
-      
+
       // Reload group participants
       const participants = await getParticipantsForGroup(groupId);
-      setGroupParticipants({ ...groupParticipants, [groupId]: Array.isArray(participants) ? participants : [] });
+      setGroupParticipants({
+        ...groupParticipants,
+        [groupId]: Array.isArray(participants) ? participants : [],
+      });
     } else {
       toast({
         title: 'Error',
@@ -208,7 +207,7 @@ export function ConsensusManager() {
       });
     }
   };
-  
+
   // Render loading state
   if (isLoading && !upcomingMeetings.length) {
     return (
@@ -217,7 +216,7 @@ export function ConsensusManager() {
       </div>
     );
   }
-  
+
   // Render error state
   if (error) {
     return (
@@ -226,26 +225,19 @@ export function ConsensusManager() {
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Consensus & Token Allocation</h1>
         <div className="flex gap-2">
-          <Button 
-            color="primary" 
-            variant="outline" 
-            onClick={() => loadUpcomingMeetings()}
-          >
+          <Button color="primary" variant="outline" onClick={() => loadUpcomingMeetings()}>
             Refresh Meetings
           </Button>
         </div>
       </div>
-      
-      <Tabs 
-        value={selectedTab} 
-        onValueChange={setSelectedTab}
-      >
+
+      <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList>
           <TabsTrigger value="meetings">Consensus Meetings</TabsTrigger>
           <TabsTrigger value="respect">Pending Respect</TabsTrigger>
@@ -264,7 +256,7 @@ export function ConsensusManager() {
                     <Input
                       type="date"
                       value={newMeetingDate}
-                      onChange={(e) => setNewMeetingDate(e.target.value)}
+                      onChange={e => setNewMeetingDate(e.target.value)}
                       min={format(new Date(), 'yyyy-MM-dd')}
                     />
                   </div>
@@ -273,7 +265,7 @@ export function ConsensusManager() {
                     <Input
                       type="time"
                       value={newMeetingTime}
-                      onChange={(e) => setNewMeetingTime(e.target.value)}
+                      onChange={e => setNewMeetingTime(e.target.value)}
                     />
                   </div>
                   <div>
@@ -281,7 +273,7 @@ export function ConsensusManager() {
                     <Input
                       type="number"
                       value={newMeetingDuration.toString()}
-                      onChange={(e) => setNewMeetingDuration(parseInt(e.target.value) || 60)}
+                      onChange={e => setNewMeetingDuration(parseInt(e.target.value) || 60)}
                       min="15"
                       max="180"
                     />
@@ -291,7 +283,7 @@ export function ConsensusManager() {
                     <select
                       className="w-full p-2 border rounded-md"
                       value={newMeetingTokenType}
-                      onChange={(e) => setNewMeetingTokenType(e.target.value)}
+                      onChange={e => setNewMeetingTokenType(e.target.value)}
                     >
                       <option value="">Select Token Type</option>
                       {/* Removed tokenTypes as it does not exist */}
@@ -299,16 +291,13 @@ export function ConsensusManager() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <Button 
-                    color="primary" 
-                    onClick={handleScheduleMeeting}
-                  >
+                  <Button color="primary" onClick={handleScheduleMeeting}>
                     Schedule Meeting
                   </Button>
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Upcoming meetings */}
             <div>
               <h2 className="text-xl font-semibold mb-4">Upcoming Meetings</h2>
@@ -316,143 +305,185 @@ export function ConsensusManager() {
                 <p>No upcoming meetings</p>
               ) : (
                 <div className="space-y-4">
-                  {Array.isArray(upcomingMeetings) && upcomingMeetings.map((meeting) => (
-                    <Card key={meeting.id} className="p-4">
-                      <CardHeader>
-                        <CardTitle>
-                          Meeting on {format(new Date(meeting.meeting_time), 'MMM d, yyyy')} at {format(new Date(meeting.meeting_time), 'h:mm a')}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="text-sm text-gray-500">
-                              Duration: {meeting.duration_minutes} minutes
-                            </p>
-                            <p className="text-sm text-gray-500">
-                              Participants: {meeting.participants_count}
-                            </p>
-                            <div className="mt-2">
-                              <Badge color={
-                                meeting.status === 'scheduled' ? 'primary' :
-                                meeting.status === 'in_progress' ? 'warning' :
-                                meeting.status === 'completed' ? 'success' : 'danger'
-                              }>
-                                {meeting.status}
-                              </Badge>
+                  {Array.isArray(upcomingMeetings) &&
+                    upcomingMeetings.map(meeting => (
+                      <Card key={meeting.id} className="p-4">
+                        <CardHeader>
+                          <CardTitle>
+                            Meeting on {format(new Date(meeting.meeting_time), 'MMM d, yyyy')} at{' '}
+                            {format(new Date(meeting.meeting_time), 'h:mm a')}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-sm text-gray-500">
+                                Duration: {meeting.duration_minutes} minutes
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                Participants: {meeting.participants_count}
+                              </p>
+                              <div className="mt-2">
+                                <Badge
+                                  color={
+                                    meeting.status === 'scheduled'
+                                      ? 'primary'
+                                      : meeting.status === 'in_progress'
+                                        ? 'warning'
+                                        : meeting.status === 'completed'
+                                          ? 'success'
+                                          : 'danger'
+                                  }
+                                >
+                                  {meeting.status}
+                                </Badge>
+                              </div>
                             </div>
+                            <Button
+                              color="secondary"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedMeeting(
+                                  meeting.id === selectedMeeting ? null : meeting.id
+                                );
+                              }}
+                            >
+                              {meeting.id === selectedMeeting ? 'Hide Details' : 'View Details'}
+                            </Button>
                           </div>
-                          <Button 
-                            color="secondary" 
-                            size="sm"
-                            onClick={() => {
-                              setSelectedMeeting(meeting.id === selectedMeeting ? null : meeting.id);
-                            }}
-                          >
-                            {meeting.id === selectedMeeting ? 'Hide Details' : 'View Details'}
-                          </Button>
-                        </div>
-                        
-                        {/* Meeting details */}
-                        {selectedMeeting === meeting.id && (
-                          <div className="mt-4 pt-4 border-t">
-                            <h4 className="text-md font-medium mb-2">Groups</h4>
-                            {Array.isArray(meetingGroups) && meetingGroups.length === 0 ? (
-                              <p>No groups formed yet</p>
-                            ) : (
-                              <div className="space-y-4">
-                                {Array.isArray(meetingGroups) && meetingGroups.map((group) => (
-                                  <div key={group.id} className="border p-3 rounded-md">
-                                    <div className="flex justify-between items-center mb-2">
-                                      <h5 className="font-medium">Group {group.round}</h5>
-                                      <Badge color={
-                                        group.status === 'pending' ? 'default' :
-                                        group.status === 'in_progress' ? 'warning' :
-                                        group.status === 'completed' ? 'success' : 'danger'
-                                      }>
-                                        {group.status}
-                                      </Badge>
-                                    </div>
-                                    
-                                    {/* Group participants */}
-                                    {Array.isArray(groupParticipants[group.id]) && groupParticipants[group.id].length > 0 ? (
-                                      <div className="space-y-2">
-                                        {Array.isArray(groupParticipants[group.id]) && groupParticipants[group.id].map((participant) => (
-                                          <div key={participant.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-md">
-                                            <div className="flex items-center gap-2">
-                                              <Avatar>
-                                                <AvatarFallback>{participant.user_id ? participant.user_id[0] : '?'}</AvatarFallback>
-                                              </Avatar>
-                                              <span>{participant.user_id.substring(0, 8)}...</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                              {participant.rank ? (
-                                                <Badge color="success">Rank: {participant.rank}</Badge>
-                                              ) : (
-                                                group.status === 'in_progress' && (
-                                                  <select
-                                                    className="p-1 border rounded-md"
-                                                    value={rankings[participant.user_id] || ''}
-                                                    onChange={(e) => {
-                                                      const value = e.target.value ? parseInt(e.target.value) : null;
-                                                      if (value) {
-                                                        setRankings({
-                                                          ...rankings,
-                                                          [participant.user_id]: value
-                                                        });
-                                                      } else {
-                                                        const newRankings = { ...rankings };
-                                                        delete newRankings[participant.user_id];
-                                                        setRankings(newRankings);
+
+                          {/* Meeting details */}
+                          {selectedMeeting === meeting.id && (
+                            <div className="mt-4 pt-4 border-t">
+                              <h4 className="text-md font-medium mb-2">Groups</h4>
+                              {Array.isArray(meetingGroups) && meetingGroups.length === 0 ? (
+                                <p>No groups formed yet</p>
+                              ) : (
+                                <div className="space-y-4">
+                                  {Array.isArray(meetingGroups) &&
+                                    meetingGroups.map(group => (
+                                      <div key={group.id} className="border p-3 rounded-md">
+                                        <div className="flex justify-between items-center mb-2">
+                                          <h5 className="font-medium">Group {group.round}</h5>
+                                          <Badge
+                                            color={
+                                              group.status === 'pending'
+                                                ? 'default'
+                                                : group.status === 'in_progress'
+                                                  ? 'warning'
+                                                  : group.status === 'completed'
+                                                    ? 'success'
+                                                    : 'danger'
+                                            }
+                                          >
+                                            {group.status}
+                                          </Badge>
+                                        </div>
+
+                                        {/* Group participants */}
+                                        {Array.isArray(groupParticipants[group.id]) &&
+                                        groupParticipants[group.id].length > 0 ? (
+                                          <div className="space-y-2">
+                                            {Array.isArray(groupParticipants[group.id]) &&
+                                              groupParticipants[group.id].map(participant => (
+                                                <div
+                                                  key={participant.id}
+                                                  className="flex items-center justify-between p-2 bg-gray-50 rounded-md"
+                                                >
+                                                  <div className="flex items-center gap-2">
+                                                    <Avatar>
+                                                      <AvatarFallback>
+                                                        {participant.user_id
+                                                          ? participant.user_id[0]
+                                                          : '?'}
+                                                      </AvatarFallback>
+                                                    </Avatar>
+                                                    <span>
+                                                      {participant.user_id.substring(0, 8)}...
+                                                    </span>
+                                                  </div>
+                                                  <div className="flex items-center gap-2">
+                                                    {participant.rank ? (
+                                                      <Badge color="success">
+                                                        Rank: {participant.rank}
+                                                      </Badge>
+                                                    ) : (
+                                                      group.status === 'in_progress' && (
+                                                        <select
+                                                          className="p-1 border rounded-md"
+                                                          value={
+                                                            rankings[participant.user_id] || ''
+                                                          }
+                                                          onChange={e => {
+                                                            const value = e.target.value
+                                                              ? parseInt(e.target.value)
+                                                              : null;
+                                                            if (value) {
+                                                              setRankings({
+                                                                ...rankings,
+                                                                [participant.user_id]: value,
+                                                              });
+                                                            } else {
+                                                              const newRankings = { ...rankings };
+                                                              delete newRankings[
+                                                                participant.user_id
+                                                              ];
+                                                              setRankings(newRankings);
+                                                            }
+                                                          }}
+                                                        >
+                                                          <option value="">Rank</option>
+                                                          <option value="1">1</option>
+                                                          <option value="2">2</option>
+                                                          <option value="3">3</option>
+                                                          <option value="4">4</option>
+                                                          <option value="5">5</option>
+                                                          <option value="6">6</option>
+                                                        </select>
+                                                      )
+                                                    )}
+                                                    <Badge
+                                                      color={
+                                                        participant.status === 'checked_in'
+                                                          ? 'primary'
+                                                          : participant.status === 'present'
+                                                            ? 'success'
+                                                            : participant.status === 'absent'
+                                                              ? 'danger'
+                                                              : 'warning'
                                                       }
-                                                    }}
-                                                  >
-                                                    <option value="">Rank</option>
-                                                    <option value="1">1</option>
-                                                    <option value="2">2</option>
-                                                    <option value="3">3</option>
-                                                    <option value="4">4</option>
-                                                    <option value="5">5</option>
-                                                    <option value="6">6</option>
-                                                  </select>
-                                                )
-                                              )}
-                                              <Badge color={
-                                                participant.status === 'checked_in' ? 'primary' :
-                                                participant.status === 'present' ? 'success' :
-                                                participant.status === 'absent' ? 'danger' : 'warning'
-                                              }>
-                                                {participant.status}
-                                              </Badge>
-                                            </div>
+                                                    >
+                                                      {participant.status}
+                                                    </Badge>
+                                                  </div>
+                                                </div>
+                                              ))}
+
+                                            {/* Submit rankings button */}
+                                            {group.status === 'in_progress' && (
+                                              <div className="mt-2">
+                                                <Button
+                                                  color="primary"
+                                                  size="sm"
+                                                  onClick={() => handleReportRankings(group.id)}
+                                                >
+                                                  Submit Rankings
+                                                </Button>
+                                              </div>
+                                            )}
                                           </div>
-                                        ))}
-                                        
-                                        {/* Submit rankings button */}
-                                        {group.status === 'in_progress' && (
-                                          <div className="mt-2">
-                                            <Button 
-                                              color="primary" 
-                                              size="sm"
-                                              onClick={() => handleReportRankings(group.id)}
-                                            >
-                                              Submit Rankings
-                                            </Button>
-                                          </div>
+                                        ) : (
+                                          <p>No participants in this group</p>
                                         )}
                                       </div>
-                                    ) : (
-                                      <p>No participants in this group</p>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
+                                    ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
               )}
             </div>

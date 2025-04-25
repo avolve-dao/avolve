@@ -33,7 +33,7 @@ export function PillarList() {
     return (
       <div className="space-y-4">
         <h2 className="text-2xl font-bold">Avolve Pillars</h2>
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <Card key={i} className="w-full">
             <CardHeader>
               <Skeleton className="h-6 w-1/3" />
@@ -61,14 +61,21 @@ export function PillarList() {
     <div className="space-y-4">
       <h2 className="text-2xl font-bold">Avolve Pillars</h2>
       {pillars.length === 0 ? (
-        <p className="text-gray-500">No pillars found. Please run the seed script to populate the database.</p>
+        <p className="text-gray-500">
+          No pillars found. Please run the seed script to populate the database.
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {pillars.map((pillar) => (
-            <Card key={pillar.id} className={`w-full ${pillar.gradient_class || 'bg-gradient-to-r from-blue-500 to-purple-500'}`}>
+          {pillars.map(pillar => (
+            <Card
+              key={pillar.id}
+              className={`w-full ${pillar.gradient_class || 'bg-gradient-to-r from-blue-500 to-purple-500'}`}
+            >
               <CardHeader>
                 <CardTitle className="text-white">{pillar.title}</CardTitle>
-                {pillar.subtitle && <CardDescription className="text-white/80">{pillar.subtitle}</CardDescription>}
+                {pillar.subtitle && (
+                  <CardDescription className="text-white/80">{pillar.subtitle}</CardDescription>
+                )}
               </CardHeader>
               <CardContent>
                 <p className="text-white/90">{pillar.description || 'No description available'}</p>

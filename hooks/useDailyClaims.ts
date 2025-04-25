@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
@@ -24,8 +24,10 @@ export function useDailyClaims() {
 
   useEffect(() => {
     async function loadDailyClaims() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -39,9 +41,9 @@ export function useDailyClaims() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load daily claims",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load daily claims',
+          variant: 'destructive',
         });
         return;
       }
@@ -52,13 +54,14 @@ export function useDailyClaims() {
       // Subscribe to claim updates
       const channel = supabase
         .channel('claim_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'daily_claims',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadDailyClaims();
           }
@@ -74,13 +77,15 @@ export function useDailyClaims() {
   }, [supabase, toast]);
 
   const claimDaily = async (claimId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to claim rewards",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to claim rewards',
+        variant: 'destructive',
       });
       return;
     }
@@ -94,22 +99,22 @@ export function useDailyClaims() {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to claim daily reward",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to claim daily reward',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Daily reward claimed successfully!",
+      title: 'Success',
+      description: 'Daily reward claimed successfully!',
     });
   };
 
   return {
     claims,
     loading,
-    claimDaily
+    claimDaily,
   };
 }

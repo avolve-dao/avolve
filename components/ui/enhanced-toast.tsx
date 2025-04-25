@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Coins, CheckCircle, Star, Sparkles, Trophy } from 'lucide-react';
 import Link from 'next/link';
@@ -77,7 +77,7 @@ export function showEnhancedToast({
   userId,
 }: EnhancedToastProps) {
   const config = toastConfigs[type];
-  
+
   toast({
     title: `${title || config.title}`,
     description: (
@@ -95,8 +95,8 @@ export function showEnhancedToast({
         )}
         {tooltipType && userId && (
           <div className="text-xs text-muted-foreground">
-            <ContextualTooltip 
-              type={tooltipType as any} 
+            <ContextualTooltip
+              type={tooltipType as any}
               showIcon={false}
               className="underline cursor-help"
             >
@@ -113,11 +113,11 @@ export function showEnhancedToast({
 
 // Component to listen for realtime events and show toasts
 export function ToastListener({ userId }: { userId: string }) {
-  const supabase = createClientComponentClient();
-  
+  const supabase = createClient();
+
   useEffect(() => {
     if (!userId) return;
-    
+
     // Subscribe to achievements channel
     const achievementsChannel = supabase
       .channel('achievements')
@@ -129,14 +129,14 @@ export function ToastListener({ userId }: { userId: string }) {
           table: 'user_achievements',
           filter: `user_id=eq.${userId}`,
         },
-        async (payload) => {
+        async payload => {
           // Fetch achievement details
           const { data: achievement } = await supabase
             .from('achievements')
             .select('*')
             .eq('id', payload.new.achievement_id)
             .single();
-            
+
           if (achievement) {
             showEnhancedToast({
               type: 'achievement',
@@ -147,7 +147,7 @@ export function ToastListener({ userId }: { userId: string }) {
         }
       )
       .subscribe();
-      
+
     // Subscribe to token transactions channel
     const tokensChannel = supabase
       .channel('tokens')
@@ -159,7 +159,7 @@ export function ToastListener({ userId }: { userId: string }) {
           table: 'token_transactions',
           filter: `recipient_id=eq.${userId}`,
         },
-        (payload) => {
+        payload => {
           if (payload.new.amount > 0) {
             showEnhancedToast({
               type: 'token',
@@ -171,7 +171,7 @@ export function ToastListener({ userId }: { userId: string }) {
         }
       )
       .subscribe();
-      
+
     // Subscribe to component completions channel
     const componentsChannel = supabase
       .channel('components')
@@ -183,15 +183,20 @@ export function ToastListener({ userId }: { userId: string }) {
           table: 'component_progress',
           filter: `user_id=eq.${userId} AND status=eq.completed`,
         },
-        async (payload) => {
+        async payload => {
           // Fetch component details
           const { data: component } = await supabase
             .from('components')
             .select('name, pillar:pillar_id!inner(name)')
             .eq('id', payload.new.component_id)
             .single();
-            
-          if (component && component.pillar && typeof component.pillar === 'object' && 'name' in component.pillar) {
+
+          if (
+            component &&
+            component.pillar &&
+            typeof component.pillar === 'object' &&
+            'name' in component.pillar
+          ) {
             showEnhancedToast({
               type: 'completion',
               description: `You've completed "${component.name}" in the ${(component.pillar as { name: string }).name} pillar!`,
@@ -207,7 +212,7 @@ export function ToastListener({ userId }: { userId: string }) {
         }
       )
       .subscribe();
-      
+
     // Subscribe to feature unlocks channel
     const featuresChannel = supabase
       .channel('features')
@@ -219,7 +224,7 @@ export function ToastListener({ userId }: { userId: string }) {
           table: 'user_features',
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
+        payload => {
           showEnhancedToast({
             type: 'feature',
             description: `You've unlocked the ${payload.new.feature_name} feature!`,
@@ -229,7 +234,7 @@ export function ToastListener({ userId }: { userId: string }) {
         }
       )
       .subscribe();
-      
+
     // Subscribe to milestone completions channel
     const milestonesChannel = supabase
       .channel('milestones')
@@ -241,7 +246,7 @@ export function ToastListener({ userId }: { userId: string }) {
           table: 'user_milestones',
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
+        payload => {
           showEnhancedToast({
             type: 'milestone',
             description: `You've reached the "${payload.new.milestone_name}" milestone!`,
@@ -250,7 +255,7 @@ export function ToastListener({ userId }: { userId: string }) {
         }
       )
       .subscribe();
-    
+
     // Cleanup function
     return () => {
       supabase.removeChannel(achievementsChannel);
@@ -260,31 +265,31 @@ export function ToastListener({ userId }: { userId: string }) {
       supabase.removeChannel(milestonesChannel);
     };
   }, [userId, supabase]);
-  
+
   return null;
 }
 
 // Animation component for token acquisition
-export function TokenAnimation({ 
-  amount, 
+export function TokenAnimation({
+  amount,
   tokenType = 'GEN',
-  onComplete 
-}: { 
-  amount: number; 
+  onComplete,
+}: {
+  amount: number;
   tokenType?: string;
   onComplete?: () => void;
 }) {
   const [visible, setVisible] = useState(true);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
       if (onComplete) onComplete();
     }, 2000);
-    
+
     return () => clearTimeout(timer);
   }, [onComplete]);
-  
+
   return (
     <AnimatePresence>
       {visible && (
@@ -306,9 +311,9 @@ export function TokenAnimation({
               animate={{ rotate: 360 }}
               transition={{ duration: 1, repeat: 1 }}
             >
-              <img 
-                src={`/tokens/${tokenType.toLowerCase()}.svg`} 
-                alt={tokenType} 
+              <img
+                src={`/tokens/${tokenType.toLowerCase()}.svg`}
+                alt={tokenType}
                 className="h-6 w-6"
               />
             </motion.div>

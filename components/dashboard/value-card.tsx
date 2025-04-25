@@ -1,56 +1,55 @@
-"use client"
+'use client';
 
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { createClient } from "@/lib/supabase/client"
-import { Sparkles } from "lucide-react"
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { createClient } from '@/lib/supabase/client';
+import { Sparkles } from 'lucide-react';
 
 interface ValueCardProps {
-  userId: string
+  userId: string;
 }
 
 export function ValueCard({ userId }: ValueCardProps) {
-  const [userValue, setUserValue] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  
+  const [userValue, setUserValue] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const fetchUserValue = async () => {
       try {
-        const supabase = createClient()
-        
+        const supabase = createClient();
+
         // Call the get_user_value_summary function
-        const { data, error } = await supabase
-          .rpc('get_user_value_summary', {
-            p_user_id: userId
-          })
-          
-        if (error) throw error
-        
-        setUserValue(data)
+        const { data, error } = await supabase.rpc('get_user_value_summary', {
+          p_user_id: userId,
+        });
+
+        if (error) throw error;
+
+        setUserValue(data);
       } catch (error) {
-        console.error("Error fetching user value summary:", error)
+        console.error('Error fetching user value summary:', error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
-    
-    fetchUserValue()
-  }, [userId])
-  
+    };
+
+    fetchUserValue();
+  }, [userId]);
+
   // Calculate regen score based on immersion level and time value score
-  const regenScore = userValue 
-    ? Math.round((userValue.immersion_level * 0.6) + (userValue.time_value_score * 40))
-    : 0
-    
+  const regenScore = userValue
+    ? Math.round(userValue.immersion_level * 0.6 + userValue.time_value_score * 40)
+    : 0;
+
   // Determine color based on score
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-400"
-    if (score >= 60) return "text-blue-400"
-    if (score >= 40) return "text-yellow-400"
-    return "text-red-400"
-  }
-  
+    if (score >= 80) return 'text-green-400';
+    if (score >= 60) return 'text-blue-400';
+    if (score >= 40) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
   return (
     <Card className="border-zinc-800 bg-zinc-950/50">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -70,9 +69,9 @@ export function ValueCard({ userId }: ValueCardProps) {
                 {regenScore}
               </span>
             </div>
-            
+
             <Progress value={regenScore} max={100} className="h-2" />
-            
+
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="space-y-1">
                 <p className="text-zinc-400">Immersion Level</p>
@@ -95,5 +94,5 @@ export function ValueCard({ userId }: ValueCardProps) {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

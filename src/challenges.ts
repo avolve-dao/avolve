@@ -9,7 +9,10 @@ import { TokenSymbol } from '../types/platform';
 export class ChallengesService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
+  constructor(
+    supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  ) {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
@@ -19,12 +22,15 @@ export class ChallengesService {
    * - Unlocks tokens when sufficient points are earned
    * - Boosts interaction rate in metrics
    * - Updates user_balances and logs in transactions
-   * 
+   *
    * @param userId User ID completing the challenge
    * @param challengeId Challenge ID being completed
    * @returns Result of the challenge completion
    */
-  async completeChallenge(userId: string, challengeId: string): Promise<{
+  async completeChallenge(
+    userId: string,
+    challengeId: string
+  ): Promise<{
     success: boolean;
     data?: {
       points: number;
@@ -36,13 +42,15 @@ export class ChallengesService {
   }> {
     try {
       // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
-      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
+      throw new Error(
+        'Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.'
+      );
     } catch (error) {
       console.error('Challenge completion error:', error);
       return {
         success: false,
         data: { points: 0, tokenSymbol: '' as TokenSymbol, unlocked: false, totalPoints: 0 },
-        error: error instanceof Error ? error.message : 'Unknown challenge completion error'
+        error: error instanceof Error ? error.message : 'Unknown challenge completion error',
       };
     }
   }
@@ -50,7 +58,7 @@ export class ChallengesService {
   /**
    * Get all available challenges
    * Optionally filtered by token type
-   * 
+   *
    * @param tokenSymbol Optional token symbol to filter challenges by
    * @returns List of available challenges
    */
@@ -61,20 +69,22 @@ export class ChallengesService {
   }> {
     try {
       // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
-      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
+      throw new Error(
+        'Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.'
+      );
     } catch (error) {
       console.error('Get challenges error:', error);
       return {
         success: false,
         data: [],
-        error: error instanceof Error ? error.message : 'Unknown error getting challenges'
+        error: error instanceof Error ? error.message : 'Unknown error getting challenges',
       };
     }
   }
 
   /**
    * Get challenges completed by a user
-   * 
+   *
    * @param userId User ID to check
    * @returns List of completed challenges with completion dates
    */
@@ -85,20 +95,23 @@ export class ChallengesService {
   }> {
     try {
       // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
-      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
+      throw new Error(
+        'Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.'
+      );
     } catch (error) {
       console.error('Get user completed challenges error:', error);
       return {
         success: false,
         data: [],
-        error: error instanceof Error ? error.message : 'Unknown error getting completed challenges'
+        error:
+          error instanceof Error ? error.message : 'Unknown error getting completed challenges',
       };
     }
   }
 
   /**
    * Get user's progress for each token type
-   * 
+   *
    * @param userId User ID to check
    * @returns Progress for each token including points and unlock status
    */
@@ -109,20 +122,22 @@ export class ChallengesService {
   }> {
     try {
       // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
-      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
+      throw new Error(
+        'Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.'
+      );
     } catch (error) {
       console.error('Get user progress error:', error);
       return {
         success: false,
         data: [],
-        error: error instanceof Error ? error.message : 'Unknown error getting user progress'
+        error: error instanceof Error ? error.message : 'Unknown error getting user progress',
       };
     }
   }
 
   /**
    * Get available challenges for today based on the day's token
-   * 
+   *
    * @param userId User ID to check
    * @returns Today's challenges filtered by the day's token
    */
@@ -137,18 +152,33 @@ export class ChallengesService {
     try {
       // Get the day of the week
       const dayOfWeek = new Date().toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
-      
+
       // Map day to token symbol using value enum
       let dayToken;
       switch (dayOfWeek) {
-        case 'SUN': dayToken = TokenSymbolEnum.SPD; break;
-        case 'MON': dayToken = TokenSymbolEnum.SHE; break;
-        case 'TUE': dayToken = TokenSymbolEnum.PSP; break;
-        case 'WED': dayToken = TokenSymbolEnum.SSA; break;
-        case 'THU': dayToken = TokenSymbolEnum.BSP; break;
-        case 'FRI': dayToken = TokenSymbolEnum.SGB; break;
-        case 'SAT': dayToken = TokenSymbolEnum.SMS; break;
-        default: dayToken = TokenSymbolEnum.SAP; // Fallback
+        case 'SUN':
+          dayToken = TokenSymbolEnum.SPD;
+          break;
+        case 'MON':
+          dayToken = TokenSymbolEnum.SHE;
+          break;
+        case 'TUE':
+          dayToken = TokenSymbolEnum.PSP;
+          break;
+        case 'WED':
+          dayToken = TokenSymbolEnum.SSA;
+          break;
+        case 'THU':
+          dayToken = TokenSymbolEnum.BSP;
+          break;
+        case 'FRI':
+          dayToken = TokenSymbolEnum.SGB;
+          break;
+        case 'SAT':
+          dayToken = TokenSymbolEnum.SMS;
+          break;
+        default:
+          dayToken = TokenSymbolEnum.SAP; // Fallback
       }
 
       // Get token ID for the day's token
@@ -163,13 +193,15 @@ export class ChallengesService {
       }
 
       // All challenge-related DB queries have been removed due to missing tables in the Supabase schema. Please implement challenge logic in-app or create the required tables in your database.
-      throw new Error("Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.");
+      throw new Error(
+        'Challenge-related tables do not exist in the current Supabase schema. Please implement this logic in-app or create the tables in your database.'
+      );
     } catch (error) {
-      console.error('Get today\'s challenges error:', error);
+      console.error("Get today's challenges error:", error);
       return {
         success: false,
         data: { challenges: [], completedToday: [] },
-        error: error instanceof Error ? error.message : 'Unknown error getting today\'s challenges'
+        error: error instanceof Error ? error.message : "Unknown error getting today's challenges",
       };
     }
   }

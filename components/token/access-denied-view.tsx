@@ -1,10 +1,24 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useTokens } from '@/hooks/use-tokens';
-import { LockIcon, UnlockIcon, ArrowRightIcon, TrophyIcon, BookOpenIcon, MapIcon } from 'lucide-react';
+import {
+  LockIcon,
+  UnlockIcon,
+  ArrowRightIcon,
+  TrophyIcon,
+  BookOpenIcon,
+  MapIcon,
+} from 'lucide-react';
 
 interface AccessDeniedViewProps {
   requiredToken?: string;
@@ -43,10 +57,10 @@ export default function AccessDeniedView({
   requiredToken,
   resourceType,
   resourceId,
-  userPhase = 'discovery'
+  userPhase = 'discovery',
 }: AccessDeniedViewProps) {
   const { tokens, userBalances } = useTokens();
-  
+
   // Fix: provide explicit types for state
   const [tokenDetails, setTokenDetails] = useState<TokenDetails | null>(null);
   const [userTokens, setUserTokens] = useState<UserTokenBalance[]>([]);
@@ -60,68 +74,76 @@ export default function AccessDeniedView({
         // Get token details if a token is required
         if (requiredToken) {
           const details = tokens.find(
-            (token: any) => typeof token === 'object' && 'symbol' in token && token.symbol === requiredToken
+            (token: any) =>
+              typeof token === 'object' && 'symbol' in token && token.symbol === requiredToken
           );
           if (details) {
             setTokenDetails(details as TokenDetails);
           }
         }
-        
+
         // Get user tokens to calculate progress
         const userTokensResult = Array.isArray(userBalances)
           ? userBalances.filter(
-              (balance: any) => balance && typeof balance === 'object' && 'symbol' in balance && typeof balance.symbol === 'string'
+              (balance: any) =>
+                balance &&
+                typeof balance === 'object' &&
+                'symbol' in balance &&
+                typeof balance.symbol === 'string'
             )
           : [];
         if (userTokensResult) {
           setUserTokens(userTokensResult as UserTokenBalance[]);
         }
-        
+
         // Get resource details if available
-        if (resourceType && resourceId && 
-            (resourceType === 'pillar' || resourceType === 'section' || resourceType === 'component')) {
+        if (
+          resourceType &&
+          resourceId &&
+          (resourceType === 'pillar' || resourceType === 'section' || resourceType === 'component')
+        ) {
           // Assuming getResourceDetails is replaced with a new function or API call
           // const details = await getResourceDetails(
-          //   resourceType as 'pillar' | 'section' | 'component', 
+          //   resourceType as 'pillar' | 'section' | 'component',
           //   resourceId
           // );
           // if (details) {
           //   setResourceDetails(details);
           // }
         }
-        
+
         // Get recommended next actions
         // Assuming getNextRecommendedActions is replaced with a new function or API call
         // const recommendationsResult = await getNextRecommendedActions();
         // if (recommendationsResult.data) {
         //   setRecommendations(recommendationsResult.data.slice(0, 3)); // Show top 3 recommendations
         // }
-        
+
         // Calculate progress
         calculateProgress();
       } catch (error) {
         console.error('Error fetching data for access denied view:', error);
       }
     };
-    
+
     // Calculate progress toward earning the required token
     const calculateProgress = () => {
       if (!requiredToken || !userTokens.length) {
         setProgress(0);
         return;
       }
-      
+
       // Different progress calculations based on token type
       if (['GEN', 'SAP', 'SCQ'].includes(requiredToken)) {
         // For primary tokens, progress is based on number of child tokens owned
-        const totalChildTokens = requiredToken === 'SAP' ? 3 : 
-                                requiredToken === 'SCQ' ? 4 : 2;
-        const ownedChildTokens = userTokens.filter(t =>
-          (requiredToken === 'SAP' && ['PSP', 'BSP', 'SMS'].includes(t.symbol)) ||
-          (requiredToken === 'SCQ' && ['SPD', 'SHE', 'SSA', 'SGB'].includes(t.symbol)) ||
-          (requiredToken === 'GEN' && ['SAP', 'SCQ'].includes(t.symbol))
+        const totalChildTokens = requiredToken === 'SAP' ? 3 : requiredToken === 'SCQ' ? 4 : 2;
+        const ownedChildTokens = userTokens.filter(
+          t =>
+            (requiredToken === 'SAP' && ['PSP', 'BSP', 'SMS'].includes(t.symbol)) ||
+            (requiredToken === 'SCQ' && ['SPD', 'SHE', 'SSA', 'SGB'].includes(t.symbol)) ||
+            (requiredToken === 'GEN' && ['SAP', 'SCQ'].includes(t.symbol))
         ).length;
-        
+
         setProgress(Math.min(100, Math.round((ownedChildTokens / totalChildTokens) * 100)));
       } else {
         // For other tokens, progress is based on completed content
@@ -178,17 +200,19 @@ export default function AccessDeniedView({
             <div>
               <h2 className="text-2xl font-bold">Access Required</h2>
               <p className="text-white/80">
-                {requiredToken ? `${tokenDetails?.name || requiredToken} token required` : 'Additional tokens needed'}
+                {requiredToken
+                  ? `${tokenDetails?.name || requiredToken} token required`
+                  : 'Additional tokens needed'}
               </p>
             </div>
           </div>
         </div>
-        
+
         <CardHeader>
           <CardTitle>{getTitle()}</CardTitle>
           <CardDescription>{getDescription()}</CardDescription>
         </CardHeader>
-        
+
         <CardContent className="space-y-6">
           {/* Progress indicator */}
           <div className="space-y-2">
@@ -198,26 +222,30 @@ export default function AccessDeniedView({
             </div>
             <Progress value={progress} className="h-2" />
           </div>
-          
+
           {/* Phase-specific message */}
           <div className="bg-muted p-4 rounded-lg">
             <h3 className="font-semibold flex items-center gap-2 mb-2">
               <MapIcon className="h-4 w-4" />
-              {userPhase === 'discovery' ? 'Discovery Phase' : 
-               userPhase === 'onboarding' ? 'Onboarding Phase' :
-               userPhase === 'scaffolding' ? 'Scaffolding Phase' : 'Endgame Phase'}
+              {userPhase === 'discovery'
+                ? 'Discovery Phase'
+                : userPhase === 'onboarding'
+                  ? 'Onboarding Phase'
+                  : userPhase === 'scaffolding'
+                    ? 'Scaffolding Phase'
+                    : 'Endgame Phase'}
             </h3>
             <p className="text-sm text-muted-foreground">
-              {userPhase === 'discovery' ? 
-                'Welcome to Avolve! Start by exploring the platform and completing introductory content to earn your first tokens.' : 
-               userPhase === 'onboarding' ? 
-                'You\'re making progress! Complete more sections to earn tokens and unlock additional content.' :
-               userPhase === 'scaffolding' ? 
-                'You\'re well on your way! Continue building your token collection to access advanced content.' : 
-                'You\'re almost there! Just a few more achievements to unlock all content.'}
+              {userPhase === 'discovery'
+                ? 'Welcome to Avolve! Start by exploring the platform and completing introductory content to earn your first tokens.'
+                : userPhase === 'onboarding'
+                  ? "You're making progress! Complete more sections to earn tokens and unlock additional content."
+                  : userPhase === 'scaffolding'
+                    ? "You're well on your way! Continue building your token collection to access advanced content."
+                    : "You're almost there! Just a few more achievements to unlock all content."}
             </p>
           </div>
-          
+
           {/* Next steps */}
           <div>
             <h3 className="font-semibold mb-3 flex items-center gap-2">
@@ -243,7 +271,9 @@ export default function AccessDeniedView({
                 <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
                   <div>
                     <h4 className="font-medium">Explore the Platform</h4>
-                    <p className="text-sm text-muted-foreground">Discover the three main pillars of Avolve</p>
+                    <p className="text-sm text-muted-foreground">
+                      Discover the three main pillars of Avolve
+                    </p>
                   </div>
                   <Link href="/">
                     <Button variant="ghost" size="sm" className="gap-1">
@@ -254,7 +284,7 @@ export default function AccessDeniedView({
               )}
             </div>
           </div>
-          
+
           {/* Token information */}
           {requiredToken && tokenDetails && (
             <div className="border rounded-lg p-4">
@@ -278,16 +308,19 @@ export default function AccessDeniedView({
             </div>
           )}
         </CardContent>
-        
+
         <CardFooter className="flex justify-between bg-muted/50 border-t p-4">
           <div className="flex items-center text-sm text-muted-foreground">
             <BookOpenIcon className="h-4 w-4 mr-2" />
-            <span>Need help? Check out our <Link href="/help" className="underline">help guide</Link></span>
+            <span>
+              Need help? Check out our{' '}
+              <Link href="/help" className="underline">
+                help guide
+              </Link>
+            </span>
           </div>
           <Link href="/">
-            <Button variant="default">
-              Return Home
-            </Button>
+            <Button variant="default">Return Home</Button>
           </Link>
         </CardFooter>
       </Card>

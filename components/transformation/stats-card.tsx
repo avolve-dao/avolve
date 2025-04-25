@@ -1,36 +1,31 @@
-'use client'
+'use client';
 
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Coins, TrendingUp, Users, Zap } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { journeyThemes, type JourneyTheme } from "@/lib/styles/journey-themes"
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Coins, TrendingUp, Users, Zap } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { journeyThemes, type JourneyTheme } from '@/lib/styles/journey-themes';
 
 interface JourneyStats {
-  total_posts: number
-  total_engagement: number
-  total_tokens_spent: number
-  total_tokens_earned: number
-  average_regen_score: number
+  total_posts: number;
+  total_engagement: number;
+  total_tokens_spent: number;
+  total_tokens_earned: number;
+  average_regen_score: number;
 }
 
 interface StatsCardProps {
-  stats: JourneyStats
-  theme: JourneyTheme
-  className?: string
+  stats: JourneyStats;
+  theme: JourneyTheme;
+  className?: string;
 }
 
 export function StatsCard({ stats, theme, className }: StatsCardProps) {
-  const themeConfig = journeyThemes[theme]
+  const themeConfig = journeyThemes[theme];
 
   return (
-    <Card className={cn("relative overflow-hidden", className)}>
-      <div 
-        className={cn(
-          "absolute inset-0 opacity-5 bg-gradient-to-br",
-          themeConfig.gradient
-        )} 
-      />
+    <Card className={cn('relative overflow-hidden', className)}>
+      <div className={cn('absolute inset-0 opacity-5 bg-gradient-to-br', themeConfig.gradient)} />
       <CardHeader>
         <h3 className="font-semibold">Journey Stats</h3>
       </CardHeader>
@@ -73,16 +68,13 @@ export function StatsCard({ stats, theme, className }: StatsCardProps) {
             </div>
             <span className="text-sm">{stats.average_regen_score}%</span>
           </div>
-          <Progress 
-            value={stats.average_regen_score} 
-            max={100} 
-            className={cn(
-              "h-2",
-              `bg-gradient-to-r ${themeConfig.gradient}`
-            )}
+          <Progress
+            value={stats.average_regen_score}
+            max={100}
+            className={cn('h-2', `bg-gradient-to-r ${themeConfig.gradient}`)}
           />
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

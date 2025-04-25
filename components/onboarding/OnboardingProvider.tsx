@@ -18,17 +18,17 @@ const OnboardingContext = createContext<{
   state: {
     currentStep: 1,
     totalSteps: 5,
-    isComplete: false
+    isComplete: false,
   },
   nextStep: async () => {},
-  completeOnboarding: async () => {}
+  completeOnboarding: async () => {},
 });
 
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<OnboardingState>({
     currentStep: 1,
     totalSteps: 5,
-    isComplete: false
+    isComplete: false,
   });
 
   const { toast } = useToast();
@@ -40,8 +40,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     async function loadOnboardingState() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) return;
 
       const { data } = await supabase
@@ -54,7 +56,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         setState({
           currentStep: data.current_step,
           totalSteps: data.total_steps,
-          isComplete: data.is_complete
+          isComplete: data.is_complete,
         });
       }
     }
@@ -63,13 +65,15 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   }, [supabase]);
 
   const nextStep = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to continue",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to continue',
+        variant: 'destructive',
       });
       return;
     }
@@ -79,21 +83,19 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     }
 
     const newStep = state.currentStep + 1;
-    
-    const { error } = await supabase
-      .from('user_onboarding')
-      .upsert({
-        user_id: user.id,
-        current_step: newStep,
-        total_steps: state.totalSteps,
-        is_complete: newStep === state.totalSteps
-      });
+
+    const { error } = await supabase.from('user_onboarding').upsert({
+      user_id: user.id,
+      current_step: newStep,
+      total_steps: state.totalSteps,
+      is_complete: newStep === state.totalSteps,
+    });
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to update onboarding progress",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to update onboarding progress',
+        variant: 'destructive',
       });
       return;
     }
@@ -101,36 +103,36 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     setState(prev => ({
       ...prev,
       currentStep: newStep,
-      isComplete: newStep === state.totalSteps
+      isComplete: newStep === state.totalSteps,
     }));
   };
 
   const completeOnboarding = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to continue",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to continue',
+        variant: 'destructive',
       });
       return;
     }
 
-    const { error } = await supabase
-      .from('user_onboarding')
-      .upsert({
-        user_id: user.id,
-        current_step: state.totalSteps,
-        total_steps: state.totalSteps,
-        is_complete: true
-      });
+    const { error } = await supabase.from('user_onboarding').upsert({
+      user_id: user.id,
+      current_step: state.totalSteps,
+      total_steps: state.totalSteps,
+      is_complete: true,
+    });
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to complete onboarding",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to complete onboarding',
+        variant: 'destructive',
       });
       return;
     }
@@ -138,7 +140,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     setState(prev => ({
       ...prev,
       currentStep: state.totalSteps,
-      isComplete: true
+      isComplete: true,
     }));
   };
 

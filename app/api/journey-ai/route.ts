@@ -1,6 +1,6 @@
 /**
  * Journey AI API Route
- * 
+ *
  * Provides AI-driven recommendations based on user's regen analytics
  * Copyright 2025 Avolve DAO. All rights reserved.
  */
@@ -96,20 +96,19 @@ export async function POST(request: NextRequest) {
     // Initialize Supabase client
     const cookieStore = cookies();
     const supabase = createClient(undefined, undefined, { cookies: cookieStore });
-    
+
     // Verify authentication
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     // Parse request body
     const body = await request.json();
     const { userId } = body;
-    
+
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
       const { data: userRole } = await supabase
@@ -120,58 +119,54 @@ export async function POST(request: NextRequest) {
       const role = (userRole as UserRoleActivity | null)?.role_type;
       if (!role || role !== 'admin') {
         return NextResponse.json(
-          { error: 'Forbidden: Cannot access another user\'s recommendations' },
+          { error: "Forbidden: Cannot access another user's recommendations" },
           { status: 403 }
         );
       }
     }
-    
+
     // Fetch user's regen analytics data
-    const { data: regenData, error: regenError } = await supabase
-      .rpc('get_user_regen_analytics', { user_id_param: userId });
-    
+    const { data: regenData, error: regenError } = await supabase.rpc('get_user_regen_analytics', {
+      user_id_param: userId,
+    });
+
     if (regenError) {
       console.error('Error fetching regen analytics:', regenError);
-      return NextResponse.json(
-        { error: 'Failed to fetch user analytics' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch user analytics' }, { status: 500 });
     }
-    
+
     // Fetch user's journey progress
-    const { data: journeyProgress, error: journeyError } = await supabase
-      .rpc('get_user_progress', { user_id_param: userId });
-    
+    const { data: journeyProgress, error: journeyError } = await supabase.rpc('get_user_progress', {
+      user_id_param: userId,
+    });
+
     if (journeyError) {
       console.error('Error fetching journey progress:', journeyError);
-      return NextResponse.json(
-        { error: 'Failed to fetch user journey progress' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch user journey progress' }, { status: 500 });
     }
-    
+
     // Fetch user's token balances
     const { data: tokenBalances, error: tokenError } = await supabase
       .from('user_balances')
       .select('token_id, balance, tokens(id, symbol, name, token_type)')
       .eq('user_id', userId);
-    
+
     if (tokenError) {
       console.error('Error fetching token balances:', tokenError);
-      return NextResponse.json(
-        { error: 'Failed to fetch user token balances' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch user token balances' }, { status: 500 });
     }
-    
+
     // Fetch token flow analytics
-    const { data: tokenFlowData, error: tokenFlowError } = await supabase
-      .rpc('get_user_token_health', { user_id_param: userId });
-    
-    if (tokenFlowError && tokenFlowError.code !== 'PGRST116') { // Not found is okay
+    const { data: tokenFlowData, error: tokenFlowError } = await supabase.rpc(
+      'get_user_token_health',
+      { user_id_param: userId }
+    );
+
+    if (tokenFlowError && tokenFlowError.code !== 'PGRST116') {
+      // Not found is okay
       console.error('Error fetching token flow data:', tokenFlowError);
     }
-    
+
     // Fetch upcoming events
     const { data: upcomingEvents, error: eventsError } = await supabase
       .from('events')
@@ -179,47 +174,42 @@ export async function POST(request: NextRequest) {
       .gt('event_date', new Date().toISOString())
       .order('event_date', { ascending: true })
       .limit(10);
-    
+
     if (eventsError) {
       console.error('Error fetching upcoming events:', eventsError);
-      return NextResponse.json(
-        { error: 'Failed to fetch upcoming events' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch upcoming events' }, { status: 500 });
     }
-    
+
     // Fetch user's completed events
     const { data: completedEvents, error: completedEventsError } = await supabase
       .from('user_completed_events')
       .select('*')
       .eq('user_id', userId);
-    
+
     if (completedEventsError) {
       console.error('Error fetching completed events:', completedEventsError);
-      return NextResponse.json(
-        { error: 'Failed to fetch completed events' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch completed events' }, { status: 500 });
     }
-    
+
     // Fetch user's streak data
-    const { data: streakData, error: streakError } = await supabase
-      .rpc('get_user_streak', { user_id_param: userId });
-    
+    const { data: streakData, error: streakError } = await supabase.rpc('get_user_streak', {
+      user_id_param: userId,
+    });
+
     if (streakError && streakError.code !== 'PGRST116') {
       console.error('Error fetching streak data:', streakError);
     }
-    
+
     // Fetch user's interaction data
     const { data: interactionData, error: interactionError } = await supabase
       .from('user_interactions')
       .select('*')
       .eq('user_id', userId);
-    
+
     if (interactionError) {
       console.error('Error fetching interaction data:', interactionError);
     }
-    
+
     // Generate recommendations
     const recommendations = generateRecommendations(
       regenData as RegenAnalytics,
@@ -231,17 +221,24 @@ export async function POST(request: NextRequest) {
       tokenFlowData as TokenFlowData,
       (interactionData ?? []) as InteractionData[]
     );
-    
+
     // Log the recommendation generation without blocking response
-    const { error } = await supabase
-      .from('ai_recommendation_logs')
-      .insert({
-        user_id: userId,
-        recommendation_type: 'journey',
-        input_data: JSON.stringify({ regenData, journeyProgress, tokenBalances, upcomingEvents, completedEvents, streakData, tokenFlowData, interactionData }),
-        created_at: new Date().toISOString()
-      });
-    
+    const { error } = await supabase.from('ai_recommendation_logs').insert({
+      user_id: userId,
+      recommendation_type: 'journey',
+      input_data: JSON.stringify({
+        regenData,
+        journeyProgress,
+        tokenBalances,
+        upcomingEvents,
+        completedEvents,
+        streakData,
+        tokenFlowData,
+        interactionData,
+      }),
+      created_at: new Date().toISOString(),
+    });
+
     if (error) {
       console.error('Error logging recommendation generation:', error);
     }
@@ -249,10 +246,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ recommendations });
   } catch (error) {
     console.error('Unexpected error in journey-ai route:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -268,33 +262,33 @@ function generateRecommendations(
   interactionData: InteractionData[]
 ): Recommendation[] {
   const recommendations: Recommendation[] = [];
-  
+
   // Track which recommendation types we've already added
   const addedTypes = new Set();
-  
+
   // Get user's current phase
   const currentPhase = journeyProgress?.current_phase || 'discovery';
-  
+
   // Analyze past interactions to improve recommendations
   const clickedRecommendations = new Set(
-    interactionData
-      .filter(i => i.action === 'click')
-      .map(i => i.recommendation_id)
+    interactionData.filter(i => i.action === 'click').map(i => i.recommendation_id)
   );
-  
+
   const dismissedRecommendations = new Set(
-    interactionData
-      .filter(i => i.action === 'dismiss')
-      .map(i => i.recommendation_id)
+    interactionData.filter(i => i.action === 'dismiss').map(i => i.recommendation_id)
   );
-  
+
   // Prioritize streak maintenance if streak exists
-  if (streakData && typeof streakData.current_daily_streak === 'number' && streakData.current_daily_streak > 0) {
+  if (
+    streakData &&
+    typeof streakData.current_daily_streak === 'number' &&
+    streakData.current_daily_streak > 0
+  ) {
     // Calculate days until next Tesla milestone (3, 6, 9, etc.)
     const currentStreak = streakData.current_daily_streak;
     const nextMilestone = Math.ceil(currentStreak / 3) * 3;
     const daysToMilestone = nextMilestone - currentStreak;
-    
+
     if (daysToMilestone <= 2) {
       // High priority recommendation to maintain streak for upcoming milestone
       recommendations.push({
@@ -303,28 +297,30 @@ function generateRecommendations(
         title: `${nextMilestone}-Day Streak Milestone`,
         description: `You're only ${daysToMilestone} day${daysToMilestone > 1 ? 's' : ''} away from a ${getStreakMultiplier(nextMilestone)}x token bonus!`,
         icon: null,
-        action: 'View Today\'s Challenge',
+        action: "View Today's Challenge",
         actionUrl: '/challenges/today',
         priority: 95,
-        reason: `Reaching a ${nextMilestone}-day streak will significantly boost your token earnings`
+        reason: `Reaching a ${nextMilestone}-day streak will significantly boost your token earnings`,
       });
       addedTypes.add('streak');
     }
   }
-  
+
   // Add event recommendations
   if (upcomingEvents && upcomingEvents.length > 0) {
     // Filter out events the user has already completed
     const completedEventIds = new Set(completedEvents.map((e: Event) => e.id));
-    const relevantEvents = upcomingEvents.filter((event: Event) => !completedEventIds.has(event.id));
-    
+    const relevantEvents = upcomingEvents.filter(
+      (event: Event) => !completedEventIds.has(event.id)
+    );
+
     // Sort by relevance to user's journey
     relevantEvents.sort((a: Event, b: Event) => {
       const priorityA = calculateEventPriority(a, regenData);
       const priorityB = calculateEventPriority(b, regenData);
       return priorityB - priorityA;
     });
-    
+
     // Add top 2 most relevant events
     relevantEvents.slice(0, 2).forEach((event: Event) => {
       const eventPriority = calculateEventPriority(event, regenData);
@@ -341,73 +337,80 @@ function generateRecommendations(
         action: 'Join Event',
         actionUrl: `/events/${event.id}`,
         priority: eventPriority,
-        reason: determineEventRecommendationReason(event, regenData)
+        reason: determineEventRecommendationReason(event, regenData),
       });
       addedTypes.add('event');
     });
   }
-  
+
   // Add content recommendations based on journey phase
   if (!addedTypes.has('content') || recommendations.length < 3) {
     const contentRecommendations = generateContentRecommendations(journeyProgress, regenData);
-    
+
     // Filter out dismissed recommendations
     const filteredContentRecs = contentRecommendations.filter(
       rec => !dismissedRecommendations.has(rec.id)
     );
-    
+
     // Prioritize content types the user has clicked on before
     filteredContentRecs.sort((a, b) => {
       const aClicked = clickedRecommendations.has(a.id) ? 1 : 0;
       const bClicked = clickedRecommendations.has(b.id) ? 1 : 0;
       return bClicked - aClicked || b.priority - a.priority;
     });
-    
+
     // Add top content recommendation
     if (filteredContentRecs.length > 0) {
       recommendations.push(filteredContentRecs[0]);
       addedTypes.add('content');
     }
   }
-  
+
   // Add token recommendations if user has sufficient tokens
   if ((!addedTypes.has('token') || recommendations.length < 3) && tokenBalances) {
-    const tokenRecommendations = generateTokenRecommendations(tokenBalances, streakData, regenData, tokenFlowData);
-    
+    const tokenRecommendations = generateTokenRecommendations(
+      tokenBalances,
+      streakData,
+      regenData,
+      tokenFlowData
+    );
+
     // Filter out dismissed recommendations
     const filteredTokenRecs = tokenRecommendations.filter(
       rec => !dismissedRecommendations.has(rec.id)
     );
-    
+
     // Add top token recommendation if available
     if (filteredTokenRecs.length > 0) {
       recommendations.push(filteredTokenRecs[0]);
       addedTypes.add('token');
     }
   }
-  
+
   // Add community recommendations for users in scaffolding phase or higher
-  if ((!addedTypes.has('community') || recommendations.length < 3) && 
-      (currentPhase === 'scaffolding' || currentPhase === 'endgame')) {
+  if (
+    (!addedTypes.has('community') || recommendations.length < 3) &&
+    (currentPhase === 'scaffolding' || currentPhase === 'endgame')
+  ) {
     const communityRecommendations = generateCommunityRecommendations(regenData);
-    
+
     // Filter out dismissed recommendations
     const filteredCommunityRecs = communityRecommendations.filter(
       rec => !dismissedRecommendations.has(rec.id)
     );
-    
+
     // Add top community recommendation if available
     if (filteredCommunityRecs.length > 0) {
       recommendations.push(filteredCommunityRecs[0]);
       addedTypes.add('community');
     }
   }
-  
+
   // Add journey progression recommendations
   if (!addedTypes.has('journey') && recommendations.length < 4) {
     // Calculate progress to next phase
     const phaseProgress = journeyProgress?.phase_progress || 0;
-    
+
     if (phaseProgress >= 80 && currentPhase !== 'endgame') {
       const nextPhase = getNextPhase(currentPhase);
       recommendations.push({
@@ -419,15 +422,15 @@ function generateRecommendations(
         action: 'View Requirements',
         actionUrl: '/journey/phases',
         priority: 85,
-        reason: 'Phase advancement unlocks new features and opportunities'
+        reason: 'Phase advancement unlocks new features and opportunities',
       });
       addedTypes.add('journey');
     }
   }
-  
+
   // Sort recommendations by priority
   recommendations.sort((a, b) => b.priority - a.priority);
-  
+
   // Limit to 5 recommendations
   return recommendations.slice(0, 5);
 }
@@ -435,35 +438,43 @@ function generateRecommendations(
 // Calculate priority for event recommendations
 function calculateEventPriority(event: Event, regenData: RegenAnalytics): number {
   let priority = 50; // Base priority
-  
+
   // Adjust based on event type match to user's journey
   if (event.event_types && event.event_types.type_name) {
     const eventType = event.event_types.type_name.toLowerCase();
-    
+
     // Boost priority for events that match user's strengths
     if (
-      (eventType.includes('personal') && typeof regenData.event_count === 'number' && regenData.event_count > 5) ||
-      (eventType.includes('community') && regenData.team_count !== undefined && regenData.team_count > 0) ||
-      (eventType.includes('token') && typeof regenData.token_transaction_count === 'number' && regenData.token_transaction_count > 10)
+      (eventType.includes('personal') &&
+        typeof regenData.event_count === 'number' &&
+        regenData.event_count > 5) ||
+      (eventType.includes('community') &&
+        regenData.team_count !== undefined &&
+        regenData.team_count > 0) ||
+      (eventType.includes('token') &&
+        typeof regenData.token_transaction_count === 'number' &&
+        regenData.token_transaction_count > 10)
     ) {
       priority += 15;
     }
-    
+
     // Boost priority for events that help with user's weaknesses
     if (
       (eventType.includes('community') && regenData.community_engagement_score < 30) ||
-      (eventType.includes('milestone') && typeof regenData.recent_milestone_count === 'number' && regenData.recent_milestone_count < 2) ||
+      (eventType.includes('milestone') &&
+        typeof regenData.recent_milestone_count === 'number' &&
+        regenData.recent_milestone_count < 2) ||
       (eventType.includes('streak') && (!regenData.current_streak || regenData.current_streak < 3))
     ) {
       priority += 20;
     }
   }
-  
+
   // Adjust based on event timing
   const eventDate = new Date(event.event_date);
   const now = new Date();
   const daysDiff = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
-  
+
   if (daysDiff <= 1) {
     // Happening today or tomorrow
     priority += 25;
@@ -474,16 +485,16 @@ function calculateEventPriority(event: Event, regenData: RegenAnalytics): number
     // Happening in the next week
     priority += 5;
   }
-  
+
   // Adjust based on capacity
   if (event.current_participants && event.max_participants) {
-    const capacityPercentage = event.current_participants / event.max_participants * 100;
+    const capacityPercentage = (event.current_participants / event.max_participants) * 100;
     if (capacityPercentage >= 80) {
       // Almost full
       priority += 10;
     }
   }
-  
+
   // Cap priority at 100
   return Math.min(priority, 100);
 }
@@ -492,46 +503,60 @@ function calculateEventPriority(event: Event, regenData: RegenAnalytics): number
 function determineEventRecommendationReason(event: Event, regenData: RegenAnalytics): string {
   if (event.event_types && event.event_types.type_name) {
     const eventType = event.event_types.type_name.toLowerCase();
-    
+
     // Personalized reason based on event type and user data
     if (eventType.includes('community') && regenData.community_engagement_score < 30) {
       return 'This event will boost your community engagement score';
     }
-    
-    if (eventType.includes('milestone') && typeof regenData.recent_milestone_count === 'number' && regenData.recent_milestone_count < 2) {
+
+    if (
+      eventType.includes('milestone') &&
+      typeof regenData.recent_milestone_count === 'number' &&
+      regenData.recent_milestone_count < 2
+    ) {
       return 'Completing this event will help you achieve more milestones';
     }
-    
-    if (eventType.includes('streak') && (!regenData.current_streak || regenData.current_streak < 3)) {
+
+    if (
+      eventType.includes('streak') &&
+      (!regenData.current_streak || regenData.current_streak < 3)
+    ) {
       return 'This event will help you build your streak for bonus rewards';
     }
-    
+
     if (eventType.includes('token')) {
       return 'Earn tokens and increase your regen score';
     }
   }
-  
+
   // Default reasons based on timing
   const eventDate = new Date(event.event_date);
   const now = new Date();
   const daysDiff = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
-  
+
   if (daysDiff <= 1) {
     return 'Happening soon! Join to earn immediate rewards';
   }
-  
-  if (event.current_participants && event.max_participants && event.current_participants / event.max_participants >= 0.8) {
+
+  if (
+    event.current_participants &&
+    event.max_participants &&
+    event.current_participants / event.max_participants >= 0.8
+  ) {
     return 'This event is filling up quickly';
   }
-  
+
   return 'This event aligns with your journey goals';
 }
 
 // Generate content recommendations based on journey progress
-function generateContentRecommendations(journeyProgress: JourneyProgress, regenData: RegenAnalytics): Recommendation[] {
+function generateContentRecommendations(
+  journeyProgress: JourneyProgress,
+  regenData: RegenAnalytics
+): Recommendation[] {
   const recommendations: Recommendation[] = [];
   const currentPhase = journeyProgress?.current_phase || 'discovery';
-  
+
   // Discovery phase content
   if (currentPhase === 'discovery') {
     recommendations.push({
@@ -543,9 +568,9 @@ function generateContentRecommendations(journeyProgress: JourneyProgress, regenD
       action: 'Watch Video',
       actionUrl: '/learn/platform-intro',
       priority: 80,
-      reason: 'Essential knowledge for new members'
+      reason: 'Essential knowledge for new members',
     });
-    
+
     recommendations.push({
       id: 'content-token-guide',
       type: 'content',
@@ -555,24 +580,24 @@ function generateContentRecommendations(journeyProgress: JourneyProgress, regenD
       action: 'Read Guide',
       actionUrl: '/learn/token-guide',
       priority: 75,
-      reason: 'Helps you maximize token earnings'
+      reason: 'Helps you maximize token earnings',
     });
   }
-  
+
   // Onboarding phase content
   if (currentPhase === 'onboarding' || currentPhase === 'scaffolding') {
     recommendations.push({
       id: 'content-streak-strategy',
       type: 'content',
-      title: 'Tesla\'s 3-6-9 Streak Strategy',
+      title: "Tesla's 3-6-9 Streak Strategy",
       description: 'Learn how to maintain streaks for maximum rewards',
       icon: null,
       action: 'Read Guide',
       actionUrl: '/learn/streak-strategy',
       priority: 70,
-      reason: 'Can increase your token earnings by up to 90%'
+      reason: 'Can increase your token earnings by up to 90%',
     });
-    
+
     if (regenData?.team_count !== undefined && regenData.team_count > 0) {
       recommendations.push({
         id: 'content-team-benefits',
@@ -583,11 +608,11 @@ function generateContentRecommendations(journeyProgress: JourneyProgress, regenD
         action: 'Read Article',
         actionUrl: '/learn/team-benefits',
         priority: 65,
-        reason: 'Teams earn 30% more tokens on average'
+        reason: 'Teams earn 30% more tokens on average',
       });
     }
   }
-  
+
   // Scaffolding and endgame content
   if (currentPhase === 'scaffolding' || currentPhase === 'endgame') {
     recommendations.push({
@@ -599,74 +624,78 @@ function generateContentRecommendations(journeyProgress: JourneyProgress, regenD
       action: 'Read Guide',
       actionUrl: '/learn/advanced-strategies',
       priority: 60,
-      reason: 'Perfect for your current journey phase'
+      reason: 'Perfect for your current journey phase',
     });
-    
+
     if (regenData?.is_leader) {
       recommendations.push({
         id: 'content-leadership-guide',
         type: 'content',
         title: 'Effective Team Leadership',
-        description: 'Maximize your team\'s potential and rewards',
+        description: "Maximize your team's potential and rewards",
         icon: null,
         action: 'Read Guide',
         actionUrl: '/learn/leadership',
         priority: 75,
-        reason: 'Enhance your leadership effectiveness'
+        reason: 'Enhance your leadership effectiveness',
       });
     }
   }
-  
+
   return recommendations;
 }
 
 // Generate token recommendations
 function generateTokenRecommendations(
-  tokenBalances: TokenBalance[], 
-  streakData: StreakData, 
+  tokenBalances: TokenBalance[],
+  streakData: StreakData,
   regenData: RegenAnalytics,
   tokenFlowData: TokenFlowData
 ): Recommendation[] {
   const recommendations: Recommendation[] = [];
-  
+
   // Check if user has any tokens
   if (!tokenBalances || tokenBalances.length === 0) {
     recommendations.push({
       id: 'token-first-claim',
       type: 'token',
       title: 'Claim Your First Tokens',
-      description: 'Complete today\'s challenge to start your token journey',
+      description: "Complete today's challenge to start your token journey",
       icon: null,
       action: 'View Challenge',
       actionUrl: '/challenges/today',
       priority: 90,
-      reason: 'Tokens are the foundation of your journey'
+      reason: 'Tokens are the foundation of your journey',
     });
-    
+
     return recommendations;
   }
-  
+
   // Recommend streak building if no active streak
-  if (!streakData || typeof streakData.current_daily_streak !== 'number' || streakData.current_daily_streak === 0) {
+  if (
+    !streakData ||
+    typeof streakData.current_daily_streak !== 'number' ||
+    streakData.current_daily_streak === 0
+  ) {
     recommendations.push({
       id: 'token-start-streak',
       type: 'token',
       title: 'Start Your Token Streak',
-      description: 'Complete today\'s challenge to begin earning streak bonuses',
+      description: "Complete today's challenge to begin earning streak bonuses",
       icon: null,
       action: 'View Challenge',
       actionUrl: '/challenges/today',
       priority: 85,
-      reason: streakData 
-        ? 'Restart your streak to earn bonus multipliers' 
-        : 'Daily claims build your streak for bonuses'
+      reason: streakData
+        ? 'Restart your streak to earn bonus multipliers'
+        : 'Daily claims build your streak for bonuses',
     });
   }
-  
+
   // Check token balances and recommend actions
   const sapBalance = tokenBalances.find(tb => tb.tokens?.symbol === 'SAP')?.balance || 0;
   const scqBalance = tokenBalances.find(tb => tb.tokens?.symbol === 'SCQ')?.balance || 0;
-  
+
   if (sapBalance >= 100 && regenData.regen_level >= 2) {
     recommendations.push({
       id: 'token-upgrade-sap',
@@ -677,10 +706,10 @@ function generateTokenRecommendations(
       action: 'Upgrade',
       actionUrl: '/tokens/upgrade',
       priority: 70,
-      reason: 'Unlocks more powerful platform capabilities'
+      reason: 'Unlocks more powerful platform capabilities',
     });
   }
-  
+
   if (scqBalance >= 100 && regenData.regen_level >= 2) {
     recommendations.push({
       id: 'token-upgrade-scq',
@@ -691,17 +720,17 @@ function generateTokenRecommendations(
       action: 'Upgrade',
       actionUrl: '/tokens/upgrade',
       priority: 65,
-      reason: 'Unlocks community governance capabilities'
+      reason: 'Unlocks community governance capabilities',
     });
   }
-  
+
   // Add token health recommendations if available
   if (tokenFlowData && Array.isArray(tokenFlowData)) {
     // Find tokens with poor health
-    const unhealthyTokens = tokenFlowData.filter(t => 
-      t.health_status === 'poor' || t.health_status === 'critical'
+    const unhealthyTokens = tokenFlowData.filter(
+      t => t.health_status === 'poor' || t.health_status === 'critical'
     );
-    
+
     if (unhealthyTokens.length > 0) {
       const token = unhealthyTokens[0];
       recommendations.push({
@@ -713,18 +742,18 @@ function generateTokenRecommendations(
         action: 'View Strategy',
         actionUrl: `/tokens/health/${token.symbol}`,
         priority: 75,
-        reason: 'Maintaining token health preserves your investment'
+        reason: 'Maintaining token health preserves your investment',
       });
     }
   }
-  
+
   return recommendations;
 }
 
 // Generate community recommendations
 function generateCommunityRecommendations(regenData: RegenAnalytics): Recommendation[] {
   const recommendations: Recommendation[] = [];
-  
+
   // Recommend community engagement based on regen level
   if (regenData.regen_level >= 2) {
     if (regenData.community_engagement_score < 50) {
@@ -737,10 +766,10 @@ function generateCommunityRecommendations(regenData: RegenAnalytics): Recommenda
         action: 'Explore',
         actionUrl: '/community/explore',
         priority: 75,
-        reason: 'Community connections accelerate your growth'
+        reason: 'Community connections accelerate your growth',
       });
     }
-    
+
     if (regenData.regen_level >= 3 && !regenData.has_team) {
       recommendations.push({
         id: 'community-team',
@@ -751,10 +780,10 @@ function generateCommunityRecommendations(regenData: RegenAnalytics): Recommenda
         action: 'Find Teams',
         actionUrl: '/teams/explore',
         priority: 80,
-        reason: 'Team collaboration unlocks new opportunities'
+        reason: 'Team collaboration unlocks new opportunities',
       });
     }
-    
+
     if (regenData.regen_level >= 4 && regenData.contribution_score < 30) {
       recommendations.push({
         id: 'community-contribute',
@@ -765,11 +794,11 @@ function generateCommunityRecommendations(regenData: RegenAnalytics): Recommenda
         action: 'View Projects',
         actionUrl: '/projects/explore',
         priority: 65,
-        reason: 'Contributions increase your influence and token earnings'
+        reason: 'Contributions increase your influence and token earnings',
       });
     }
   }
-  
+
   return recommendations;
 }
 
@@ -785,10 +814,14 @@ function getStreakMultiplier(streak: number): number {
 // Helper function to get next phase
 function getNextPhase(currentPhase: string): string {
   switch (currentPhase) {
-    case 'discovery': return 'onboarding';
-    case 'onboarding': return 'scaffolding';
-    case 'scaffolding': return 'endgame';
-    default: return 'discovery';
+    case 'discovery':
+      return 'onboarding';
+    case 'onboarding':
+      return 'scaffolding';
+    case 'scaffolding':
+      return 'endgame';
+    default:
+      return 'discovery';
   }
 }
 
@@ -803,20 +836,19 @@ export async function PUT(request: NextRequest) {
     // Initialize Supabase client
     const cookieStore = cookies();
     const supabase = createClient(undefined, undefined, { cookies: cookieStore });
-    
+
     // Verify authentication
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     // Parse request body
     const body = await request.json();
     const { userId, recommendationId, action, metadata = {} } = body;
-    
+
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
       const { data: userRole } = await supabase
@@ -832,32 +864,24 @@ export async function PUT(request: NextRequest) {
         );
       }
     }
-    
+
     // Record the interaction
-    const { error } = await supabase
-      .from('recommendation_interactions')
-      .insert({
-        user_id: userId,
-        recommendation_id: recommendationId,
-        action,
-        interaction_date: new Date().toISOString(),
-        metadata
-      });
-    
+    const { error } = await supabase.from('recommendation_interactions').insert({
+      user_id: userId,
+      recommendation_id: recommendationId,
+      action,
+      interaction_date: new Date().toISOString(),
+      metadata,
+    });
+
     if (error) {
       console.error('Error recording interaction:', error);
-      return NextResponse.json(
-        { error: 'Failed to record interaction' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to record interaction' }, { status: 500 });
     }
-    
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Unexpected error in journey-ai route:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

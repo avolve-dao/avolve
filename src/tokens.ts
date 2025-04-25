@@ -8,13 +8,16 @@ import type { Database } from '../types/database';
 export class TokensService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
+  constructor(
+    supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  ) {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
   /**
    * Get all tokens
-   * 
+   *
    * @returns List of all tokens
    */
   async getAllTokens(): Promise<{
@@ -25,7 +28,8 @@ export class TokensService {
     try {
       const { data, error } = await this.supabase
         .from('tokens')
-        .select(`
+        .select(
+          `
           id,
           name,
           symbol,
@@ -39,25 +43,26 @@ export class TokensService {
             name,
             symbol
           )
-        `)
+        `
+        )
         .order('created_at', { ascending: true });
 
       return {
         success: true,
-        data: data ?? []
+        data: data ?? [],
       };
     } catch (error) {
       console.error('Get all tokens error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting tokens'
+        error: error instanceof Error ? error.message : 'Unknown error getting tokens',
       };
     }
   }
 
   /**
    * Get a user's token balances
-   * 
+   *
    * @returns List of user's token balances
    */
   async getUserBalances(): Promise<{
@@ -68,7 +73,8 @@ export class TokensService {
     try {
       const { data, error } = await this.supabase
         .from('user_balances')
-        .select(`
+        .select(
+          `
           id,
           token_id,
           balance,
@@ -82,25 +88,26 @@ export class TokensService {
             parent_id,
             is_locked
           )
-        `)
+        `
+        )
         .order('balance', { ascending: false });
 
       return {
         success: true,
-        data: data ?? []
+        data: data ?? [],
       };
     } catch (error) {
       console.error('Get user balances error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting user balances'
+        error: error instanceof Error ? error.message : 'Unknown error getting user balances',
       };
     }
   }
 
   /**
    * Get a user's transactions
-   * 
+   *
    * @returns List of user's transactions
    */
   async getUserTransactions(): Promise<{
@@ -111,7 +118,8 @@ export class TokensService {
     try {
       const { data, error } = await this.supabase
         .from('transactions')
-        .select(`
+        .select(
+          `
           id,
           token_id,
           from_user_id,
@@ -138,25 +146,26 @@ export class TokensService {
             full_name,
             avatar_url
           )
-        `)
+        `
+        )
         .order('created_at', { ascending: false });
 
       return {
         success: true,
-        data: data ?? []
+        data: data ?? [],
       };
     } catch (error) {
       console.error('Get user transactions error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting user transactions'
+        error: error instanceof Error ? error.message : 'Unknown error getting user transactions',
       };
     }
   }
 
   /**
    * Get a specific token's details
-   * 
+   *
    * @returns Token details
    */
   async getTokenDetails(): Promise<{
@@ -167,7 +176,8 @@ export class TokensService {
     try {
       const { data, error } = await this.supabase
         .from('tokens')
-        .select(`
+        .select(
+          `
           id,
           name,
           symbol,
@@ -187,25 +197,26 @@ export class TokensService {
             symbol,
             is_locked
           )
-        `)
+        `
+        )
         .single();
 
       return {
         success: true,
-        data: data ?? {}
+        data: data ?? {},
       };
     } catch (error) {
       console.error('Get token details error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting token details'
+        error: error instanceof Error ? error.message : 'Unknown error getting token details',
       };
     }
   }
 
   /**
    * Transfer tokens between users
-   * 
+   *
    * @returns Result of the transfer
    */
   async transferTokens(): Promise<{
@@ -216,13 +227,13 @@ export class TokensService {
     try {
       return {
         success: true,
-        message: 'Transfer successful'
+        message: 'Transfer successful',
       };
     } catch (error) {
       console.error('Transfer tokens error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error transferring tokens'
+        error: error instanceof Error ? error.message : 'Unknown error transferring tokens',
       };
     }
   }
@@ -232,7 +243,7 @@ export class TokensService {
    * - 10% of spent amount is burned to enhance scarcity
    * - Boosts ARPU in metrics
    * - Logs in transactions with type 'spend'
-   * 
+   *
    * @returns Result of the spend operation
    */
   async spendGen(): Promise<{
@@ -254,21 +265,21 @@ export class TokensService {
           spendAmount: 0,
           burnAmount: 0,
           remainingBalance: 0,
-          message: 'Spend successful'
-        }
+          message: 'Spend successful',
+        },
       };
     } catch (error) {
       console.error('Spend GEN error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error spending GEN'
+        error: error instanceof Error ? error.message : 'Unknown error spending GEN',
       };
     }
   }
 
   /**
    * Get the GEN token balance for a user
-   * 
+   *
    * @returns GEN balance
    */
   async getGenBalance(): Promise<{
@@ -282,21 +293,21 @@ export class TokensService {
       return {
         success: true,
         data: {
-          balance: 0
-        }
+          balance: 0,
+        },
       };
     } catch (error) {
       console.error('Get GEN balance error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting GEN balance'
+        error: error instanceof Error ? error.message : 'Unknown error getting GEN balance',
       };
     }
   }
 
   /**
    * Get the total supply of a token
-   * 
+   *
    * @returns Total supply of the token
    */
   async getTokenSupply(): Promise<{
@@ -314,14 +325,14 @@ export class TokensService {
         data: {
           totalSupply: 0,
           circulatingSupply: 0,
-          burnedSupply: 0
-        }
+          burnedSupply: 0,
+        },
       };
     } catch (error) {
       console.error('Get token supply error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting token supply'
+        error: error instanceof Error ? error.message : 'Unknown error getting token supply',
       };
     }
   }

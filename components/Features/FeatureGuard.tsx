@@ -3,10 +3,17 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFeatures } from '@/hooks/useFeatures';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '../../lib/supabase/client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Lock, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { User } from '@supabase/supabase-js';
 
@@ -16,13 +23,13 @@ interface FeatureGuardProps {
   children: React.ReactNode;
 }
 
-export const FeatureGuard: React.FC<FeatureGuardProps> = ({ 
-  featureName, 
+export const FeatureGuard: React.FC<FeatureGuardProps> = ({
+  featureName,
   fallbackUrl = '/',
-  children 
+  children,
 }) => {
   const router = useRouter();
-  const supabase = createClientComponentClient();
+  const supabase = createClient();
   const [user, setUser] = useState<User | null>(null);
   const { checkFeatureUnlock } = useFeatures();
   const [loading, setLoading] = useState(true);
@@ -31,9 +38,11 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
 
   useEffect(() => {
     const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setUser(session?.user || null);
-      
+
       const checkAccess = async () => {
         if (!session?.user) {
           setLoading(false);
@@ -57,7 +66,9 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
     getUser();
 
     // Set up auth state change listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
     });
 
@@ -82,9 +93,7 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
       <Alert variant="destructive" className="mb-4">
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Authentication Required</AlertTitle>
-        <AlertDescription>
-          You need to be logged in to access this feature.
-        </AlertDescription>
+        <AlertDescription>You need to be logged in to access this feature.</AlertDescription>
       </Alert>
     );
   }
@@ -104,13 +113,11 @@ export const FeatureGuard: React.FC<FeatureGuardProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-center mb-4">
-            {unlockReason}
-          </p>
+          <p className="text-center mb-4">{unlockReason}</p>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => router.push(fallbackUrl)}
             className="flex items-center"
           >

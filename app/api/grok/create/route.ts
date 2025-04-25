@@ -1,12 +1,12 @@
-import { getContextualGrokModel } from "@/lib/grok-context"
-import { streamText } from "@/lib/ai-sdk-setup"
+import { getContextualGrokModel } from '@/lib/grok-context';
+import { streamText } from '@/lib/ai-sdk-setup';
 
 export async function POST(req: Request) {
   try {
-    const { prompt, userId } = await req.json()
+    const { prompt, userId } = await req.json();
 
     // Get contextual Grok model
-    const { model } = await getContextualGrokModel(userId)
+    const { model } = await getContextualGrokModel(userId);
 
     // Generate content
     const response = await streamText({
@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       Focus on creating something that would resonate with the user's audience.
       
       Output just the content itself without any additional explanations or formatting.`,
-    })
+    });
 
     // Read the stream content manually
     let text = '';
@@ -34,20 +34,20 @@ export async function POST(req: Request) {
         content: text,
       }),
       {
-        headers: { "Content-Type": "application/json" },
-      },
-    )
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   } catch (error) {
-    console.error("Error in create API:", error)
+    console.error('Error in create API:', error);
     return new Response(
       JSON.stringify({
         success: false,
-        error: "Failed to generate content",
+        error: 'Failed to generate content',
       }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    )
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 }

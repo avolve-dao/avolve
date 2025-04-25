@@ -26,9 +26,7 @@ export interface GrokChatResponse {
   }>;
 }
 
-export async function callGrokChat(
-  req: GrokChatRequest
-): Promise<GrokChatResponse> {
+export async function callGrokChat(req: GrokChatRequest): Promise<GrokChatResponse> {
   const apiKey = process.env.GROK_API_KEY;
   const apiUrl = process.env.GROK_API_URL || 'https://api.x.ai/v1/chat/completions';
   if (!apiKey) throw new Error('Missing GROK_API_KEY');
@@ -37,7 +35,7 @@ export async function callGrokChat(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
+      Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       ...req,

@@ -38,8 +38,10 @@ export function useUser(): UseUserReturn {
     let unsubscribe: (() => void) | undefined;
 
     async function loadUser() {
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+
       if (!authUser) {
         setLoading(false);
         setUser(null);
@@ -54,9 +56,9 @@ export function useUser(): UseUserReturn {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load user profile",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load user profile',
+          variant: 'destructive',
         });
         setUser(null);
         setLoading(false);
@@ -69,13 +71,14 @@ export function useUser(): UseUserReturn {
       // Subscribe to profile updates
       const channel = supabase
         .channel('profile_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'profiles',
-            filter: `id=eq.${authUser.id}`
-          }, 
+            filter: `id=eq.${authUser.id}`,
+          },
           () => {
             loadUser();
           }
@@ -95,40 +98,39 @@ export function useUser(): UseUserReturn {
   }, []);
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
+
     if (!authUser) {
       toast({
-        title: "Error",
-        description: "You must be logged in to update your profile",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to update your profile',
+        variant: 'destructive',
       });
       return;
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', authUser.id);
+    const { error } = await supabase.from('profiles').update(updates).eq('id', authUser.id);
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to update profile",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to update profile',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Profile updated successfully!"
+      title: 'Success',
+      description: 'Profile updated successfully!',
     });
   };
 
   return {
     user,
     loading,
-    updateProfile
+    updateProfile,
   };
 }

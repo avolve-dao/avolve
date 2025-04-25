@@ -33,9 +33,9 @@ export function RealTimeSSALeaderboard() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load leaderboard",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load leaderboard',
+          variant: 'destructive',
         });
         return;
       }
@@ -49,12 +49,13 @@ export function RealTimeSSALeaderboard() {
     // Subscribe to realtime updates
     const channel = supabase
       .channel('ssa_leaderboard')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'ssa_leaderboard' 
-        }, 
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ssa_leaderboard',
+        },
         () => {
           loadLeaderboard();
         }
@@ -80,8 +81,8 @@ export function RealTimeSSALeaderboard() {
     <Card className="p-6">
       <h2 className="text-2xl font-bold mb-6">SSA Leaderboard</h2>
       <div className="space-y-4">
-        {entries.map((entry) => (
-          <div 
+        {entries.map(entry => (
+          <div
             key={entry.user_id}
             className="flex items-center justify-between p-4 bg-slate-50 rounded-lg"
           >

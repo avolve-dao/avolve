@@ -5,6 +5,7 @@ Welcome to Avolve! This single guide provides everything users, admins, and deve
 ---
 
 ## Table of Contents
+
 1. [User Onboarding](#user-onboarding)
 2. [Admin Onboarding](#admin-onboarding)
 3. [Developer Guide](#developer-guide)
@@ -14,6 +15,7 @@ Welcome to Avolve! This single guide provides everything users, admins, and deve
 ---
 
 ## User Onboarding
+
 - Step-by-step account creation
 - How to participate in challenges and earn tokens
 - Navigating your dashboard
@@ -21,6 +23,7 @@ Welcome to Avolve! This single guide provides everything users, admins, and deve
 - Getting help and support
 
 ## Admin Onboarding
+
 - Inviting and managing users
 - Monitoring engagement and token flows
 - Awarding or correcting tokens
@@ -28,6 +31,7 @@ Welcome to Avolve! This single guide provides everything users, admins, and deve
 - Security best practices and RLS
 
 ## Developer Guide
+
 - Project structure overview
 - Environment setup (see `.env.example`)
 - Running locally: `pnpm install && pnpm dev`
@@ -36,12 +40,14 @@ Welcome to Avolve! This single guide provides everything users, admins, and deve
 - How to contribute (see `CONTRIBUTING.md`)
 
 ## Quick Start
+
 - Clone the repo and install dependencies
 - Set up your `.env.local` with production variables
 - Run migrations: `pnpm supabase migration up`
 - Start the app: `pnpm dev`
 
 ## Support & Feedback
+
 - For help, open a GitHub issue or email admin@avolve.io
 - See [README.md](../README.md) for project overview
 - See [API.md](./API.md) and [DATABASE.md](./DATABASE.md) for technical reference

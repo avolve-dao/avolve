@@ -1,9 +1,9 @@
 /**
  * Sacred Design System
- * 
+ *
  * A comprehensive design system based on sacred geometry principles,
  * including the golden ratio (φ), Fibonacci sequence, and Tesla's 3-6-9 pattern.
- * 
+ *
  * This system provides pixel-perfect sizing, spacing, and proportions for all UI components.
  */
 
@@ -30,33 +30,33 @@ export const BASE_UNIT = 3;
 export const SPACING = {
   // Fibonacci-based spacing
   '0': 0,
-  '1': BASE_UNIT * 1,     // 3px
-  '2': BASE_UNIT * 2,     // 6px
-  '3': BASE_UNIT * 3,     // 9px
-  '5': BASE_UNIT * 5,     // 15px
-  '8': BASE_UNIT * 8,     // 24px
-  '13': BASE_UNIT * 13,   // 39px
-  '21': BASE_UNIT * 21,   // 63px
-  '34': BASE_UNIT * 34,   // 102px
-  '55': BASE_UNIT * 55,   // 165px
-  '89': BASE_UNIT * 89,   // 267px
+  '1': BASE_UNIT * 1, // 3px
+  '2': BASE_UNIT * 2, // 6px
+  '3': BASE_UNIT * 3, // 9px
+  '5': BASE_UNIT * 5, // 15px
+  '8': BASE_UNIT * 8, // 24px
+  '13': BASE_UNIT * 13, // 39px
+  '21': BASE_UNIT * 21, // 63px
+  '34': BASE_UNIT * 34, // 102px
+  '55': BASE_UNIT * 55, // 165px
+  '89': BASE_UNIT * 89, // 267px
   '144': BASE_UNIT * 144, // 432px
-  
+
   // Tesla 3-6-9 based spacing
-  't3': BASE_UNIT * 3,    // 9px
-  't6': BASE_UNIT * 6,    // 18px
-  't9': BASE_UNIT * 9,    // 27px
-  't18': BASE_UNIT * 18,  // 54px
-  't27': BASE_UNIT * 27,  // 81px
-  't36': BASE_UNIT * 36,  // 108px
-  't54': BASE_UNIT * 54,  // 162px
-  't81': BASE_UNIT * 81,  // 243px
-  
+  t3: BASE_UNIT * 3, // 9px
+  t6: BASE_UNIT * 6, // 18px
+  t9: BASE_UNIT * 9, // 27px
+  t18: BASE_UNIT * 18, // 54px
+  t27: BASE_UNIT * 27, // 81px
+  t36: BASE_UNIT * 36, // 108px
+  t54: BASE_UNIT * 54, // 162px
+  t81: BASE_UNIT * 81, // 243px
+
   // Golden ratio based spacing
-  'phi-1': Math.round(BASE_UNIT * 3),                     // 9px
-  'phi-2': Math.round(BASE_UNIT * 3 * PHI),               // 15px
-  'phi-3': Math.round(BASE_UNIT * 3 * PHI * PHI),         // 24px
-  'phi-4': Math.round(BASE_UNIT * 3 * PHI * PHI * PHI),   // 39px
+  'phi-1': Math.round(BASE_UNIT * 3), // 9px
+  'phi-2': Math.round(BASE_UNIT * 3 * PHI), // 15px
+  'phi-3': Math.round(BASE_UNIT * 3 * PHI * PHI), // 24px
+  'phi-4': Math.round(BASE_UNIT * 3 * PHI * PHI * PHI), // 39px
 };
 
 /**
@@ -64,49 +64,49 @@ export const SPACING = {
  * Each step is φ times larger than the previous
  */
 export const FONT_SIZE = {
-  'xs': Math.round(BASE_UNIT * 3),                      // 9px
-  'sm': Math.round(BASE_UNIT * 3 * PHI),                // 15px
-  'base': Math.round(BASE_UNIT * 3 * PHI * PHI),        // 24px
-  'lg': Math.round(BASE_UNIT * 3 * PHI * PHI * PHI),    // 39px
-  'xl': Math.round(BASE_UNIT * 3 * Math.pow(PHI, 4)),   // 63px
-  '2xl': Math.round(BASE_UNIT * 3 * Math.pow(PHI, 5)),  // 102px
-  '3xl': Math.round(BASE_UNIT * 3 * Math.pow(PHI, 6)),  // 165px
-  
+  xs: Math.round(BASE_UNIT * 3), // 9px
+  sm: Math.round(BASE_UNIT * 3 * PHI), // 15px
+  base: Math.round(BASE_UNIT * 3 * PHI * PHI), // 24px
+  lg: Math.round(BASE_UNIT * 3 * PHI * PHI * PHI), // 39px
+  xl: Math.round(BASE_UNIT * 3 * Math.pow(PHI, 4)), // 63px
+  '2xl': Math.round(BASE_UNIT * 3 * Math.pow(PHI, 5)), // 102px
+  '3xl': Math.round(BASE_UNIT * 3 * Math.pow(PHI, 6)), // 165px
+
   // Tesla 3-6-9 based font sizes
-  't3': BASE_UNIT * 3,    // 9px
-  't6': BASE_UNIT * 6,    // 18px
-  't9': BASE_UNIT * 9,    // 27px
+  t3: BASE_UNIT * 3, // 9px
+  t6: BASE_UNIT * 6, // 18px
+  t9: BASE_UNIT * 9, // 27px
 };
 
 /**
  * Line height scale based on the golden ratio
  */
 export const LINE_HEIGHT = {
-  'none': 1,
-  'tight': 1.2,
-  'snug': 1.375,
-  'normal': PHI,         // 1.618
-  'relaxed': PHI * 1.1,  // 1.78
-  'loose': PHI * 1.2,    // 1.94
+  none: 1,
+  tight: 1.2,
+  snug: 1.375,
+  normal: PHI, // 1.618
+  relaxed: PHI * 1.1, // 1.78
+  loose: PHI * 1.2, // 1.94
 };
 
 /**
  * Border radius scale based on the Fibonacci sequence
  */
 export const BORDER_RADIUS = {
-  'none': 0,
-  'sm': BASE_UNIT * 1,     // 3px
-  'md': BASE_UNIT * 2,     // 6px
-  'lg': BASE_UNIT * 3,     // 9px
-  'xl': BASE_UNIT * 5,     // 15px
-  '2xl': BASE_UNIT * 8,    // 24px
-  '3xl': BASE_UNIT * 13,   // 39px
-  'full': 9999,
-  
+  none: 0,
+  sm: BASE_UNIT * 1, // 3px
+  md: BASE_UNIT * 2, // 6px
+  lg: BASE_UNIT * 3, // 9px
+  xl: BASE_UNIT * 5, // 15px
+  '2xl': BASE_UNIT * 8, // 24px
+  '3xl': BASE_UNIT * 13, // 39px
+  full: 9999,
+
   // Tesla 3-6-9 based border radii
-  't3': BASE_UNIT * 3,     // 9px
-  't6': BASE_UNIT * 6,     // 18px
-  't9': BASE_UNIT * 9,     // 27px
+  t3: BASE_UNIT * 3, // 9px
+  t6: BASE_UNIT * 6, // 18px
+  t9: BASE_UNIT * 9, // 27px
 };
 
 /**
@@ -115,40 +115,40 @@ export const BORDER_RADIUS = {
 export const SIZE = {
   // Fibonacci-based sizes
   '0': 0,
-  '1': BASE_UNIT * 1,     // 3px
-  '2': BASE_UNIT * 2,     // 6px
-  '3': BASE_UNIT * 3,     // 9px
-  '5': BASE_UNIT * 5,     // 15px
-  '8': BASE_UNIT * 8,     // 24px
-  '13': BASE_UNIT * 13,   // 39px
-  '21': BASE_UNIT * 21,   // 63px
-  '34': BASE_UNIT * 34,   // 102px
-  '55': BASE_UNIT * 55,   // 165px
-  '89': BASE_UNIT * 89,   // 267px
+  '1': BASE_UNIT * 1, // 3px
+  '2': BASE_UNIT * 2, // 6px
+  '3': BASE_UNIT * 3, // 9px
+  '5': BASE_UNIT * 5, // 15px
+  '8': BASE_UNIT * 8, // 24px
+  '13': BASE_UNIT * 13, // 39px
+  '21': BASE_UNIT * 21, // 63px
+  '34': BASE_UNIT * 34, // 102px
+  '55': BASE_UNIT * 55, // 165px
+  '89': BASE_UNIT * 89, // 267px
   '144': BASE_UNIT * 144, // 432px
-  
+
   // Tesla 3-6-9 based sizes
-  't3': BASE_UNIT * 3,    // 9px
-  't6': BASE_UNIT * 6,    // 18px
-  't9': BASE_UNIT * 9,    // 27px
-  't18': BASE_UNIT * 18,  // 54px
-  't27': BASE_UNIT * 27,  // 81px
-  't36': BASE_UNIT * 36,  // 108px
-  't54': BASE_UNIT * 54,  // 162px
-  't81': BASE_UNIT * 81,  // 243px
-  
+  t3: BASE_UNIT * 3, // 9px
+  t6: BASE_UNIT * 6, // 18px
+  t9: BASE_UNIT * 9, // 27px
+  t18: BASE_UNIT * 18, // 54px
+  t27: BASE_UNIT * 27, // 81px
+  t36: BASE_UNIT * 36, // 108px
+  t54: BASE_UNIT * 54, // 162px
+  t81: BASE_UNIT * 81, // 243px
+
   // Golden ratio based sizes
-  'phi-1': Math.round(BASE_UNIT * 3),                     // 9px
-  'phi-2': Math.round(BASE_UNIT * 3 * PHI),               // 15px
-  'phi-3': Math.round(BASE_UNIT * 3 * PHI * PHI),         // 24px
-  'phi-4': Math.round(BASE_UNIT * 3 * PHI * PHI * PHI),   // 39px
-  
+  'phi-1': Math.round(BASE_UNIT * 3), // 9px
+  'phi-2': Math.round(BASE_UNIT * 3 * PHI), // 15px
+  'phi-3': Math.round(BASE_UNIT * 3 * PHI * PHI), // 24px
+  'phi-4': Math.round(BASE_UNIT * 3 * PHI * PHI * PHI), // 39px
+
   // Percentage-based sizes
-  'full': '100%',
-  'screen': '100vw',
-  'min': 'min-content',
-  'max': 'max-content',
-  'fit': 'fit-content',
+  full: '100%',
+  screen: '100vw',
+  min: 'min-content',
+  max: 'max-content',
+  fit: 'fit-content',
 };
 
 /**
@@ -166,7 +166,7 @@ export const Z_INDEX = {
   '34': 34,
   '55': 55,
   '89': 89,
-  'auto': 'auto',
+  auto: 'auto',
 };
 
 /**
@@ -174,56 +174,56 @@ export const Z_INDEX = {
  */
 export const GRID = {
   // Golden ratio grid
-  'golden': {
+  golden: {
     columns: [
       PHI_INVERSE * 100, // 38.2%
-      (1 - PHI_INVERSE) * 100 // 61.8%
+      (1 - PHI_INVERSE) * 100, // 61.8%
     ],
     rows: [
       PHI_INVERSE * 100, // 38.2%
-      (1 - PHI_INVERSE) * 100 // 61.8%
-    ]
+      (1 - PHI_INVERSE) * 100, // 61.8%
+    ],
   },
-  
+
   // Tesla 3-6-9 grid
-  'tesla': {
+  tesla: {
     columns: [3, 6, 9],
-    rows: [3, 6, 9]
+    rows: [3, 6, 9],
   },
-  
+
   // Fibonacci grid
-  'fibonacci': {
+  fibonacci: {
     columns: [1, 1, 2, 3, 5, 8, 13, 21],
-    rows: [1, 1, 2, 3, 5, 8, 13, 21]
-  }
+    rows: [1, 1, 2, 3, 5, 8, 13, 21],
+  },
 };
 
 /**
  * Aspect ratios based on sacred geometry
  */
 export const ASPECT_RATIO = {
-  'auto': 'auto',
-  'square': '1 / 1',
-  'golden': `1 / ${PHI}`,
+  auto: 'auto',
+  square: '1 / 1',
+  golden: `1 / ${PHI}`,
   'golden-landscape': `${PHI} / 1`,
-  'vesica': '1.732 / 1', // √3 / 1
-  'pentagon': '1.539 / 1', // Based on pentagon geometry
-  'hexagon': '1.155 / 1', // Based on hexagon geometry
-  'octagon': '1 / 1', // Octagon is nearly square
-  'nonagon': '1.064 / 1', // Based on nonagon geometry
+  vesica: '1.732 / 1', // √3 / 1
+  pentagon: '1.539 / 1', // Based on pentagon geometry
+  hexagon: '1.155 / 1', // Based on hexagon geometry
+  octagon: '1 / 1', // Octagon is nearly square
+  nonagon: '1.064 / 1', // Based on nonagon geometry
 };
 
 /**
  * Box shadow values based on the Fibonacci sequence
  */
 export const BOX_SHADOW = {
-  'sm': `0 ${BASE_UNIT * 1}px ${BASE_UNIT * 2}px 0 rgba(0, 0, 0, 0.05)`,
-  'md': `0 ${BASE_UNIT * 2}px ${BASE_UNIT * 3}px 0 rgba(0, 0, 0, 0.1)`,
-  'lg': `0 ${BASE_UNIT * 3}px ${BASE_UNIT * 5}px 0 rgba(0, 0, 0, 0.15)`,
-  'xl': `0 ${BASE_UNIT * 5}px ${BASE_UNIT * 8}px 0 rgba(0, 0, 0, 0.2)`,
+  sm: `0 ${BASE_UNIT * 1}px ${BASE_UNIT * 2}px 0 rgba(0, 0, 0, 0.05)`,
+  md: `0 ${BASE_UNIT * 2}px ${BASE_UNIT * 3}px 0 rgba(0, 0, 0, 0.1)`,
+  lg: `0 ${BASE_UNIT * 3}px ${BASE_UNIT * 5}px 0 rgba(0, 0, 0, 0.15)`,
+  xl: `0 ${BASE_UNIT * 5}px ${BASE_UNIT * 8}px 0 rgba(0, 0, 0, 0.2)`,
   '2xl': `0 ${BASE_UNIT * 8}px ${BASE_UNIT * 13}px 0 rgba(0, 0, 0, 0.25)`,
-  'inner': `inset 0 ${BASE_UNIT * 1}px ${BASE_UNIT * 2}px 0 rgba(0, 0, 0, 0.05)`,
-  'none': 'none',
+  inner: `inset 0 ${BASE_UNIT * 1}px ${BASE_UNIT * 2}px 0 rgba(0, 0, 0, 0.05)`,
+  none: 'none',
 };
 
 /**
@@ -270,18 +270,18 @@ export const DURATION = {
   'fib-13': `${FIBONACCI[5] * 100}ms`, // 800ms
   'fib-21': `${FIBONACCI[6] * 100}ms`, // 1300ms
   // Tesla-based durations
-  't3': '300ms',
-  't6': '600ms',
-  't9': '900ms',
+  t3: '300ms',
+  t6: '600ms',
+  t9: '900ms',
 };
 
 /**
  * Animation timing functions based on sacred geometry
  */
 export const TIMING_FUNCTION = {
-  'linear': 'linear',
-  'in': 'cubic-bezier(0.4, 0, 1, 1)',
-  'out': 'cubic-bezier(0, 0, 0.2, 1)',
+  linear: 'linear',
+  in: 'cubic-bezier(0.4, 0, 1, 1)',
+  out: 'cubic-bezier(0, 0, 0.2, 1)',
   'in-out': 'cubic-bezier(0.4, 0, 0.2, 1)',
   'golden-in': `cubic-bezier(0, 0, ${PHI_INVERSE}, 1)`,
   'golden-out': `cubic-bezier(0, ${PHI_INVERSE}, 1, 1)`,
@@ -316,7 +316,7 @@ export const AVOLVE_DESIGN: {
     ratio: PHI, // Golden ratio
     grid: [3, 3, 3], // 3×3 grid (Tesla's 3)
   },
-  
+
   // Superachievers - Collective journey (Slate gradient)
   superachievers: {
     spacing: {
@@ -333,7 +333,7 @@ export const AVOLVE_DESIGN: {
     ratio: PHI * PHI_INVERSE, // 1 (Square)
     grid: [3, 3, 6, 6], // 2×2 grid with 6 units (Tesla's 6)
   },
-  
+
   // Supercivilization - Ecosystem journey (Zinc gradient)
   supercivilization: {
     spacing: {
@@ -403,11 +403,11 @@ export function getAvolveDesign(
   if (category === 'radius' || category === 'ratio') {
     return AVOLVE_DESIGN[pillar][category];
   }
-  
+
   if (key && category !== 'grid') {
     return AVOLVE_DESIGN[pillar][category][key];
   }
-  
+
   return AVOLVE_DESIGN[pillar][category];
 }
 
@@ -419,7 +419,7 @@ export function getAvolveDesign(
 export function createGoldenGrid(columns: number): string[] {
   if (columns === 1) return ['100%'];
   if (columns === 2) return [`${PHI_INVERSE * 100}%`, `${(1 - PHI_INVERSE) * 100}%`];
-  
+
   // For more than 2 columns, create a Fibonacci-like sequence of percentages
   const total = Math.pow(PHI, columns) - 1;
   return Array.from({ length: columns }, (_, i) => {

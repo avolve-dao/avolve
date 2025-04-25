@@ -1,6 +1,6 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { createClient } from '../../lib/supabase/client';
 
 export interface UserProfile {
   id: string;
@@ -35,7 +35,7 @@ export function AdminUserTableClient() {
   useEffect(() => {
     async function fetchUsers() {
       setLoading(true);
-      const supabase = createClientComponentClient();
+      const supabase = createClient();
       // Fetch user profiles, onboarding, and token balances
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
@@ -52,23 +52,22 @@ export function AdminUserTableClient() {
         .select('user_id, completed_at');
       const typedOnboarding = (onboarding ?? []) as UserOnboarding[];
       // Fetch token balances
-      const { data: balances } = await supabase
-        .from('user_balances')
-        .select('user_id, amount');
+      const { data: balances } = await supabase.from('user_balances').select('user_id, amount');
       const typedBalances = (balances ?? []) as UserBalance[];
       // Aggregate tokens per user
       const tokenMap = new Map<string, number>();
-      typedBalances.forEach((b) => {
+      typedBalances.forEach(b => {
         tokenMap.set(b.user_id, (tokenMap.get(b.user_id) || 0) + (b.amount || 0));
       });
       // Merge data
       const merged = typedProfiles.map((p: UserProfile) => ({
         id: p.id,
         name: p.full_name || p.id,
-        phase: p.phase || "-",
+        phase: p.phase || '-',
         tokens: tokenMap.get(p.id) || 0,
-        lastSeen: p.last_seen ? new Date(p.last_seen).toLocaleDateString() : "-",
-        onboardingCompleted: typedOnboarding.find((o: UserOnboarding) => o.user_id === p.id)?.completed_at ?? null,
+        lastSeen: p.last_seen ? new Date(p.last_seen).toLocaleDateString() : '-',
+        onboardingCompleted:
+          typedOnboarding.find((o: UserOnboarding) => o.user_id === p.id)?.completed_at ?? null,
       }));
       setUsers(merged);
       setLoading(false);
@@ -94,7 +93,7 @@ export function AdminUserTableClient() {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {users.map(user => (
               <tr key={user.id} className="border-t">
                 <td className="py-2">{user.name}</td>
                 <td className="py-2">{user.phase}</td>
@@ -108,8 +107,12 @@ export function AdminUserTableClient() {
                   )}
                 </td>
                 <td className="py-2">
-                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs mr-2">View</button>
-                  <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded text-xs">Promote</button>
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs mr-2">
+                    View
+                  </button>
+                  <button className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded text-xs">
+                    Promote
+                  </button>
                 </td>
               </tr>
             ))}

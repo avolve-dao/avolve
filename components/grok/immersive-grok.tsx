@@ -1,16 +1,16 @@
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 
-import { useState, useRef, useEffect } from "react"
-import { nanoid } from "nanoid"
-import { motion, AnimatePresence } from "framer-motion"
-import { useChat } from "ai/react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState, useRef, useEffect } from 'react';
+import { nanoid } from 'nanoid';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useChat } from 'ai/react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Bot,
   Send,
@@ -23,42 +23,42 @@ import {
   HelpCircle,
   BookOpen,
   ArrowLeft,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ImmersiveGrokProps {
-  userId: string
-  userName: string
-  userAvatar?: string
+  userId: string;
+  userName: string;
+  userAvatar?: string;
 }
 
 export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokProps) {
-  const [activeMode, setActiveMode] = useState<"chat" | "create" | "explore">("chat")
-  const [input, setInput] = useState("")
-  const [creationPrompt, setCreationPrompt] = useState("")
-  const [creations, setCreations] = useState<any[]>([])
-  const [isGenerating, setIsGenerating] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [userContext, setUserContext] = useState<any>(null)
-  const [showContext, setShowContext] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
+  const [activeMode, setActiveMode] = useState<'chat' | 'create' | 'explore'>('chat');
+  const [input, setInput] = useState('');
+  const [creationPrompt, setCreationPrompt] = useState('');
+  const [creations, setCreations] = useState<any[]>([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [userContext, setUserContext] = useState<any>(null);
+  const [showContext, setShowContext] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch user context when component mounts
     async function fetchUserContext() {
       try {
-        const response = await fetch(`/api/grok/context?userId=${userId}`)
-        const data = await response.json()
+        const response = await fetch(`/api/grok/context?userId=${userId}`);
+        const data = await response.json();
         if (data.success) {
-          setUserContext(data.context)
+          setUserContext(data.context);
         }
       } catch (error) {
-        console.error("Error fetching user context:", error)
+        console.error('Error fetching user context:', error);
       }
     }
 
-    fetchUserContext()
-  }, [userId])
+    fetchUserContext();
+  }, [userId]);
 
   const {
     messages,
@@ -66,87 +66,87 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
     handleSubmit,
     setInput: setChatInput,
   } = useChat({
-    api: "/api/grok/chat",
+    api: '/api/grok/chat',
     body: {
       userId,
     },
     onFinish: () => {
       // Log activity when chat completes via API instead of direct client import
-      fetch("/api/grok/log-activity", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      fetch('/api/grok/log-activity', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: "post_create",
-          entityType: "message",
+          action: 'post_create',
+          entityType: 'message',
           content: input.substring(0, 100),
         }),
-      }).catch((error) => {
-        console.error("Error logging activity:", error)
-      })
+      }).catch(error => {
+        console.error('Error logging activity:', error);
+      });
     },
-  })
+  });
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    if (activeMode === "chat") {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    if (activeMode === 'chat') {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, activeMode])
+  }, [messages, activeMode]);
 
   const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!input.trim() || isLoading) return
+    if (!input.trim() || isLoading) return;
 
-    setChatInput(input)
-    setInput("")
-  }
+    setChatInput(input);
+    setInput('');
+  };
 
   const handleCreateContent = async () => {
-    if (!creationPrompt.trim() || isGenerating) return
+    if (!creationPrompt.trim() || isGenerating) return;
 
-    setIsGenerating(true)
+    setIsGenerating(true);
 
     try {
-      const response = await fetch("/api/grok/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/grok/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: creationPrompt,
           userId,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        setCreations((prev) => [data.content, ...prev])
-        setCreationPrompt("")
-        setSelectedTemplate(null)
+        setCreations(prev => [data.content, ...prev]);
+        setCreationPrompt('');
+        setSelectedTemplate(null);
 
         // Log activity via API instead of direct client import
-        fetch("/api/grok/log-activity", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
+        fetch('/api/grok/log-activity', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: "post_create",
-            entityType: "post",
+            action: 'post_create',
+            entityType: 'post',
             content: creationPrompt.substring(0, 100),
           }),
-        }).catch((error) => {
-          console.error("Error logging activity:", error)
-        })
+        }).catch(error => {
+          console.error('Error logging activity:', error);
+        });
       }
     } catch (error) {
-      console.error("Error creating content:", error)
+      console.error('Error creating content:', error);
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto">
-      <Tabs value={activeMode} onValueChange={(v) => setActiveMode(v as any)} className="w-full">
+      <Tabs value={activeMode} onValueChange={v => setActiveMode(v as any)} className="w-full">
         <TabsList className="grid grid-cols-3 mb-6">
           <TabsTrigger value="chat" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
@@ -163,9 +163,14 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
         </TabsList>
 
         <div className="flex justify-end mb-2">
-          <Button variant="outline" size="sm" onClick={() => setShowContext(!showContext)} className="text-xs gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowContext(!showContext)}
+            className="text-xs gap-1"
+          >
             <Bot className="h-3 w-3" />
-            {showContext ? "Hide Context" : "Show What Grok Knows"}
+            {showContext ? 'Hide Context' : 'Show What Grok Knows'}
           </Button>
         </div>
 
@@ -175,14 +180,16 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
               <h3 className="text-sm font-medium mb-2">Grok's Understanding of Your Context</h3>
               <div className="text-xs space-y-2">
                 <div>
-                  <span className="font-medium">Interests:</span> {userContext.interests || "None detected yet"}
+                  <span className="font-medium">Interests:</span>{' '}
+                  {userContext.interests || 'None detected yet'}
                 </div>
                 <div>
-                  <span className="font-medium">Recent Activity:</span>{" "}
-                  {userContext.recentActivity || "No recent activity"}
+                  <span className="font-medium">Recent Activity:</span>{' '}
+                  {userContext.recentActivity || 'No recent activity'}
                 </div>
                 <div>
-                  <span className="font-medium">Platform Trends:</span> {userContext.trends || "No trends available"}
+                  <span className="font-medium">Platform Trends:</span>{' '}
+                  {userContext.trends || 'No trends available'}
                 </div>
                 <div className="text-muted-foreground italic">
                   This context helps Grok provide more relevant and personalized responses
@@ -202,18 +209,21 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
                   </div>
                   <h3 className="text-title mb-2">Chat with Grok</h3>
                   <p className="text-caption-large text-muted-foreground max-w-md">
-                    Your AI assistant that understands your social context and can help with anything from answering
-                    questions to generating content.
+                    Your AI assistant that understands your social context and can help with
+                    anything from answering questions to generating content.
                   </p>
                 </div>
               ) : (
                 <>
-                  {messages.map((message) => (
+                  {messages.map(message => (
                     <div
                       key={message.id}
-                      className={cn("flex items-start gap-3", message.role === "user" ? "justify-end" : "")}
+                      className={cn(
+                        'flex items-start gap-3',
+                        message.role === 'user' ? 'justify-end' : ''
+                      )}
                     >
-                      {message.role !== "user" && (
+                      {message.role !== 'user' && (
                         <Avatar className="h-8 w-8">
                           <AvatarImage src="/grok-avatar.png" alt="Grok" />
                           <AvatarFallback className="bg-primary/10">
@@ -224,14 +234,16 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
 
                       <div
                         className={cn(
-                          "rounded-lg px-4 py-2 max-w-[80%]",
-                          message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
+                          'rounded-lg px-4 py-2 max-w-[80%]',
+                          message.role === 'user'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
                         )}
                       >
                         <div className="prose prose-sm dark:prose-invert">{message.content}</div>
                       </div>
 
-                      {message.role === "user" && (
+                      {message.role === 'user' && (
                         <Avatar className="h-8 w-8">
                           <AvatarImage src={userAvatar} alt={userName} />
                           <AvatarFallback>{userName[0]}</AvatarFallback>
@@ -248,7 +260,7 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
               <form onSubmit={handleSendMessage} className="flex gap-2">
                 <Input
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={e => setInput(e.target.value)}
                   placeholder="Message Grok..."
                   disabled={isLoading}
                   className="flex-1"
@@ -267,7 +279,9 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
             <div className="space-y-4">
               <div className="text-center">
                 <h3 className="text-xl font-semibold mb-2">Create with Grok</h3>
-                <p className="text-muted-foreground">Generate engaging social content with AI assistance</p>
+                <p className="text-muted-foreground">
+                  Generate engaging social content with AI assistance
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -276,26 +290,26 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
                     <>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          { id: "post", name: "Social Post", icon: MessageSquare },
-                          { id: "announcement", name: "Announcement", icon: Bell },
-                          { id: "question", name: "Ask a Question", icon: HelpCircle },
-                          { id: "story", name: "Share a Story", icon: BookOpen },
-                        ].map((template) => (
+                          { id: 'post', name: 'Social Post', icon: MessageSquare },
+                          { id: 'announcement', name: 'Announcement', icon: Bell },
+                          { id: 'question', name: 'Ask a Question', icon: HelpCircle },
+                          { id: 'story', name: 'Share a Story', icon: BookOpen },
+                        ].map(template => (
                           <Button
                             key={template.id}
                             variant="outline"
                             className="h-auto p-4 flex flex-col gap-2 items-center justify-center"
                             onClick={() => {
-                              setSelectedTemplate(template.id)
+                              setSelectedTemplate(template.id);
                               setCreationPrompt(
-                                template.id === "post"
-                                  ? "Write a thoughtful post about "
-                                  : template.id === "announcement"
-                                    ? "I want to announce that "
-                                    : template.id === "question"
+                                template.id === 'post'
+                                  ? 'Write a thoughtful post about '
+                                  : template.id === 'announcement'
+                                    ? 'I want to announce that '
+                                    : template.id === 'question'
                                       ? "I'm curious about "
-                                      : "Let me share a story about ",
-                              )
+                                      : 'Let me share a story about '
+                              );
                             }}
                           >
                             <template.icon className="h-5 w-5" />
@@ -303,28 +317,35 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
                           </Button>
                         ))}
                       </div>
-                      <p className="text-sm text-center text-muted-foreground">Select a template to get started</p>
+                      <p className="text-sm text-center text-muted-foreground">
+                        Select a template to get started
+                      </p>
                     </>
                   ) : (
                     <>
                       <div className="flex items-center justify-between">
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedTemplate(null)} className="gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedTemplate(null)}
+                          className="gap-1"
+                        >
                           <ArrowLeft className="h-3 w-3" />
                           Back to templates
                         </Button>
                         <span className="text-sm font-medium">
-                          {selectedTemplate === "post"
-                            ? "Create a Social Post"
-                            : selectedTemplate === "announcement"
-                              ? "Make an Announcement"
-                              : selectedTemplate === "question"
-                                ? "Ask a Question"
-                                : "Share a Story"}
+                          {selectedTemplate === 'post'
+                            ? 'Create a Social Post'
+                            : selectedTemplate === 'announcement'
+                              ? 'Make an Announcement'
+                              : selectedTemplate === 'question'
+                                ? 'Ask a Question'
+                                : 'Share a Story'}
                         </span>
                       </div>
                       <textarea
                         value={creationPrompt}
-                        onChange={(e) => setCreationPrompt(e.target.value)}
+                        onChange={e => setCreationPrompt(e.target.value)}
                         placeholder="Describe what you want to create..."
                         className="w-full h-32 p-3 rounded-md border resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                       />
@@ -339,7 +360,7 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
                     className="gap-2"
                   >
                     <Sparkles className="h-4 w-4" />
-                    {isGenerating ? "Creating..." : "Create"}
+                    {isGenerating ? 'Creating...' : 'Create'}
                   </Button>
                 </div>
               </div>
@@ -351,7 +372,9 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
 
             <AnimatePresence>
               {creations.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">Your creations will appear here</div>
+                <div className="text-center py-12 text-muted-foreground">
+                  Your creations will appear here
+                </div>
               ) : (
                 <div className="space-y-4">
                   {creations.map((creation, index) => (
@@ -410,37 +433,37 @@ export function ImmersiveGrok({ userId, userName, userAvatar }: ImmersiveGrokPro
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
 // Grok Explore component for discovering AI-powered content
 function GrokExplore({ userId }: { userId: string }) {
-  const [insights, setInsights] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [insights, setInsights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadInsights() {
       try {
-        const response = await fetch(`/api/grok/insights?userId=${userId}`)
-        const data = await response.json()
+        const response = await fetch(`/api/grok/insights?userId=${userId}`);
+        const data = await response.json();
 
         if (data.success) {
-          setInsights(data.insights)
+          setInsights(data.insights);
         }
       } catch (error) {
-        console.error("Error loading insights:", error)
+        console.error('Error loading insights:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadInsights()
-  }, [userId])
+    loadInsights();
+  }, [userId]);
 
   if (loading) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <Card key={i} className="p-6 animate-pulse">
             <div className="h-6 bg-muted rounded w-1/3 mb-4"></div>
             <div className="space-y-2">
@@ -451,18 +474,22 @@ function GrokExplore({ userId }: { userId: string }) {
           </Card>
         ))}
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h3 className="text-xl font-semibold mb-2">Grok Insights</h3>
-        <p className="text-muted-foreground">Discover AI-powered insights based on your interests and network</p>
+        <p className="text-muted-foreground">
+          Discover AI-powered insights based on your interests and network
+        </p>
       </div>
 
       {insights.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">No insights available at the moment</div>
+        <div className="text-center py-12 text-muted-foreground">
+          No insights available at the moment
+        </div>
       ) : (
         <div className="space-y-6">
           {insights.map((insight, index) => (
@@ -487,7 +514,9 @@ function GrokExplore({ userId }: { userId: string }) {
               </div>
 
               <div className="bg-muted/50 p-4 flex justify-between items-center">
-                <div className="text-sm text-muted-foreground">Generated by Grok based on your activity</div>
+                <div className="text-sm text-muted-foreground">
+                  Generated by Grok based on your activity
+                </div>
                 <Button variant="outline" size="sm" className="gap-1">
                   <Share2 className="h-4 w-4" />
                   Share
@@ -498,5 +527,5 @@ function GrokExplore({ userId }: { userId: string }) {
         </div>
       )}
     </div>
-  )
+  );
 }

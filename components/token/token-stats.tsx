@@ -1,19 +1,19 @@
-"use client"
+'use client';
 
-import React from "react"
-import { motion } from "framer-motion"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { useTokens } from "@/hooks/use-tokens"
-import { TokenBadge } from "./token-badge"
-import { cn } from "@/lib/utils"
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { useTokens } from '@/hooks/use-tokens';
+import { TokenBadge } from './token-badge';
+import { cn } from '@/lib/utils';
 
 interface TokenStatsProps {
-  tokenCode: string
-  tokenName: string
-  tokenSymbol: string
-  gradientClass: string
-  className?: string
+  tokenCode: string;
+  tokenName: string;
+  tokenSymbol: string;
+  gradientClass: string;
+  className?: string;
 }
 
 /**
@@ -24,35 +24,37 @@ export function TokenStats({
   tokenName,
   tokenSymbol,
   gradientClass,
-  className
+  className,
 }: TokenStatsProps) {
-  const { tokens, userBalances, isLoading } = useTokens()
-  const [balance, setBalance] = React.useState<number>(0)
-  const [level, setLevel] = React.useState<number>(0)
-  const [progress, setProgress] = React.useState<number>(0)
+  const { tokens, userBalances, isLoading } = useTokens();
+  const [balance, setBalance] = React.useState<number>(0);
+  const [level, setLevel] = React.useState<number>(0);
+  const [progress, setProgress] = React.useState<number>(0);
 
   React.useEffect(() => {
     const fetchTokenData = async () => {
       try {
-        const tokenBalance = userBalances[tokenCode] || 0
-        setBalance(tokenBalance)
-        
-        // Calculate level based on balance (example formula)
-        const calculatedLevel = Math.floor(Math.sqrt(tokenBalance / 10))
-        setLevel(calculatedLevel)
-        
-        // Calculate progress to next level
-        const nextLevelThreshold = Math.pow(calculatedLevel + 1, 2) * 10
-        const currentLevelThreshold = Math.pow(calculatedLevel, 2) * 10
-        const levelProgress = ((tokenBalance - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)) * 100
-        setProgress(Math.min(Math.max(levelProgress, 0), 100))
-      } catch (error) {
-        console.error("Error fetching token data:", error)
-      }
-    }
+        const tokenBalance = userBalances[tokenCode] || 0;
+        setBalance(tokenBalance);
 
-    fetchTokenData()
-  }, [tokenCode, userBalances])
+        // Calculate level based on balance (example formula)
+        const calculatedLevel = Math.floor(Math.sqrt(tokenBalance / 10));
+        setLevel(calculatedLevel);
+
+        // Calculate progress to next level
+        const nextLevelThreshold = Math.pow(calculatedLevel + 1, 2) * 10;
+        const currentLevelThreshold = Math.pow(calculatedLevel, 2) * 10;
+        const levelProgress =
+          ((tokenBalance - currentLevelThreshold) / (nextLevelThreshold - currentLevelThreshold)) *
+          100;
+        setProgress(Math.min(Math.max(levelProgress, 0), 100));
+      } catch (error) {
+        console.error('Error fetching token data:', error);
+      }
+    };
+
+    fetchTokenData();
+  }, [tokenCode, userBalances]);
 
   return (
     <motion.div
@@ -61,16 +63,20 @@ export function TokenStats({
       transition={{ duration: 0.5, delay: 0.2 }}
       className={className}
     >
-      <Card className={cn(
-        "border-l-4 shadow-sm",
-        `border-l-${gradientClass.split(" ")[0].replace("from-", "")}`
-      )}>
+      <Card
+        className={cn(
+          'border-l-4 shadow-sm',
+          `border-l-${gradientClass.split(' ')[0].replace('from-', '')}`
+        )}
+      >
         <CardHeader className="pb-2">
           <CardTitle className="flex justify-between items-center">
-            <span className={cn(
-              "text-lg font-medium bg-gradient-to-r bg-clip-text text-transparent",
-              gradientClass
-            )}>
+            <span
+              className={cn(
+                'text-lg font-medium bg-gradient-to-r bg-clip-text text-transparent',
+                gradientClass
+              )}
+            >
               {tokenName} Progress
             </span>
             <TokenBadge
@@ -104,23 +110,24 @@ export function TokenStats({
                     <div className="text-2xl font-bold">{level + 1}</div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs text-muted-foreground">
                     <span>Progress to Level {level + 1}</span>
                     <span>{Math.round(progress)}%</span>
                   </div>
-                  <Progress 
-                    value={progress} 
+                  <Progress
+                    value={progress}
                     className={cn(
-                      "h-2 bg-muted",
+                      'h-2 bg-muted',
                       `[&::-webkit-progress-value]:bg-gradient-to-r ${gradientClass}`
-                    )} 
+                    )}
                   />
                 </div>
-                
+
                 <div className="text-sm text-muted-foreground">
-                  <span className="font-medium">Tip:</span> Complete actions in this section to earn more {tokenSymbol} tokens and unlock additional features.
+                  <span className="font-medium">Tip:</span> Complete actions in this section to earn
+                  more {tokenSymbol} tokens and unlock additional features.
                 </div>
               </>
             )}
@@ -128,5 +135,5 @@ export function TokenStats({
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }

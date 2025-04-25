@@ -5,8 +5,22 @@ import ExperimentParticipationWidget from './ExperimentParticipationWidget';
 import UserAdminStoriesBar from './UserAdminStoriesBar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 const supabase = createClient();
 
@@ -76,12 +90,8 @@ const PublicCanvasDashboard: React.FC = () => {
         .eq('pillar', selectedPillar)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
-      const { data: experiments, error: expError } = await supabase
-        .from('experiments')
-        .select('*');
-      const { data: learnings, error: learnError } = await supabase
-        .from('learnings')
-        .select('*');
+      const { data: experiments, error: expError } = await supabase.from('experiments').select('*');
+      const { data: learnings, error: learnError } = await supabase.from('learnings').select('*');
       if (!canvasError && !expError && !learnError) {
         setCanvasEntries(canvas || []);
         setExperiments(experiments || []);
@@ -115,7 +125,8 @@ const PublicCanvasDashboard: React.FC = () => {
               }}
             >
               {exp.experiment_type === 'simulation' ? 'Simulation' : 'Real-World'}
-            </span><br />
+            </span>
+            <br />
             <span>{exp.description}</span>
             {/* Participation Widget */}
             {userId && <ExperimentParticipationWidget experimentId={exp.id} userId={userId} />}
@@ -136,7 +147,9 @@ const PublicCanvasDashboard: React.FC = () => {
       relatedLearnings = relatedLearnings.filter(l => l.actionable_status === learningStatusFilter);
     }
     if (learningTypeFilter) {
-      relatedLearnings = relatedLearnings.filter(l => (l.context?.pillar || '').toLowerCase() === learningTypeFilter);
+      relatedLearnings = relatedLearnings.filter(
+        l => (l.context?.pillar || '').toLowerCase() === learningTypeFilter
+      );
     }
     if (relatedLearnings.length === 0) return null;
     return (
@@ -144,13 +157,29 @@ const PublicCanvasDashboard: React.FC = () => {
         {relatedLearnings.map(learning => (
           <li key={learning.id} className="mb-4">
             <em>{learning.summary}</em>
-            {learning.details && <div className="text-sm text-muted-foreground">{learning.details}</div>}
+            {learning.details && (
+              <div className="text-sm text-muted-foreground">{learning.details}</div>
+            )}
             <div className="flex items-center gap-2 mt-1">
               <span
                 className="text-xs font-bold rounded-md px-2 py-1"
                 style={{
-                  background: learning.actionable_status === 'actionable' ? '#fffbe6' : learning.actionable_status === 'implemented' ? '#e6ffed' : learning.actionable_status === 'follow_up' ? '#e6f0ff' : '#f5f5f5',
-                  color: learning.actionable_status === 'actionable' ? '#b26a00' : learning.actionable_status === 'implemented' ? '#237804' : learning.actionable_status === 'follow_up' ? '#0050b3' : '#888',
+                  background:
+                    learning.actionable_status === 'actionable'
+                      ? '#fffbe6'
+                      : learning.actionable_status === 'implemented'
+                        ? '#e6ffed'
+                        : learning.actionable_status === 'follow_up'
+                          ? '#e6f0ff'
+                          : '#f5f5f5',
+                  color:
+                    learning.actionable_status === 'actionable'
+                      ? '#b26a00'
+                      : learning.actionable_status === 'implemented'
+                        ? '#237804'
+                        : learning.actionable_status === 'follow_up'
+                          ? '#0050b3'
+                          : '#888',
                   cursor: 'help',
                 }}
                 title="Actionable status: Needs Review, Actionable, Implemented, or Follow Up. Use this to track progress and next steps."
@@ -167,7 +196,8 @@ const PublicCanvasDashboard: React.FC = () => {
                   }}
                   title="Pillar: Individual (Superachiever), Collective (Superachievers), or Ecosystem (Supercivilization)."
                 >
-                  {learning.context.pillar.charAt(0).toUpperCase() + learning.context.pillar.slice(1)}
+                  {learning.context.pillar.charAt(0).toUpperCase() +
+                    learning.context.pillar.slice(1)}
                 </span>
               )}
               {learning.context?.token && (
@@ -209,7 +239,7 @@ const PublicCanvasDashboard: React.FC = () => {
       {/* Stories Bar - contextually filtered to pillar */}
       <UserAdminStoriesBar context={selectedPillar} />
       <div className="flex flex-wrap gap-2 mb-4">
-        {pillars.map((p) => (
+        {pillars.map(p => (
           <Button
             key={p.key}
             variant={selectedPillar === p.key ? 'default' : 'secondary'}
@@ -257,7 +287,9 @@ const PublicCanvasDashboard: React.FC = () => {
               {canvasEntries.map(entry => (
                 <li key={entry.id} className="mb-6">
                   <h3>{entry.title}</h3>
-                  <div><strong>Type:</strong> {entry.canvas_type}</div>
+                  <div>
+                    <strong>Type:</strong> {entry.canvas_type}
+                  </div>
                   <div>{entry.description}</div>
                   {/* Feedback Widget for canvas entry */}
                   {userId && <FeedbackWidget context={`canvas:${entry.id}`} userId={userId} />}
@@ -274,7 +306,11 @@ const PublicCanvasDashboard: React.FC = () => {
         </div>
       )}
       <div className="mt-8 text-[0.95em] text-muted-foreground">
-        <p>This dashboard provides transparent visibility into the current and evolving Canvas, experiments, and learnings for each pillar of the Avolve journey. User feedback and participation are always welcome!</p>
+        <p>
+          This dashboard provides transparent visibility into the current and evolving Canvas,
+          experiments, and learnings for each pillar of the Avolve journey. User feedback and
+          participation are always welcome!
+        </p>
       </div>
       {/* Onboarding Dialog */}
       <Dialog open={showOnboarding} onOpenChange={setShowOnboarding}>
@@ -283,14 +319,26 @@ const PublicCanvasDashboard: React.FC = () => {
             <DialogTitle>🌱 Welcome to Avolve!</DialogTitle>
           </DialogHeader>
           <div className="mb-3 text-base">
-            Begin your Supercivilization journey from <strong>Degen</strong> to <strong>Regen</strong>.<br />
+            Begin your Supercivilization journey from <strong>Degen</strong> to{' '}
+            <strong>Regen</strong>.<br />
             <br />
             <strong>Explore:</strong>
             <ul className="my-2 ml-5 list-disc text-base">
-              <li><b>Canvas Dashboard</b>: Visualize transformation at the <b>Individual</b>, <b>Collective</b>, and <b>Ecosystem</b> levels.</li>
-              <li><b>Experiments</b>: Run Real-World & Simulation experiments. Track status and learnings.</li>
-              <li><b>Learnings & Results</b>: Filter, act, and celebrate progress. Badges show actionable status and context.</li>
-              <li><b>Stories Bar</b>: Share and discover real journeys and breakthroughs.</li>
+              <li>
+                <b>Canvas Dashboard</b>: Visualize transformation at the <b>Individual</b>,{' '}
+                <b>Collective</b>, and <b>Ecosystem</b> levels.
+              </li>
+              <li>
+                <b>Experiments</b>: Run Real-World & Simulation experiments. Track status and
+                learnings.
+              </li>
+              <li>
+                <b>Learnings & Results</b>: Filter, act, and celebrate progress. Badges show
+                actionable status and context.
+              </li>
+              <li>
+                <b>Stories Bar</b>: Share and discover real journeys and breakthroughs.
+              </li>
             </ul>
             <b>Tip:</b> Hover over badges and icons for more context.
           </div>

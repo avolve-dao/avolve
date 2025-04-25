@@ -2,7 +2,7 @@
 
 /**
  * Feature Preview Client Component
- * 
+ *
  * Client-side interactive component for displaying upcoming features
  * Copyright © 2025 Avolve DAO. All rights reserved.
  */
@@ -29,31 +29,37 @@ interface FeaturePreviewClientProps {
 
 export function FeaturePreviewClient({
   features,
-  predictedNextUnlocks
+  predictedNextUnlocks,
 }: FeaturePreviewClientProps) {
   const [selectedFeature, setSelectedFeature] = useState<string | null>(
     features.length > 0 ? features[0].id : null
   );
-  
+
   // Separate unlocked and locked features
   const unlockedFeatures = features.filter(f => f.unlocked);
   const lockedFeatures = features.filter(f => !f.unlocked);
-  
+
   // Get the selected feature details
   const featureDetails = features.find(f => f.id === selectedFeature);
-  
+
   return (
     <div className="space-y-4">
       <Tabs defaultValue="locked" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="locked">
-            Locked <Badge variant="outline" className="ml-2">{lockedFeatures.length}</Badge>
+            Locked{' '}
+            <Badge variant="outline" className="ml-2">
+              {lockedFeatures.length}
+            </Badge>
           </TabsTrigger>
           <TabsTrigger value="unlocked">
-            Unlocked <Badge variant="outline" className="ml-2">{unlockedFeatures.length}</Badge>
+            Unlocked{' '}
+            <Badge variant="outline" className="ml-2">
+              {unlockedFeatures.length}
+            </Badge>
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="locked" className="space-y-4 pt-2">
           {/* Feature list */}
           <div className="grid grid-cols-1 gap-2">
@@ -64,9 +70,7 @@ export function FeaturePreviewClient({
                 className={`justify-start h-auto py-2 px-3 ${
                   feature.id === selectedFeature ? 'border-primary' : ''
                 } ${
-                  predictedNextUnlocks.includes(feature.id) 
-                    ? 'border-amber-300 bg-amber-50' 
-                    : ''
+                  predictedNextUnlocks.includes(feature.id) ? 'border-amber-300 bg-amber-50' : ''
                 }`}
                 onClick={() => setSelectedFeature(feature.id)}
               >
@@ -83,7 +87,7 @@ export function FeaturePreviewClient({
               </Button>
             ))}
           </div>
-          
+
           {/* Selected feature details */}
           {featureDetails && !featureDetails.unlocked && (
             <Card>
@@ -91,8 +95,8 @@ export function FeaturePreviewClient({
                 <div className="flex items-center mb-4">
                   <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
                     {featureDetails.icon && (
-                      <Image 
-                        src={`/icons/${featureDetails.icon}`} 
+                      <Image
+                        src={`/icons/${featureDetails.icon}`}
                         alt={featureDetails.name}
                         width={24}
                         height={24}
@@ -106,9 +110,9 @@ export function FeaturePreviewClient({
                     </p>
                   </div>
                 </div>
-                
+
                 <p className="text-sm mb-4">{featureDetails.description}</p>
-                
+
                 <div className="space-y-4">
                   {/* Token requirements */}
                   {featureDetails.tokenRequirements.length > 0 && (
@@ -116,11 +120,11 @@ export function FeaturePreviewClient({
                       <h4 className="text-sm font-medium mb-2">Token Requirements</h4>
                       <div className="space-y-2">
                         {featureDetails.tokenRequirements.map((req, i) => {
-                          const current = featureDetails.missingTokens.find(
-                            t => t.tokenId === req.tokenId
-                          )?.current || 0;
+                          const current =
+                            featureDetails.missingTokens.find(t => t.tokenId === req.tokenId)
+                              ?.current || 0;
                           const progress = Math.min((current / req.amount) * 100, 100);
-                          
+
                           return (
                             <div key={i} className="space-y-1">
                               <div className="flex justify-between text-sm">
@@ -136,7 +140,7 @@ export function FeaturePreviewClient({
                       </div>
                     </div>
                   )}
-                  
+
                   {/* Milestone requirements */}
                   {featureDetails.milestoneRequirements.length > 0 && (
                     <div>
@@ -144,10 +148,10 @@ export function FeaturePreviewClient({
                       <div className="space-y-1">
                         {featureDetails.milestoneRequirements.map((milestone, i) => {
                           const isMissing = featureDetails.missingMilestones.includes(milestone);
-                          
+
                           return (
-                            <div 
-                              key={i} 
+                            <div
+                              key={i}
                               className={`flex items-center text-sm ${
                                 isMissing ? 'text-muted-foreground' : 'text-green-600'
                               }`}
@@ -168,7 +172,7 @@ export function FeaturePreviewClient({
                   )}
                 </div>
               </CardContent>
-              
+
               <CardFooter className="bg-muted/50 flex-col items-start pt-4">
                 <h4 className="text-sm font-medium mb-2">Recommendations</h4>
                 <div className="space-y-1 w-full">
@@ -183,7 +187,7 @@ export function FeaturePreviewClient({
             </Card>
           )}
         </TabsContent>
-        
+
         <TabsContent value="unlocked" className="space-y-4 pt-2">
           {unlockedFeatures.length > 0 ? (
             <div className="grid grid-cols-1 gap-4">

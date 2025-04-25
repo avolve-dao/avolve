@@ -48,11 +48,13 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 If you want to develop with a local Supabase instance:
 
 1. Install the Supabase CLI:
+
    ```bash
    npm install -g supabase
    ```
 
 2. Start the local Supabase services:
+
    ```bash
    supabase start
    ```
@@ -80,12 +82,14 @@ Your application should now be running at [http://localhost:3000](http://localho
 ### Deploying to Vercel
 
 1. **Connect your GitHub Repository**:
+
    - Create an account on [Vercel](https://vercel.com)
    - Create a new project and import your GitHub repository
    - Select the "Next.js" framework preset
 
 2. **Configure Environment Variables**:
    Add the following environment variables in the Vercel project settings:
+
    ```
    NEXT_PUBLIC_SUPABASE_URL=your-production-supabase-url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-production-supabase-anon-key
@@ -99,11 +103,13 @@ Your application should now be running at [http://localhost:3000](http://localho
 ### Supabase Configuration for Production
 
 1. **Update Supabase Site URL**:
+
    - Go to your Supabase project settings
    - Update the Site URL to match your production domain
    - Add your production domain to the list of allowed redirect URLs
 
 2. **Configure Email Templates**:
+
    - Go to Authentication > Email Templates
    - Customize the email templates for:
      - Confirm Signup
@@ -123,22 +129,24 @@ Your application should now be running at [http://localhost:3000](http://localho
 
 ## Environment Variables Reference
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | The URL of your Supabase project | Yes |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The anonymous key for your Supabase project | Yes |
-| `NEXT_PUBLIC_SITE_URL` | The URL where your application is hosted | Yes |
+| Variable                        | Description                                 | Required |
+| ------------------------------- | ------------------------------------------- | -------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | The URL of your Supabase project            | Yes      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | The anonymous key for your Supabase project | Yes      |
+| `NEXT_PUBLIC_SITE_URL`          | The URL where your application is hosted    | Yes      |
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Authentication Errors**:
+
    - Ensure your Supabase URL and anon key are correct
    - Check that your site URL is properly configured in Supabase
    - Verify that redirect URLs are properly set up
 
 2. **Database Migration Errors**:
+
    - Ensure you have the latest migrations
    - Check for any conflicts in migration files
    - Run `pnpm supabase migration repair` if needed
@@ -151,6 +159,7 @@ Your application should now be running at [http://localhost:3000](http://localho
 ### Getting Help
 
 If you encounter any issues not covered here, please:
+
 1. Check the [GitHub Issues](https://github.com/avolve-dao/avolve.io/issues) for similar problems
 2. Create a new issue with detailed information about your problem
 3. Reach out to the development team for assistance

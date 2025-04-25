@@ -1,90 +1,99 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { DateTimePicker } from "@/components/ui/date-time-picker"
-import { toast } from "@/components/ui/use-toast"
-import { CalendarIcon, MapPin, Users, Video } from "lucide-react"
-import { format } from "date-fns"
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { toast } from '@/components/ui/use-toast';
+import { CalendarIcon, MapPin, Users, Video } from 'lucide-react';
+import { format } from 'date-fns';
 
 interface CreateEventFormProps {
-  onSuccess?: () => void
+  onSuccess?: () => void;
 }
 
 export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
-  const router = useRouter()
-  const supabase = createClient()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter();
+  const supabase = createClient();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    description: "",
+    title: '',
+    description: '',
     startTime: new Date(),
     endTime: new Date(new Date().setHours(new Date().getHours() + 2)),
-    location: "",
+    location: '',
     isVirtual: false,
-    meetingUrl: "",
-    coverImageUrl: "",
-    maxParticipants: "",
-    isPublished: true
-  })
+    meetingUrl: '',
+    coverImageUrl: '',
+    maxParticipants: '',
+    isPublished: true,
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSwitchChange = (name: string) => (checked: boolean) => {
-    setFormData(prev => ({ ...prev, [name]: checked }))
-  }
+    setFormData(prev => ({ ...prev, [name]: checked }));
+  };
 
   const handleDateChange = (name: string) => (date: Date | undefined) => {
     if (date) {
-      setFormData(prev => ({ ...prev, [name]: date }))
+      setFormData(prev => ({ ...prev, [name]: date }));
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!formData.title || !formData.description || !formData.startTime || !formData.endTime) {
       toast({
-        title: "Missing information",
-        description: "Please fill out all required fields.",
-        variant: "destructive"
-      })
-      return
+        title: 'Missing information',
+        description: 'Please fill out all required fields.',
+        variant: 'destructive',
+      });
+      return;
     }
 
     if (formData.startTime >= formData.endTime) {
       toast({
-        title: "Invalid time range",
-        description: "End time must be after start time.",
-        variant: "destructive"
-      })
-      return
+        title: 'Invalid time range',
+        description: 'End time must be after start time.',
+        variant: 'destructive',
+      });
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         toast({
-          title: "Authentication required",
-          description: "Please sign in to create events",
-          variant: "destructive"
-        })
-        return
+          title: 'Authentication required',
+          description: 'Please sign in to create events',
+          variant: 'destructive',
+        });
+        return;
       }
-      
+
       // Insert the event into the database
       const { data, error } = await supabase
         .from('events')
@@ -99,35 +108,35 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
           meeting_url: formData.isVirtual ? formData.meetingUrl : null,
           cover_image_url: formData.coverImageUrl || null,
           max_participants: formData.maxParticipants ? parseInt(formData.maxParticipants) : null,
-          is_published: formData.isPublished
+          is_published: formData.isPublished,
         })
-        .select()
+        .select();
 
-      if (error) throw error
+      if (error) throw error;
 
       toast({
-        title: "Event created!",
-        description: "Your event has been successfully created.",
-      })
+        title: 'Event created!',
+        description: 'Your event has been successfully created.',
+      });
 
       // Reset form or redirect
       if (onSuccess) {
-        onSuccess()
+        onSuccess();
       } else {
-        router.push('/personal/events')
-        router.refresh()
+        router.push('/personal/events');
+        router.refresh();
       }
     } catch (error) {
-      console.error('Error creating event:', error)
+      console.error('Error creating event:', error);
       toast({
-        title: "Error",
-        description: "There was a problem creating your event. Please try again.",
-        variant: "destructive"
-      })
+        title: 'Error',
+        description: 'There was a problem creating your event. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Card className="w-full">
@@ -141,7 +150,7 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">Event Title*</Label>
-            <Input 
+            <Input
               id="title"
               name="title"
               placeholder="Enter a descriptive title for your event"
@@ -153,7 +162,7 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="description">Description*</Label>
-            <Textarea 
+            <Textarea
               id="description"
               name="description"
               placeholder="Describe what your event is about, who should attend, and what participants can expect"
@@ -167,23 +176,17 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Start Time*</Label>
-              <DateTimePicker 
-                date={formData.startTime}
-                setDate={handleDateChange('startTime')}
-              />
+              <DateTimePicker date={formData.startTime} setDate={handleDateChange('startTime')} />
             </div>
             <div className="space-y-2">
               <Label>End Time*</Label>
-              <DateTimePicker 
-                date={formData.endTime}
-                setDate={handleDateChange('endTime')}
-              />
+              <DateTimePicker date={formData.endTime} setDate={handleDateChange('endTime')} />
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
-            <Switch 
-              id="isVirtual" 
+            <Switch
+              id="isVirtual"
               checked={formData.isVirtual}
               onCheckedChange={handleSwitchChange('isVirtual')}
             />
@@ -191,17 +194,23 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">
-              {formData.isVirtual ? 'Event Platform' : 'Location'}
-            </Label>
+            <Label htmlFor="location">{formData.isVirtual ? 'Event Platform' : 'Location'}</Label>
             <div className="relative">
               <span className="absolute left-2.5 top-2.5 text-muted-foreground">
-                {formData.isVirtual ? <Video className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+                {formData.isVirtual ? (
+                  <Video className="h-4 w-4" />
+                ) : (
+                  <MapPin className="h-4 w-4" />
+                )}
               </span>
-              <Input 
+              <Input
                 id="location"
                 name="location"
-                placeholder={formData.isVirtual ? "e.g. Zoom, Google Meet, etc." : "e.g. Community Center, 123 Main St"}
+                placeholder={
+                  formData.isVirtual
+                    ? 'e.g. Zoom, Google Meet, etc.'
+                    : 'e.g. Community Center, 123 Main St'
+                }
                 value={formData.location}
                 onChange={handleChange}
                 className="pl-8"
@@ -212,7 +221,7 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
           {formData.isVirtual && (
             <div className="space-y-2">
               <Label htmlFor="meetingUrl">Meeting URL</Label>
-              <Input 
+              <Input
                 id="meetingUrl"
                 name="meetingUrl"
                 placeholder="https://..."
@@ -225,7 +234,7 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
 
           <div className="space-y-2">
             <Label htmlFor="coverImageUrl">Cover Image URL (optional)</Label>
-            <Input 
+            <Input
               id="coverImageUrl"
               name="coverImageUrl"
               placeholder="https://example.com/image.jpg"
@@ -240,7 +249,7 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
               <Users className="h-4 w-4" />
               Maximum Participants (optional)
             </Label>
-            <Input 
+            <Input
               id="maxParticipants"
               name="maxParticipants"
               placeholder="Leave blank for unlimited"
@@ -252,8 +261,8 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Switch 
-              id="isPublished" 
+            <Switch
+              id="isPublished"
               checked={formData.isPublished}
               onCheckedChange={handleSwitchChange('isPublished')}
             />
@@ -261,22 +270,18 @@ export function CreateEventForm({ onSuccess }: CreateEventFormProps) {
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">
-          <Button 
-            type="button" 
-            variant="outline"
-            onClick={() => router.back()}
-          >
+          <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancel
           </Button>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Creating..." : "Create Event"}
+            {isSubmitting ? 'Creating...' : 'Create Event'}
           </Button>
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }

@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { createClient } from '@supabase/supabase-js';
@@ -31,7 +38,7 @@ type Response = {
 
 export default function AssessmentQuestionnaire() {
   const { addTokens } = useTokens();
-  
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
@@ -52,7 +59,7 @@ export default function AssessmentQuestionnaire() {
           .order('subdomain', { ascending: true });
 
         if (error) throw error;
-        
+
         // Type assertion to ensure only correct rows are used
         type IAQRow = {
           id: number;
@@ -79,7 +86,7 @@ export default function AssessmentQuestionnaire() {
                 'id' in row &&
                 'weight' in row
             )
-            .map((row) => ({
+            .map(row => ({
               ...row,
               id: String(row.id), // Convert id to string for Question type compatibility
             }))
@@ -95,7 +102,7 @@ export default function AssessmentQuestionnaire() {
         const responseMap: Record<string, any> = {};
         // Defensive: Only map if responseData is an array
         if (Array.isArray(responseData)) {
-          (responseData as { question_id: string; response_value: any }[]).forEach((response) => {
+          (responseData as { question_id: string; response_value: any }[]).forEach(response => {
             responseMap[response.question_id] = response.response_value;
           });
         }
@@ -129,19 +136,19 @@ export default function AssessmentQuestionnaire() {
   const saveResponse = async (questionId: string, value: any) => {
     try {
       setSaving(true);
-      
+
       const { data, error } = await supabase.rpc('save_assessment_response', {
         p_user_id: userId,
         p_question_id: questionId,
-        p_response_value: { value }
+        p_response_value: { value },
       });
 
       if (error) throw error;
-      
+
       // Update local responses
       setResponses(prev => ({
         ...prev,
-        [questionId]: { value }
+        [questionId]: { value },
       }));
 
       // Check if all questions are answered
@@ -152,11 +159,11 @@ export default function AssessmentQuestionnaire() {
         .single();
 
       if (profileError) throw profileError;
-      
+
       if (profileData.assessment_completed) {
         setCompleted(true);
         setProfile(profileData);
-        
+
         // Award tokens for completing assessment
         addTokens('SAP', 10, 'Completed integration assessment');
       }
@@ -169,7 +176,7 @@ export default function AssessmentQuestionnaire() {
 
   const handleSliderChange = (value: number[]) => {
     if (!questions[currentQuestionIndex]) return;
-    
+
     const questionId = questions[currentQuestionIndex].id;
     saveResponse(questionId, value[0]);
   };
@@ -188,7 +195,7 @@ export default function AssessmentQuestionnaire() {
 
   const getCurrentResponse = () => {
     if (!questions[currentQuestionIndex]) return null;
-    
+
     const questionId = questions[currentQuestionIndex].id;
     return responses[questionId]?.value || null;
   };
@@ -204,20 +211,20 @@ export default function AssessmentQuestionnaire() {
       personal: {
         health: 'bg-amber-500',
         wealth: 'bg-yellow-500',
-        peace: 'bg-amber-300'
+        peace: 'bg-amber-300',
       },
       business: {
         users: 'bg-teal-500',
         admin: 'bg-cyan-500',
-        profit: 'bg-teal-300'
+        profit: 'bg-teal-300',
       },
       supermind: {
         vision: 'bg-violet-500',
         planning: 'bg-purple-500',
-        execution: 'bg-fuchsia-500'
-      }
+        execution: 'bg-fuchsia-500',
+      },
     };
-    
+
     return colors[domain]?.[subdomain] || 'bg-gray-500';
   };
 
@@ -243,96 +250,159 @@ export default function AssessmentQuestionnaire() {
             <div>
               <p className="text-sm">Personal Health</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-amber-500 rounded-full" 
-                  style={{ width: `${typeof profile.personal_health_score === 'number' ? profile.personal_health_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-amber-500 rounded-full"
+                  style={{
+                    width: `${typeof profile.personal_health_score === 'number' ? profile.personal_health_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.personal_health_score === 'number' ? profile.personal_health_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.personal_health_score === 'number'
+                  ? profile.personal_health_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
             <div>
               <p className="text-sm">Personal Wealth</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-yellow-500 rounded-full" 
-                  style={{ width: `${typeof profile.personal_wealth_score === 'number' ? profile.personal_wealth_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-yellow-500 rounded-full"
+                  style={{
+                    width: `${typeof profile.personal_wealth_score === 'number' ? profile.personal_wealth_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.personal_wealth_score === 'number' ? profile.personal_wealth_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.personal_wealth_score === 'number'
+                  ? profile.personal_wealth_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
             <div>
               <p className="text-sm">Personal Peace</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-amber-300 rounded-full" 
-                  style={{ width: `${typeof profile.personal_peace_score === 'number' ? profile.personal_peace_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-amber-300 rounded-full"
+                  style={{
+                    width: `${typeof profile.personal_peace_score === 'number' ? profile.personal_peace_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.personal_peace_score === 'number' ? profile.personal_peace_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.personal_peace_score === 'number'
+                  ? profile.personal_peace_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             <div>
               <p className="text-sm">Business Users</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-teal-500 rounded-full" 
-                  style={{ width: `${typeof profile.business_users_score === 'number' ? profile.business_users_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-teal-500 rounded-full"
+                  style={{
+                    width: `${typeof profile.business_users_score === 'number' ? profile.business_users_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.business_users_score === 'number' ? profile.business_users_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.business_users_score === 'number'
+                  ? profile.business_users_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
             <div>
               <p className="text-sm">Business Admin</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-cyan-500 rounded-full" 
-                  style={{ width: `${typeof profile.business_admin_score === 'number' ? profile.business_admin_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-cyan-500 rounded-full"
+                  style={{
+                    width: `${typeof profile.business_admin_score === 'number' ? profile.business_admin_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.business_admin_score === 'number' ? profile.business_admin_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.business_admin_score === 'number'
+                  ? profile.business_admin_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
             <div>
               <p className="text-sm">Business Profit</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-cyan-400 rounded-full" 
-                  style={{ width: `${typeof profile.business_profit_score === 'number' ? profile.business_profit_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-cyan-400 rounded-full"
+                  style={{
+                    width: `${typeof profile.business_profit_score === 'number' ? profile.business_profit_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.business_profit_score === 'number' ? profile.business_profit_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.business_profit_score === 'number'
+                  ? profile.business_profit_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
             <div>
               <p className="text-sm">Supermind Vision</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-violet-500 rounded-full" 
-                  style={{ width: `${typeof profile.supermind_vision_score === 'number' ? profile.supermind_vision_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-violet-500 rounded-full"
+                  style={{
+                    width: `${typeof profile.supermind_vision_score === 'number' ? profile.supermind_vision_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.supermind_vision_score === 'number' ? profile.supermind_vision_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.supermind_vision_score === 'number'
+                  ? profile.supermind_vision_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
             <div>
               <p className="text-sm">Supermind Planning</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-purple-500 rounded-full" 
-                  style={{ width: `${typeof profile.supermind_planning_score === 'number' ? profile.supermind_planning_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-purple-500 rounded-full"
+                  style={{
+                    width: `${typeof profile.supermind_planning_score === 'number' ? profile.supermind_planning_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.supermind_planning_score === 'number' ? profile.supermind_planning_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.supermind_planning_score === 'number'
+                  ? profile.supermind_planning_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
             <div>
               <p className="text-sm">Supermind Execution</p>
               <div className="h-2 bg-gray-200 rounded-full mt-1">
-                <div 
-                  className="h-2 bg-fuchsia-500 rounded-full" 
-                  style={{ width: `${typeof profile.supermind_execution_score === 'number' ? profile.supermind_execution_score * 10 : 0}%` }}
+                <div
+                  className="h-2 bg-fuchsia-500 rounded-full"
+                  style={{
+                    width: `${typeof profile.supermind_execution_score === 'number' ? profile.supermind_execution_score * 10 : 0}%`,
+                  }}
                 ></div>
               </div>
-              <p className="text-right text-sm mt-1">{typeof profile.supermind_execution_score === 'number' ? profile.supermind_execution_score.toFixed(1) : 'N/A'}/10</p>
+              <p className="text-right text-sm mt-1">
+                {typeof profile.supermind_execution_score === 'number'
+                  ? profile.supermind_execution_score.toFixed(1)
+                  : 'N/A'}
+                /10
+              </p>
             </div>
           </div>
         </CardContent>
@@ -350,9 +420,7 @@ export default function AssessmentQuestionnaire() {
       <Card className="w-full max-w-3xl mx-auto">
         <CardHeader>
           <CardTitle>No Assessment Questions Found</CardTitle>
-          <CardDescription>
-            Please check back later when our assessment is ready.
-          </CardDescription>
+          <CardDescription>Please check back later when our assessment is ready.</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -371,17 +439,19 @@ export default function AssessmentQuestionnaire() {
               Question {currentQuestionIndex + 1} of {questions.length}
             </CardDescription>
           </div>
-          <div className={`px-3 py-1 rounded-full text-white text-sm ${getDomainColor(currentQuestion.domain, currentQuestion.subdomain)}`}>
+          <div
+            className={`px-3 py-1 rounded-full text-white text-sm ${getDomainColor(currentQuestion.domain, currentQuestion.subdomain)}`}
+          >
             {currentQuestion.domain} › {currentQuestion.subdomain}
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
         <Progress value={getProgressPercentage()} className="w-full" />
-        
+
         <div className="py-4">
           <h3 className="text-xl font-medium mb-6">{currentQuestion.question_text}</h3>
-          
+
           {currentQuestion.question_type === 'scale' && (
             <div className="px-4">
               <div className="flex justify-between mb-2 text-sm text-gray-500">
@@ -397,14 +467,14 @@ export default function AssessmentQuestionnaire() {
                 disabled={saving}
               />
               <div className="flex justify-between mt-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                  <span key={num} className="text-xs">{num}</span>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                  <span key={num} className="text-xs">
+                    {num}
+                  </span>
                 ))}
               </div>
               <div className="text-center mt-6">
-                <span className="text-2xl font-bold">
-                  {currentValue || '–'}
-                </span>
+                <span className="text-2xl font-bold">{currentValue || '–'}</span>
                 <span className="text-gray-500 ml-1">/10</span>
               </div>
             </div>
@@ -419,11 +489,8 @@ export default function AssessmentQuestionnaire() {
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Previous
         </Button>
-        
-        <Button
-          onClick={goToNextQuestion}
-          disabled={!currentValue || saving}
-        >
+
+        <Button onClick={goToNextQuestion} disabled={!currentValue || saving}>
           {currentQuestionIndex < questions.length - 1 ? (
             <>
               Next <ArrowRight className="ml-2 h-4 w-4" />

@@ -1,5 +1,5 @@
 // Minimal placeholder page for future implementation
-import OnboardingStatusTable from "./OnboardingStatusTable";
+import OnboardingStatusTable from './OnboardingStatusTable';
 
 export default function AdminUsersPage() {
   return (

@@ -52,20 +52,20 @@ export function useUserProgress() {
             current_phase: 'discover',
             phase_progress: 0,
             unlocked_features: [],
-            completed_milestones: []
+            completed_milestones: [],
           },
           superachievers: {
             current_phase: 'discover',
             phase_progress: 0,
             unlocked_features: [],
-            completed_milestones: []
+            completed_milestones: [],
           },
           supercivilization: {
             current_phase: 'discover',
             phase_progress: 0,
             unlocked_features: [],
-            completed_milestones: []
-          }
+            completed_milestones: [],
+          },
         };
 
         // Map database records to our structure
@@ -76,7 +76,7 @@ export function useUserProgress() {
                 current_phase: record.current_phase || 'discover',
                 phase_progress: record.phase_progress || 0,
                 unlocked_features: record.unlocked_features || [],
-                completed_milestones: record.completed_milestones || []
+                completed_milestones: record.completed_milestones || [],
               };
             }
           });
@@ -101,7 +101,7 @@ export function useUserProgress() {
           event: '*',
           schema: 'public',
           table: 'user_pillar_progress',
-          filter: `user_id=eq.${user?.id}`
+          filter: `user_id=eq.${user?.id}`,
         },
         () => {
           fetchUserProgress();
@@ -115,10 +115,7 @@ export function useUserProgress() {
   }, [supabase, user]);
 
   // Function to update user progress
-  const updateProgress = async (
-    pillar: PillarType,
-    updates: Partial<UserPillarProgress>
-  ) => {
+  const updateProgress = async (pillar: PillarType, updates: Partial<UserPillarProgress>) => {
     if (!user?.id) return null;
 
     try {
@@ -145,15 +142,15 @@ export function useUserProgress() {
     const currentPhase = userProgress[pillar].current_phase;
     const phaseOrder: ExperiencePhase[] = ['discover', 'onboard', 'scaffold', 'endgame'];
     const currentIndex = phaseOrder.indexOf(currentPhase);
-    
+
     if (currentIndex < phaseOrder.length - 1) {
       const nextPhase = phaseOrder[currentIndex + 1];
-      return await updateProgress(pillar, { 
+      return await updateProgress(pillar, {
         current_phase: nextPhase,
-        phase_progress: 0
+        phase_progress: 0,
       });
     }
-    
+
     return null;
   };
 
@@ -162,6 +159,6 @@ export function useUserProgress() {
     isLoading,
     error,
     updateProgress,
-    advanceToNextPhase
+    advanceToNextPhase,
   };
 }

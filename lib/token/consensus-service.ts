@@ -153,7 +153,7 @@ export class ConsensusService {
   async checkInToMeeting(meetingId: string): Promise<boolean> {
     try {
       const userId = await this.getCurrentUserId();
-      
+
       const { data, error } = await this.client.rpc('check_in_to_consensus_meeting', {
         p_meeting_id: meetingId,
         p_user_id: userId,
@@ -313,24 +313,46 @@ export class GovernanceService {
     await this.client.from('circle_members').delete().eq('circle_id', circleId);
   }
   async getCircleMembers(circleId: string): Promise<CircleMember[]> {
-    const { data, error } = await this.client.from('circle_members').select('*').eq('circle_id', circleId);
+    const { data, error } = await this.client
+      .from('circle_members')
+      .select('*')
+      .eq('circle_id', circleId);
     if (error) throw error;
     return data as CircleMember[];
   }
 
   // Peer Reviews
-  async submitPeerReview({ circleId, revieweeId, feedback, score }: { circleId: string; revieweeId: string; feedback: string; score: number }): Promise<void> {
-    await this.client.from('peer_reviews').insert({ circle_id: circleId, reviewee_id: revieweeId, feedback, score });
+  async submitPeerReview({
+    circleId,
+    revieweeId,
+    feedback,
+    score,
+  }: {
+    circleId: string;
+    revieweeId: string;
+    feedback: string;
+    score: number;
+  }): Promise<void> {
+    await this.client
+      .from('peer_reviews')
+      .insert({ circle_id: circleId, reviewee_id: revieweeId, feedback, score });
   }
   async getPeerReviews(circleId: string): Promise<PeerReview[]> {
-    const { data, error } = await this.client.from('peer_reviews').select('*').eq('circle_id', circleId);
+    const { data, error } = await this.client
+      .from('peer_reviews')
+      .select('*')
+      .eq('circle_id', circleId);
     if (error) throw error;
     return data as PeerReview[];
   }
 
   // Reputation
   async getReputation(userId: string): Promise<Reputation> {
-    const { data, error } = await this.client.from('user_reputation').select('*').eq('user_id', userId).single();
+    const { data, error } = await this.client
+      .from('user_reputation')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
     if (error) throw error;
     return data as Reputation;
   }

@@ -26,8 +26,10 @@ export function TokenVisualization() {
 
   useEffect(() => {
     async function loadTokenFlows() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -42,9 +44,9 @@ export function TokenVisualization() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load token flows",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load token flows',
+          variant: 'destructive',
         });
         return;
       }
@@ -55,13 +57,14 @@ export function TokenVisualization() {
       // Subscribe to flow updates
       const channel = supabase
         .channel('flow_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'token_flows',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadTokenFlows();
           }
@@ -97,7 +100,7 @@ export function TokenVisualization() {
 
   return (
     <div className="space-y-4">
-      {flows.map((flow) => (
+      {flows.map(flow => (
         <Card key={`${flow.timestamp}-${flow.source}-${flow.target}`}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">

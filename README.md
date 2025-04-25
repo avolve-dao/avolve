@@ -20,7 +20,7 @@
 3. **Copy and configure environment variables:**
    ```sh
    cp .env.example .env.local
-   # Fill in all required values in .env.local (see table below)
+   # Fill in all required values in .env.local (see Environment Variables section below)
    ```
 4. **Start the development server:**
    ```sh
@@ -30,465 +30,348 @@
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 6. **First 5 things to do after joining:**
-   - Complete your profile and intention setup.
-   - Make your first post in the Supercivilization Feed.
-   - Explore the Collective Progress Bar and track community actions.
-   - Try the feedback widget and leave a suggestion.
-   - Invite a friend or fellow admin to join the onboarding flow.
+   - Complete your profile and intention setup
+   - Make your first post in the Supercivilization Feed
+   - Explore the Collective Progress Bar and track community actions
+   - Try the feedback widget and leave a suggestion
+   - Invite a friend or fellow admin to join the onboarding flow
 
 ---
 
-## 🛠️ Configuration & Project Structure (2025 Launch)
+## 🌟 Key Features (2025 Launch)
 
-Avolve is designed for maintainability, clarity, and DRY principles. Below is an overview of essential configuration files and best practices for a clean, production-ready setup.
+Avolve includes robust, accessible, and delightful features designed to magnetically attract, engage, and delight users:
 
-### Essential Config Files
+### Invitation-Only Onboarding
 
-| File/Dir                       | Purpose / Notes                                   |
-|--------------------------------|---------------------------------------------------|
-| `.env.example`                 | Template for environment variables. Keep up-to-date and minimal. |
-| `.gitignore`                   | Ignore sensitive or build files.                  |
-| `.lintstagedrc.js`             | Pre-commit linting.                               |
-| `eslint.config.js`             | Unified ESLint config (see note below).           |
-| `next.config.mjs`              | Main Next.js config (ESM, supports user overrides).|
-| `postcss.config.mjs`           | PostCSS config for Tailwind, etc.                 |
-| `tailwind.config.js`           | Tailwind CSS config.                              |
-| `tsconfig.json`                | Base TypeScript config.                           |
-| `tsconfig.node.json`           | Node-specific TS config (extends base).           |
-| `tsconfig.sim.json`            | Simulation/test TS config (extends base).         |
-| `pnpm-lock.yaml`               | Lock file for pnpm (remove package-lock.json).    |
-| `vitest.config.ts`             | Vitest (test runner) config.                      |
-| `vercel.json`                  | Vercel deployment config.                         |
-| `config/ai-state.json`         | Custom AI/app config (documented below).          |
-| `supabase/config.toml`         | Supabase CLI config.                              |
-| `supabase/migrations/`         | All DB migrations (source of truth).              |
-| `supabase/schemas/`            | Modular SQL schemas (merge with /schema/ if needed). |
-| `supabase/functions/`          | Edge/database functions.                          |
-| `supabase/seed/`               | Seed data for onboarding/tests.                   |
-| `types/`                       | TypeScript types (auto-gen and manual).           |
+- **Exclusive Access:** Invitation-only platform with unique invitation codes
+- **Request System:** Waitlist and invitation request system for new users
+- **Admin Controls:** Comprehensive invitation management for administrators
+- **Analytics:** Track invitation usage, acceptance rates, and user acquisition
 
-#### Notes:
-- **Deprecated:** `.eslintrc.json` and `next.config.js` are stubs for compatibility. Use `eslint.config.js` and `next.config.mjs`.
-- **Remove:** `package-lock.json` if using pnpm.
-- **Merge:** `supabase/schema/` into `supabase/schemas/` if possible.
-- **Document:** All custom configs (e.g. `config/ai-state.json`) in this README.
+### Feature Flag System
 
-### Example: Environment Variables
+- **Progressive Unlocks:** Gradual feature unlocking based on user engagement
+- **Token Requirements:** Features unlockable with token achievements
+- **Percentage Rollouts:** Controlled feature rollouts to specific user segments
+- **Admin Dashboard:** Complete feature flag management for administrators
 
-See `.env.example` for the minimal set of required variables. Each is described below:
+### Peer Recognition
 
-| Variable                      | Purpose                                        | Where to Get/Set                |
-|-------------------------------|------------------------------------------------|----------------------------------|
-| `NEXT_PUBLIC_SUPABASE_URL`    | Public Supabase project URL (frontend)          | Supabase Project Settings        |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY`| Public anon key for Supabase (frontend)        | Supabase Project Settings        |
-| `SUPABASE_URL`                | Backend Supabase URL (if different from public) | Supabase Project Settings        |
-| `SUPABASE_ANON_KEY`           | Backend anon key (if needed for server-side)    | Supabase Project Settings        |
-| `OPENAI_API_KEY`              | OpenAI API key for AI features                  | OpenAI Dashboard                 |
-| `NEXT_PUBLIC_SITE_URL`        | Public site URL (for Vercel, etc)               | Deployment Platform              |
+- **Thank a Peer Modal:** Accessible modal with message, badge, and user search/autocomplete
+- **Real-Time Recognition Feed:** Instant updates with Supabase Realtime
+- **Celebratory Feedback:** Confetti animations and toast notifications for engagement
 
-- **Tip:** Never commit `.env.local` or real secrets to git. Only `.env.example` should be tracked.
+### Supercivilization Feed
 
-### Example: Custom AI Config
+- Purposeful community feed with prompted posts and micro-rewards
+- Personal progress tracker and collective progress bar
+- Fast first unlock and achievement system
 
-The file `config/ai-state.json` tracks the state of major product subsystems, their implementation status, and key code locations. This is used for onboarding, automated documentation, and AI assistant optimizations.
+### Onboarding Experience
 
-**Structure:**
-- `version`: Config version
-- `lastUpdated`: ISO8601 timestamp
-- `codebaseState`: Object with keys for each subsystem (tokenSystem, journeySystem, etc.), each containing:
-  - `status`: Implementation status (e.g., "complete")
-  - `description`: Short description
-  - `components`, `utilities`, `apiRoutes`: Arrays of objects with `name`, `status`, and `path`
-- `featureFlags`: Feature toggles for major platform features
-- `aiAssistantOptimizations`: Toggles for AI/automation enhancements (semantic anchors, type definitions, etc.)
+- Quick identity/intention setup
+- In-app tooltips, onboarding wizard, and dashboard tour
+- Sidebar with locked/teased features for progression clarity
 
-**See:** [`config/ai-state.json`](./config/ai-state.json) for the current state and documentation of all major systems.
+### Governance & Tokenomics
 
-### DRY & Maintainable Practices
-- **Single Source of Truth:** Only one config per tool (see above table).
-- **Extends:** Use `extends` in TS configs for variants (e.g., node, sim).
-- **Modular SQL:** Use `/supabase/schemas/` and reference in migrations for DRYness.
-- **Onboarding:** Keep `.env.example` and this README up-to-date for new contributors.
-- **Automation:** Use scripts in `/scripts/` for checks and setup.
-
-### Example: ESLint
-All lint rules are now in `eslint.config.js` (flat config, supports plugins and custom rules). `.eslintrc.json` is deprecated and left as a stub.
-
-### Example: Next.js Config
-All Next.js configuration is in `next.config.mjs` (ESM, supports user overrides). `next.config.js` is deprecated and left as a stub.
-
-### Example: Supabase Schema
-All DB schema and policy changes should be made in `/supabase/migrations/` and, if modular, in `/supabase/schemas/`. Document any custom logic in `/supabase/README.md`.
+- Transparent, fractal governance system
+- Positive-sum tokenomics with micro-rewards
+- Real-time analytics and feedback loops
 
 ---
 
-## ✨ Peer Recognition & Engagement Features (2025 Launch)
+## 📋 Environment Variables
 
-Avolve now includes robust, accessible, and delightful peer recognition and onboarding features designed to magnetically attract, engage, and delight users and admins:
+| Variable                        | Required | Purpose                                         | Where to Get/Set          |
+| ------------------------------- | -------- | ----------------------------------------------- | ------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Public Supabase project URL (frontend)          | Supabase Project Settings |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Public anon key for Supabase (frontend)         | Supabase Project Settings |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes      | Service role key for admin operations           | Supabase Project Settings |
+| `SUPABASE_URL`                  | No       | Backend Supabase URL (if different from public) | Supabase Project Settings |
+| `OPENAI_API_KEY`                | Optional | OpenAI API key for AI features                  | OpenAI Dashboard          |
+| `NEXT_PUBLIC_SITE_URL`          | No       | Public site URL (for Vercel, etc)               | Deployment Platform       |
 
-- **Thank a Peer Modal:**
-  - Accessible modal for sending recognitions with message, badge, and user search/autocomplete.
-  - Confetti celebration and toast notifications on successful send.
-  - Keyboard and screen reader accessible.
-- **Real-Time Recognition Feed:**
-  - See recognitions appear instantly (Supabase Realtime).
-  - Full names and avatars shown for sender/recipient.
-  - Secure: Only senders can delete their recognitions, with confirmation dialog and undo.
-- **Accessibility & Delight:**
-  - ARIA roles, keyboard navigation, and responsive design throughout onboarding and recognition flows.
-  - Micro-animations, toasts, and celebratory feedback for every milestone.
-- **Admin & User Onboarding:**
-  - In-app tooltips, onboarding wizard, and dashboard tour for a welcoming first experience.
-  - Documentation and codebase ready for 100–1000 users and admins.
-
-**See also:**
-- [`app/components/ThankPeerModal.tsx`](./app/components/ThankPeerModal.tsx)
-- [`app/(authenticated)/dashboard/page.tsx`](./app/(authenticated)/dashboard/page.tsx)
-- [`app/components/Toast.tsx`](./app/components/Toast.tsx)
-- [`supabase/migrations/20250421222100_create_peer_recognition_table.sql`](./supabase/migrations/20250421222100_create_peer_recognition_table.sql)
+> **Important:** Never commit `.env.local` or real secrets to git. Only `.env.example` should be tracked.
 
 ---
 
-## Onboarding Guides
+## 🛠️ Development & Testing
+
+### Running Locally
+
+```sh
+pnpm dev
+```
+
+### Building for Production
+
+```sh
+pnpm build
+```
+
+### Testing
+
+Avolve uses a streamlined testing approach focused on Next.js, Vercel, and Supabase:
+
+```sh
+# Run all tests
+pnpm test:all
+
+# Run specific test types
+pnpm test:unit        # Unit tests
+pnpm test:integration # Integration tests
+pnpm test:e2e         # End-to-End tests with Playwright
+pnpm test:security    # Security tests
+pnpm test:api         # API endpoint tests
+pnpm test:accessibility # Accessibility tests
+```
+
+Our testing strategy includes:
+
+- **Unit Tests**: Core business logic using Jest
+- **Integration Tests**: API and component integration
+- **E2E Tests**: User flows with Playwright
+- **Security Tests**: RLS policies and middleware protections
+- **Accessibility Tests**: WCAG compliance checks
+
+> Note: Ensure Docker Desktop is running for local Supabase tests.
+
+### Linting & Formatting
+
+```sh
+pnpm lint
+pnpm exec prettier --write .
+```
+
+---
+
+## 📂 Project Structure
+
+Avolve is designed for maintainability, clarity, and DRY principles:
+
+### Key Directories
+
+- `/app`: Next.js application routes and pages
+  - `/app/api`: API routes for invitations, onboarding, and feature flags
+- `/components`: Reusable React components
+  - `/components/invitation`: Invitation management components
+  - `/components/feature-flags`: Feature flag components and gates
+  - `/components/onboarding`: Onboarding flow components
+  - `/components/providers`: Context providers including FeatureFlagProvider
+- `/hooks`: Custom React hooks
+  - `/hooks/useFeatureFlags.ts`: Hook for feature flag management
+- `/lib`: Utility functions and services
+- `/public`: Static assets
+- `/styles`: Global styles and Tailwind config
+- `/supabase`: Database migrations, schemas, and functions
+  - `/supabase/migrations`: Database migrations including invitation and feature flag systems
+- `/types`: TypeScript type definitions
+  - `/types/database-extensions.ts`: Extended database types for RPC functions
+- `/scripts`: Utility scripts including e2e testing
+- `/docs`: Documentation including launch guide
+
+### Database (Supabase)
+
+- Managed via migrations in `/supabase/migrations` (follows Supabase best practices)
+- RLS enabled with granular policies for all tables
+- Types auto-generated in `/types/supabase.ts` and extended in `/types/database-extensions.ts`
+- Edge functions in `/supabase/functions`
+
+---
+
+## 📚 Documentation
+
+- [Launch Guide](docs/LAUNCH_GUIDE.md) - **NEW**: Comprehensive guide for platform launch
 - [User Onboarding Guide](docs/guides/onboarding-user.md)
 - [Admin Onboarding Guide](docs/guides/onboarding-admin.md)
-
-## Feedback & Support
-- Open an [issue on GitHub](https://github.com/avolve-dao/avolve.io/issues)
-- Or email the maintainer at: support@avolve.io
-
-## Environment Setup
-
-1. Copy `.env.example` to `.env.local`:
-   ```sh
-   cp .env.example .env.local
-   ```
-2. Fill in all required values in `.env.local`:
-   - `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anon key
-   - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
-   - `OPENAI_API_KEY`: (Optional, enables AI-powered features)
-
-## Running Locally
-
-```sh
-npx next dev
-```
-
-## Building for Production
-
-```sh
-npx next build
-```
-
-## Notes
-- If `OPENAI_API_KEY` is not set, AI endpoints will return 503.
-
-## Feedback
-If you encounter issues or have suggestions, please open an issue or contact the maintainer.
+- [Invitation System](docs/features/invitation-system.md)
+- [Feature Flags](docs/features/feature-flags.md)
+- [Database Schema](docs/database/README.md)
+- [API Documentation](docs/api/README.md)
+- [Security Guidelines](docs/security/README.md)
 
 ---
 
-## Quickstart
+## 🚀 Launch Preparation
 
-1. **Clone the repo:**
-   ```sh
-   git clone https://github.com/avolve-dao/avolve.io.git
-   cd avolve.io
-   ```
-2. **Install dependencies:**
-   ```sh
-   pnpm install
-   ```
-3. **Set up environment variables:**
-   - Copy `.env.example` to `.env.local` and fill in:
-     - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-     - `OPENAI_API_KEY` (optional for AI features)
-4. **Run locally:**
-   ```sh
-   pnpm dev
-   ```
+Before launching the platform to users, ensure you complete the [Launch Checklist](docs/LAUNCH_GUIDE.md#-launch-checklist):
 
-## Database & Supabase
-- Managed via migrations in `/supabase/migrations` (Supabase CLI/MCP best practices).
-- RLS enabled and granular policies for all tables.
-- Types auto-generated in `/types/supabase.ts`.
+1. Run end-to-end tests to verify all functionality
+2. Check for any remaining TypeScript or lint errors
+3. Review environment variables for production
+4. Verify email delivery in production
+5. Test analytics integration
+6. Perform a final security review
 
-## Testing
-- Run all tests:
-  ```sh
-  pnpm test
-  ```
-- Ensure Docker Desktop is running for local Supabase tests.
+Once the checklist is complete, you're ready to launch the platform and begin onboarding your first users!
 
-## Linting & Formatting
-- Lint all code:
-  ```sh
-  pnpm lint
-  ```
-- Format all code:
-  ```sh
-  pnpm exec prettier --write .
-  ```
+---
 
-## Deployment
-- Push to `main` for production deploys.
-- Uses GitHub Actions for CI (lint/build/test).
+## 🤝 Contributing & Support
 
-## Environment Variables
-| Name                    | Required | Description                  |
-|-------------------------|----------|------------------------------|
-| SUPABASE_URL            | Yes      | Supabase project URL         |
-| SUPABASE_ANON_KEY       | Yes      | Supabase anon key            |
-| SUPABASE_SERVICE_ROLE_KEY | Yes    | Supabase service role key    |
-| OPENAI_API_KEY          | Optional | OpenAI API key for AI        |
-
-## Contributing
-- For now, this is a solo project. PRs/branches optional.
-- All code, migrations, and types should be versioned and documented.
-
-## Contact
+- Open an [issue on GitHub](https://github.com/avolve-dao/avolve.io/issues)
+- Email support: support@avolve.io
 - Maintainer: @avolve-dao
 
 ---
 
-## Fellowship Review: Production-Ready Status
+## 📝 License
 
-- **All simulation, mock, and test code has been removed.**
-- **Database is fully audited:** All production tables have `created_at`, `updated_at`, and indexes on foreign keys and key columns for analytics and performance.
-- **Row Level Security (RLS):** Enforced on all tables, with granular policies for each role.
-- **No hardcoded secrets:** All sensitive keys are managed via environment variables.
-- **Documentation and codebase are prepared for the first 100-1000 users.**
-
-For details, see:
-- [`supabase/migrations/`](./supabase/migrations/) for audit and security migrations
-- [`docs/security/README.md`](./docs/security/README.md) for security rationale
-- [`docs/database/README.md`](./docs/database/README.md) for schema and audit fields
-- [Onboarding Documentation](./docs/onboarding/README.md)
-- [Database Documentation](./docs/database/README.md)
+Avolve is licensed under the Avolve DAO License. See [LICENSE](./LICENSE) for details.
 
 ---
 
-## Table of Contents
-- [Avolve DAO: Transparent Research and Documentation Hub](#avolve-dao-transparent-research-and-documentation-hub)
-- [Platform Overview](#platform-overview)
-- [Token System and Mathematical Patterns](#token-system-and-mathematical-patterns)
-- [User Journeys](#user-journeys)
-- [Feature Unlocking and Gamification](#feature-unlocking-and-gamification)
-- [Onboarding Flow](#onboarding-flow)
-- [Security and Data Integrity](#security-and-data-integrity)
-- [Featured Papers and Case Studies](#featured-papers-and-case-studies)
-- [Supporting Data](#supporting-data)
-- [Feedback, Suggestions, and Peer Review](#feedback-suggestions-and-peer-review)
-- [Repo Navigation](#repo-navigation)
+## Technology Stack
 
----
+- **Frontend**: Next.js with TypeScript
+- **Backend**: Supabase (PostgreSQL + Functions)
+- **Deployment**: Vercel
+- **Authentication**: Supabase Auth
+- **Database**: PostgreSQL (via Supabase)
+- **Testing**: Jest, Playwright
 
-## Avolve DAO Repositories
+## Getting Started
 
-Welcome to the Avolve DAO GitHub organization! Our mission is to empower individuals, collectives, and ecosystems to achieve transformation and co-create a regenerative future through the Avolve platform.
+### Prerequisites
 
-## Main Repository: [avolve.io](https://github.com/avolve-dao/avolve.io)
+- Node.js 18+ (LTS recommended)
+- pnpm 8+
+- Supabase CLI
 
-This is the primary codebase for the Avolve web application and platform. It contains all core features, onboarding flows, admin dashboards, and the robust token and value system that powers Avolve.
+### Installation
 
-- **Production-ready Next.js app**
-- **Supabase integration for authentication, data, and RBAC**
-- **Delightful onboarding and user engagement features**
-- **Admin and analytics dashboards**
-- **Secure, scalable, and optimized for the first 100–1000 users and beyond**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/avolve-dao/avolve.io.git
+   cd avolve
+   ```
 
-## Discovery & Value Exploration Repositories
+2. Install dependencies:
+   ```bash
+   pnpm install
+   ```
 
-These repositories support the discovery and articulation of the core value pillars within the Avolve ecosystem. Each one is dedicated to a unique journey of transformation:
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Fill in the required environment variables in `.env.local`.
 
-- [superachiever](https://github.com/avolve-dao/superachiever): For the individual journey of transformation, helping users create their personal and business success puzzles.
-- [superachievers](https://github.com/avolve-dao/superachievers): For the collective journey, enabling groups to co-create superpuzzles and advance together.
-- [supercivilization](https://github.com/avolve-dao/supercivilization): For the ecosystem journey, focusing on the evolution from degen to regen and building a supercivilization.
+4. Start the development server:
+   ```bash
+   pnpm dev
+   ```
 
-These repositories serve as collaborative spaces for research, content, and discovery related to the values, playbooks, and quests available within the Avolve platform.
+## Testing Strategy
 
-## Learn More
-- Explore the main platform at [avolve.io](https://avolve.io)
-- Read more about the Avolve vision and value pillars in the project documentation
-- Join us in co-creating the future of transformation!
+The Avolve platform uses a comprehensive testing approach:
 
----
+### Unit Tests
 
-> "Avolve is where superachievers, superachievers, and supercivilizations are born. Discover your journey, unlock your potential, and help build a regenerative world."
+Unit tests focus on individual components and functions:
 
----
+```bash
+pnpm test:unit
+```
 
-## Avolve DAO: Transparent Research and Documentation Hub
+### Integration Tests
 
-Avolve DAO is an evolving, open research and documentation hub dedicated to personal, collective, and ecosystem transformation. Our mission is to transparently share experiments, user journeys, governance lessons, and real-world impact—empowering all stakeholders to co-create the future of regenerative organizations.
+Integration tests verify that different parts of the system work together:
 
-### Purpose and Approach
-- **Purpose:** To transform individuals, collectives, and ecosystems through open research, gamified engagement, and transparent governance.
-- **Approach:** We document every major experiment, user story, and governance learning—sharing both successes and failures.
-- **Impact:** Real-world case studies, anonymized data, and actionable insights drive continuous improvement and collective wisdom.
+```bash
+pnpm test:integration
+```
 
-### Platform Overview
-Avolve is a next-generation, tokenized platform designed to guide users and collectives from their current state to their highest potential. The platform is built around:
-- **Magnetic Onboarding:** Personalized, gamified onboarding flows that celebrate every milestone.
-- **Fractal Token System:** A 10-token architecture aligning incentives at individual, collective, and ecosystem levels.
-- **Progressive Feature Unlocking:** Features become available as users and teams demonstrate engagement and impact.
-- **Real-Time Engagement:** Live dashboards, notifications, and feedback loops.
-- **Regenerative Governance:** Transparent, data-driven, and participatory decision-making.
+### End-to-End Tests
 
-### Token System and Mathematical Patterns
-Avolve’s token system is inspired by mathematically significant patterns such as the golden ratio and the Fibonacci sequence. These patterns are used in the design and structure of the platform to promote balance, scalability, and aesthetic coherence:
-- **GEN (Supercivilization):** Ecosystem journey (Zinc gradient)
-- **SAP (Superachiever):** Individual journey (Stone gradient)
-  - **PSP:** Personal Success Puzzle (Amber-Yellow)
-  - **BSP:** Business Success Puzzle (Teal-Cyan)
-  - **SMS:** Supermind Superpowers (Violet-Purple-Fuchsia-Pink)
-- **SCQ (Superachievers):** Collective journey (Slate gradient)
-  - **SPD:** Superpuzzle Developments (Red-Green-Blue)
-  - **SHE:** Superhuman Enhancements (Rose-Red-Orange)
-  - **SSA:** Supersociety Advancements (Lime-Green-Emerald)
-  - **SBG:** Supergenius Breakthroughs (Sky-Blue-Indigo)
+E2E tests simulate real user interactions:
 
-**Token Allocation:**
-- 10% to GEN (Supercivilization)
-- 40% to SAP (Superachiever)
-- 50% to SCQ (Superachievers)
+```bash
+pnpm test:e2e
+```
 
-**Weekly Token Schedule:**
-- Sunday: SPD | Monday: SHE | Tuesday: PSP | Wednesday: SSA | Thursday: BSP | Friday: SGB | Saturday: SMS
+### Security Tests
 
-**Learn more:** [Token System Paper](./docs/TOKEN-SYSTEM.md)
+Security tests verify that RLS policies and middleware protections are working:
 
-### User Journeys
-- **Superachiever (Individual):** Personal and business transformation quests.
-- **Superachievers (Collective):** Team and collective co-creation.
-- **Supercivilization (Ecosystem):** Impact at scale and regenerative governance.
+```bash
+pnpm test:security
+```
 
-Each journey features:
-- **WCAG 2.2 AA** compliant design
-- **Dark mode** with journey-themed gradients
-- **Real-time engagement tracking**
-- **Token-gated progressive features**
-- **AI-enhanced interaction prompts**
+### API Tests
 
-### Feature Unlocking and Gamification
-Features are progressively unlocked based on participation and metrics:
-- **Teams:** Unlocked by progress milestones
-- **Governance:** Unlocked after accumulating 100 GEN tokens
-- **Marketplace:** Unlocked after engagement milestones
-- **Token Utility:** Unlocked after completing component progress milestones
+API tests validate API endpoints:
 
-**Metrics Tracked:**
-- DAU/MAU Ratio, Retention, ARPU, NPS, Engagement
+```bash
+pnpm test:api
+```
 
-### Onboarding Flow
-Avolve delivers a magnetic onboarding experience:
-- **Personalized Welcome:** Custom banner and checklist
-- **Guided Actions:** Step-by-step onboarding checklist
-- **Progress Tracking:** Live in `user_onboarding` table
-- **Celebratory Milestones:** Confetti, tooltips, and badges
+### Accessibility Tests
 
-**Onboarding Table Schema:**
-| Column           | Type        | Description                                     |
-|------------------|-------------|-------------------------------------------------|
-| id               | uuid        | Primary key                                     |
-| user_id          | uuid        | References `auth.users(id)`                     |
-| completed_steps  | text[]      | Array of completed onboarding step keys         |
-| completed_at     | timestamptz | Timestamp when onboarding was fully completed   |
-| created_at       | timestamptz | Row creation timestamp                          |
-| updated_at       | timestamptz | Last update timestamp                           |
+Accessibility tests ensure the platform is usable by all:
 
-- **Row Level Security:** Only the user (and admins) can view or update their onboarding row.
-- **Admin Controls:** Admins can view and manage onboarding progress for all users.
+```bash
+pnpm test:accessibility
+```
 
-### Onboarding Automation, Recognition, and Admin Dashboard
+### Running All Tests
 
-### Automated Onboarding Reminders
-- A Supabase Edge Function (`send_onboarding_reminders.ts`) automatically notifies users who are stuck in onboarding.
-- Reminders are logged in the `user_notifications` table for full auditability.
-- Admins can trigger reminders manually from the Admin Dashboard for any user.
-- All reminder flows are secured by Row Level Security (RLS) and role checks.
+To run all tests:
 
-### Recognition & Gratitude System
-- Admins receive recognition (gratitude events) when they assist users in completing onboarding.
-- Gratitude events are logged in the `gratitude_events` table and surfaced in the Admin Dashboard.
+```bash
+pnpm test:all
+```
 
-### Admin Dashboard Features
-- **Gratitude Feed:** See recent recognitions for your admin support.
-- **Stuck Onboarding Table:** View users who are stuck in onboarding, with last progress and last reminder sent.
-- **Manual Reminder Buttons:** Send reminders directly to users from the dashboard.
-- All dashboard features are modular, secure, and production-ready for launch.
+## Database Migrations
 
-### Security & Best Practices
-- All onboarding and recognition flows are protected by RLS and RBAC.
-- All new features are documented and maintainable, following Supabase and Next.js best practices.
-- Codebase is optimized for a clean, welcoming, and robust initial launch experience.
+### Creating a Migration
 
-For details on onboarding, recognition, and admin empowerment, see also:
-- [`supabase/functions/send_onboarding_reminders.ts`](./supabase/functions/send_onboarding_reminders.ts)
-- [`components/admin/GratitudeFeed.tsx`](./components/admin/GratitudeFeed.tsx)
-- [`components/admin/StuckOnboardingTable.tsx`](./components/admin/StuckOnboardingTable.tsx)
-- [`app/(authenticated)/admin/page.tsx`](./app/(authenticated)/admin/page.tsx)
+```bash
+supabase migration new my_migration_name
+```
 
-### Security and Data Integrity
-- **Row Level Security (RLS)** on all user data tables
-- **Role-Based Access Control (RBAC)** for admin actions
-- **Token gating** for advanced features
-- **Audit Fields:** All tables have `created_at` and `updated_at` for traceability
-- **Indexes:** All foreign keys and frequently queried columns are indexed for performance
-- All data is live, real, and production-grade
+### Applying Migrations
 
-**See:** [Database Docs](./docs/database.md)
+```bash
+pnpm db:migrate
+```
 
-### Node.js 22, Vercel, and Supabase Requirements
+### Generating Types
 
-- Node.js 22.x is required for all development and production environments. See `package.json` for explicit version.
-- All deployments use Vercel. Logs are accessible via the Vercel dashboard (see below).
-- All database operations, authentication, and RBAC are managed via Supabase. Logs for queries and auth events are available in the Supabase dashboard.
-- All audit fields (`created_at`, `updated_at`) are kept up-to-date with triggers (see latest migrations).
+```bash
+pnpm db:types
+```
 
-### Accessing Logs
-- **Vercel:** Go to your Vercel dashboard → Project → Logs. Filter by `console.error`, `console.info`, or custom JSON keys for structured logs.
-- **Supabase:** Go to your Supabase dashboard → Project → Logs. Filter by query, auth, or function logs as needed.
+## Onboarding Process
 
-### Security
+The Avolve platform uses an invitation-only onboarding process:
 
-- **Secrets & Environment Variables**: All sensitive keys (Supabase, API keys, etc.) are stored in environment variables and never committed to the repo. Ensure your `.env*` files are never tracked by git (see `.gitignore`).
-- **Reporting Vulnerabilities**: If you discover a security vulnerability, please report it privately to the maintainers. Do not open a public issue.
-- **RLS & Database Security**: Row Level Security (RLS) is enabled on all tables. Policies are granular and reviewed regularly for least-privilege access.
+1. **Invitation**: Users receive an invitation code
+2. **Registration**: Users create an account with the invitation code
+3. **Identity Setup**: Users set up their profile and intentions
+4. **First Unlock**: Users complete initial tasks to unlock their first feature
+5. **Community Integration**: Users join the Supercivilization feed
 
-### Featured Papers and Case Studies
-- [GEN: Supercivilization](./papers/gen-supercivilization.md)
-- [SAP: Superachiever](./papers/sap-superachiever.md)
-- [SCQ: Superachievers](./papers/scq-superachievers.md)
-- [PSP: Personal Success Puzzle](./papers/psp-personal-success.md)
-- [BSP: Business Success Puzzle](./papers/bsp-business-success.md)
-- [SMS: Supermind Superpowers](./papers/sms-supermind-superpowers.md)
-- [SPD: Superpuzzle Developments](./papers/spd-superpuzzle-developments.md)
-- [SHE: Superhuman Enhancements](./papers/she-superhuman-enhancements.md)
-- [SSA: Supersociety Advancements](./papers/ssa-supersociety-advancements.md)
-- [SBG: Supergenius Breakthroughs](./papers/sbg-supergenius-breakthroughs.md)
-- See more in [`/papers`](./papers/README.md)
+## Launch Preparation
 
-### Supporting Data
-- [Onboarding 2025 Metrics](./data/onboarding-2025.json)
-- [Governance Logs 2024](./data/governance-logs-2024.json)
-- [Knowledge Graph](./data/knowledge-graph.jsonld)
+For preparing the platform for launch:
 
-### Feedback, Suggestions, and Peer Review
-- [Open an issue](https://github.com/avolve-dao/avolve.io/issues/new/choose) for feedback, suggestions, or to propose new research.
-- Join our [Community Discussions](https://github.com/avolve-dao/avolve.io/discussions) to help shape the future of Avolve DAO.
+1. Ensure all tests pass: `pnpm test:all`
+2. Run linting: `pnpm lint`
+3. Format code: `pnpm format`
+4. Build the application: `pnpm build`
+5. Verify RLS policies are in place for all tables
+6. Seed initial community activity
 
-### Repo Navigation
-- `/papers` — Token papers, experiments, and governance lessons
-- `/docs` — Technical docs, tokenomics, architecture, and onboarding
-- `/supabase` — Database schema, migrations, and security policies
-- `/hooks`, `/components`, `/pages` — App source code
+## Documentation
 
----
+Additional documentation can be found in the `docs/` directory:
+
+- [Environment Variables](docs/ENVIRONMENT_VARIABLES.md)
+- [Mobile App Integration Plan](docs/MOBILE_APP_INTEGRATION_PLAN.md)
 
 ## License
 
-This software and documentation are proprietary and confidential to Avolve DAO. All rights reserved. See [LICENSE](./LICENSE) for details.
-
-*For more, see the [Avolve website](https://avolve.io) or reach out directly. Together, we can co-create a regenerative future!*
+Proprietary - All rights reserved

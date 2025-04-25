@@ -1,17 +1,21 @@
-"use server"
+'use server';
 
-import { streamText } from "@/lib/ai-sdk-setup"
-import { getGrokModel, type GrokModel } from "@/lib/xai"
+import { streamText } from '@/lib/ai-sdk-setup';
+import { getGrokModel, type GrokModel } from '@/lib/xai';
 
-export async function generateGrokResponse(prompt: string, model: GrokModel, systemPrompt?: string) {
+export async function generateGrokResponse(
+  prompt: string,
+  model: GrokModel,
+  systemPrompt?: string
+) {
   try {
-    const grokModel = getGrokModel(model)
+    const grokModel = getGrokModel(model);
 
     const response = await streamText({
       model: grokModel,
       prompt,
       system: systemPrompt,
-    })
+    });
 
     // Read the stream content manually
     let text = '';
@@ -25,29 +29,29 @@ export async function generateGrokResponse(prompt: string, model: GrokModel, sys
     return {
       success: true,
       text,
-    }
+    };
   } catch (error) {
-    console.error("Error generating response:", error)
+    console.error('Error generating response:', error);
     return {
       success: false,
-      error: "Failed to generate response",
-    }
+      error: 'Failed to generate response',
+    };
   }
 }
 
 export async function streamGrokResponse(prompt: string, model: GrokModel, systemPrompt?: string) {
   try {
-    const grokModel = getGrokModel(model)
+    const grokModel = getGrokModel(model);
 
     const response = streamText({
       model: grokModel,
       prompt,
       system: systemPrompt,
-    })
+    });
 
-    return response
+    return response;
   } catch (error) {
-    console.error("Error streaming response:", error)
-    throw error
+    console.error('Error streaming response:', error);
+    throw error;
   }
 }

@@ -1,29 +1,23 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient as createSupabaseClient } from '../supabase/client';
 
 export const authConfig = {
   callbacks: {
-    async signIn({ 
+    async signIn({
       user,
       account,
-      profile 
-    }: { 
-      user: { email: string; id: string }; 
-      account: { provider: string; type: string }; 
-      profile: { name: string; email: string } 
+      profile,
+    }: {
+      user: { email: string; id: string };
+      account: { provider: string; type: string };
+      profile: { name: string; email: string };
     }) {
-      return true // Allow all sign-ins
+      return true; // Allow all sign-ins
     },
-    async redirect({ 
-      url, 
-      baseUrl 
-    }: { 
-      url: string; 
-      baseUrl: string 
-    }) {
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
       // Handle redirect after sign-in
-      if (url.startsWith(baseUrl)) return url
-      else if (url.startsWith('/')) return `${baseUrl}${url}`
-      return baseUrl
+      if (url.startsWith(baseUrl)) return url;
+      else if (url.startsWith('/')) return `${baseUrl}${url}`;
+      return baseUrl;
     },
   },
   pages: {
@@ -33,38 +27,41 @@ export const authConfig = {
     verifyRequest: '/verify',
     newUser: '/onboarding',
   },
-}
+};
 
 // Initialize Supabase client
-export const createClient = () => {
-  return createClientComponentClient()
-}
+export const createClient: () => ReturnType<typeof createSupabaseClient> = () => {
+  return createSupabaseClient();
+};
 
 // Auth helper functions
 export const getAuthenticatedState = async () => {
-  const supabase = createClient()
-  const { data: { session }, error } = await supabase.auth.getSession()
+  const supabase = createClient();
+  const {
+    data: { session },
+    error,
+  } = await supabase.auth.getSession();
   return {
     isAuthenticated: !!session,
     user: session?.user ?? null,
     error,
-  }
-}
+  };
+};
 
 export const getOnboardingStatus = async (userId: string) => {
-  const supabase = createClient()
+  const supabase = createClient();
   const { data, error } = await supabase
     .from('user_onboarding')
     .select('*')
     .eq('user_id', userId)
-    .single()
+    .single();
 
   return {
     isComplete: data?.current_stage === 'complete',
     currentStage: data?.current_stage ?? 'welcome',
     error,
-  }
-}
+  };
+};
 
 // Rate limiting configuration
 export const rateLimitConfig = {
@@ -76,7 +73,7 @@ export const rateLimitConfig = {
     windowMs: 60 * 1000, // 1 minute
     max: 60, // 60 requests per minute
   },
-}
+};
 
 // Error messages
 export const authErrors = {
@@ -85,7 +82,7 @@ export const authErrors = {
   accountLocked: 'Account temporarily locked. Try again later',
   rateLimited: 'Too many attempts. Please try again later',
   serverError: 'An error occurred. Please try again',
-}
+};
 
 // Validation rules
 export const validationRules = {
@@ -101,4 +98,4 @@ export const validationRules = {
     maxLength: 20,
     pattern: /^[a-zA-Z0-9_-]+$/,
   },
-}
+};

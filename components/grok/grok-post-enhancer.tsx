@@ -1,85 +1,89 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Bot, Sparkles, ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { cn } from "@/lib/utils"
-import { logActivity } from "@/lib/activity-logger"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Bot, Sparkles, ThumbsUp, ThumbsDown, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { logActivity } from '@/lib/activity-logger';
 
 interface GrokPostEnhancerProps {
-  userId: string
-  originalContent: string
-  onSelectEnhancement: (content: string) => void
+  userId: string;
+  originalContent: string;
+  onSelectEnhancement: (content: string) => void;
 }
 
-export function GrokPostEnhancer({ userId, originalContent, onSelectEnhancement }: GrokPostEnhancerProps) {
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [enhancements, setEnhancements] = useState<string[]>([])
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
-  const [feedback, setFeedback] = useState<Record<number, "like" | "dislike" | null>>({})
-  const [loadingEnhancementIndex, setLoadingEnhancementIndex] = useState<number | null>(null)
+export function GrokPostEnhancer({
+  userId,
+  originalContent,
+  onSelectEnhancement,
+}: GrokPostEnhancerProps) {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [enhancements, setEnhancements] = useState<string[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState<Record<number, 'like' | 'dislike' | null>>({});
+  const [loadingEnhancementIndex, setLoadingEnhancementIndex] = useState<number | null>(null);
 
   const enhancementTypes = [
-    "Make it more engaging with questions that encourage responses",
-    "Add relevant hashtags and make it more discoverable",
-    "Refine the tone to be more authentic and conversational",
-  ]
+    'Make it more engaging with questions that encourage responses',
+    'Add relevant hashtags and make it more discoverable',
+    'Refine the tone to be more authentic and conversational',
+  ];
 
   const generateEnhancements = async () => {
-    if (isGenerating || !originalContent.trim()) return
+    if (isGenerating || !originalContent.trim()) return;
 
-    setIsGenerating(true)
-    setEnhancements([])
-    setSelectedIndex(null)
-    setFeedback({})
+    setIsGenerating(true);
+    setEnhancements([]);
+    setSelectedIndex(null);
+    setFeedback({});
 
     try {
-      const response = await fetch("/api/grok/enhance", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/grok/enhance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           content: originalContent,
           userId,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        setEnhancements(data.enhancements)
+        setEnhancements(data.enhancements);
 
         // Log activity
         logActivity({
           userId,
-          action: "post_create",
-          entityType: "post",
-          entityId: "enhancement",
+          action: 'post_create',
+          entityType: 'post',
+          entityId: 'enhancement',
           metadata: {
-            type: "grok_enhancement",
+            type: 'grok_enhancement',
             content: originalContent.substring(0, 100),
           },
-        })
+        });
       }
     } catch (error) {
-      console.error("Error generating enhancements:", error)
+      console.error('Error generating enhancements:', error);
     } finally {
-      setIsGenerating(false)
+      setIsGenerating(false);
     }
-  }
+  };
 
   const handleSelect = (index: number) => {
-    setSelectedIndex(index)
-    onSelectEnhancement(enhancements[index])
-  }
+    setSelectedIndex(index);
+    onSelectEnhancement(enhancements[index]);
+  };
 
-  const handleFeedback = (index: number, type: "like" | "dislike") => {
-    setFeedback((prev) => ({
+  const handleFeedback = (index: number, type: 'like' | 'dislike') => {
+    setFeedback(prev => ({
       ...prev,
       [index]: prev[index] === type ? null : type,
-    }))
-  }
+    }));
+  };
 
   return (
     <div className="space-y-4">
@@ -114,7 +118,7 @@ export function GrokPostEnhancer({ userId, originalContent, onSelectEnhancement 
         {enhancements.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
             className="space-y-3"
@@ -123,10 +127,10 @@ export function GrokPostEnhancer({ userId, originalContent, onSelectEnhancement 
               <Card
                 key={index}
                 className={cn(
-                  "p-3 cursor-pointer transition-all border-2",
+                  'p-3 cursor-pointer transition-all border-2',
                   selectedIndex === index
-                    ? "border-primary bg-primary/5"
-                    : "border-transparent hover:border-primary/30",
+                    ? 'border-primary bg-primary/5'
+                    : 'border-transparent hover:border-primary/30'
                 )}
                 onClick={() => handleSelect(index)}
               >
@@ -137,7 +141,7 @@ export function GrokPostEnhancer({ userId, originalContent, onSelectEnhancement 
 
                   <div className="flex-1">
                     <div className="text-xs text-muted-foreground mb-1">
-                      {index === 0 ? "Engaging" : index === 1 ? "Discoverable" : "Authentic"}
+                      {index === 0 ? 'Engaging' : index === 1 ? 'Discoverable' : 'Authentic'}
                     </div>
                     <div className="text-sm whitespace-pre-wrap">{enhancement}</div>
 
@@ -146,19 +150,29 @@ export function GrokPostEnhancer({ userId, originalContent, onSelectEnhancement 
                         variant="ghost"
                         size="sm"
                         className="h-7 px-2 text-xs"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleSelect(index)
+                        onClick={e => {
+                          e.stopPropagation();
+                          handleSelect(index);
                         }}
                       >
                         Use This
                       </Button>
 
                       <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={e => e.stopPropagation()}
+                        >
                           <ThumbsUp className="h-3 w-3" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={e => e.stopPropagation()}
+                        >
                           <ThumbsDown className="h-3 w-3" />
                         </Button>
                       </div>
@@ -171,6 +185,5 @@ export function GrokPostEnhancer({ userId, originalContent, onSelectEnhancement 
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
-

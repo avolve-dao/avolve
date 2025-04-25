@@ -1,5 +1,5 @@
-"use client";
-import React, { useEffect, useState } from "react";
+'use client';
+import React, { useEffect, useState } from 'react';
 
 export default function ResumeOnboardingPrompt() {
   const [show, setShow] = useState(false);
@@ -8,11 +8,11 @@ export default function ResumeOnboardingPrompt() {
   useEffect(() => {
     async function checkOnboarding() {
       try {
-        const res = await fetch("/api/onboarding/progress");
+        const res = await fetch('/api/onboarding/progress');
         if (!res.ok) return;
         const data = await res.json();
         if (data && data.completedSteps && !data.onboardingDone) {
-          setStep(data.completedSteps[data.completedSteps.length - 1] || "profile");
+          setStep(data.completedSteps[data.completedSteps.length - 1] || 'profile');
           setShow(true);
         }
       } catch {}

@@ -1,6 +1,6 @@
 /**
  * Journey AI Interaction Tracking API Route
- * 
+ *
  * Tracks user interactions with AI recommendations for improving future suggestions
  * Copyright 2025 Avolve DAO. All rights reserved.
  */
@@ -15,20 +15,19 @@ export async function POST(request: NextRequest) {
     // Initialize Supabase client
     const cookieStore = cookies();
     const supabase = createClient(undefined, undefined, { cookies: cookieStore });
-    
+
     // Verify authentication
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     // Parse request body
     const body = await request.json();
     const { userId, recommendationId, action, timestamp, metadata } = body;
-    
+
     // Verify user ID matches authenticated user or is admin
     if (userId !== session.user.id) {
       // Fix: Use type assertion for user_roles
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
         .select('role')
         .eq('user_id', session.user.id)
         .single();
-      
+
       if (!userRole || userRole.role !== 'admin') {
         return NextResponse.json(
           { error: 'Forbidden: Cannot track interactions for another user' },
@@ -45,46 +44,36 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    
+
     // Record the interaction
-    const { error } = await supabase
-      .from('recommendation_interactions')
-      .insert({
-        user_id: userId,
-        recommendation_id: recommendationId,
-        action,
-        interaction_date: timestamp || new Date().toISOString(),
-        metadata
-      });
-    
+    const { error } = await supabase.from('recommendation_interactions').insert({
+      user_id: userId,
+      recommendation_id: recommendationId,
+      action,
+      interaction_date: timestamp || new Date().toISOString(),
+      metadata,
+    });
+
     if (error) {
       console.error('Error recording interaction:', error);
-      return NextResponse.json(
-        { error: 'Failed to record interaction' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to record interaction' }, { status: 500 });
     }
-    
+
     // Broadcast update to recommendation channel
-    await supabase
-      .channel('ai-recommendations')
-      .send({
-        type: 'broadcast',
-        event: 'recommendation_interaction',
-        payload: {
-          userId,
-          recommendationId,
-          action,
-          timestamp: timestamp || new Date().toISOString()
-        }
-      });
-    
+    await supabase.channel('ai-recommendations').send({
+      type: 'broadcast',
+      event: 'recommendation_interaction',
+      payload: {
+        userId,
+        recommendationId,
+        action,
+        timestamp: timestamp || new Date().toISOString(),
+      },
+    });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Unexpected error in track-interaction route:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

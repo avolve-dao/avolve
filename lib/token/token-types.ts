@@ -3,9 +3,9 @@
  * @ai-context This file defines the core types for the token system
  * @ai-related-to token-service.ts, token-repository.ts
  * @ai-sacred-geometry tesla-369
- * 
+ *
  * Token Types
- * 
+ *
  * This file contains TypeScript interfaces for the Avolve token system.
  * It defines the core data structures for tokens, token types, balances,
  * transactions, and related concepts.
@@ -19,7 +19,7 @@ import { AuthError } from '@supabase/supabase-js';
 export class TokenError extends Error {
   /**
    * Creates a new TokenError
-   * 
+   *
    * @param message - The error message
    * @param originalError - The original error that caused this error (optional)
    */
@@ -40,7 +40,7 @@ export enum TransactionStatus {
   PENDING = 'pending',
   COMPLETED = 'completed',
   FAILED = 'failed',
-  CANCELLED = 'cancelled'
+  CANCELLED = 'cancelled',
 }
 
 /**
@@ -52,13 +52,13 @@ export enum TransactionType {
   BURN = 'burn',
   TRANSFER = 'transfer',
   CLAIM = 'claim',
-  REWARD = 'reward'
+  REWARD = 'reward',
 }
 
 /**
  * Result interface for token operations
  * Provides a standardized return type for all token-related functions
- * 
+ *
  * @template T - The type of data returned in the result
  */
 export interface TokenResult<T = any> {
@@ -476,5 +476,5 @@ export const DAY_TO_TOKEN_MAP: Record<number, string> = {
   3: 'SSA', // Wednesday: Supersociety Advancements
   4: 'BSP', // Thursday: Business Success Puzzle
   5: 'SGB', // Friday: Supergenius Breakthroughs
-  6: 'SMS'  // Saturday: Supermind Superpowers
+  6: 'SMS', // Saturday: Supermind Superpowers
 };

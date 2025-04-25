@@ -25,7 +25,12 @@ export function getTwitterShareUrl(text: string, url?: string): string {
  * @param source The source of the content (optional)
  * @returns The LinkedIn share URL
  */
-export function getLinkedInShareUrl(url: string, title?: string, summary?: string, source?: string): string {
+export function getLinkedInShareUrl(
+  url: string,
+  title?: string,
+  summary?: string,
+  source?: string
+): string {
   const baseUrl = 'https://www.linkedin.com/shareArticle';
   const params = new URLSearchParams({
     mini: 'true',
@@ -70,7 +75,11 @@ export function openShareWindow(url: string, width = 600, height = 400): void {
  * @param url The URL to share (optional, defaults to current page)
  * @returns True if sharing is initiated, false if platform is unsupported
  */
-export function shareContent(platform: string, content: string, url: string = window.location.href): boolean {
+export function shareContent(
+  platform: string,
+  content: string,
+  url: string = window.location.href
+): boolean {
   let shareUrl: string;
 
   switch (platform.toLowerCase()) {

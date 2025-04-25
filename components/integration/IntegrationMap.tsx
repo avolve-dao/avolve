@@ -81,11 +81,11 @@ export default function IntegrationMap() {
         }
 
         setProfile(data);
-        
+
         // Defensive null checks for profile scores
         const safeScore = (score: number | undefined | null) =>
           typeof score === 'number' && !isNaN(score) ? score : 0;
-        
+
         // Generate domain nodes
         const domainData: Domain[] = [
           // Personal domains
@@ -98,7 +98,7 @@ export default function IntegrationMap() {
             x: 150,
             y: 100,
             color: 'rgb(245, 158, 11)', // amber-500
-            radius: 30 + (safeScore(data.personal_health_score) * 3)
+            radius: 30 + safeScore(data.personal_health_score) * 3,
           },
           {
             id: 'personal.wealth',
@@ -109,7 +109,7 @@ export default function IntegrationMap() {
             x: 250,
             y: 150,
             color: 'rgb(234, 179, 8)', // yellow-500
-            radius: 30 + (safeScore(data.personal_wealth_score) * 3)
+            radius: 30 + safeScore(data.personal_wealth_score) * 3,
           },
           {
             id: 'personal.peace',
@@ -120,9 +120,9 @@ export default function IntegrationMap() {
             x: 150,
             y: 200,
             color: 'rgb(252, 211, 77)', // amber-300
-            radius: 30 + (safeScore(data.personal_peace_score) * 3)
+            radius: 30 + safeScore(data.personal_peace_score) * 3,
           },
-          
+
           // Business domains
           {
             id: 'business.users',
@@ -133,7 +133,7 @@ export default function IntegrationMap() {
             x: 400,
             y: 100,
             color: 'rgb(20, 184, 166)', // teal-500
-            radius: 30 + (safeScore(data.business_users_score) * 3)
+            radius: 30 + safeScore(data.business_users_score) * 3,
           },
           {
             id: 'business.admin',
@@ -144,7 +144,7 @@ export default function IntegrationMap() {
             x: 500,
             y: 150,
             color: 'rgb(6, 182, 212)', // cyan-500
-            radius: 30 + (safeScore(data.business_admin_score) * 3)
+            radius: 30 + safeScore(data.business_admin_score) * 3,
           },
           {
             id: 'business.profit',
@@ -155,9 +155,9 @@ export default function IntegrationMap() {
             x: 400,
             y: 200,
             color: 'rgb(34, 211, 238)', // cyan-400
-            radius: 30 + (safeScore(data.business_profit_score) * 3)
+            radius: 30 + safeScore(data.business_profit_score) * 3,
           },
-          
+
           // Supermind domains
           {
             id: 'supermind.vision',
@@ -168,7 +168,7 @@ export default function IntegrationMap() {
             x: 275,
             y: 50,
             color: 'rgb(139, 92, 246)', // violet-500
-            radius: 30 + (safeScore(data.supermind_vision_score) * 3)
+            radius: 30 + safeScore(data.supermind_vision_score) * 3,
           },
           {
             id: 'supermind.planning',
@@ -179,7 +179,7 @@ export default function IntegrationMap() {
             x: 325,
             y: 250,
             color: 'rgb(168, 85, 247)', // purple-500
-            radius: 30 + (safeScore(data.supermind_planning_score) * 3)
+            radius: 30 + safeScore(data.supermind_planning_score) * 3,
           },
           {
             id: 'supermind.execution',
@@ -190,93 +190,105 @@ export default function IntegrationMap() {
             x: 200,
             y: 275,
             color: 'rgb(236, 72, 153)', // fuchsia-500
-            radius: 30 + (safeScore(data.supermind_execution_score) * 3)
-          }
+            radius: 30 + safeScore(data.supermind_execution_score) * 3,
+          },
         ];
-        
+
         setDomains(domainData);
-        
+
         // Generate connections between domains
         const connectionData: Connection[] = [];
-        
+
         // Connect within domain groups
         // Personal connections
-        connectionData.push({ 
-          source: 'personal.health', 
-          target: 'personal.wealth', 
-          strength: (safeScore(data.personal_health_score) + safeScore(data.personal_wealth_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'personal.health',
+          target: 'personal.wealth',
+          strength:
+            (safeScore(data.personal_health_score) + safeScore(data.personal_wealth_score)) / 20,
+          opportunity: false,
         });
-        connectionData.push({ 
-          source: 'personal.wealth', 
-          target: 'personal.peace', 
-          strength: (safeScore(data.personal_wealth_score) + safeScore(data.personal_peace_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'personal.wealth',
+          target: 'personal.peace',
+          strength:
+            (safeScore(data.personal_wealth_score) + safeScore(data.personal_peace_score)) / 20,
+          opportunity: false,
         });
-        connectionData.push({ 
-          source: 'personal.peace', 
-          target: 'personal.health', 
-          strength: (safeScore(data.personal_peace_score) + safeScore(data.personal_health_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'personal.peace',
+          target: 'personal.health',
+          strength:
+            (safeScore(data.personal_peace_score) + safeScore(data.personal_health_score)) / 20,
+          opportunity: false,
         });
-        
+
         // Business connections
-        connectionData.push({ 
-          source: 'business.users', 
-          target: 'business.admin', 
-          strength: (safeScore(data.business_users_score) + safeScore(data.business_admin_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'business.users',
+          target: 'business.admin',
+          strength:
+            (safeScore(data.business_users_score) + safeScore(data.business_admin_score)) / 20,
+          opportunity: false,
         });
-        connectionData.push({ 
-          source: 'business.admin', 
-          target: 'business.profit', 
-          strength: (safeScore(data.business_admin_score) + safeScore(data.business_profit_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'business.admin',
+          target: 'business.profit',
+          strength:
+            (safeScore(data.business_admin_score) + safeScore(data.business_profit_score)) / 20,
+          opportunity: false,
         });
-        connectionData.push({ 
-          source: 'business.profit', 
-          target: 'business.users', 
-          strength: (safeScore(data.business_profit_score) + safeScore(data.business_users_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'business.profit',
+          target: 'business.users',
+          strength:
+            (safeScore(data.business_profit_score) + safeScore(data.business_users_score)) / 20,
+          opportunity: false,
         });
-        
+
         // Supermind connections
-        connectionData.push({ 
-          source: 'supermind.vision', 
-          target: 'supermind.planning', 
-          strength: (safeScore(data.supermind_vision_score) + safeScore(data.supermind_planning_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'supermind.vision',
+          target: 'supermind.planning',
+          strength:
+            (safeScore(data.supermind_vision_score) + safeScore(data.supermind_planning_score)) /
+            20,
+          opportunity: false,
         });
-        connectionData.push({ 
-          source: 'supermind.planning', 
-          target: 'supermind.execution', 
-          strength: (safeScore(data.supermind_planning_score) + safeScore(data.supermind_execution_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'supermind.planning',
+          target: 'supermind.execution',
+          strength:
+            (safeScore(data.supermind_planning_score) + safeScore(data.supermind_execution_score)) /
+            20,
+          opportunity: false,
         });
-        connectionData.push({ 
-          source: 'supermind.execution', 
-          target: 'supermind.vision', 
-          strength: (safeScore(data.supermind_execution_score) + safeScore(data.supermind_vision_score)) / 20,
-          opportunity: false
+        connectionData.push({
+          source: 'supermind.execution',
+          target: 'supermind.vision',
+          strength:
+            (safeScore(data.supermind_execution_score) + safeScore(data.supermind_vision_score)) /
+            20,
+          opportunity: false,
         });
-        
+
         // Add integration opportunities from profile
         if (data.integration_path?.integration_opportunities) {
           data.integration_path.integration_opportunities.forEach((opportunity: any) => {
             const sourceId = `${opportunity.from_domain}.${opportunity.from_subdomain}`;
             const targetId = `${opportunity.to_domain}.${opportunity.to_subdomain}`;
-            
+
             connectionData.push({
               source: sourceId,
               target: targetId,
               strength: 0.7, // Strong connection for opportunities
-              opportunity: true
+              opportunity: true,
             });
           });
         }
-        
+
         setConnections(connectionData);
-        
+
         // Fetch recommended exercises
         if (hasUser(supabaseHook)) {
           // At this point, hasUser(supabaseHook) guarantees user is not null
@@ -284,7 +296,7 @@ export default function IntegrationMap() {
             'get_recommended_exercises',
             { p_user_id: supabaseHook.user!.id }
           );
-          
+
           if (exercisesError) throw exercisesError;
           setRecommendedExercises(exercisesData || []);
         }
@@ -305,13 +317,13 @@ export default function IntegrationMap() {
   const getConnectedDomains = (domainId: string) => {
     return connections
       .filter(conn => conn.source === domainId || conn.target === domainId)
-      .map(conn => conn.source === domainId ? conn.target : conn.source);
+      .map(conn => (conn.source === domainId ? conn.target : conn.source));
   };
 
   const getExercisesForDomain = (domain: Domain) => {
     return recommendedExercises.filter(
-      exercise => exercise.domain === domain.id.split('.')[0] && 
-                 exercise.subdomain === domain.subdomain
+      exercise =>
+        exercise.domain === domain.id.split('.')[0] && exercise.subdomain === domain.subdomain
     );
   };
 
@@ -347,8 +359,8 @@ export default function IntegrationMap() {
         <CardHeader>
           <CardTitle>Your Integration Map</CardTitle>
           <CardDescription>
-            This map shows how your different domains are integrated. Larger circles indicate stronger areas,
-            while dashed lines show integration opportunities.
+            This map shows how your different domains are integrated. Larger circles indicate
+            stronger areas, while dashed lines show integration opportunities.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -358,12 +370,14 @@ export default function IntegrationMap() {
               {connections.map((connection, i) => {
                 const source = domains.find(d => d.id === connection.source);
                 const target = domains.find(d => d.id === connection.target);
-                
+
                 if (!source || !target) return null;
-                
-                const isHighlighted = selectedDomain && 
-                  (connection.source === selectedDomain.id || connection.target === selectedDomain.id);
-                
+
+                const isHighlighted =
+                  selectedDomain &&
+                  (connection.source === selectedDomain.id ||
+                    connection.target === selectedDomain.id);
+
                 return (
                   <line
                     key={`connection-${i}`}
@@ -374,18 +388,18 @@ export default function IntegrationMap() {
                     stroke={connection.opportunity ? '#6366F1' : '#94A3B8'}
                     strokeWidth={connection.strength * 5}
                     strokeOpacity={isHighlighted ? 0.8 : 0.3}
-                    strokeDasharray={connection.opportunity ? "5,5" : "0"}
+                    strokeDasharray={connection.opportunity ? '5,5' : '0'}
                   />
                 );
               })}
-              
+
               {/* Domain circles */}
-              {domains.map((domain) => {
+              {domains.map(domain => {
                 const isPrimary = profile?.primary_integration_need === domain.id;
                 const isSelected = selectedDomain?.id === domain.id;
-                const isConnected = selectedDomain && 
-                  getConnectedDomains(selectedDomain.id).includes(domain.id);
-                
+                const isConnected =
+                  selectedDomain && getConnectedDomains(selectedDomain.id).includes(domain.id);
+
                 return (
                   <g key={domain.id}>
                     <motion.circle
@@ -394,7 +408,7 @@ export default function IntegrationMap() {
                       r={domain.radius}
                       fill={domain.color}
                       fillOpacity={isPrimary ? 0.9 : isSelected ? 0.8 : isConnected ? 0.6 : 0.4}
-                      stroke={isPrimary ? "#000" : "none"}
+                      stroke={isPrimary ? '#000' : 'none'}
                       strokeWidth={isPrimary ? 2 : 0}
                       onClick={() => handleDomainClick(domain)}
                       style={{ cursor: 'pointer' }}
@@ -407,8 +421,8 @@ export default function IntegrationMap() {
                       textAnchor="middle"
                       dominantBaseline="middle"
                       fill="#fff"
-                      fontWeight={isPrimary ? "bold" : "normal"}
-                      fontSize={isPrimary ? "14px" : "12px"}
+                      fontWeight={isPrimary ? 'bold' : 'normal'}
+                      fontSize={isPrimary ? '14px' : '12px'}
                       onClick={() => handleDomainClick(domain)}
                       style={{ cursor: 'pointer' }}
                     >
@@ -418,7 +432,7 @@ export default function IntegrationMap() {
                 );
               })}
             </svg>
-            
+
             {/* Domain info overlay */}
             {selectedDomain && (
               <div className="absolute bottom-4 right-4 bg-white p-4 rounded-lg shadow-md w-64">
@@ -427,15 +441,17 @@ export default function IntegrationMap() {
                 </h3>
                 <div className="flex items-center mt-2">
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      className="h-2.5 rounded-full" 
-                      style={{ 
+                    <div
+                      className="h-2.5 rounded-full"
+                      style={{
                         width: `${selectedDomain.score * 10}%`,
-                        backgroundColor: selectedDomain.color 
+                        backgroundColor: selectedDomain.color,
                       }}
                     ></div>
                   </div>
-                  <span className="ml-2 text-sm font-medium">{selectedDomain.score.toFixed(1)}</span>
+                  <span className="ml-2 text-sm font-medium">
+                    {selectedDomain.score.toFixed(1)}
+                  </span>
                 </div>
                 <div className="mt-3">
                   <h4 className="text-sm font-medium">Connected with:</h4>
@@ -443,19 +459,20 @@ export default function IntegrationMap() {
                     {getConnectedDomains(selectedDomain.id).map(connectedId => {
                       const connectedDomain = domains.find(d => d.id === connectedId);
                       if (!connectedDomain) return null;
-                      
+
                       const connection = connections.find(
-                        c => (c.source === selectedDomain.id && c.target === connectedId) ||
-                             (c.source === connectedId && c.target === selectedDomain.id)
+                        c =>
+                          (c.source === selectedDomain.id && c.target === connectedId) ||
+                          (c.source === connectedId && c.target === selectedDomain.id)
                       );
-                      
+
                       return (
-                        <span 
+                        <span
                           key={connectedId}
                           className="text-xs px-2 py-1 rounded-full text-white"
-                          style={{ 
+                          style={{
                             backgroundColor: connectedDomain.color,
-                            border: connection?.opportunity ? '1px dashed white' : 'none'
+                            border: connection?.opportunity ? '1px dashed white' : 'none',
                           }}
                         >
                           {connectedDomain.name}
@@ -470,7 +487,7 @@ export default function IntegrationMap() {
           </div>
         </CardContent>
       </Card>
-      
+
       <Card className="w-full max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle>Recommended Integration Exercises</CardTitle>
@@ -481,19 +498,19 @@ export default function IntegrationMap() {
         <CardContent>
           <div className="space-y-4">
             {recommendedExercises.length > 0 ? (
-              recommendedExercises.map((exercise) => {
+              recommendedExercises.map(exercise => {
                 const domain = domains.find(
                   d => d.id === `${exercise.domain}.${exercise.subdomain}`
                 );
-                
+
                 return (
-                  <div 
+                  <div
                     key={exercise.exercise_id}
                     className="border rounded-lg p-4 hover:shadow-md transition-shadow"
                   >
                     <div className="flex justify-between">
                       <h3 className="font-medium text-lg">{exercise.title}</h3>
-                      <span 
+                      <span
                         className="text-xs px-2 py-1 rounded-full text-white"
                         style={{ backgroundColor: domain?.color || '#94A3B8' }}
                       >

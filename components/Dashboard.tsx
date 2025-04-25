@@ -16,7 +16,10 @@ function ProgressBar({ label, value, max }: { label: string; value: number; max:
         <span>{percent}%</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-3">
-        <div className="bg-gradient-to-r from-blue-400 to-green-400 h-3 rounded-full transition-all" style={{ width: `${percent}%` }} />
+        <div
+          className="bg-gradient-to-r from-blue-400 to-green-400 h-3 rounded-full transition-all"
+          style={{ width: `${percent}%` }}
+        />
       </div>
     </div>
   );
@@ -38,9 +41,21 @@ export default function Dashboard({ userId }: { userId: string }) {
     async function fetchProgress() {
       // Example: fetch progress from user puzzle tables (customize as needed)
       const [{ data: personal }, { data: business }, { data: supermind }] = await Promise.all([
-        supabase.from('personal_success_puzzle').select('health_score').eq('user_id', userId).single(),
-        supabase.from('business_success_puzzle').select('front_stage_score').eq('user_id', userId).single(),
-        supabase.from('supermind_superpowers').select('current_state').eq('user_id', userId).single(),
+        supabase
+          .from('personal_success_puzzle')
+          .select('health_score')
+          .eq('user_id', userId)
+          .single(),
+        supabase
+          .from('business_success_puzzle')
+          .select('front_stage_score')
+          .eq('user_id', userId)
+          .single(),
+        supabase
+          .from('supermind_superpowers')
+          .select('current_state')
+          .eq('user_id', userId)
+          .single(),
       ]);
       setProgress({
         personal: personal?.health_score || 0,

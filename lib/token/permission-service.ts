@@ -1,6 +1,6 @@
 /**
  * Permission Service
- * 
+ *
  * This service centralizes all permission-related functionality for the Avolve platform.
  * It provides methods for managing permissions, roles, and token-based access control.
  */
@@ -125,18 +125,18 @@ export class PermissionService {
         .select('*')
         .order('resource', { ascending: true })
         .order('action', { ascending: true });
-      
+
       if (error) {
         console.error('Get all permissions error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get all permissions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting permissions') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting permissions'),
       };
     }
   }
@@ -151,18 +151,18 @@ export class PermissionService {
         .select('*')
         .eq('id', id)
         .single();
-      
+
       if (error) {
         console.error('Get permission by ID error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get permission by ID error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting permission') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting permission'),
       };
     }
   }
@@ -171,7 +171,7 @@ export class PermissionService {
    * Get permission by resource and action
    */
   public async getPermissionByResourceAction(
-    resource: string, 
+    resource: string,
     action: string
   ): Promise<PermissionResult<Permission>> {
     try {
@@ -181,18 +181,18 @@ export class PermissionService {
         .eq('resource', resource)
         .eq('action', action)
         .single();
-      
+
       if (error) {
         console.error('Get permission by resource action error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get permission by resource action error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting permission') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting permission'),
       };
     }
   }
@@ -208,25 +208,27 @@ export class PermissionService {
     try {
       const { data, error } = await this.client
         .from('permissions')
-        .insert([{
-          resource,
-          action,
-          description
-        }])
+        .insert([
+          {
+            resource,
+            action,
+            description,
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Create permission error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected create permission error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating permission') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating permission'),
       };
     }
   }
@@ -245,18 +247,18 @@ export class PermissionService {
         .eq('id', id)
         .select()
         .single();
-      
+
       if (error) {
         console.error('Update permission error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected update permission error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while updating permission') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while updating permission'),
       };
     }
   }
@@ -266,22 +268,19 @@ export class PermissionService {
    */
   public async deletePermission(id: string): Promise<PermissionResult<boolean>> {
     try {
-      const { error } = await this.client
-        .from('permissions')
-        .delete()
-        .eq('id', id);
-      
+      const { error } = await this.client.from('permissions').delete().eq('id', id);
+
       if (error) {
         console.error('Delete permission error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected delete permission error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while deleting permission') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while deleting permission'),
       };
     }
   }
@@ -293,27 +292,25 @@ export class PermissionService {
     tokenTypeId?: string
   ): Promise<PermissionResult<TokenTypePermission[]>> {
     try {
-      let query = this.client
-        .from('token_type_permissions')
-        .select('*, permissions(*)');
-      
+      let query = this.client.from('token_type_permissions').select('*, permissions(*)');
+
       if (tokenTypeId) {
         query = query.eq('token_type_id', tokenTypeId);
       }
-      
+
       const { data, error } = await query;
-      
+
       if (error) {
         console.error('Get token type permissions error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get token type permissions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting token type permissions') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting token type permissions'),
       };
     }
   }
@@ -329,25 +326,29 @@ export class PermissionService {
     try {
       const { data, error } = await this.client
         .from('token_type_permissions')
-        .insert([{
-          token_type_id: tokenTypeId,
-          permission_id: permissionId,
-          min_balance: minBalance
-        }])
+        .insert([
+          {
+            token_type_id: tokenTypeId,
+            permission_id: permissionId,
+            min_balance: minBalance,
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Assign permission to token type error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected assign permission to token type error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while assigning permission to token type') 
+      return {
+        data: null,
+        error: new AuthError(
+          'An unexpected error occurred while assigning permission to token type'
+        ),
       };
     }
   }
@@ -365,18 +366,20 @@ export class PermissionService {
         .delete()
         .eq('token_type_id', tokenTypeId)
         .eq('permission_id', permissionId);
-      
+
       if (error) {
         console.error('Revoke permission from token type error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected revoke permission from token type error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while revoking permission from token type') 
+      return {
+        data: null,
+        error: new AuthError(
+          'An unexpected error occurred while revoking permission from token type'
+        ),
       };
     }
   }
@@ -390,18 +393,18 @@ export class PermissionService {
         .from('permission_groups')
         .select('*')
         .order('name', { ascending: true });
-      
+
       if (error) {
         console.error('Get all permission groups error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get all permission groups error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting permission groups') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting permission groups'),
       };
     }
   }
@@ -416,18 +419,18 @@ export class PermissionService {
         .select('*')
         .eq('id', id)
         .single();
-      
+
       if (error) {
         console.error('Get permission group by ID error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get permission group by ID error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting permission group') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting permission group'),
       };
     }
   }
@@ -441,21 +444,23 @@ export class PermissionService {
         .from('permission_group_items')
         .select('permissions(*)')
         .eq('group_id', groupId);
-      
+
       if (error) {
         console.error('Get permissions in group error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       // Fix: Flatten permissions array if nested (any[][] to Permission[])
-      const flatPermissions = Array.isArray(data[0].permissions) ? data.map(item => item.permissions).flat() : data.map(item => item.permissions);
-      
+      const flatPermissions = Array.isArray(data[0].permissions)
+        ? data.map(item => item.permissions).flat()
+        : data.map(item => item.permissions);
+
       return { data: flatPermissions, error: null };
     } catch (error) {
       console.error('Unexpected get permissions in group error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting permissions in group') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting permissions in group'),
       };
     }
   }
@@ -470,24 +475,26 @@ export class PermissionService {
     try {
       const { data, error } = await this.client
         .from('permission_groups')
-        .insert([{
-          name,
-          description
-        }])
+        .insert([
+          {
+            name,
+            description,
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Create permission group error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected create permission group error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating permission group') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating permission group'),
       };
     }
   }
@@ -502,24 +509,26 @@ export class PermissionService {
     try {
       const { data, error } = await this.client
         .from('permission_group_items')
-        .insert([{
-          group_id: groupId,
-          permission_id: permissionId
-        }])
+        .insert([
+          {
+            group_id: groupId,
+            permission_id: permissionId,
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Add permission to group error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected add permission to group error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while adding permission to group') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while adding permission to group'),
       };
     }
   }
@@ -537,18 +546,18 @@ export class PermissionService {
         .delete()
         .eq('group_id', groupId)
         .eq('permission_id', permissionId);
-      
+
       if (error) {
         console.error('Remove permission from group error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected remove permission from group error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while removing permission from group') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while removing permission from group'),
       };
     }
   }
@@ -562,18 +571,18 @@ export class PermissionService {
         .from('roles')
         .select('*')
         .order('name', { ascending: true });
-      
+
       if (error) {
         console.error('Get all roles error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get all roles error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting roles') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting roles'),
       };
     }
   }
@@ -589,18 +598,18 @@ export class PermissionService {
         .eq('user_id', userId)
         .is('expires_at', null)
         .or(`expires_at.gt.${new Date().toISOString()}`);
-      
+
       if (error) {
         console.error('Get user roles error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get user roles error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting user roles') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting user roles'),
       };
     }
   }
@@ -617,27 +626,29 @@ export class PermissionService {
     try {
       const { data, error } = await this.client
         .from('user_roles')
-        .insert([{
-          user_id: userId,
-          role,
-          granted_by: grantedBy,
-          granted_at: new Date().toISOString(),
-          expires_at: expiresAt?.toISOString()
-        }])
+        .insert([
+          {
+            user_id: userId,
+            role,
+            granted_by: grantedBy,
+            granted_at: new Date().toISOString(),
+            expires_at: expiresAt?.toISOString(),
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Assign role to user error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected assign role to user error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while assigning role to user') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while assigning role to user'),
       };
     }
   }
@@ -655,18 +666,18 @@ export class PermissionService {
         .delete()
         .eq('user_id', userId)
         .eq('role', role);
-      
+
       if (error) {
         console.error('Revoke role from user error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected revoke role from user error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while revoking role from user') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while revoking role from user'),
       };
     }
   }
@@ -680,21 +691,23 @@ export class PermissionService {
         .from('role_permissions')
         .select('permissions(*)')
         .eq('role', role);
-      
+
       if (error) {
         console.error('Get role permissions error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       // Fix: Flatten permissions array if nested (any[][] to Permission[])
-      const flatPermissions = Array.isArray(data[0].permissions) ? data.map(item => item.permissions).flat() : data.map(item => item.permissions);
-      
+      const flatPermissions = Array.isArray(data[0].permissions)
+        ? data.map(item => item.permissions).flat()
+        : data.map(item => item.permissions);
+
       return { data: flatPermissions, error: null };
     } catch (error) {
       console.error('Unexpected get role permissions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting role permissions') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting role permissions'),
       };
     }
   }
@@ -710,25 +723,27 @@ export class PermissionService {
     try {
       const { data, error } = await this.client
         .from('role_permissions')
-        .insert([{
-          role,
-          resource,
-          action
-        }])
+        .insert([
+          {
+            role,
+            resource,
+            action,
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Assign permission to role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected assign permission to role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while assigning permission to role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while assigning permission to role'),
       };
     }
   }
@@ -748,18 +763,18 @@ export class PermissionService {
         .eq('role', role)
         .eq('resource', resource)
         .eq('action', action);
-      
+
       if (error) {
         console.error('Revoke permission from role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected revoke permission from role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while revoking permission from role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while revoking permission from role'),
       };
     }
   }
@@ -770,20 +785,20 @@ export class PermissionService {
   public async getUserPermissions(userId: string): Promise<PermissionResult<Permission[]>> {
     try {
       const { data, error } = await this.client.rpc('get_user_permissions', {
-        p_user_id: userId
+        p_user_id: userId,
       });
-      
+
       if (error) {
         console.error('Get user permissions error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get user permissions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting user permissions') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting user permissions'),
       };
     }
   }
@@ -799,20 +814,20 @@ export class PermissionService {
     try {
       const { data, error } = await this.client.rpc('has_permission', {
         p_resource: resource,
-        p_action: action
+        p_action: action,
       });
-      
+
       if (error) {
         console.error('Has permission error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected has permission error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while checking permission') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while checking permission'),
       };
     }
   }
@@ -829,20 +844,20 @@ export class PermissionService {
       const { data, error } = await this.client.rpc('has_permission_via_token', {
         p_user_id: userId,
         p_resource: resource,
-        p_action: action
+        p_action: action,
       });
-      
+
       if (error) {
         console.error('Has permission via token error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected has permission via token error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while checking permission via token') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while checking permission via token'),
       };
     }
   }
@@ -857,20 +872,20 @@ export class PermissionService {
     try {
       const { data, error } = await this.client.rpc('has_permission_in_group', {
         p_user_id: userId,
-        p_group_name: groupName
+        p_group_name: groupName,
       });
-      
+
       if (error) {
         console.error('Has permission in group error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected has permission in group error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while checking permission in group') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while checking permission in group'),
       };
     }
   }

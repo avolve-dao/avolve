@@ -59,8 +59,10 @@ export function useTeams() {
 
   useEffect(() => {
     async function loadTeams() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -69,19 +71,19 @@ export function useTeams() {
       const { data: teamData, error: teamError } = await supabase
         .from('teams')
         .select('*')
-        .or(`owner_id.eq.${user.id},id.in.(${
-          supabase
+        .or(
+          `owner_id.eq.${user.id},id.in.(${supabase
             .from('team_members')
             .select('team_id')
             .eq('user_id', user.id)
-            .then(({ data }) => data?.map(d => d.team_id).join(','))
-        })`);
+            .then(({ data }) => data?.map(d => d.team_id).join(','))})`
+        );
 
       if (teamError) {
         toast({
-          title: "Error",
-          description: "Failed to load teams",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load teams',
+          variant: 'destructive',
         });
         return;
       }
@@ -89,11 +91,8 @@ export function useTeams() {
       setTeams(teamData || []);
 
       // Get team members for all teams
-      const memberPromises = teamData?.map(team => 
-        supabase
-          .from('team_members')
-          .select('*')
-          .eq('team_id', team.id)
+      const memberPromises = teamData?.map(team =>
+        supabase.from('team_members').select('*').eq('team_id', team.id)
       );
 
       if (memberPromises) {
@@ -107,13 +106,14 @@ export function useTeams() {
       // Subscribe to team updates
       const teamChannel = supabase
         .channel('team_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'teams',
-            filter: `owner_id=eq.${user.id}`
-          }, 
+            filter: `owner_id=eq.${user.id}`,
+          },
           () => {
             loadTeams();
           }
@@ -123,13 +123,14 @@ export function useTeams() {
       // Subscribe to team member updates
       const memberChannel = supabase
         .channel('member_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'team_members',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadTeams();
           }
@@ -147,10 +148,12 @@ export function useTeams() {
 
   const loadUserTeams = async () => {
     setLoading(true);
-    
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -159,13 +162,15 @@ export function useTeams() {
       // Get user's teams
       const { data, error } = await supabase
         .from('teams')
-        .select(`
+        .select(
+          `
           id,
           name,
           team_members!inner (
             role
           )
-        `)
+        `
+        )
         .eq('team_members.user_id', user.id);
 
       if (error) {
@@ -174,7 +179,7 @@ export function useTeams() {
 
       // Transform data into UserTeam format
       const userTeamsData: UserTeam[] = [];
-      
+
       if (data) {
         data.forEach(team => {
           if (team && team.team_members && team.team_members.length > 0) {
@@ -182,7 +187,7 @@ export function useTeams() {
               id: team.id,
               teamId: team.id,
               name: team.name,
-              role: team.team_members[0].role as 'owner' | 'admin' | 'member'
+              role: team.team_members[0].role as 'owner' | 'admin' | 'member',
             });
           }
         });
@@ -191,9 +196,9 @@ export function useTeams() {
       setUserTeams(userTeamsData);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to load user teams: " + error.message,
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to load user teams: ' + error.message,
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -202,10 +207,12 @@ export function useTeams() {
 
   const checkEligibility = async () => {
     setEligibilityLoading(true);
-    
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setEligibilityLoading(false);
         return;
@@ -236,28 +243,29 @@ export function useTeams() {
 
       const completedCount = completedChallenges?.count || 0;
       const requiredCount = parseInt(settings?.value || '3', 10);
-      
+
       setEligibility({
         isEligible: completedCount >= requiredCount,
         completedChallenges: completedCount,
         requiredChallenges: requiredCount,
-        reason: completedCount < requiredCount 
-          ? `You need to complete at least ${requiredCount} challenges to create a team.` 
-          : undefined
+        reason:
+          completedCount < requiredCount
+            ? `You need to complete at least ${requiredCount} challenges to create a team.`
+            : undefined,
       });
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: "Failed to check eligibility: " + error.message,
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to check eligibility: ' + error.message,
+        variant: 'destructive',
       });
-      
+
       // Set default eligibility status in case of error
       setEligibility({
         isEligible: false,
         completedChallenges: 0,
         requiredChallenges: 3,
-        reason: "Unable to verify eligibility. Please try again later."
+        reason: 'Unable to verify eligibility. Please try again later.',
       });
     } finally {
       setEligibilityLoading(false);
@@ -265,13 +273,15 @@ export function useTeams() {
   };
 
   const createTeam = async (name: string, description: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to create a team",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to create a team',
+        variant: 'destructive',
       });
       return;
     }
@@ -281,89 +291,89 @@ export function useTeams() {
       .insert({
         name,
         description,
-        owner_id: user.id
+        owner_id: user.id,
       })
       .select()
       .single();
 
     if (teamError) {
       toast({
-        title: "Error",
-        description: "Failed to create team",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to create team',
+        variant: 'destructive',
       });
       return;
     }
 
     // Add creator as team member with owner role
-    const { error: memberError } = await supabase
-      .from('team_members')
-      .insert({
-        team_id: team.id,
-        user_id: user.id,
-        role: 'owner'
-      });
+    const { error: memberError } = await supabase.from('team_members').insert({
+      team_id: team.id,
+      user_id: user.id,
+      role: 'owner',
+    });
 
     if (memberError) {
       toast({
-        title: "Error",
-        description: "Failed to add you as team owner",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to add you as team owner',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Team created successfully!"
+      title: 'Success',
+      description: 'Team created successfully!',
     });
 
     return team;
   };
 
   const joinTeam = async (teamId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to join a team",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to join a team',
+        variant: 'destructive',
       });
       return;
     }
 
-    const { error } = await supabase
-      .from('team_members')
-      .insert({
-        team_id: teamId,
-        user_id: user.id,
-        role: 'member'
-      });
+    const { error } = await supabase.from('team_members').insert({
+      team_id: teamId,
+      user_id: user.id,
+      role: 'member',
+    });
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to join team",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to join team',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Successfully joined the team!"
+      title: 'Success',
+      description: 'Successfully joined the team!',
     });
   };
 
   const leaveTeam = async (teamId: string) => {
-    const { data: { user } } = await supabase.auth.getUser();
-      
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) {
       toast({
-        title: "Error",
-        description: "You must be logged in to leave a team",
-        variant: "destructive"
+        title: 'Error',
+        description: 'You must be logged in to leave a team',
+        variant: 'destructive',
       });
       return;
     }
@@ -376,16 +386,16 @@ export function useTeams() {
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to leave team",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to leave team',
+        variant: 'destructive',
       });
       return;
     }
 
     toast({
-      title: "Success",
-      description: "Successfully left the team"
+      title: 'Success',
+      description: 'Successfully left the team',
     });
   };
 
@@ -405,6 +415,6 @@ export function useTeams() {
     loadUserTeams,
     checkEligibility,
     eligibility,
-    eligibilityLoading
+    eligibilityLoading,
   };
 }

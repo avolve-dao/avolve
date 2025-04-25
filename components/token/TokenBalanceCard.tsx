@@ -1,23 +1,30 @@
 'use client';
 
-import React from 'react'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Database } from '@/lib/database.types'
+import React from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Database } from '@/lib/database.types';
 
 type TokenWithBalance = {
-  token_symbol: string
-  token_name: string
-  balance: number
-  staked_balance: number
-  icon_url: string | null
-  gradient_class: string | null
-}
+  token_symbol: string;
+  token_name: string;
+  balance: number;
+  staked_balance: number;
+  icon_url: string | null;
+  gradient_class: string | null;
+};
 
 interface TokenBalanceCardProps {
-  token: TokenWithBalance
-  isLoading?: boolean
+  token: TokenWithBalance;
+  isLoading?: boolean;
 }
 
 export function TokenBalanceCard({ token, isLoading = false }: TokenBalanceCardProps) {
@@ -36,22 +43,22 @@ export function TokenBalanceCard({ token, isLoading = false }: TokenBalanceCardP
           <Skeleton className="h-8 w-24" />
         </CardFooter>
       </Card>
-    )
+    );
   }
 
   return (
     <Card className="w-full overflow-hidden">
-      <div 
-        className={`h-2 w-full ${token.gradient_class || 'bg-gradient-to-r from-primary to-secondary'}`} 
+      <div
+        className={`h-2 w-full ${token.gradient_class || 'bg-gradient-to-r from-primary to-secondary'}`}
       />
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-xl font-bold">{token.token_name}</CardTitle>
           {token.icon_url && (
             <div className="h-8 w-8 rounded-full overflow-hidden">
-              <img 
-                src={token.icon_url} 
-                alt={`${token.token_name} icon`} 
+              <img
+                src={token.icon_url}
+                alt={`${token.token_name} icon`}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -60,9 +67,7 @@ export function TokenBalanceCard({ token, isLoading = false }: TokenBalanceCardP
         <CardDescription>{token.token_symbol}</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-bold mb-1">
-          {token.balance.toLocaleString()}
-        </div>
+        <div className="text-3xl font-bold mb-1">{token.balance.toLocaleString()}</div>
         {token.staked_balance > 0 && (
           <p className="text-sm text-muted-foreground">
             {token.staked_balance.toLocaleString()} staked
@@ -75,5 +80,5 @@ export function TokenBalanceCard({ token, isLoading = false }: TokenBalanceCardP
         </Badge>
       </CardFooter>
     </Card>
-  )
+  );
 }

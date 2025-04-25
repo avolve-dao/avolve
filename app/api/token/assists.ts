@@ -16,7 +16,10 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get('userId');
   if (!userId) {
-    return NextResponse.json({ success: false, error: { code: 'BAD_REQUEST', message: 'userId is required' } }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: { code: 'BAD_REQUEST', message: 'userId is required' } },
+      { status: 400 }
+    );
   }
   const result = await service.getAssistsForUser(userId);
   return NextResponse.json(result);

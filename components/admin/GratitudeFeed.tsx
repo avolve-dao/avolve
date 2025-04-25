@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { RecognitionForm } from '@/components/recognition';
@@ -40,15 +40,23 @@ export function GratitudeFeed({ adminId }: { adminId: string }) {
       <h3 className="text-lg font-semibold mb-2">Recent Recognitions</h3>
       <RecognitionForm recipientId={adminId} />
       {events.length === 0 ? (
-        <div className="p-4 text-center text-gray-500">No recent recognitions yet. Support your community to get recognized!</div>
+        <div className="p-4 text-center text-gray-500">
+          No recent recognitions yet. Support your community to get recognized!
+        </div>
       ) : (
         <ul className="space-y-2">
-          {events.map((event) => (
+          {events.map(event => (
             <li key={event.id} className="flex flex-col border-b last:border-b-0 pb-2">
-              <span className="font-medium text-emerald-700">🎉 Recognized for: {event.reason.replace('_', ' ')}</span>
-              <span className="text-xs text-gray-500">{new Date(event.created_at).toLocaleString()}</span>
+              <span className="font-medium text-emerald-700">
+                🎉 Recognized for: {event.reason.replace('_', ' ')}
+              </span>
+              <span className="text-xs text-gray-500">
+                {new Date(event.created_at).toLocaleString()}
+              </span>
               {event.details && (
-                <span className="text-xs text-gray-400">Details: {JSON.stringify(event.details)}</span>
+                <span className="text-xs text-gray-400">
+                  Details: {JSON.stringify(event.details)}
+                </span>
               )}
             </li>
           ))}

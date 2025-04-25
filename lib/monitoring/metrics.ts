@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers'
+import { cookies } from 'next/headers';
 
 // Define metric types
-export type MetricName = 
+export type MetricName =
   | 'auth_attempt'
   | 'auth_success'
   | 'auth_failure'
@@ -11,24 +11,21 @@ export type MetricName =
   | 'api_error'
   | 'api_latency'
   | 'page_view'
-  | 'user_action'
+  | 'user_action';
 
 // Define metric data structure
 export type Metric = {
-  name: MetricName
-  value: number
-  tags: Record<string, string>
-  timestamp: string
-}
+  name: MetricName;
+  value: number;
+  tags: Record<string, string>;
+  timestamp: string;
+};
 
 // Track user actions
-export const trackUserAction = async (
-  action: string,
-  properties: Record<string, any> = {}
-) => {
+export const trackUserAction = async (action: string, properties: Record<string, any> = {}) => {
   // Get A/B test variant
-  const cookieStore = await cookies()
-  const variant = cookieStore.get('avolve-onboarding-variant')?.value || 'unknown'
+  const cookieStore = await cookies();
+  const variant = cookieStore.get('avolve-onboarding-variant')?.value || 'unknown';
 
   // Prepare metric data
   const metric: Metric = {
@@ -40,16 +37,16 @@ export const trackUserAction = async (
       ...properties,
     },
     timestamp: new Date().toISOString(),
-  }
+  };
 
   // In development, log to console
   if (process.env.NODE_ENV === 'development') {
-    console.log('Track:', metric)
-    return
+    console.log('Track:', metric);
+    return;
   }
 
   // In production, metrics are automatically collected by Vercel Analytics
-}
+};
 
 // Track API errors
 export const trackApiError = async (
@@ -66,13 +63,13 @@ export const trackApiError = async (
       ...properties,
     },
     timestamp: new Date().toISOString(),
-  }
+  };
 
   if (process.env.NODE_ENV === 'development') {
-    console.error('API Error:', metric)
-    return
+    console.error('API Error:', metric);
+    return;
   }
-}
+};
 
 // Track API latency
 export const trackApiLatency = async (
@@ -88,13 +85,13 @@ export const trackApiLatency = async (
       ...properties,
     },
     timestamp: new Date().toISOString(),
-  }
+  };
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('API Latency:', metric)
-    return
+    console.log('API Latency:', metric);
+    return;
   }
-}
+};
 
 // Track onboarding progress
 export const trackOnboarding = async (
@@ -102,8 +99,8 @@ export const trackOnboarding = async (
   action: 'start' | 'complete' | 'drop',
   properties: Record<string, any> = {}
 ) => {
-  const cookieStore = await cookies()
-  const variant = cookieStore.get('avolve-onboarding-variant')?.value || 'unknown'
+  const cookieStore = await cookies();
+  const variant = cookieStore.get('avolve-onboarding-variant')?.value || 'unknown';
 
   const metric: Metric = {
     name: `onboarding_${action}`,
@@ -114,13 +111,13 @@ export const trackOnboarding = async (
       ...properties,
     },
     timestamp: new Date().toISOString(),
-  }
+  };
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('Onboarding:', metric)
-    return
+    console.log('Onboarding:', metric);
+    return;
   }
-}
+};
 
 // Track authentication events
 export const trackAuth = async (
@@ -136,19 +133,16 @@ export const trackAuth = async (
       ...properties,
     },
     timestamp: new Date().toISOString(),
-  }
+  };
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('Auth:', metric)
-    return
+    console.log('Auth:', metric);
+    return;
   }
-}
+};
 
 // Track page views
-export const trackPageView = async (
-  path: string,
-  properties: Record<string, any> = {}
-) => {
+export const trackPageView = async (path: string, properties: Record<string, any> = {}) => {
   const metric: Metric = {
     name: 'page_view',
     value: 1,
@@ -157,10 +151,10 @@ export const trackPageView = async (
       ...properties,
     },
     timestamp: new Date().toISOString(),
-  }
+  };
 
   if (process.env.NODE_ENV === 'development') {
-    console.log('Page View:', metric)
-    return
+    console.log('Page View:', metric);
+    return;
   }
-}
+};

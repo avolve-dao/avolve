@@ -23,6 +23,7 @@ Only the latest production release is actively supported with security updates.
 - Critical vulnerabilities will be patched as soon as possible, with public disclosure after resolution.
 
 ## Related Policies
+
 - [Terms of Service](./TERMS.md)
 - [Privacy Policy](./PRIVACY.md)
 

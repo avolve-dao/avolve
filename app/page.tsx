@@ -1,182 +1,96 @@
-import { Suspense } from 'react'
-import { cookies } from 'next/headers'
-import { createClient } from '@/lib/supabase/client'
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
-// Components
-import { HeroSection } from '@/components/marketing/hero-section'
-import { FeatureShowcase } from '@/components/marketing/feature-showcase'
-import { SocialProof } from '@/components/marketing/social-proof'
-import { ValueProposition } from '@/components/marketing/value-proposition'
-import { CTASection } from '@/components/marketing/cta-section'
-import LoadingSpinner from '@/components/ui/loading-spinner'
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-
-// Get personalized content based on user's location and referral
-async function getPersonalizedContent() {
-  let supabase;
-  try {
-    supabase = createClient();
-  } catch (error) {
-    console.warn('Failed to initialize Supabase client:', error instanceof Error ? error.message : 'Unknown error');
-    // Return fallback data if Supabase initialization fails
-    return {
-      location: null,
-      testimonials: null,
-      metrics: null,
-    };
-  }
-  
-  // Get user's general location (country/region)
-  let location = null;
-  try {
-    const { data } = await supabase.functions.invoke('get-geo-location');
-    location = data?.location;
-  } catch (error) {
-    console.warn('Failed to get location:', error instanceof Error ? error.message : 'Unknown error');
-  }
-  
-  // Get relevant testimonials and case studies
-  let testimonials = null;
-  try {
-    if (location?.country) {
-      const { data } = await supabase
-        .from('testimonials')
-        .select('*')
-        .eq('region', location.country)
-        .limit(3);
-      testimonials = data;
-    }
-  } catch (error) {
-    console.warn('Failed to get testimonials:', error instanceof Error ? error.message : 'Unknown error');
-  }
-
-  // Get relevant success metrics
-  let metrics = null;
-  try {
-    if (location?.country) {
-      const { data } = await supabase
-        .from('platform_metrics')
-        .select('*')
-        .eq('region', location.country)
-        .single();
-      metrics = data;
-    }
-  } catch (error) {
-    console.warn('Failed to get metrics:', error instanceof Error ? error.message : 'Unknown error');
-  }
-
-  return {
-    location,
-    testimonials,
-    metrics,
-  }
-}
-
-export default async function HomePage() {
-  const content = await getPersonalizedContent()
-
+export default function HomePage() {
   return (
-    <main className="flex-1">
+    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-indigo-950 text-white flex flex-col items-center justify-center px-4">
       {/* Hero Section */}
-      <HeroSection 
-        region={content.location?.country}
-        metrics={content.metrics}
-        title="Transform Yourself, Transform Humanity"
-        description="Embark on a journey of personal evolution and collective achievement to build a supercivilization with other extraordinary individuals."
-      />
-
-      <Separator className="my-12" />
-
-      {/* Value Proposition */}
-      <ValueProposition
-        title="The Path to Supercivilization"
-        content="Avolve is a revolutionary platform that empowers individuals to unlock their highest potential, form powerful collectives, and evolve humanity toward a supercivilization based on The Prime Law."
-        sections={[
-          {
-            title: "Superachiever",
-            content: "Embark on a transformative journey of self-discovery and personal growth to become the best version of yourself through personalized challenges and AI-powered insights."
-          },
-          {
-            title: "Superachievers",
-            content: "Connect with extraordinary individuals who share your drive for growth, forming powerful teams to tackle humanity's greatest challenges together."
-          },
-          {
-            title: "Supercivilization",
-            content: "Participate in shaping a new era of human civilization based on The Prime Law, where individual liberty and collective achievement create unprecedented prosperity."
-          }
-        ]}
-      />
-      <Separator className="my-12" />
-      {/* Feature Showcase */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <FeatureShowcase
-          title="Your Journey of Transformation"
-          features={[
-            {
-              title: "Personal Evolution",
-              content: "Customized growth paths with AI-driven insights and challenges that adapt to your progress and goals."
-            },
-            {
-              title: "Collective Impact",
-              content: "Form teams with like-minded superachievers to solve complex problems and create meaningful change."
-            },
-            {
-              title: "Token Recognition",
-              content: "Earn tokens that represent your real achievements and contributions, unlocking access to exclusive opportunities."
-            },
-            {
-              title: "Guided by Sacred Geometry",
-              content: "Leverage the universal principles of sacred geometry to structure your personal and collective evolution."
-            }
-          ]}
-        />
-      </Suspense>
-
-      <section className="py-24 px-6 bg-zinc-900/80 relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/5 bg-[size:40px_40px] opacity-10" />
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-6">
-            What Our Community Achieves
-          </h2>
-          <p className="text-lg text-zinc-300 max-w-3xl mx-auto mb-12">
-            Our superachievers are already making extraordinary progress in their personal evolution and collective impact.
+      <section className="w-full max-w-3xl text-center py-20 flex flex-col items-center">
+        <div className="mb-8 flex flex-col items-center">
+          <span className="inline-flex items-center justify-center rounded-full bg-indigo-600/20 p-4 mb-4 animate-fade-in">
+            {/* Replace with your logo if available */}
+            <svg className="w-16 h-16 text-indigo-400" fill="none" viewBox="0 0 48 48" stroke="currentColor">
+              <circle cx="24" cy="24" r="20" strokeWidth="4" />
+              <ellipse cx="24" cy="24" rx="20" ry="8" strokeWidth="4" />
+              <ellipse cx="24" cy="24" rx="8" ry="20" strokeWidth="4" />
+            </svg>
+          </span>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 animate-slide-up">
+            Avolve
+          </h1>
+          <p className="text-lg md:text-xl text-zinc-300 mb-8 animate-fade-in">
+            Evolve Your Potential. Join the movement redefining human achievement.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <Card className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-indigo-400 mb-2">{new Intl.NumberFormat().format(content.metrics?.users || 0)}</div>
-              <div className="text-zinc-300">Active Superachievers</div>
-            </Card>
-            <Card className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-indigo-400 mb-2">{new Intl.NumberFormat().format(content.metrics?.teams || 0)}</div>
-              <div className="text-zinc-300">Impact Teams</div>
-            </Card>
-            <Card className="p-6 rounded-xl bg-zinc-800/50 border border-zinc-700/30 backdrop-blur-sm">
-              <div className="text-3xl font-bold text-indigo-400 mb-2">{new Intl.NumberFormat().format(content.metrics?.achievements || 0)}</div>
-              <div className="text-zinc-300">Milestones Achieved</div>
-            </Card>
-          </div>
+          <Button className="px-8 py-4 text-lg rounded-full shadow-lg animate-pop-in" size="lg">
+            Start Your Journey
+          </Button>
         </div>
+      </section>
+      {/* Feature Highlights */}
+      <section className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 animate-fade-in">
+        <Card className="bg-zinc-900/70 border-zinc-700/40 p-6 flex flex-col items-center">
+          <span className="mb-2 text-indigo-400">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 2v20m10-10H2" strokeWidth="2" /></svg>
+          </span>
+          <h3 className="font-bold text-xl mb-2">Superachiever</h3>
+          <p className="text-zinc-400 mb-2">Personal growth journeys, AI-powered insights, and micro-rewards for progress.</p>
+        </Card>
+        <Card className="bg-zinc-900/70 border-zinc-700/40 p-6 flex flex-col items-center">
+          <span className="mb-2 text-indigo-400">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2" /></svg>
+          </span>
+          <h3 className="font-bold text-xl mb-2">Superachievers</h3>
+          <p className="text-zinc-400 mb-2">Form teams, unlock collective impact, and tackle humanity's greatest challenges.</p>
+        </Card>
+        <Card className="bg-zinc-900/70 border-zinc-700/40 p-6 flex flex-col items-center opacity-60 relative">
+          <span className="mb-2 text-indigo-400">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="4" y="4" width="16" height="16" rx="4" strokeWidth="2" /></svg>
+          </span>
+          <h3 className="font-bold text-xl mb-2 flex items-center gap-2">Supercivilization <span className="ml-1 text-xs bg-zinc-700 px-2 py-0.5 rounded-full">Locked</span></h3>
+          <p className="text-zinc-400 mb-2">Progress as a community to unlock the next era of human potential.</p>
+          <div className="absolute top-2 right-2"><svg className="w-5 h-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M12 17v.01"/><rect x="9" y="7" width="6" height="6" rx="3"/><path d="M12 7v4"/></svg></div>
+        </Card>
+      </section>
+      {/* Progress Bar */}
+      <section className="w-full max-w-xl mt-16 mb-8 animate-fade-in">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-zinc-300 text-sm">Collective Progress</span>
+          <span className="text-indigo-400 font-bold">42%</span>
+        </div>
+        <div className="w-full bg-zinc-800 rounded-full h-4 overflow-hidden relative">
+          <div className="bg-gradient-to-r from-indigo-500 via-indigo-400 to-indigo-300 h-4 rounded-full transition-all duration-700" style={{ width: '42%' }} />
+        </div>
+        <p className="text-xs text-zinc-400 mt-2 text-center">Unlock new features as the community grows!</p>
       </section>
       <Separator className="my-12" />
       {/* Social Proof */}
-      <Suspense fallback={<LoadingSpinner />}>
-        <SocialProof testimonials={content.testimonials || []} />
-      </Suspense>
+      <section className="w-full max-w-4xl text-center mb-16 animate-fade-in">
+        <h2 className="text-2xl font-bold mb-4">What Superachievers Say</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="bg-zinc-900/70 border-zinc-700/40 p-4">
+            <p className="text-zinc-200 italic mb-2">“Avolve is the most motivating community I’ve ever joined.”</p>
+            <span className="text-zinc-400 text-xs">— Early Beta User</span>
+          </Card>
+          <Card className="bg-zinc-900/70 border-zinc-700/40 p-4">
+            <p className="text-zinc-200 italic mb-2">“The progress tracking and rewards make growth addictive.”</p>
+            <span className="text-zinc-400 text-xs">— Superachiever</span>
+          </Card>
+          <Card className="bg-zinc-900/70 border-zinc-700/40 p-4">
+            <p className="text-zinc-200 italic mb-2">“I can’t wait for the Supercivilization unlock!”</p>
+            <span className="text-zinc-400 text-xs">— Community Member</span>
+          </Card>
+        </div>
+      </section>
       <Separator className="my-12" />
       {/* Call to Action */}
-      <section className="flex flex-col items-center justify-center py-16">
-        <CTASection 
-          region={content.location?.country}
-          metrics={content.metrics}
-          title="Join the Evolution"
-          description="Become part of a movement that is redefining human potential and building the foundation for a supercivilization."
-        />
-        <Button className="mt-8 px-8 py-4 text-lg rounded-full shadow-lg" size="lg">
-          Get Started
+      <footer className="w-full max-w-2xl text-center pb-16 animate-fade-in">
+        <h3 className="text-2xl font-bold mb-4">Ready to Evolve?</h3>
+        <Button className="px-10 py-4 text-lg rounded-full shadow-xl animate-pop-in" size="lg">
+          Request Early Access
         </Button>
-      </section>
+        <p className="text-zinc-400 mt-4 text-sm">Invitation-only onboarding for the MVP launch. Be among the first superachievers!</p>
+      </footer>
     </main>
-  )
+  );
 }

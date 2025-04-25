@@ -9,7 +9,7 @@ import { cache } from 'react';
 /**
  * Creates a Supabase client for use in server components and API routes
  * Uses React cache to prevent multiple instances during a request
- * 
+ *
  * IMPORTANT: This can only be used in Server Components!
  */
 export const createClient = cache(async () => {

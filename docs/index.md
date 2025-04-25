@@ -34,65 +34,65 @@ Avolve is where ideas become reality. Whether you're a user (subscriber, partici
 
 ### 🎯 Getting Started
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
-| [Quick Start](./quick-start.md) | Get up and running quickly with Avolve | April 11, 2025 |
-| [Architecture Overview](./architecture.md) | High-level system architecture | April 11, 2025 |
-| [Best Practices](./best-practices.md) | Development standards and guidelines | April 11, 2025 |
+| Document                                   | Description                            | Last Updated   |
+| ------------------------------------------ | -------------------------------------- | -------------- |
+| [Quick Start](./quick-start.md)            | Get up and running quickly with Avolve | April 11, 2025 |
+| [Architecture Overview](./architecture.md) | High-level system architecture         | April 11, 2025 |
+| [Best Practices](./best-practices.md)      | Development standards and guidelines   | April 11, 2025 |
 
 ### 🔌 API Reference
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
+| Document                        | Description                            | Last Updated   |
+| ------------------------------- | -------------------------------------- | -------------- |
 | [API Overview](./api/README.md) | API architecture and design principles | April 11, 2025 |
-| [Consent API](./api/consent.md) | Consent management API documentation | April 11, 2025 |
-| [Token API](./api/token.md) | Token system API documentation | April 11, 2025 |
+| [Consent API](./api/consent.md) | Consent management API documentation   | April 11, 2025 |
+| [Token API](./api/token.md)     | Token system API documentation         | April 11, 2025 |
 
 ### 🗄️ Database
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
-| [Database Overview](./database/README.md) | Database architecture and design | April 11, 2025 |
-| [Schema Reference](./database/schema.md) | Database schema and table definitions | April 11, 2025 |
+| Document                                  | Description                           | Last Updated   |
+| ----------------------------------------- | ------------------------------------- | -------------- |
+| [Database Overview](./database/README.md) | Database architecture and design      | April 11, 2025 |
+| [Schema Reference](./database/schema.md)  | Database schema and table definitions | April 11, 2025 |
 
 ### 🔐 Security
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
-| [Security Overview](./security/README.md) | Security features and implementation | April 11, 2025 |
-| [Authentication](./security/authentication.md) | Authentication system | April 11, 2025 |
-| [Authorization](./security/rbac.md) | Role-based access control | April 11, 2025 |
-| [Token Access](./security/token-access.md) | Token-based access control | April 11, 2025 |
+| Document                                       | Description                          | Last Updated   |
+| ---------------------------------------------- | ------------------------------------ | -------------- |
+| [Security Overview](./security/README.md)      | Security features and implementation | April 11, 2025 |
+| [Authentication](./security/authentication.md) | Authentication system                | April 11, 2025 |
+| [Authorization](./security/rbac.md)            | Role-based access control            | April 11, 2025 |
+| [Token Access](./security/token-access.md)     | Token-based access control           | April 11, 2025 |
 
 ### 🎨 Design System
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
+| Document                                                            | Description                            | Last Updated   |
+| ------------------------------------------------------------------- | -------------------------------------- | -------------- |
 | [Sacred Geometry Design System](./sacred-geometry-design-system.md) | Design system based on sacred geometry | April 11, 2025 |
-| [UI Style Guide](./ui/style-guide.md) | UI components and styling guidelines | April 11, 2025 |
-| [Theme Documentation](./avolve-theme.md) | Theme configuration and customization | April 11, 2025 |
+| [UI Style Guide](./ui/style-guide.md)                               | UI components and styling guidelines   | April 11, 2025 |
+| [Theme Documentation](./avolve-theme.md)                            | Theme configuration and customization  | April 11, 2025 |
 
 ### 🪙 Token System
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
-| [Token System Overview](./token-system.md) | Token system architecture and design | April 11, 2025 |
-| [Regenerative Gamification](./regenerative-gamification.md) | Token-based gamification system | April 11, 2025 |
+| Document                                                    | Description                          | Last Updated   |
+| ----------------------------------------------------------- | ------------------------------------ | -------------- |
+| [Token System Overview](./token-system.md)                  | Token system architecture and design | April 11, 2025 |
+| [Regenerative Gamification](./regenerative-gamification.md) | Token-based gamification system      | April 11, 2025 |
 
 ### 🛠️ Development
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
-| [Developer Guide](./guides/developer-guide.md) | Comprehensive developer documentation | April 11, 2025 |
+| Document                                           | Description                              | Last Updated   |
+| -------------------------------------------------- | ---------------------------------------- | -------------- |
+| [Developer Guide](./guides/developer-guide.md)     | Comprehensive developer documentation    | April 11, 2025 |
 | [Implementation Guide](./guides/implementation.md) | Step-by-step implementation instructions | April 11, 2025 |
-| [Testing Strategy](./testing/README.md) | Testing approach and guidelines | April 11, 2025 |
+| [Testing Strategy](./testing/README.md)            | Testing approach and guidelines          | April 11, 2025 |
 
 ### 📖 User Documentation
 
-| Document | Description | Last Updated |
-|----------|-------------|--------------|
-| [User Guide](./guides/user-guide.md) | Platform usage instructions | April 11, 2025 |
-| [Values](./values.md) | Platform values and principles | April 11, 2025 |
+| Document                             | Description                    | Last Updated   |
+| ------------------------------------ | ------------------------------ | -------------- |
+| [User Guide](./guides/user-guide.md) | Platform usage instructions    | April 11, 2025 |
+| [Values](./values.md)                | Platform values and principles | April 11, 2025 |
 
 ## 🔍 Quick Search
 

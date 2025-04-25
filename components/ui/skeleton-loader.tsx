@@ -1,8 +1,8 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { cn } from "@/lib/utils"
+import * as React from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface SkeletonCardProps extends React.HTMLAttributes<HTMLDivElement> {
   isLoading?: boolean;
@@ -16,7 +16,7 @@ export function SkeletonCard({
   ...props
 }: SkeletonCardProps) {
   return (
-    <div className={cn("relative rounded-lg overflow-hidden", className)} {...props}>
+    <div className={cn('relative rounded-lg overflow-hidden', className)} {...props}>
       {isLoading ? (
         <div className="p-4 space-y-3">
           <Skeleton className="h-8 w-2/3" />
@@ -28,13 +28,13 @@ export function SkeletonCard({
         children
       )}
     </div>
-  )
+  );
 }
 
 interface SkeletonDashboardProps extends React.HTMLAttributes<HTMLDivElement> {
-  isLoading?: boolean
-  children: React.ReactNode
-  cardCount?: number
+  isLoading?: boolean;
+  children: React.ReactNode;
+  cardCount?: number;
 }
 
 export function SkeletonDashboard({
@@ -45,7 +45,7 @@ export function SkeletonDashboard({
   ...props
 }: SkeletonDashboardProps) {
   return (
-    <div className={cn("space-y-4", className)} {...props}>
+    <div className={cn('space-y-4', className)} {...props}>
       {isLoading ? (
         <>
           <div className="flex items-center justify-between">
@@ -62,13 +62,13 @@ export function SkeletonDashboard({
         children
       )}
     </div>
-  )
+  );
 }
 
 interface SkeletonListProps extends React.HTMLAttributes<HTMLDivElement> {
-  isLoading?: boolean
-  children: React.ReactNode
-  itemCount?: number
+  isLoading?: boolean;
+  children: React.ReactNode;
+  itemCount?: number;
 }
 
 export function SkeletonList({
@@ -79,7 +79,7 @@ export function SkeletonList({
   ...props
 }: SkeletonListProps) {
   return (
-    <div className={cn("space-y-2", className)} {...props}>
+    <div className={cn('space-y-2', className)} {...props}>
       {isLoading ? (
         <>
           {Array.from({ length: itemCount }).map((_, index) => (
@@ -97,13 +97,13 @@ export function SkeletonList({
         children
       )}
     </div>
-  )
+  );
 }
 
 interface SkeletonSidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  isLoading?: boolean
-  children: React.ReactNode
-  itemCount?: number
+  isLoading?: boolean;
+  children: React.ReactNode;
+  itemCount?: number;
 }
 
 export function SkeletonSidebar({
@@ -114,15 +114,13 @@ export function SkeletonSidebar({
   ...props
 }: SkeletonSidebarProps) {
   return (
-    <div className={cn("space-y-2", className)} {...props}>
+    <div className={cn('space-y-2', className)} {...props}>
       {isLoading ? (
         <>
           <Skeleton className="h-10 w-full rounded-md mb-4" />
           {Array.from({ length: itemCount }).map((_, index) => (
             <React.Fragment key={index}>
-              {index % 3 === 0 && index > 0 && (
-                <Skeleton className="h-5 w-1/2 mt-4 mb-2" />
-              )}
+              {index % 3 === 0 && index > 0 && <Skeleton className="h-5 w-1/2 mt-4 mb-2" />}
               <div className="flex items-center space-x-2 p-1">
                 <Skeleton className="h-5 w-5 rounded-md" />
                 <Skeleton className="h-4 w-3/4" />
@@ -134,7 +132,7 @@ export function SkeletonSidebar({
         children
       )}
     </div>
-  )
+  );
 }
 
 export function SkeletonProgressiveList({
@@ -144,27 +142,27 @@ export function SkeletonProgressiveList({
   initialLoadCount = 3,
   ...props
 }: SkeletonListProps & { initialLoadCount?: number }) {
-  const [loadedCount, setLoadedCount] = React.useState(initialLoadCount)
-  const childrenArray = React.Children.toArray(children)
-  
+  const [loadedCount, setLoadedCount] = React.useState(initialLoadCount);
+  const childrenArray = React.Children.toArray(children);
+
   React.useEffect(() => {
     const timer = setInterval(() => {
       setLoadedCount(prev => {
-        const next = prev + 1
+        const next = prev + 1;
         if (next >= childrenArray.length) {
-          clearInterval(timer)
+          clearInterval(timer);
         }
-        return next
-      })
-    }, 150) // Load a new item every 150ms
-    
-    return () => clearInterval(timer)
-  }, [childrenArray.length])
-  
+        return next;
+      });
+    }, 150); // Load a new item every 150ms
+
+    return () => clearInterval(timer);
+  }, [childrenArray.length]);
+
   return (
-    <div className={cn("space-y-2", className)} {...props}>
+    <div className={cn('space-y-2', className)} {...props}>
       {childrenArray.map((child, index) => (
-        <div key={index} className={index >= loadedCount ? "hidden" : ""}>
+        <div key={index} className={index >= loadedCount ? 'hidden' : ''}>
           {child}
         </div>
       ))}
@@ -174,5 +172,5 @@ export function SkeletonProgressiveList({
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -3,7 +3,14 @@
 import { createClient } from '@/lib/supabase/client';
 import { ActivityType, ActivityLogData } from '@/types/analytics';
 
-export type ActivityActionType = 'page_view' | 'button_click' | 'form_submit' | 'feature_usage' | 'enter_invite_code' | 'select_journey' | 'accept_prime_law';
+export type ActivityActionType =
+  | 'page_view'
+  | 'button_click'
+  | 'form_submit'
+  | 'feature_usage'
+  | 'enter_invite_code'
+  | 'select_journey'
+  | 'accept_prime_law';
 
 /**
  * Logs user activity for analytics purposes
@@ -38,7 +45,7 @@ export class ActivityLogger {
           url: typeof window !== 'undefined' ? window.location.href : null,
           referrer: typeof document !== 'undefined' ? document.referrer : null,
           user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
-        }
+        },
       });
 
       if (error) {
@@ -58,7 +65,7 @@ export class ActivityLogger {
       details: {
         page,
         ...additionalData,
-      }
+      },
     });
   }
 
@@ -71,7 +78,7 @@ export class ActivityLogger {
       details: {
         button_id: buttonId,
         ...additionalData,
-      }
+      },
     });
   }
 
@@ -84,7 +91,7 @@ export class ActivityLogger {
       details: {
         form_id: formId,
         ...additionalData,
-      }
+      },
     });
   }
 
@@ -97,7 +104,7 @@ export class ActivityLogger {
       details: {
         feature_id: featureId,
         ...additionalData,
-      }
+      },
     });
   }
 
@@ -127,7 +134,7 @@ export class ActivityLogger {
 
       return {
         totalActivities: totalActivities?.length || 0,
-        recentActivities: recentActivities?.length || 0
+        recentActivities: recentActivities?.length || 0,
       };
     } catch (error) {
       console.error('Error getting activity stats:', error);
@@ -135,10 +142,7 @@ export class ActivityLogger {
     }
   }
 
-  public async getActivityHistory(
-    userId: string,
-    limit: number = 10
-  ): Promise<any[]> {
+  public async getActivityHistory(userId: string, limit: number = 10): Promise<any[]> {
     try {
       const { data, error } = await this.supabase
         .from('user_activities')

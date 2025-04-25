@@ -1,6 +1,6 @@
 /**
  * Network Dashboard Widget
- * 
+ *
  * Displays physical nodes and user memberships
  */
 
@@ -27,15 +27,15 @@ export function NetworkWidget() {
     async function loadData() {
       try {
         setLoading(true);
-        
+
         // Load active nodes
         const nodesData = await networkApi.getPhysicalNodes('active');
         setActiveNodes(nodesData);
-        
+
         // Load latest census
         const censusData = await networkApi.getLatestCensus();
         setLatestCensus(censusData);
-        
+
         if (user?.id) {
           // Load user's memberships
           const membershipsData = await networkApi.getUserMemberships(user.id, 'active');
@@ -63,7 +63,10 @@ export function NetworkWidget() {
       case 'community_center':
         return 'Community Center';
       default:
-        return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        return type
+          .split('_')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
     }
   };
 
@@ -111,37 +114,46 @@ export function NetworkWidget() {
                     <div className="text-xs text-muted-foreground">Members</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{latestCensus.total_funding.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">
+                      {latestCensus.total_funding.toLocaleString()}
+                    </div>
                     <div className="text-xs text-muted-foreground">Funding</div>
                   </div>
                 </div>
               </div>
             )}
-            
+
             {userMemberships.length > 0 && (
               <div className="mb-4">
                 <h3 className="text-sm font-medium mb-2">Your Memberships</h3>
                 <div className="space-y-2">
-                  {userMemberships.map((membership) => (
+                  {userMemberships.map(membership => (
                     <div key={membership.id} className="border rounded-lg p-3">
                       <div className="flex items-center justify-between mb-1">
                         <h4 className="font-medium">{membership.node?.name || 'Unknown Node'}</h4>
                         <Badge>{formatMembershipType(membership.membership_type)}</Badge>
                       </div>
                       <div className="text-xs text-muted-foreground mb-2">
-                        {membership.node?.city}, {membership.node?.state_province}, {membership.node?.country}
+                        {membership.node?.city}, {membership.node?.state_province},{' '}
+                        {membership.node?.country}
                       </div>
                       {membership.node?.funding_goal > 0 && (
                         <div>
                           <div className="flex items-center justify-between text-xs mb-1">
                             <span>Funding Progress</span>
                             <span>
-                              {Math.round((membership.node.current_funding / membership.node.funding_goal) * 100)}%
+                              {Math.round(
+                                (membership.node.current_funding / membership.node.funding_goal) *
+                                  100
+                              )}
+                              %
                             </span>
                           </div>
-                          <Progress 
-                            value={(membership.node.current_funding / membership.node.funding_goal) * 100} 
-                            className="h-1" 
+                          <Progress
+                            value={
+                              (membership.node.current_funding / membership.node.funding_goal) * 100
+                            }
+                            className="h-1"
                           />
                         </div>
                       )}
@@ -150,11 +162,11 @@ export function NetworkWidget() {
                 </div>
               </div>
             )}
-            
+
             <div>
               <h3 className="text-sm font-medium mb-2">Active Nodes</h3>
               <div className="grid grid-cols-2 gap-2">
-                {activeNodes.slice(0, 4).map((node) => (
+                {activeNodes.slice(0, 4).map(node => (
                   <div key={node.id} className="border rounded-lg p-2">
                     <h4 className="font-medium text-sm truncate">{node.name}</h4>
                     <div className="text-xs text-muted-foreground mb-1 truncate">
@@ -165,14 +177,14 @@ export function NetworkWidget() {
                     </Badge>
                   </div>
                 ))}
-                
+
                 {activeNodes.length === 0 && (
                   <div className="col-span-2 text-center py-4 text-muted-foreground">
                     No active nodes found.
                   </div>
                 )}
               </div>
-              
+
               {activeNodes.length > 4 && (
                 <div className="text-center mt-2">
                   <a href="/network/nodes" className="text-sm text-primary hover:underline">

@@ -3,10 +3,23 @@ import { createClient } from '../../lib/supabase/client';
 import { useForm } from 'react-hook-form';
 import type { ControllerRenderProps } from 'react-hook-form';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from '@/components/ui/form';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormControl,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
 interface CanvasEntryInput {
@@ -47,13 +60,7 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
     setLoading(false);
   };
 
-  const canvasTypes = [
-    'hypothesis',
-    'pain',
-    'gain',
-    'job_to_be_done',
-    'goal',
-  ];
+  const canvasTypes = ['hypothesis', 'pain', 'gain', 'job_to_be_done', 'goal'];
 
   const pillars = [
     { key: 'individual', label: 'Individual (Superachiever)' },
@@ -74,13 +81,20 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
               render={({ field }: { field: ControllerRenderProps<CanvasEntryInput, 'pillar'> }) => (
                 <FormItem>
                   <FormLabel>Pillar</FormLabel>
-                  <Select value={field.value} onValueChange={(val: 'individual' | 'collective' | 'ecosystem') => field.onChange(val)}>
+                  <Select
+                    value={field.value}
+                    onValueChange={(val: 'individual' | 'collective' | 'ecosystem') =>
+                      field.onChange(val)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {pillars.map((p, index) => (
-                        <SelectItem key={index} value={p.key}>{p.label}</SelectItem>
+                        <SelectItem key={index} value={p.key}>
+                          {p.label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -90,7 +104,11 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
             />
             <FormField
               name="canvas_type"
-              render={({ field }: { field: ControllerRenderProps<CanvasEntryInput, 'canvas_type'> }) => (
+              render={({
+                field,
+              }: {
+                field: ControllerRenderProps<CanvasEntryInput, 'canvas_type'>;
+              }) => (
                 <FormItem>
                   <FormLabel>Type</FormLabel>
                   <Select value={field.value} onValueChange={(val: string) => field.onChange(val)}>
@@ -99,7 +117,9 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
                     </SelectTrigger>
                     <SelectContent>
                       {canvasTypes.map((type, index) => (
-                        <SelectItem key={index} value={type}>{type}</SelectItem>
+                        <SelectItem key={index} value={type}>
+                          {type}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -121,7 +141,11 @@ const CanvasEditor: React.FC<{ onCreated?: () => void }> = ({ onCreated }) => {
             />
             <FormField
               name="description"
-              render={({ field }: { field: ControllerRenderProps<CanvasEntryInput, 'description'> }) => (
+              render={({
+                field,
+              }: {
+                field: ControllerRenderProps<CanvasEntryInput, 'description'>;
+              }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>

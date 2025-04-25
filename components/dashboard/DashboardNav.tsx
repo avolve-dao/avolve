@@ -20,19 +20,23 @@ const NAV = [
 
 export default function DashboardNav() {
   return (
-    <nav style={{display: 'flex', gap: 18, marginBottom: 28}}>
+    <nav style={{ display: 'flex', gap: 18, marginBottom: 28 }}>
       {NAV.map(item => (
         <Link key={item.label} href={item.href} legacyBehavior>
-          <a style={{
-            padding: '0.5rem 1.25rem',
-            borderRadius: 8,
-            fontWeight: 600,
-            color: '#222',
-            background: item.gradient,
-            textDecoration: 'none',
-            boxShadow: '0 1px 4px #e0e0e0',
-            transition: 'box-shadow 0.2s',
-          }}>{item.label}</a>
+          <a
+            style={{
+              padding: '0.5rem 1.25rem',
+              borderRadius: 8,
+              fontWeight: 600,
+              color: '#222',
+              background: item.gradient,
+              textDecoration: 'none',
+              boxShadow: '0 1px 4px #e0e0e0',
+              transition: 'box-shadow 0.2s',
+            }}
+          >
+            {item.label}
+          </a>
         </Link>
       ))}
     </nav>

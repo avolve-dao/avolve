@@ -36,17 +36,11 @@ Update your root layout to include the Supabase provider:
 // app/layout.tsx
 import { SupabaseProvider } from '@/components/supabase/provider';
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <SupabaseProvider>
-          {children}
-        </SupabaseProvider>
+        <SupabaseProvider>{children}</SupabaseProvider>
       </body>
     </html>
   );
@@ -61,11 +55,7 @@ Replace your existing navigation with the enhanced unified navigation:
 // app/(main)/layout.tsx
 import { UnifiedNav } from '@/components/navigation/unified-nav';
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <UnifiedNav />
@@ -119,7 +109,9 @@ import { useTokens } from '@/hooks/use-tokens';
 
 export default async function Dashboard() {
   const supabase = createServerComponentClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   const userId = session?.user?.id;
   const { tokens } = useTokens();
 
@@ -130,7 +122,7 @@ export default async function Dashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Your Dashboard</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
           <FocusMode userId={userId} />
@@ -139,7 +131,7 @@ export default async function Dashboard() {
           <FeaturePreview userId={userId} />
         </div>
       </div>
-      
+
       <div>
         <JourneyMap userId={userId} />
       </div>
@@ -163,8 +155,10 @@ import Link from 'next/link';
 
 export default async function SuperachieverDiscover() {
   const supabase = createServerComponentClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
-  
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   // Fetch discovery phase content for Superachiever pillar
   const { data: phaseContent } = await supabase
     .from('phase_content')
@@ -172,25 +166,24 @@ export default async function SuperachieverDiscover() {
     .eq('pillar', 'superachiever')
     .eq('phase', 'discover')
     .single();
-  
+
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Discover Your Superachiever Journey</h1>
       <p className="text-xl text-muted-foreground">
         Begin your personal transformation journey and unlock your full potential.
       </p>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
         <Card>
           <CardHeader>
             <CardTitle>Personal Success Puzzle</CardTitle>
-            <CardDescription>
-              Enhance your health, wealth, and peace in life
-            </CardDescription>
+            <CardDescription>Enhance your health, wealth, and peace in life</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="mb-4">
-              Discover how the Personal Success Puzzle can help you achieve greater personal successes faster.
+              Discover how the Personal Success Puzzle can help you achieve greater personal
+              successes faster.
             </p>
             <Link href="/superachiever/onboard?focus=personal">
               <Button>
@@ -200,17 +193,16 @@ export default async function SuperachieverDiscover() {
             </Link>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Business Success Puzzle</CardTitle>
-            <CardDescription>
-              Enhance your network and advance your net worth
-            </CardDescription>
+            <CardDescription>Enhance your network and advance your net worth</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="mb-4">
-              Discover how the Business Success Puzzle can help you achieve greater business successes faster.
+              Discover how the Business Success Puzzle can help you achieve greater business
+              successes faster.
             </p>
             <Link href="/superachiever/onboard?focus=business">
               <Button>
@@ -241,14 +233,14 @@ import { useTokens } from '@/hooks/use-tokens';
 export function UserProgressDisplay() {
   const { userProgress, isLoading, error } = useUserProgress();
   const { tokens } = useTokens();
-  
+
   if (isLoading) return <div>Loading progress...</div>;
   if (error) return <div>Error loading progress</div>;
-  
+
   return (
     <div>
       <h2>Your Progress</h2>
-      
+
       <div className="space-y-4">
         {Object.entries(userProgress || {}).map(([pillar, progress]) => (
           <div key={pillar} className="border p-4 rounded-md">
@@ -259,7 +251,7 @@ export function UserProgressDisplay() {
           </div>
         ))}
       </div>
-      
+
       <h2 className="mt-6">Your Tokens</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {tokens?.map(token => (
@@ -290,39 +282,39 @@ import { toast } from '@/components/ui/use-toast';
 export function PhaseAdvancement() {
   const { userProgress, advanceToNextPhase, isLoading } = useUserProgress();
   const [advancing, setAdvancing] = useState(false);
-  
+
   const handleAdvance = async (pillar: string) => {
     if (!userProgress) return;
-    
+
     setAdvancing(true);
     try {
       const result = await advanceToNextPhase(pillar as any);
       if (result) {
         toast({
-          title: "Phase Advanced!",
+          title: 'Phase Advanced!',
           description: `You've advanced to the ${result.current_phase} phase in ${pillar}`,
         });
       }
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Could not advance phase",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Could not advance phase',
+        variant: 'destructive',
       });
     } finally {
       setAdvancing(false);
     }
   };
-  
+
   if (isLoading) return <div>Loading...</div>;
-  
+
   return (
     <div className="space-y-4">
       {Object.entries(userProgress || {}).map(([pillar, progress]) => (
         <div key={pillar} className="border p-4 rounded-md">
           <h3 className="capitalize">{pillar}</h3>
           <p>Current Phase: {progress.current_phase}</p>
-          <Button 
+          <Button
             onClick={() => handleAdvance(pillar)}
             disabled={advancing || progress.current_phase === 'endgame'}
           >
@@ -377,15 +369,11 @@ Use SWR or React Query for client-side data fetching with caching:
 import useSWR from 'swr';
 
 function useUserData(userId: string) {
-  return useSWR(
-    userId ? `/api/user-data?userId=${userId}` : null,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 60000,
-    }
-  );
+  return useSWR(userId ? `/api/user-data?userId=${userId}` : null, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    dedupingInterval: 60000,
+  });
 }
 ```
 

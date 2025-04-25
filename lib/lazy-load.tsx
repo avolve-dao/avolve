@@ -1,13 +1,11 @@
 'use client';
 
-import dynamic from "next/dynamic";
-import { ComponentType, ReactNode } from "react";
+import dynamic from 'next/dynamic';
+import { ComponentType, ReactNode } from 'react';
 
 // Default loading component
 const DefaultLoading = () => {
-  return (
-    <div className="p-4 text-center">Loading...</div>
-  );
+  return <div className="p-4 text-center">Loading...</div>;
 };
 
 // Default error component
@@ -27,13 +25,13 @@ export function lazyLoad<T>(
     error?: ComponentType<{ error: Error }>;
     ssr?: boolean;
     suspense?: boolean;
-  } = {},
+  } = {}
 ) {
   const {
     loading = () => <div>Loading...</div>,
     error = DefaultError,
     ssr = false,
-    suspense = false
+    suspense = false,
   } = options;
 
   return dynamic(() => importFunc(), {

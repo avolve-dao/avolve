@@ -1,6 +1,6 @@
 /**
  * Token Service Types
- * 
+ *
  * This file contains TypeScript types for the token service and related functionality.
  * It defines the structure of token operations, claims, and results.
  */
@@ -141,11 +141,14 @@ export interface DailyTransactionData {
   sent: number;
   transaction_count: number;
   net: number;
-  by_token: Record<string, {
-    received: number;
-    sent: number;
-    net: number;
-  }>;
+  by_token: Record<
+    string,
+    {
+      received: number;
+      sent: number;
+      net: number;
+    }
+  >;
 }
 
 /**
@@ -303,52 +306,52 @@ export interface ITokenService {
    * Get a token by ID
    */
   getTokenById(tokenId: string): Promise<TokenResult<Token>>;
-  
+
   /**
    * Get a token by symbol
    */
   getTokenBySymbol(symbol: string): Promise<TokenResult<Token>>;
-  
+
   /**
    * Get all tokens
    */
   getAllTokens(): Promise<TokenResult<Token[]>>;
-  
+
   /**
    * Get tokens for a specific day
    */
   getTokensForDay(dayOfWeek: number): Promise<TokenResult<Token[]>>;
-  
+
   /**
    * Get user balance for a specific token
    */
   getUserBalance(userId: string, tokenId: string): Promise<TokenResult<UserBalance>>;
-  
+
   /**
    * Get all user balances
    */
   getUserBalances(userId: string): Promise<TokenResult<UserBalance[]>>;
-  
+
   /**
    * Mint tokens to a user
    */
   mintTokens(options: TokenMintOptions): Promise<TokenResult<TokenMintResult>>;
-  
+
   /**
    * Transfer tokens between users
    */
   transferTokens(options: TokenTransferOptions): Promise<TokenResult<TokenTransferResult>>;
-  
+
   /**
    * Claim daily token
    */
   claimDailyToken(options: TokenClaimOptions): Promise<TokenResult<TokenClaimResult>>;
-  
+
   /**
    * Get user token analytics
    */
   getUserTokenAnalytics(options: TokenAnalyticsOptions): Promise<TokenResult<TokenAnalyticsResult>>;
-  
+
   /**
    * Get user streak
    */
@@ -357,9 +360,18 @@ export interface ITokenService {
   // Community Milestones
   getAllCommunityMilestones(): Promise<TokenResult<CommunityMilestone[]>>;
   getCommunityMilestoneById(id: string): Promise<TokenResult<CommunityMilestone>>;
-  createCommunityMilestone(milestone: Partial<CommunityMilestone>): Promise<TokenResult<CommunityMilestone>>;
-  updateCommunityMilestone(id: string, updates: Partial<CommunityMilestone>): Promise<TokenResult<CommunityMilestone>>;
-  contributeToMilestone(milestoneId: string, userId: string, amount: number): Promise<TokenResult<MilestoneContribution>>;
+  createCommunityMilestone(
+    milestone: Partial<CommunityMilestone>
+  ): Promise<TokenResult<CommunityMilestone>>;
+  updateCommunityMilestone(
+    id: string,
+    updates: Partial<CommunityMilestone>
+  ): Promise<TokenResult<CommunityMilestone>>;
+  contributeToMilestone(
+    milestoneId: string,
+    userId: string,
+    amount: number
+  ): Promise<TokenResult<MilestoneContribution>>;
   getMilestoneContributions(milestoneId: string): Promise<TokenResult<MilestoneContribution[]>>;
 
   // Teams
@@ -370,7 +382,11 @@ export interface ITokenService {
   getTeamMembers(teamId: string): Promise<TokenResult<TeamMember[]>>;
 
   // Assists
-  logAssist(helperId: string, recipientId: string, description?: string): Promise<TokenResult<Assist>>;
+  logAssist(
+    helperId: string,
+    recipientId: string,
+    description?: string
+  ): Promise<TokenResult<Assist>>;
   getAssistsForUser(userId: string): Promise<TokenResult<Assist[]>>;
 }
 

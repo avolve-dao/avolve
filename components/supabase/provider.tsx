@@ -1,10 +1,10 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { createClientComponentClient, Session } from '@supabase/auth-helpers-nextjs';
-import { SupabaseClient } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createClient } from '../../lib/supabase/client';
+import { SupabaseClient, Session } from '@supabase/supabase-js';
 
-type SupabaseContextType = {
+export type SupabaseContextType = {
   supabase: SupabaseClient;
   session: Session | null;
   isLoading: boolean;
@@ -12,22 +12,27 @@ type SupabaseContextType = {
 
 const SupabaseContext = createContext<SupabaseContextType | undefined>(undefined);
 
+export { SupabaseContext };
+
 export function SupabaseProvider({ children }: { children: ReactNode }) {
-  const [supabase] = useState(() => createClientComponentClient());
+  const [supabase] = useState(() => createClient());
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const getSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
       setSession(session);
       setIsLoading(false);
-      
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        (_event, session) => {
-          setSession(session);
-        }
-      );
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+        setSession(session);
+      });
 
       return () => subscription.unsubscribe();
     };

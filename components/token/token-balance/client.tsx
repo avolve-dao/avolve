@@ -24,8 +24,10 @@ export function TokenBalanceClient() {
 
   useEffect(() => {
     async function loadTokenBalances() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -38,9 +40,9 @@ export function TokenBalanceClient() {
 
       if (error) {
         toast({
-          title: "Error",
-          description: "Failed to load token balances",
-          variant: "destructive"
+          title: 'Error',
+          description: 'Failed to load token balances',
+          variant: 'destructive',
         });
         return;
       }
@@ -51,13 +53,14 @@ export function TokenBalanceClient() {
       // Subscribe to balance updates
       const channel = supabase
         .channel('balance_updates')
-        .on('postgres_changes', 
-          { 
-            event: '*', 
-            schema: 'public', 
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
             table: 'user_token_balances',
-            filter: `user_id=eq.${user.id}`
-          }, 
+            filter: `user_id=eq.${user.id}`,
+          },
           () => {
             loadTokenBalances();
           }
@@ -93,7 +96,7 @@ export function TokenBalanceClient() {
 
   return (
     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      {balances.map((balance) => (
+      {balances.map(balance => (
         <Card key={balance.token_type}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between">

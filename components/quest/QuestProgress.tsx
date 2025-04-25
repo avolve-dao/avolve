@@ -7,10 +7,15 @@ interface QuestProgressProps {
   progress: number;
 }
 
-export const QuestProgress: React.FC<QuestProgressProps> = ({ title, category, status, progress }) => {
+export const QuestProgress: React.FC<QuestProgressProps> = ({
+  title,
+  category,
+  status,
+  progress,
+}) => {
   // Convert status to a more readable format
   const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ');
-  
+
   return (
     <div className="py-2 border-b border-zinc-200 last:border-b-0">
       <div className="flex justify-between items-center mb-1">
@@ -19,8 +24,8 @@ export const QuestProgress: React.FC<QuestProgressProps> = ({ title, category, s
       </div>
       <div className="text-xs text-muted-foreground mb-1">Category: {category}</div>
       <div className="w-full bg-secondary rounded-full h-2.5">
-        <div 
-          className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-in-out" 
+        <div
+          className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-in-out"
           style={{ width: `${progress}%` }}
         ></div>
       </div>

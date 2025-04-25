@@ -103,16 +103,19 @@ Your journey on Avolve represents a shift from extractive (degen) to regenerativ
 ![Degen to Regen Journey](/assets/images/degen-to-regen-journey.png)
 
 1. **Discovery Phase**: Introduction to platform concepts and core value proposition
+
    - Explore the dashboard and available features
    - Complete your first PSP (Personal Success Puzzle) event
    - Earn your first tokens and understand their value
 
 2. **Onboarding Phase**: Guided exploration of platform mechanics
+
    - Build your first streak with daily token claims
    - Engage with the community through SSA (Supersociety Advancements) events
    - Unlock basic features through token accumulation
 
 3. **Scaffolding Phase**: Deeper engagement with personal and community growth
+
    - Participate in weekly community events
    - Build multiple token streaks simultaneously
    - Contribute to community initiatives
@@ -130,6 +133,7 @@ Your dashboard's JourneyMap component visualizes your progress through these pha
 ![Journey Map Dashboard](/assets/images/journey-map-dashboard.png)
 
 The JourneyMap shows:
+
 - Your current phase in the Degen-to-Regen journey
 - Completed milestones and upcoming challenges
 - Personalized recommendations for next steps
@@ -142,6 +146,7 @@ The AIInsights component on your dashboard provides personalized guidance based 
 ![AI Insights Dashboard](/assets/images/ai-insights-dashboard.png)
 
 These AI-powered insights help you:
+
 - Identify optimal activities based on your goals
 - Predict token earning potential from different activities
 - Receive personalized recommendations for feature exploration
@@ -154,13 +159,16 @@ These AI-powered insights help you:
 The Superachiever journey focuses on personal transformation and growth. Here's how to maximize your experience:
 
 #### Posting and Rewards
+
 1. **Create Posts**
+
    - Share transformation wins, breakthroughs, and learnings
    - Choose token fee (1-5 GEN) - higher fees increase visibility
    - Add relevant tags for better discovery
    - Include media to enhance engagement
 
 2. **Earn Rewards**
+
    - Base reward: 10 SAP tokens at 50% engagement
    - Engagement bonuses:
      - Likes: +1 engagement point
@@ -179,13 +187,16 @@ The Superachiever journey focuses on personal transformation and growth. Here's 
 The Superachievers journey amplifies collective transformation through collaboration:
 
 #### Regen Circles
+
 1. **Join or Create Circles**
+
    - Find circles aligned with your interests
    - Create new circles (requires 50 GEN)
    - Set circle goals and metrics
    - Invite collaborators
 
 2. **Real-Time Chat**
+
    - Engage in focused discussions
    - Share resources and insights
    - Coordinate group activities
@@ -202,13 +213,16 @@ The Superachievers journey amplifies collective transformation through collabora
 The Supercivilization journey contributes to global transformation:
 
 #### Ecosystem Impact
+
 1. **Track Metrics**
+
    - View real-time ecosystem stats
    - Monitor token circulation
    - Track global engagement
    - Measure collective impact
 
 2. **Governance**
+
    - Participate in proposals (requires 100 GEN)
    - Vote on initiatives
    - Suggest improvements
@@ -225,12 +239,14 @@ The Supercivilization journey contributes to global transformation:
 Your three journeys are interconnected for maximum impact:
 
 1. **Token Synergy**
+
    - Personal posts earn SAP
    - Group wins earn GEN
    - Ecosystem contributions earn multiple tokens
    - Cross-journey bonuses available
 
 2. **Progressive Features**
+
    - Unlock new features with participation
    - Access advanced tools with token holdings
    - Earn special roles through contribution
@@ -251,11 +267,13 @@ The Avolve platform uses a sophisticated token system to incentivize and reward 
 The token system is organized hierarchically:
 
 1. **GEN (Genesis)**: The primary ecosystem token
+
    - Represents your overall contribution to the Supercivilization
    - Used for governance voting and feature unlocks
    - Earned through consistent participation and special contributions
 
 2. **SAP (Superachiever)**: Personal growth tokens
+
    - Represents your individual journey progress
    - Includes PSP (Tuesday), BSP (Thursday), and SMS (Saturday) tokens
    - Focuses on personal development and achievement
@@ -272,11 +290,13 @@ The token system is organized hierarchically:
 Optimize your token earnings with these strategies:
 
 1. **PSP Focus (Tuesdays)**: Complete Personal Success Puzzle events
+
    - Quick daily tasks focused on personal growth
    - Example: "Boost Health with daily tasks" - complete a 5-minute workout
    - Rewards: 10 PSP tokens + streak bonuses
 
 2. **SSA Focus (Wednesdays)**: Join Supersociety Advancement events
+
    - Community-oriented activities and discussions
    - Example: "Join Wednesday's community call for SCQ tokens"
    - Rewards: 15 SSA tokens + 5 SCQ tokens for participation
@@ -290,19 +310,20 @@ Optimize your token earnings with these strategies:
 
 The platform implements Tesla's 3-6-9 pattern for streak bonuses:
 
-| Streak Length | Multiplier | Example Reward |
-|---------------|------------|----------------|
-| 1-2 days | 1.0x | 10 tokens (base) |
-| 3-5 days | 1.3x | 13 tokens (30% bonus) |
-| 6-8 days | 1.6x | 16 tokens (60% bonus) |
-| 9+ days | 1.9x | 19 tokens (90% bonus) |
-| 12+ days | 2.2x | 22 tokens (120% bonus) |
+| Streak Length | Multiplier | Example Reward         |
+| ------------- | ---------- | ---------------------- |
+| 1-2 days      | 1.0x       | 10 tokens (base)       |
+| 3-5 days      | 1.3x       | 13 tokens (30% bonus)  |
+| 6-8 days      | 1.6x       | 16 tokens (60% bonus)  |
+| 9+ days       | 1.9x       | 19 tokens (90% bonus)  |
+| 12+ days      | 2.2x       | 22 tokens (120% bonus) |
 
 ![Streak Bonus System](/assets/images/streak-bonus-system.png)
 
 ### Token Exchange
 
 As you accumulate tokens, you can:
+
 - Exchange lower-tier tokens for higher-tier tokens
 - Unlock premium features and experiences
 - Contribute to community initiatives
@@ -390,11 +411,11 @@ If your invitation code is invalid or expired, you'll need to request a new one 
 
 Avolve offers different invitation tiers, each with unique benefits:
 
-| Tier | Token Bonus | Features |
-|------|-------------|----------|
-| Standard | 10 GEN | Basic platform access |
-| Premium | 25 GEN | Basic access + 1 premium feature |
-| Founder | 50 GEN | Full access to all features |
+| Tier     | Token Bonus | Features                         |
+| -------- | ----------- | -------------------------------- |
+| Standard | 10 GEN      | Basic platform access            |
+| Premium  | 25 GEN      | Basic access + 1 premium feature |
+| Founder  | 50 GEN      | Full access to all features      |
 
 ### Onboarding Process
 
@@ -403,10 +424,12 @@ After creating your account, you'll go through a structured onboarding process:
 ![Onboarding Process](https://github.com/avolve-dao/avolve.io/assets/images/onboarding-flow.png)
 
 1. **Enter Invitation Code**: If you haven't already, enter your invitation code to begin
+
    - Your code will be validated in real-time
    - Once verified, you'll see a confirmation message and can proceed
 
 2. **Agree to The Prime Law**: Review and agree to The Prime Law, the foundational principles of the Avolve platform
+
    - The Prime Law consists of three key principles:
      1. No person shall initiate force against another's self, property, or contracts
      2. Force may only be used in self-defense
@@ -414,6 +437,7 @@ After creating your account, you'll go through a structured onboarding process:
    - Check the agreement box to proceed
 
 3. **Select Your Journey**: Choose which journey resonates most with you:
+
    - **Superachiever (SAP)**: Focus on your individual journey (earn PSP, BSP, SMS tokens)
    - **Superachievers (SCQ)**: Focus on collective transformation (earn SPD, SHE, SSA, SGB tokens)
    - **Supercivilization (GEN)**: Focus on ecosystem-level transformation (earn GEN tokens)
@@ -435,15 +459,16 @@ Your dashboard will automatically display today's challenge based on the current
 
 1. **View Today's Challenge**: On your dashboard, you'll see the day's token type and challenge
    - For example, on Wednesday you'll see an SSA (Supersociety Advancements) challenge with a Lime-Green-Emerald gradient
-   
 2. **Read the Instructions**: Each challenge includes clear instructions and an explanation of its purpose
 
 3. **Complete the Task**: Follow the instructions to complete the challenge
+
    - This might involve answering a reflection question, completing a small task, or engaging with the community
 
 4. **Submit Your Completion**: Click the "Complete Challenge" button when you're done
 
 5. **Claim Your Reward**: After completion, you'll receive tokens with any applicable streak bonuses
+
    - For example: "Challenge Completed! You earned 13 SSA tokens (1.3x multiplier)"
 
 6. **Check Your Streak**: Your streak counter will increase, moving you closer to higher Tesla 3-6-9 multipliers
@@ -487,12 +512,14 @@ The Avolve platform offers multiple paths to value creation, each optimized for 
 When selecting your journey during onboarding, consider these optimized paths:
 
 1. **SAP (Superachiever) Focus**:
+
    - Best for: Individual growth and personal development
    - Quick wins: Complete PSP challenges (Tuesdays) for immediate health and wealth improvements
    - Unlock path: Prioritize personal metrics to unlock advanced self-improvement tools
    - Time commitment: 5-10 minutes daily, focused on personal reflection and action
 
 2. **SCQ (Superachievers) Focus**:
+
    - Best for: Community building and collective advancement
    - Quick wins: Complete SSA challenges (Wednesdays) for immediate community contribution
    - Unlock path: Prioritize community engagement to access governance features
@@ -509,11 +536,13 @@ When selecting your journey during onboarding, consider these optimized paths:
 To maximize your token earnings and platform value:
 
 1. **Tuesday-Wednesday Combo**: Focus on PSP (Tuesday) and SSA (Wednesday) for the most efficient token acquisition strategy
+
    - PSP tokens unlock personal development tools
    - SSA tokens provide community influence and governance rights
    - This combination accelerates both individual and collective progress
 
 2. **Streak Prioritization**: If time is limited, prioritize maintaining your SSA streak on Wednesdays
+
    - The 3-6-9 multiplier system makes consistent participation more valuable than occasional intensive engagement
    - A 9-day SSA streak (1.9x multiplier) generates nearly twice the value of baseline participation
 
@@ -531,15 +560,15 @@ The Avolve platform features a daily token claim system that encourages regular 
 
 Each day of the week is associated with a specific token:
 
-| Day | Token | Full Name |
-|-----|-------|-----------|
-| Sunday | SPD | Superpuzzle Developments |
-| Monday | SHE | Superhuman Enhancements |
-| Tuesday | PSP | Personal Success Puzzle |
-| Wednesday | SSA | Supersociety Advancements |
-| Thursday | BSP | Business Success Puzzle |
-| Friday | SGB | Supergenius Breakthroughs |
-| Saturday | SMS | Supermind Superpowers |
+| Day       | Token | Full Name                 |
+| --------- | ----- | ------------------------- |
+| Sunday    | SPD   | Superpuzzle Developments  |
+| Monday    | SHE   | Superhuman Enhancements   |
+| Tuesday   | PSP   | Personal Success Puzzle   |
+| Wednesday | SSA   | Supersociety Advancements |
+| Thursday  | BSP   | Business Success Puzzle   |
+| Friday    | SGB   | Supergenius Breakthroughs |
+| Saturday  | SMS   | Supermind Superpowers     |
 
 ### Weekly Token Schedule
 
@@ -547,15 +576,15 @@ The weekly token schedule is designed to create a balanced experience across dif
 
 ![Weekly Token Schedule](https://github.com/avolve-dao/avolve.io/assets/images/weekly-token-schedule.png)
 
-| Day | Token | Visual Identity | Focus Area |
-|-----|-------|-----------------|------------|
-| Sunday | SPD | Red-Green-Blue gradient | Integration and synthesis |
-| Monday | SHE | Rose-Red-Orange gradient | Personal development |
-| Tuesday | PSP | Amber-Yellow gradient | Personal success |
-| Wednesday | SSA | Lime-Green-Emerald gradient | Community building |
-| Thursday | BSP | Teal-Cyan gradient | Professional growth |
-| Friday | SGB | Sky-Blue-Indigo gradient | Innovation and creativity |
-| Saturday | SMS | Violet-Purple-Fuchsia-Pink gradient | Mental mastery |
+| Day       | Token | Visual Identity                     | Focus Area                |
+| --------- | ----- | ----------------------------------- | ------------------------- |
+| Sunday    | SPD   | Red-Green-Blue gradient             | Integration and synthesis |
+| Monday    | SHE   | Rose-Red-Orange gradient            | Personal development      |
+| Tuesday   | PSP   | Amber-Yellow gradient               | Personal success          |
+| Wednesday | SSA   | Lime-Green-Emerald gradient         | Community building        |
+| Thursday  | BSP   | Teal-Cyan gradient                  | Professional growth       |
+| Friday    | SGB   | Sky-Blue-Indigo gradient            | Innovation and creativity |
+| Saturday  | SMS   | Violet-Purple-Fuchsia-Pink gradient | Mental mastery            |
 
 New challenges unlock every day at midnight UTC. You have 24 hours to complete each day's challenge before it refreshes.
 
@@ -572,11 +601,13 @@ New challenges unlock every day at midnight UTC. You have 24 hours to complete e
 The token system is organized into a hierarchy that reflects the three main value pillars of Avolve:
 
 1. **Superachiever (SAP)** - Individual journey tokens:
+
    - PSP (Personal Success Puzzle) - Tuesday
    - BSP (Business Success Puzzle) - Thursday
    - SMS (Supermind Superpowers) - Saturday
 
 2. **Superachievers (SCQ)** - Collective journey tokens:
+
    - SPD (Superpuzzle Developments) - Sunday
    - SHE (Superhuman Enhancements) - Monday
    - SSA (Supersociety Advancements) - Wednesday
@@ -590,11 +621,13 @@ The token system is organized into a hierarchy that reflects the three main valu
 ### Ways to Contribute
 
 1. **Community Challenges**
+
    - Participate in weekly community challenges
    - Contribute ideas and feedback
    - Collaborate with other members on solutions
 
 2. **Content Creation**
+
    - Create and share educational content
    - Develop tools and resources for the community
    - Provide mentorship to new members
@@ -631,12 +664,12 @@ The Census Dashboard includes:
 
 #### Key Census Metrics
 
-| Metric | Description | How It's Calculated |
-|--------|-------------|---------------------|
-| Contribution Score | Overall measure of your contributions | Weighted average of all contribution types |
-| Network Influence | Your impact on the network state | Based on proposal creation, voting, and referrals |
-| Engagement Rate | How consistently you engage with the platform | Daily active days / Total days since joining |
-| Value Creation | Measure of value you've created for others | Based on community ratings and feedback |
+| Metric             | Description                                   | How It's Calculated                               |
+| ------------------ | --------------------------------------------- | ------------------------------------------------- |
+| Contribution Score | Overall measure of your contributions         | Weighted average of all contribution types        |
+| Network Influence  | Your impact on the network state              | Based on proposal creation, voting, and referrals |
+| Engagement Rate    | How consistently you engage with the platform | Daily active days / Total days since joining      |
+| Value Creation     | Measure of value you've created for others    | Based on community ratings and feedback           |
 
 ### Contribution Analytics
 
@@ -645,6 +678,7 @@ The Contribution Analytics section provides detailed insights into your specific
 ![Contribution Analytics](https://github.com/avolve-dao/avolve.io/assets/images/contribution-analytics.png)
 
 1. **Contribution Types**: Breakdown of your contributions by category
+
    - Content creation
    - Governance participation
    - Community support
@@ -652,6 +686,7 @@ The Contribution Analytics section provides detailed insights into your specific
    - Educational resources
 
 2. **Time-Based Analysis**: View your contribution patterns by:
+
    - Day of week
    - Time of day
    - Monthly trends
@@ -711,14 +746,17 @@ The platform uses a metrics-driven approach to feature unlocking. By improving y
 ### Feature Unlock Requirements
 
 1. **Teams Feature**
+
    - Complete 10 challenges
    - Unlocks the ability to create or join teams for collaborative work
 
 2. **Governance Feature**
+
    - Accumulate 100 GEN tokens
    - Unlocks the ability to create petitions and vote on platform decisions
 
 3. **Marketplace Feature**
+
    - Complete 20 challenges OR achieve DAU/MAU > 0.3
    - Unlocks the ability to buy, sell, and trade items with other users
 
@@ -748,16 +786,16 @@ The Avolve platform uses a streak system based on Tesla's 3-6-9 pattern to rewar
 
 The Avolve platform implements Nikola Tesla's sacred geometry pattern of 3-6-9 to calculate streak bonuses:
 
-| Streak Length | Bonus Multiplier | Example Reward (10 base tokens) |
-|---------------|------------------|--------------------------------|
-| 1-2 days | 1.0x (no bonus) | 10 tokens |
-| 3-5 days | 1.3x bonus | 13 tokens |
-| 6-8 days | 1.6x bonus | 16 tokens |
-| 9+ days | 1.9x bonus | 19 tokens |
-| 12+ days | 2.3x bonus | 23 tokens |
-| 15+ days | 2.6x bonus | 26 tokens |
-| 18+ days | 2.9x bonus | 29 tokens |
-| 21+ days | 3.3x bonus and higher | 33+ tokens |
+| Streak Length | Bonus Multiplier      | Example Reward (10 base tokens) |
+| ------------- | --------------------- | ------------------------------- |
+| 1-2 days      | 1.0x (no bonus)       | 10 tokens                       |
+| 3-5 days      | 1.3x bonus            | 13 tokens                       |
+| 6-8 days      | 1.6x bonus            | 16 tokens                       |
+| 9+ days       | 1.9x bonus            | 19 tokens                       |
+| 12+ days      | 2.3x bonus            | 23 tokens                       |
+| 15+ days      | 2.6x bonus            | 26 tokens                       |
+| 18+ days      | 2.9x bonus            | 29 tokens                       |
+| 21+ days      | 3.3x bonus and higher | 33+ tokens                      |
 
 The pattern continues with a 0.3x increase for each additional 3 days in your streak.
 
@@ -790,46 +828,52 @@ The Avolve platform features daily challenges tied to specific tokens, allowing 
 
 Each day of the week features a specific token-themed challenge:
 
-| Day | Token | Focus Area | Challenge Type |
-|-----|-------|------------|---------------|
-| Sunday | SPD | Superpuzzle Developments | Integration exercises |
-| Monday | SHE | Superhuman Enhancements | Personal development |
-| Tuesday | PSP | Personal Success Puzzle | Health and wellbeing |
-| Wednesday | SSA | Supersociety Advancements | Community building |
-| Thursday | BSP | Business Success Puzzle | Professional growth |
-| Friday | SGB | Supergenius Breakthroughs | Innovation and creativity |
-| Saturday | SMS | Supermind Superpowers | Mental mastery |
+| Day       | Token | Focus Area                | Challenge Type            |
+| --------- | ----- | ------------------------- | ------------------------- |
+| Sunday    | SPD   | Superpuzzle Developments  | Integration exercises     |
+| Monday    | SHE   | Superhuman Enhancements   | Personal development      |
+| Tuesday   | PSP   | Personal Success Puzzle   | Health and wellbeing      |
+| Wednesday | SSA   | Supersociety Advancements | Community building        |
+| Thursday  | BSP   | Business Success Puzzle   | Professional growth       |
+| Friday    | SGB   | Supergenius Breakthroughs | Innovation and creativity |
+| Saturday  | SMS   | Supermind Superpowers     | Mental mastery            |
 
 ### Daily Challenge Examples
 
 Here are examples of daily challenges for each day of the week:
 
 1. **Sunday (SPD - Red-Green-Blue gradient)**
+
    - Challenge: "Complete a superpuzzle integration exercise"
    - Example task: Reflect on how your personal, business, and community goals align
    - Reward: 10 SPD tokens + streak bonus
 
 2. **Monday (SHE - Rose-Red-Orange gradient)**
+
    - Challenge: "Complete a superhuman enhancement activity"
    - Example task: Learn a new skill for 15 minutes or practice meditation
    - Reward: 10 SHE tokens + streak bonus
 
 3. **Tuesday (PSP - Amber-Yellow gradient)**
+
    - Challenge: "Set a personal success goal for your health"
    - Example task: Track your water intake or complete a workout
    - Reward: 10 PSP tokens + streak bonus
 
 4. **Wednesday (SSA - Lime-Green-Emerald gradient)**
+
    - Challenge: "Contribute to the Avolve community"
    - Example task: Respond to another member's question or share a resource
    - Reward: 10 SSA tokens + streak bonus
 
 5. **Thursday (BSP - Teal-Cyan gradient)**
+
    - Challenge: "Work on your business success puzzle"
    - Example task: Update your professional goals or network with a colleague
    - Reward: 10 BSP tokens + streak bonus
 
 6. **Friday (SGB - Sky-Blue-Indigo gradient)**
+
    - Challenge: "Generate a breakthrough idea"
    - Example task: Brainstorm solutions to a problem or learn about innovation
    - Reward: 10 SGB tokens + streak bonus
@@ -853,10 +897,12 @@ Here are examples of daily challenges for each day of the week:
 In addition to daily challenges, the platform offers weekly challenges for each token category:
 
 1. **Superachiever Weekly Challenge (SAP)**
+
    - Complete 3 personal journey activities this week
    - Reward: 30 SAP tokens + streak bonus
 
 2. **Superachievers Weekly Challenge (SCQ)**
+
    - Complete 3 collective journey activities this week
    - Reward: 30 SCQ tokens + streak bonus
 
@@ -869,11 +915,13 @@ In addition to daily challenges, the platform offers weekly challenges for each 
 ### Best Practices
 
 1. **Daily Engagement**
+
    - Log in daily to complete challenges and claim your tokens
    - Maintain streaks for maximum rewards
    - Engage with community content regularly
 
 2. **Balanced Participation**
+
    - Distribute your activity across all three value pillars
    - Claim tokens on different days of the week
    - Participate in both individual and community activities
@@ -890,6 +938,7 @@ A: If you miss a day, your streak for that specific token will reset. However, y
 
 **Q: How exactly does the Tesla 3-6-9 bonus system work?**
 A: The Tesla 3-6-9 system provides increasing rewards as your streak grows:
+
 - Streaks of 1-2 days: Standard reward (1.0x multiplier)
 - Streaks of 3-5 days: 1.3x reward multiplier
 - Streaks of 6-8 days: 1.6x reward multiplier
@@ -908,6 +957,7 @@ A: Higher invitation tiers provide more substantial welcome bonuses and longer v
 A: You can change your display name at any time from your profile settings. Email changes require verification and can be done through the "Account Settings" section.
 
 For additional support, contact our team at **admin@avolve.io** with the following information:
+
 - Your username
 - Description of the issue
 - Screenshots (if applicable)

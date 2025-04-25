@@ -18,17 +18,14 @@ interface OnboardingModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export const OnboardingModal: React.FC<OnboardingModalProps> = ({ 
-  open, 
-  onOpenChange 
-}) => {
-  const { 
-    loading, 
-    onboardingStatus, 
+export const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onOpenChange }) => {
+  const {
+    loading,
+    onboardingStatus,
     onboardingContent,
     startOnboarding,
     goToNextStep,
-    goToPreviousStep
+    goToPreviousStep,
   } = useOnboarding();
 
   // Start onboarding when modal opens if not already started
@@ -69,14 +66,14 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
           <DialogTitle className="text-2xl">
             {onboardingContent?.title || 'Welcome to Avolve'}
           </DialogTitle>
-          <DialogDescription>
-            {onboardingContent?.description || 'Loading...'}
-          </DialogDescription>
+          <DialogDescription>{onboardingContent?.description || 'Loading...'}</DialogDescription>
         </DialogHeader>
 
         <div className="py-4">
           <div className="flex justify-between text-sm text-gray-500 mb-2">
-            <span>Step {currentStep} of {totalSteps}</span>
+            <span>
+              Step {currentStep} of {totalSteps}
+            </span>
             <span>{progress}% Complete</span>
           </div>
           <Progress value={progress} className="h-2" />
@@ -117,15 +114,12 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
               <ArrowLeft className="mr-2 h-4 w-4" />
               Previous
             </Button>
-            <Button
-              variant="outline"
-              onClick={handleSkip}
-            >
+            <Button variant="outline" onClick={handleSkip}>
               Skip Onboarding
             </Button>
           </div>
-          <Button 
-            onClick={handleNext} 
+          <Button
+            onClick={handleNext}
             disabled={loading}
             className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white"
           >

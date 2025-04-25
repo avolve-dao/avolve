@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import { createClient } from '../../lib/supabase/client';
 import { useForm, ControllerRenderProps } from 'react-hook-form';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -29,9 +36,9 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({ context, userId }) => {
     setSubmitting(true);
     setError(null);
     setSuccess(false);
-    const { error } = await supabase.from('user_feedback').insert([
-      { user_id: userId, context, feedback: values.feedback }
-    ]);
+    const { error } = await supabase
+      .from('user_feedback')
+      .insert([{ user_id: userId, context, feedback: values.feedback }]);
     if (error) {
       setError(error.message);
     } else {
@@ -48,7 +55,11 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({ context, userId }) => {
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
             <FormField
               name="feedback"
-              render={({ field }: { field: ControllerRenderProps<FeedbackFormValues, 'feedback'> }) => (
+              render={({
+                field,
+              }: {
+                field: ControllerRenderProps<FeedbackFormValues, 'feedback'>;
+              }) => (
                 <FormItem>
                   <FormLabel>Share your feedback:</FormLabel>
                   <FormControl>
@@ -64,12 +75,14 @@ const FeedbackWidget: React.FC<FeedbackWidgetProps> = ({ context, userId }) => {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={submitting || !form.watch('feedback').trim()} className="w-full">
+            <Button
+              type="submit"
+              disabled={submitting || !form.watch('feedback').trim()}
+              className="w-full"
+            >
               {submitting ? 'Submitting...' : 'Send Feedback'}
             </Button>
-            {error && (
-              <div className="text-sm text-destructive mt-2">{error}</div>
-            )}
+            {error && <div className="text-sm text-destructive mt-2">{error}</div>}
             {success && (
               <div className="text-sm text-green-600 mt-2">Thank you for your feedback!</div>
             )}

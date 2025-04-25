@@ -1,6 +1,6 @@
 /**
  * RBAC Audit Service
- * 
+ *
  * This service provides methods for retrieving and analyzing RBAC audit logs.
  * It helps administrators track changes to roles and permissions over time.
  */
@@ -88,7 +88,7 @@ export class AuditService {
 
   /**
    * Get audit logs for a specific user
-   * 
+   *
    * @param userId - The ID of the user to get audit logs for
    * @param limit - The maximum number of logs to return (default: 100)
    * @param offset - The offset for pagination (default: 0)
@@ -103,63 +103,54 @@ export class AuditService {
       const { data, error } = await this.client.rpc('get_user_rbac_audit_logs', {
         p_user_id: userId,
         p_limit: limit,
-        p_offset: offset
+        p_offset: offset,
       });
-      
+
       if (error) {
         console.error('Get user audit logs error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get user audit logs error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting user audit logs') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting user audit logs'),
       };
     }
   }
 
   /**
    * Get all RBAC audit logs (admin only)
-   * 
+   *
    * @param filter - Filter options for audit logs
    * @returns AuditResult with array of AuditLog objects
    */
-  public async getAllAuditLogs(
-    filter: AuditLogFilter = {}
-  ): Promise<AuditResult<AuditLog[]>> {
+  public async getAllAuditLogs(filter: AuditLogFilter = {}): Promise<AuditResult<AuditLog[]>> {
     try {
-      const { 
-        actionType, 
-        entityType, 
-        fromDate, 
-        toDate, 
-        limit = 100, 
-        offset = 0 
-      } = filter;
-      
+      const { actionType, entityType, fromDate, toDate, limit = 100, offset = 0 } = filter;
+
       const { data, error } = await this.client.rpc('get_all_rbac_audit_logs', {
         p_limit: limit,
         p_offset: offset,
         p_action_type: actionType || null,
         p_entity_type: entityType || null,
         p_from_date: fromDate ? fromDate.toISOString() : null,
-        p_to_date: toDate ? toDate.toISOString() : null
+        p_to_date: toDate ? toDate.toISOString() : null,
       });
-      
+
       if (error) {
         console.error('Get all audit logs error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get all audit logs error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting audit logs') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting audit logs'),
       };
     }
   }
@@ -167,7 +158,7 @@ export class AuditService {
   /**
    * Log a custom RBAC action
    * This is useful for logging client-side actions that don't trigger database triggers
-   * 
+   *
    * @param actionType - The type of action being performed
    * @param entityType - The type of entity being acted upon
    * @param entityId - The ID of the entity being acted upon
@@ -184,22 +175,22 @@ export class AuditService {
   ): Promise<AuditResult<string>> {
     try {
       const { data: user } = await this.client.auth.getUser();
-      
+
       if (!user.user) {
-        return { 
-          data: null, 
-          error: new AuthError('User not authenticated') 
+        return {
+          data: null,
+          error: new AuthError('User not authenticated'),
         };
       }
-      
+
       // Get client information if available
       const ipAddress: string | null = null;
       let userAgent: string | null = null;
-      
+
       if (typeof window !== 'undefined') {
         userAgent = window.navigator.userAgent;
       }
-      
+
       const { data, error } = await this.client.rpc('log_rbac_action', {
         p_user_id: user.user.id,
         p_action_type: actionType,
@@ -208,20 +199,20 @@ export class AuditService {
         p_target_id: targetId || null,
         p_details: details ? JSON.stringify(details) : null,
         p_ip_address: ipAddress,
-        p_user_agent: userAgent
+        p_user_agent: userAgent,
       });
-      
+
       if (error) {
         console.error('Log action error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected log action error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while logging action') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while logging action'),
       };
     }
   }

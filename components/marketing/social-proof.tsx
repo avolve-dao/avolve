@@ -1,18 +1,18 @@
-import Image from 'next/image'
+import Image from 'next/image';
 
 interface Testimonial {
-  id: string
-  content: string
+  id: string;
+  content: string;
   author: {
-    name: string
-    role: string
-    image: string
-  }
-  rating: number
+    name: string;
+    role: string;
+    image: string;
+  };
+  rating: number;
 }
 
 interface SocialProofProps {
-  testimonials?: Testimonial[]
+  testimonials?: Testimonial[];
 }
 
 export function SocialProof({ testimonials }: SocialProofProps) {
@@ -20,14 +20,16 @@ export function SocialProof({ testimonials }: SocialProofProps) {
     <section className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-xl text-center">
-          <h2 className="text-lg font-semibold leading-8 tracking-tight text-indigo-400">Testimonials</h2>
+          <h2 className="text-lg font-semibold leading-8 tracking-tight text-indigo-400">
+            Testimonials
+          </h2>
           <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
             Hear from Our Community
           </p>
         </div>
         <div className="mx-auto mt-16 flow-root max-w-2xl sm:mt-20 lg:mx-0 lg:max-w-none">
           <div className="-mt-8 sm:-mx-4 sm:columns-2 sm:text-[0] lg:columns-3">
-            {testimonials?.map((testimonial) => (
+            {testimonials?.map(testimonial => (
               <div key={testimonial.id} className="pt-8 sm:inline-block sm:w-full sm:px-4">
                 <figure className="rounded-2xl bg-zinc-800/10 p-8 text-sm leading-6">
                   <blockquote className="text-zinc-300">
@@ -72,5 +74,5 @@ export function SocialProof({ testimonials }: SocialProofProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }

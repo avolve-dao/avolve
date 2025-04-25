@@ -1,19 +1,18 @@
-import type { Metadata, Viewport } from 'next'
-import './globals.css'
-import { Toaster } from '@/components/ui/sonner'
-import Link from 'next/link'
-import { AppSidebar } from '@/components/app-sidebar'
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
+import { AppSidebar } from '@/components/app-sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import ClientGlobalErrorBoundary from "@/app/components/ClientGlobalErrorBoundary";
-import ResumeOnboardingPrompt from "@/app/components/ResumeOnboardingPrompt";
-import { Inter as FontSans } from "next/font/google";
-import { cn } from "@/lib/utils";
-import ClientRootGuard from "@/components/ClientRootGuard";
+import ClientGlobalErrorBoundary from '@/app/components/ClientGlobalErrorBoundary';
+import ResumeOnboardingPrompt from '@/app/components/ResumeOnboardingPrompt';
+import { Inter as FontSans } from 'next/font/google';
+import { cn } from '@/lib/utils';
+import ClientRootGuard from '@/components/ClientRootGuard';
+import { ClientProviders } from '@/components/providers/ClientProviders';
 
 const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
 });
 
 // TODO: Import authentication context or hook from your auth system
@@ -21,19 +20,20 @@ const fontSans = FontSans({
 
 export const metadata: Metadata = {
   title: 'Avolve - Evolve Your Potential',
-  description: 'Join a community of extraordinary individuals dedicated to personal growth, collective achievement, and building a supercivilization.',
+  description:
+    'Join a community of extraordinary individuals dedicated to personal growth, collective achievement, and building a supercivilization.',
   icons: {
     icon: '/favicon.ico',
   },
-}
+};
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-}
+};
 
-export const themeColor = '#18181b'
+export const themeColor = '#18181b';
 
 // --- MVP LAUNCH POLISH: ROUTE/PAGE ACCESS ---
 // Only allow access to MVP-ready routes/pages for regular users.
@@ -57,15 +57,17 @@ function isMvpRoute(path: string) {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
-  // Removed all client-side imports from layout (server component only)
+  // Force dark mode for MVP polish by always setting the 'dark' class on html
   return (
-    <html lang="en" className={cn("bg-background font-sans antialiased", fontSans.variable)}>
+    <html lang="en" className={cn('bg-background font-sans antialiased dark', fontSans.variable)}>
       <body className="min-h-screen flex flex-col">
-        <ClientRootGuard>
+        <ClientProviders>
+          {/* ClientRootGuard removed from root layout. See comment below. */}
+          {/* ClientRootGuard should be used in page or route components instead, per Next.js best practices. */}
           {children}
-        </ClientRootGuard>
+        </ClientProviders>
       </body>
     </html>
   );

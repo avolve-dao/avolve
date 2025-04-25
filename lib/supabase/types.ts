@@ -1,6 +1,6 @@
 /**
  * Supabase Types
- * 
+ *
  * This file contains TypeScript interfaces for Supabase data models and responses.
  */
 
@@ -168,7 +168,10 @@ export interface TokenResult<T> {
  * Token error
  */
 export class TokenError extends Error {
-  constructor(message: string, public originalError?: any) {
+  constructor(
+    message: string,
+    public originalError?: any
+  ) {
     super(message);
     this.name = 'TokenError';
   }

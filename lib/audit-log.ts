@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
-import type { Database } from "@/lib/database.types";
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from '@/lib/database.types';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Logs an admin or sensitive action for audit purposes.
@@ -9,7 +9,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  * @param target - The target of the action (user ID, entity ID, etc.)
  * @param details - Optional details about the action
  */
-export async function logAuditAction(actorId: string, action: string, target: string, details?: Record<string, any>) {
+export async function logAuditAction(
+  actorId: string,
+  action: string,
+  target: string,
+  details?: Record<string, any>
+) {
   const supabase = createClient() as SupabaseClient<Database>;
   await supabase.from('audit_logs').insert([
     {

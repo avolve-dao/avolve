@@ -1,6 +1,6 @@
 /**
  * Governance Dashboard Widget
- * 
+ *
  * Displays upcoming meetings and user participation
  */
 
@@ -27,11 +27,11 @@ export function GovernanceWidget() {
     async function loadData() {
       try {
         setLoading(true);
-        
+
         // Load upcoming meetings
         const meetingsData = await governanceApi.getUpcomingMeetings(5);
         setUpcomingMeetings(meetingsData);
-        
+
         if (user?.id) {
           // Load user's meetings
           const userMeetingsData = await governanceApi.getUserMeetings(user.id);
@@ -77,10 +77,10 @@ export function GovernanceWidget() {
   // Handle registration for a meeting
   const handleRegister = async (meetingId: string) => {
     if (!user?.id) return;
-    
+
     try {
       await governanceApi.registerForMeeting(user.id, meetingId);
-      
+
       // Refresh user meetings
       const userMeetingsData = await governanceApi.getUserMeetings(user.id);
       setUserMeetings(userMeetingsData);
@@ -105,29 +105,30 @@ export function GovernanceWidget() {
         ) : (
           <>
             <div className="space-y-3">
-              {upcomingMeetings.map((meeting) => {
+              {upcomingMeetings.map(meeting => {
                 const meetingDate = new Date(meeting.start_time);
                 const isRegistered = isRegisteredForMeeting(meeting.id);
                 const participantStatus = getParticipantStatus(meeting.id);
                 const isPastMeeting = isPast(meetingDate) && !isToday(meetingDate);
-                
+
                 return (
                   <div key={meeting.id} className="border rounded-lg p-3">
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="font-medium">{meeting.title}</h3>
                         <div className="text-sm text-muted-foreground mb-1">
-                          {format(meetingDate, 'EEEE, MMMM d, yyyy')} at {format(meetingDate, 'h:mm a')}
+                          {format(meetingDate, 'EEEE, MMMM d, yyyy')} at{' '}
+                          {format(meetingDate, 'h:mm a')}
                         </div>
-                        
+
                         <div className="flex items-center mt-2">
-                          <Badge 
+                          <Badge
                             variant={meeting.status === 'scheduled' ? 'outline' : 'default'}
                             className="mr-2"
                           >
                             {meeting.status.charAt(0).toUpperCase() + meeting.status.slice(1)}
                           </Badge>
-                          
+
                           {isRegistered && (
                             <Badge variant="secondary">
                               {formatParticipantStatus(participantStatus)}
@@ -135,16 +136,13 @@ export function GovernanceWidget() {
                           )}
                         </div>
                       </div>
-                      
+
                       {!isPastMeeting && !isRegistered && user?.id && (
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleRegister(meeting.id)}
-                        >
+                        <Button size="sm" onClick={() => handleRegister(meeting.id)}>
                           Register
                         </Button>
                       )}
-                      
+
                       {isRegistered && meeting.status === 'scheduled' && (
                         <a href={`/meetings/${meeting.id}`}>
                           <Button size="sm" variant="outline">
@@ -156,14 +154,14 @@ export function GovernanceWidget() {
                   </div>
                 );
               })}
-              
+
               {upcomingMeetings.length === 0 && (
                 <div className="text-center py-4 text-muted-foreground">
                   No upcoming meetings scheduled.
                 </div>
               )}
             </div>
-            
+
             {upcomingMeetings.length > 0 && (
               <div className="text-center mt-4">
                 <a href="/meetings" className="text-sm text-primary hover:underline">

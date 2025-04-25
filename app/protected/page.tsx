@@ -1,18 +1,18 @@
-import { redirect } from "next/navigation"
-import { Suspense } from "react"
-import { LogoutButton } from "@/components/logout-button"
-import { createClient } from "@/lib/supabase/server"
-import { OnboardingBanner } from '@/components/onboarding/OnboardingBanner'
-import { OnboardingChecklistClient } from '@/components/onboarding/OnboardingChecklistClient'
-import { AIInsightsServer } from '@/components/dashboard/ai-insights/server'
+import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { LogoutButton } from '@/components/logout-button';
+import { createClient } from '@/lib/supabase/server';
+import { OnboardingBanner } from '@/components/onboarding/OnboardingBanner';
+import { OnboardingChecklistClient } from '@/components/onboarding/OnboardingChecklistClient';
+import { AIInsightsServer } from '@/components/dashboard/ai-insights/server';
 
 // Removed unused imports useState and useTransition
 
 export default async function ProtectedPage() {
-  const supabase = await createClient()
-  const { data, error } = await supabase.auth.getUser()
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getUser();
   if (error || !data?.user) {
-    redirect("/login")
+    redirect('/login');
   }
 
   // --- Onboarding State Logic ---
@@ -21,13 +21,13 @@ export default async function ProtectedPage() {
     .from('user_onboarding')
     .select('*')
     .eq('user_id', data.user.id)
-    .single()
+    .single();
 
-  let completedSteps: string[] = []
-  let onboardingCompleted = false
+  let completedSteps: string[] = [];
+  let onboardingCompleted = false;
   if (!onboardingError && onboardingRow) {
-    completedSteps = onboardingRow.completed_steps || []
-    onboardingCompleted = Boolean(onboardingRow.completed_at)
+    completedSteps = onboardingRow.completed_steps || [];
+    onboardingCompleted = Boolean(onboardingRow.completed_at);
   }
 
   // --- Client-side onboarding update logic ---
@@ -52,7 +52,9 @@ export default async function ProtectedPage() {
 
   return (
     <div className="flex flex-col items-center w-full gap-6 py-8">
-      <p className="text-lg">Hello <span className="font-bold">{data.user.email ?? 'User'}</span></p>
+      <p className="text-lg">
+        Hello <span className="font-bold">{data.user.email ?? 'User'}</span>
+      </p>
       <LogoutButton />
       {!onboardingCompleted && (
         <>
@@ -66,5 +68,5 @@ export default async function ProtectedPage() {
         </Suspense>
       </div>
     </div>
-  )
+  );
 }

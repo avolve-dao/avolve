@@ -2,10 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { createClient } from '../../lib/supabase/client';
 import { useForm } from 'react-hook-form';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
 interface CanvasEntry {
@@ -103,7 +116,9 @@ const CanvasExperimentManager: React.FC<CanvasExperimentManagerProps> = ({ onCre
                     <SelectContent>
                       <SelectItem value="">-- Select Canvas Entry --</SelectItem>
                       {canvasEntries.map(entry => (
-                        <SelectItem key={entry.id} value={entry.id}>{entry.title}</SelectItem>
+                        <SelectItem key={entry.id} value={entry.id}>
+                          {entry.title}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -164,7 +179,11 @@ const CanvasExperimentManager: React.FC<CanvasExperimentManagerProps> = ({ onCre
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Experiment Type</FormLabel>
-                  <Select value={field.value} onValueChange={(val: string) => field.onChange(val)} required>
+                  <Select
+                    value={field.value}
+                    onValueChange={(val: string) => field.onChange(val)}
+                    required
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

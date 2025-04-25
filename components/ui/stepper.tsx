@@ -78,9 +78,11 @@ export const StepIndicator = React.forwardRef<HTMLDivElement, StepIndicatorProps
       ref={ref}
       className={cn(
         'flex h-8 w-8 items-center justify-center rounded-full',
-        status === 'complete' ? 'bg-primary text-primary-foreground' : 
-        status === 'current' ? 'border-2 border-primary bg-background text-primary' : 
-        'border border-muted bg-muted/40 text-muted-foreground',
+        status === 'complete'
+          ? 'bg-primary text-primary-foreground'
+          : status === 'current'
+            ? 'border-2 border-primary bg-background text-primary'
+            : 'border border-muted bg-muted/40 text-muted-foreground',
         className
       )}
       {...props}
@@ -97,9 +99,11 @@ export const StepStatus = React.forwardRef<HTMLDivElement, StepStatusProps>(
       ref={ref}
       className={cn(
         'flex items-center gap-2',
-        status === 'complete' ? 'text-foreground' : 
-        status === 'current' ? 'font-medium text-foreground' : 
-        'text-muted-foreground',
+        status === 'complete'
+          ? 'text-foreground'
+          : status === 'current'
+            ? 'font-medium text-foreground'
+            : 'text-muted-foreground',
         className
       )}
       {...props}
@@ -110,22 +114,14 @@ StepStatus.displayName = 'StepStatus';
 
 export const StepTitle = React.forwardRef<HTMLHeadingElement, StepTitleProps>(
   ({ className, ...props }, ref) => (
-    <h3
-      ref={ref}
-      className={cn('text-sm font-medium', className)}
-      {...props}
-    />
+    <h3 ref={ref} className={cn('text-sm font-medium', className)} {...props} />
   )
 );
 StepTitle.displayName = 'StepTitle';
 
 export const StepDescription = React.forwardRef<HTMLParagraphElement, StepDescriptionProps>(
   ({ className, ...props }, ref) => (
-    <p
-      ref={ref}
-      className={cn('text-xs text-muted-foreground', className)}
-      {...props}
-    />
+    <p ref={ref} className={cn('text-xs text-muted-foreground', className)} {...props} />
   )
 );
 StepDescription.displayName = 'StepDescription';
@@ -135,7 +131,9 @@ export const StepSeparator = React.forwardRef<HTMLDivElement, StepSeparatorProps
     <div
       ref={ref}
       className={cn(
-        orientation === 'horizontal' ? 'w-full border-t border-muted' : 'h-full border-l border-muted',
+        orientation === 'horizontal'
+          ? 'w-full border-t border-muted'
+          : 'h-full border-l border-muted',
         className
       )}
       {...props}
@@ -155,38 +153,34 @@ export function Stepper({
   ...props
 }: StepperProps) {
   const isVertical = orientation === 'vertical';
-  
+
   const sizeClasses = {
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base',
   };
-  
+
   const stepSizeClasses = {
     sm: 'h-6 w-6',
     md: 'h-8 w-8',
     lg: 'h-10 w-10',
   };
-  
+
   const variantClasses = {
     default: 'bg-primary text-primary-foreground',
     outline: 'border border-primary bg-background text-foreground',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
   };
-  
+
   return (
     <div
-      className={cn(
-        'flex',
-        isVertical ? 'flex-col space-y-4' : 'flex-row space-x-4',
-        className
-      )}
+      className={cn('flex', isVertical ? 'flex-col space-y-4' : 'flex-row space-x-4', className)}
       {...props}
     >
       {steps.map((label, index) => {
         const isCompleted = index < activeStep;
         const isCurrent = index === activeStep;
-        
+
         return (
           <div
             key={index}
@@ -205,8 +199,8 @@ export function Stepper({
                   isCompleted
                     ? variantClasses[variant]
                     : isCurrent
-                    ? 'border-2 border-primary bg-background text-primary'
-                    : 'border border-muted bg-muted/40 text-muted-foreground',
+                      ? 'border-2 border-primary bg-background text-primary'
+                      : 'border border-muted bg-muted/40 text-muted-foreground',
                   onStepClick ? 'cursor-pointer' : 'cursor-default'
                 )}
                 onClick={() => onStepClick?.(index)}
@@ -219,7 +213,7 @@ export function Stepper({
                   <span className={sizeClasses[size]}>{index + 1}</span>
                 )}
               </button>
-              
+
               {index < steps.length - 1 && (
                 <div
                   className={cn(
@@ -231,7 +225,7 @@ export function Stepper({
                 />
               )}
             </div>
-            
+
             <div
               className={cn(
                 'flex flex-col',
@@ -239,8 +233,8 @@ export function Stepper({
                 isCompleted
                   ? 'text-foreground'
                   : isCurrent
-                  ? 'font-medium text-foreground'
-                  : 'text-muted-foreground'
+                    ? 'font-medium text-foreground'
+                    : 'text-muted-foreground'
               )}
             >
               <span>{label}</span>

@@ -4,44 +4,44 @@
  * @ai-related-to token-repository.ts, token-types.ts
  * @ai-database-tables tokens, token_types, user_tokens, token_transactions
  * @ai-sacred-geometry tesla-369
- * 
+ *
  * Token Service
- * 
+ *
  * This service centralizes all token management functionality for the Avolve platform.
  * It provides methods for managing tokens, token ownership, and token-based permissions.
- * 
+ *
  * The service follows the repository pattern, delegating database operations to the TokenRepository.
  * It implements sacred geometry principles, particularly Tesla's 3-6-9 pattern, in token calculations.
  */
 
-import { SupabaseClient } from '@supabase/supabase-js'
+import { SupabaseClient } from '@supabase/supabase-js';
 import { TokenRepository } from './token-repository';
 
 interface TokenClaimOptions {
-  userId: string
-  tokenId: string
-  amount: number
-  challengeId?: string
-  multiplier?: number
-  toUserId?: string
-  fromUserId?: string
-  reason?: string
-  daysBack?: number
+  userId: string;
+  tokenId: string;
+  amount: number;
+  challengeId?: string;
+  multiplier?: number;
+  toUserId?: string;
+  fromUserId?: string;
+  reason?: string;
+  daysBack?: number;
 }
 
 interface TokenResult<T> {
-  success: boolean
-  data?: T
+  success: boolean;
+  data?: T;
   error?: {
-    code: string
-    message: string
-    details?: any
-  }
+    code: string;
+    message: string;
+    details?: any;
+  };
 }
 
 /**
  * TokenService
- * 
+ *
  * This service provides a centralized interface for all token-related operations,
  * including claiming, transferring, and querying token data.
  */
@@ -55,7 +55,7 @@ export class TokenService {
 
   /**
    * Gets a token by ID
-   * 
+   *
    * @param tokenId - The token ID to look up
    * @returns A TokenResult with the token data
    */
@@ -67,8 +67,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_TOKEN_ID',
-            message: 'Token ID is required'
-          }
+            message: 'Token ID is required',
+          },
         };
       }
 
@@ -85,14 +85,14 @@ export class TokenService {
           error: {
             code: 'DATABASE_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -100,15 +100,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting the token',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets a token by symbol
-   * 
+   *
    * @param symbol - The token symbol to look up
    * @returns A TokenResult with the token data
    */
@@ -120,8 +120,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_SYMBOL',
-            message: 'Token symbol is required'
-          }
+            message: 'Token symbol is required',
+          },
         };
       }
 
@@ -138,14 +138,14 @@ export class TokenService {
           error: {
             code: 'DATABASE_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -153,15 +153,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting the token',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets all tokens
-   * 
+   *
    * @returns A TokenResult with an array of tokens
    */
   public async getAllTokens(): Promise<TokenResult<any[]>> {
@@ -179,14 +179,14 @@ export class TokenService {
           error: {
             code: 'DATABASE_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -194,15 +194,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting tokens',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets tokens for a specific day of the week
-   * 
+   *
    * @param dayOfWeek - The day of the week (0 = Sunday, 1 = Monday, etc.)
    * @returns A TokenResult with an array of tokens
    */
@@ -214,22 +214,37 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_DAY',
-            message: 'Day of week must be between 0 and 6'
-          }
+            message: 'Day of week must be between 0 and 6',
+          },
         };
       }
 
       // Map day number to enum value
       let dayEnum: string;
       switch (dayOfWeek) {
-        case 0: dayEnum = 'SUN'; break;
-        case 1: dayEnum = 'MON'; break;
-        case 2: dayEnum = 'TUE'; break;
-        case 3: dayEnum = 'WED'; break;
-        case 4: dayEnum = 'THU'; break;
-        case 5: dayEnum = 'FRI'; break;
-        case 6: dayEnum = 'SAT'; break;
-        default: dayEnum = 'NONE';
+        case 0:
+          dayEnum = 'SUN';
+          break;
+        case 1:
+          dayEnum = 'MON';
+          break;
+        case 2:
+          dayEnum = 'TUE';
+          break;
+        case 3:
+          dayEnum = 'WED';
+          break;
+        case 4:
+          dayEnum = 'THU';
+          break;
+        case 5:
+          dayEnum = 'FRI';
+          break;
+        case 6:
+          dayEnum = 'SAT';
+          break;
+        default:
+          dayEnum = 'NONE';
       }
 
       // Get tokens from database
@@ -245,14 +260,14 @@ export class TokenService {
           error: {
             code: 'DATABASE_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -260,15 +275,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting tokens for day',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets a user's balance for a specific token
-   * 
+   *
    * @param userId - The user ID to look up
    * @param tokenId - The token ID to look up
    * @returns A TokenResult with the user balance
@@ -281,8 +296,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_USER',
-            message: 'User ID is required'
-          }
+            message: 'User ID is required',
+          },
         };
       }
 
@@ -291,8 +306,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_TOKEN',
-            message: 'Token ID is required'
-          }
+            message: 'Token ID is required',
+          },
         };
       }
 
@@ -304,14 +319,15 @@ export class TokenService {
         .eq('token_id', tokenId)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "no rows returned"
         return {
           success: false,
           error: {
             code: 'DATABASE_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
@@ -328,14 +344,14 @@ export class TokenService {
             pending_release: 0,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            last_updated: new Date().toISOString()
-          }
+            last_updated: new Date().toISOString(),
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -343,15 +359,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting the user balance',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets all balances for a user
-   * 
+   *
    * @param userId - The user ID to look up
    * @returns A TokenResult with an array of user balances
    */
@@ -363,8 +379,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_USER',
-            message: 'User ID is required'
-          }
+            message: 'User ID is required',
+          },
         };
       }
 
@@ -380,14 +396,14 @@ export class TokenService {
           error: {
             code: 'DATABASE_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -395,15 +411,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting the user balances',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Mints new tokens for a user
-   * 
+   *
    * @param options - The mint options
    * @returns A TokenResult with the mint result
    */
@@ -417,8 +433,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_USER',
-            message: 'User ID is required'
-          }
+            message: 'User ID is required',
+          },
         };
       }
 
@@ -427,8 +443,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_TOKEN',
-            message: 'Token ID is required'
-          }
+            message: 'Token ID is required',
+          },
         };
       }
 
@@ -437,8 +453,8 @@ export class TokenService {
           success: false,
           error: {
             code: 'INVALID_AMOUNT',
-            message: 'Amount must be greater than zero'
-          }
+            message: 'Amount must be greater than zero',
+          },
         };
       }
 
@@ -452,7 +468,7 @@ export class TokenService {
           amount: amount,
           reason: reason || 'Token minting',
           transaction_type: 'mint',
-          status: 'completed'
+          status: 'completed',
         })
         .select('id')
         .single();
@@ -463,22 +479,23 @@ export class TokenService {
           error: {
             code: 'TRANSACTION_ERROR',
             message: transactionError.message,
-            details: transactionError
-          }
+            details: transactionError,
+          },
         };
       }
 
       // Update user balance
-      const { error: balanceError } = await this.supabase
-        .from('user_balances')
-        .upsert({
+      const { error: balanceError } = await this.supabase.from('user_balances').upsert(
+        {
           user_id: toUserId,
           token_id: tokenId,
-          balance: amount
-        }, {
+          balance: amount,
+        },
+        {
           onConflict: 'user_id,token_id',
-          ignoreDuplicates: false
-        });
+          ignoreDuplicates: false,
+        }
+      );
 
       if (balanceError) {
         return {
@@ -486,8 +503,8 @@ export class TokenService {
           error: {
             code: 'BALANCE_ERROR',
             message: balanceError.message,
-            details: balanceError
-          }
+            details: balanceError,
+          },
         };
       }
 
@@ -496,8 +513,8 @@ export class TokenService {
         data: {
           success: true,
           message: 'Tokens minted successfully',
-          transaction_id: transaction.id
-        }
+          transaction_id: transaction.id,
+        },
       };
     } catch (error) {
       return {
@@ -505,15 +522,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while minting tokens',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Transfers tokens between users
-   * 
+   *
    * @param options - The transfer options
    * @returns A TokenResult with the transfer result
    */
@@ -527,7 +544,7 @@ export class TokenService {
         p_to_user_id: toUserId,
         p_token_id: tokenId,
         p_amount: amount,
-        p_reason: reason
+        p_reason: reason,
       });
 
       if (error) {
@@ -536,14 +553,14 @@ export class TokenService {
           error: {
             code: 'TRANSFER_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -551,15 +568,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while transferring tokens',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Claims a daily token for completing a challenge
-   * 
+   *
    * @param options - The claim options
    * @returns A TokenResult with the claim result
    */
@@ -578,8 +595,8 @@ export class TokenService {
         success: true,
         data: {
           success: true,
-          message: 'Tokens claimed successfully'
-        }
+          message: 'Tokens claimed successfully',
+        },
       };
     } catch (error) {
       return {
@@ -587,15 +604,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while claiming the daily token',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets a user's token analytics
-   * 
+   *
    * @param options - The analytics options
    * @returns A TokenResult with the analytics data
    */
@@ -606,7 +623,7 @@ export class TokenService {
       // Use the database function to get analytics
       const { data, error } = await this.supabase.rpc('get_user_token_analytics', {
         p_user_id: userId,
-        p_days_back: daysBack
+        p_days_back: daysBack,
       });
 
       if (error) {
@@ -615,14 +632,14 @@ export class TokenService {
           error: {
             code: 'ANALYTICS_ERROR',
             message: error.message,
-            details: error
-          }
+            details: error,
+          },
         };
       }
 
       return {
         success: true,
-        data: data
+        data: data,
       };
     } catch (error) {
       return {
@@ -630,15 +647,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting user token analytics',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets a user's streak information
-   * 
+   *
    * @param userId - The user ID to look up
    * @returns A TokenResult with the user's streak information
    */
@@ -650,8 +667,8 @@ export class TokenService {
         success: true,
         data: {
           success: true,
-          message: 'Streak retrieved successfully'
-        }
+          message: 'Streak retrieved successfully',
+        },
       };
     } catch (error) {
       return {
@@ -659,36 +676,36 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting the user streak',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets the token for today
-   * 
+   *
    * @returns A TokenResult with today's token
    */
   public async getTodayToken(): Promise<TokenResult<any>> {
     try {
       const today = new Date();
       const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
-      
+
       return await this.getTokensForDay(dayOfWeek).then(result => {
         if (result.success && result.data && result.data.length > 0) {
           return {
             success: true,
-            data: result.data[0]
+            data: result.data[0],
           };
         }
-        
+
         return {
           success: false,
           error: {
             code: 'NO_TOKEN_TODAY',
-            message: 'No token available for today'
-          }
+            message: 'No token available for today',
+          },
         };
       });
     } catch (error) {
@@ -696,16 +713,16 @@ export class TokenService {
         success: false,
         error: {
           code: 'UNEXPECTED_ERROR',
-          message: 'An unexpected error occurred while getting today\'s token',
-          details: error
-        }
+          message: "An unexpected error occurred while getting today's token",
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Gets all tokens for a user
-   * 
+   *
    * @param userId - The user ID to look up
    * @returns A Promise with an array of user tokens
    */
@@ -714,12 +731,14 @@ export class TokenService {
       // Get token balances from database
       const { data, error } = await this.supabase
         .from('user_tokens')
-        .select(`
+        .select(
+          `
           token_id,
           token_type,
           balance,
           last_updated
-        `)
+        `
+        )
         .eq('user_id', userId);
 
       if (error) {
@@ -734,17 +753,20 @@ export class TokenService {
 
   /**
    * Checks if a user has a specific permission
-   * 
+   *
    * @param permission - The permission to check
    * @param tokenId - The token ID to check
    * @returns A TokenResult with the permission check result
    */
-  public async checkPermission(permission: string, tokenId?: string): Promise<TokenResult<boolean>> {
+  public async checkPermission(
+    permission: string,
+    tokenId?: string
+  ): Promise<TokenResult<boolean>> {
     try {
       const { data, error } = await this.supabase.rpc('check_token_permission', {
         p_permission: permission,
-        p_token_id: tokenId
-      })
+        p_token_id: tokenId,
+      });
 
       if (error) {
         return {
@@ -752,25 +774,25 @@ export class TokenService {
           error: {
             code: 'PERMISSION_ERROR',
             message: error.message,
-            details: error
-          }
-        }
+            details: error,
+          },
+        };
       }
 
       return {
         success: true,
-        data: !!data
-      }
+        data: !!data,
+      };
     } catch (error) {
-      console.error('Error checking token permission:', error)
+      console.error('Error checking token permission:', error);
       return {
         success: false,
         error: {
           code: 'UNEXPECTED_ERROR',
           message: error instanceof Error ? error.message : 'Unknown error',
-          details: error
-        }
-      }
+          details: error,
+        },
+      };
     }
   }
 
@@ -789,11 +811,16 @@ export class TokenService {
   }
   public async contributeToMilestone(milestoneId: string, userId: string, amount: number) {
     // 1. Add contribution
-    const contributionResult = await this.repository.contributeToMilestone(milestoneId, userId, amount);
+    const contributionResult = await this.repository.contributeToMilestone(
+      milestoneId,
+      userId,
+      amount
+    );
     if (!contributionResult || contributionResult.error) return contributionResult;
     // 2. Update milestone progress
     const milestoneResult = await this.repository.getCommunityMilestoneById(milestoneId);
-    if (!milestoneResult || milestoneResult.error || !milestoneResult.data) return contributionResult;
+    if (!milestoneResult || milestoneResult.error || !milestoneResult.data)
+      return contributionResult;
     const newCurrent = (milestoneResult.data.current || 0) + amount;
     await this.repository.updateCommunityMilestone(milestoneId, { current: newCurrent });
     return contributionResult;

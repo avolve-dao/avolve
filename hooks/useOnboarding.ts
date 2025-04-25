@@ -61,7 +61,7 @@ export const useOnboarding = () => {
       const result = await onboardingService.updateOnboardingStep(userId, step);
       if (result.success && result.data) {
         await loadOnboardingStatus();
-        
+
         if (result.data.isCompleted) {
           toast({
             title: 'Success',
@@ -69,11 +69,11 @@ export const useOnboarding = () => {
             variant: 'default',
           });
         }
-        
-        return { 
-          success: true, 
+
+        return {
+          success: true,
           currentStep: result.data.currentStep,
-          isCompleted: result.data.isCompleted
+          isCompleted: result.data.isCompleted,
         };
       } else {
         toast({
@@ -103,11 +103,11 @@ export const useOnboarding = () => {
       const result = await onboardingService.getOnboardingStatus(userId);
       if (result.success && result.data) {
         setOnboardingStatus(result.data);
-        
+
         // Load content for current step
         const content = onboardingService.getOnboardingContent(result.data.step);
         setOnboardingContent(content);
-        
+
         return result.data;
       } else {
         console.error('Failed to load onboarding status:', result.error);
@@ -124,7 +124,7 @@ export const useOnboarding = () => {
   // Go to next step
   const goToNextStep = async () => {
     if (!onboardingStatus) return { success: false };
-    
+
     const nextStep = onboardingStatus.step + 1;
     return await updateOnboardingStep(nextStep);
   };
@@ -132,7 +132,7 @@ export const useOnboarding = () => {
   // Go to previous step
   const goToPreviousStep = async () => {
     if (!onboardingStatus || onboardingStatus.step <= 1) return { success: false };
-    
+
     const prevStep = onboardingStatus.step - 1;
     return await updateOnboardingStep(prevStep);
   };
@@ -150,7 +150,7 @@ export const useOnboarding = () => {
     updateOnboardingStep,
     loadOnboardingStatus,
     goToNextStep,
-    goToPreviousStep
+    goToPreviousStep,
   };
 };
 

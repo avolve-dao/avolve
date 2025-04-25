@@ -12,12 +12,12 @@ The Avolve API provides a comprehensive set of endpoints for interacting with th
 
 The Avolve platform provides the following core APIs:
 
-| API | Description | Documentation |
-|-----|-------------|--------------|
-| Consent API | Manage user consent and privacy preferences | [Documentation](./consent.md) |
-| Token API | Token management and transactions | [Documentation](./token.md) |
-| Experience API | User progress and achievements | [Documentation](./experience.md) |
-| Profile API | User profile management | [Documentation](./profile.md) |
+| API            | Description                                 | Documentation                    |
+| -------------- | ------------------------------------------- | -------------------------------- |
+| Consent API    | Manage user consent and privacy preferences | [Documentation](./consent.md)    |
+| Token API      | Token management and transactions           | [Documentation](./token.md)      |
+| Experience API | User progress and achievements              | [Documentation](./experience.md) |
+| Profile API    | User profile management                     | [Documentation](./profile.md)    |
 
 ## Security
 
@@ -34,11 +34,13 @@ For detailed authentication information, see our [Authentication Documentation](
 ### Authorization
 
 Access to API endpoints is controlled through:
+
 1. Role-Based Access Control (RBAC)
 2. Token-Based Access Control
 3. Row Level Security (RLS)
 
 For more information, see:
+
 - [RBAC Documentation](/docs/security/rbac.md)
 - [Token Access Documentation](/docs/security/token-access.md)
 
@@ -46,11 +48,11 @@ For more information, see:
 
 To ensure fair usage and system stability:
 
-| User Type | Rate Limit | Window |
-|-----------|------------|--------|
-| Anonymous | 20 requests | per minute |
+| User Type     | Rate Limit   | Window     |
+| ------------- | ------------ | ---------- |
+| Anonymous     | 20 requests  | per minute |
 | Authenticated | 100 requests | per minute |
-| Token Holder | 200 requests | per minute |
+| Token Holder  | 200 requests | per minute |
 
 Rate limits are applied per IP address and user ID. The following headers are returned with each response:
 
@@ -76,13 +78,13 @@ All errors follow this standardized format:
 
 ### Common Error Codes
 
-| Code | Description | HTTP Status |
-|------|-------------|-------------|
-| `AUTH_REQUIRED` | Authentication required | 401 |
-| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions | 403 |
-| `RATE_LIMIT_EXCEEDED` | Too many requests | 429 |
-| `INVALID_INPUT` | Invalid request parameters | 400 |
-| `NOT_FOUND` | Resource not found | 404 |
+| Code                       | Description                     | HTTP Status |
+| -------------------------- | ------------------------------- | ----------- |
+| `AUTH_REQUIRED`            | Authentication required         | 401         |
+| `INSUFFICIENT_PERMISSIONS` | User lacks required permissions | 403         |
+| `RATE_LIMIT_EXCEEDED`      | Too many requests               | 429         |
+| `INVALID_INPUT`            | Invalid request parameters      | 400         |
+| `NOT_FOUND`                | Resource not found              | 404         |
 
 ## Best Practices
 
@@ -90,15 +92,15 @@ All errors follow this standardized format:
 
 ```typescript
 try {
-  const response = await api.post('/endpoint', data)
+  const response = await api.post('/endpoint', data);
   // Handle success
 } catch (error) {
   if (error.code === 'RATE_LIMIT_EXCEEDED') {
-    await delay(calculateBackoff(retryCount))
-    return retry(operation)
+    await delay(calculateBackoff(retryCount));
+    return retry(operation);
   }
-  logger.error('API Error', { error, endpoint: '/endpoint' })
-  throw error
+  logger.error('API Error', { error, endpoint: '/endpoint' });
+  throw error;
 }
 ```
 
@@ -108,12 +110,12 @@ try {
 const rateLimiter = new RateLimiter({
   maxRequests: 100,
   perMinute: 1,
-  strategy: 'token_bucket'
-})
+  strategy: 'token_bucket',
+});
 
 async function makeRequest() {
-  await rateLimiter.waitForToken()
-  return api.get('/endpoint')
+  await rateLimiter.waitForToken();
+  return api.get('/endpoint');
 }
 ```
 
@@ -123,20 +125,20 @@ async function makeRequest() {
 const cache = new Cache({
   max: 100,
   maxAge: 1000 * 60 * 5, // 5 minutes
-  updateAgeOnGet: true
-})
+  updateAgeOnGet: true,
+});
 
 async function getCachedData(key) {
-  const cached = cache.get(key)
+  const cached = cache.get(key);
   if (cached) {
-    metrics.increment('cache.hit')
-    return cached
+    metrics.increment('cache.hit');
+    return cached;
   }
 
-  metrics.increment('cache.miss')
-  const data = await api.get(`/data/${key}`)
-  cache.set(key, data)
-  return data
+  metrics.increment('cache.miss');
+  const data = await api.get(`/data/${key}`);
+  cache.set(key, data);
+  return data;
 }
 ```
 
@@ -151,6 +153,7 @@ GET /api/progress
 ```
 
 Response:
+
 ```json
 {
   "data": {
@@ -187,6 +190,7 @@ GET /api/tokens/balance
 ```
 
 Response:
+
 ```json
 {
   "data": {
@@ -222,6 +226,7 @@ GET /api/profile
 ```
 
 Response:
+
 ```json
 {
   "data": {
@@ -245,19 +250,23 @@ Content-Type: application/json
 ```
 
 ## Getting Started with the API
+
 - All requests require authentication (see below).
 - Start by reviewing the API table above and selecting the endpoint you need.
 - Example request (using fetch):
+
 ```js
 fetch('https://api.avolve.io/v1/profile', {
-  headers: { Authorization: 'Bearer <your_token>' }
+  headers: { Authorization: 'Bearer <your_token>' },
 })
   .then(res => res.json())
   .then(data => console.log(data));
 ```
+
 - For Postman collections and more examples, see the project wiki or ask in the community chat.
 
 ## FAQ & Troubleshooting
+
 - **Q: I get a 401 Unauthorized error.**
   - A: Check your JWT token and authentication method.
 - **Q: How do I test the API locally?**
@@ -268,6 +277,7 @@ fetch('https://api.avolve.io/v1/profile', {
   - A: Email dev@avolve.io or join the developer chat.
 
 ## Feedback & Support
+
 - Found a bug or want to request an endpoint? Open an issue or use the in-app feedback form.
 
 ## Testing
@@ -279,23 +289,24 @@ For detailed testing information, see our [Testing Documentation](/docs/testing/
 ```typescript
 describe('API Integration', () => {
   it('should handle rate limiting', async () => {
-    const requests = Array(101).fill().map(() => api.get('/endpoint'))
-    await expect(Promise.all(requests))
-      .rejects.toThrow('Rate limit exceeded')
-  })
-})
+    const requests = Array(101)
+      .fill()
+      .map(() => api.get('/endpoint'));
+    await expect(Promise.all(requests)).rejects.toThrow('Rate limit exceeded');
+  });
+});
 ```
 
 ## Monitoring
 
 ### Key Metrics
 
-| Metric | Description | Alert Threshold |
-|--------|-------------|-----------------|
-| Request Latency | Time to process request | p95 > 500ms |
-| Error Rate | Percentage of failed requests | > 1% |
-| Rate Limit Hits | Number of rate limit violations | > 100/min |
-| Cache Hit Rate | Percentage of cache hits | < 80% |
+| Metric          | Description                     | Alert Threshold |
+| --------------- | ------------------------------- | --------------- |
+| Request Latency | Time to process request         | p95 > 500ms     |
+| Error Rate      | Percentage of failed requests   | > 1%            |
+| Rate Limit Hits | Number of rate limit violations | > 100/min       |
+| Cache Hit Rate  | Percentage of cache hits        | < 80%           |
 
 ### Logging
 
@@ -306,8 +317,8 @@ logger.info('API Request', {
   duration: endTime - startTime,
   status: res.statusCode,
   user: req.user?.id,
-  correlationId: req.headers['x-correlation-id']
-})
+  correlationId: req.headers['x-correlation-id'],
+});
 ```
 
 ## Additional Resources
@@ -320,6 +331,7 @@ logger.info('API Request', {
 ## Support
 
 For API support:
+
 - Email: api-support@avolve.io
 - Discord: [Avolve API Channel](https://discord.gg/avolve-api)
 - GitHub Issues: [API Issues](https://github.com/avolve/api/issues)

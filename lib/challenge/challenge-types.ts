@@ -3,9 +3,9 @@
  * @ai-context This file defines types for the challenge system in the Avolve platform
  * @ai-related-to token-types.ts, challenge-service.ts, challenge-repository.ts
  * @ai-sacred-geometry tesla-369
- * 
+ *
  * Challenge Types
- * 
+ *
  * This file defines the types for the challenge system, including daily and weekly challenges,
  * challenge streaks, and challenge completion tracking.
  */
@@ -116,7 +116,7 @@ export enum ChallengeCompletionStatus {
   NOT_STARTED = 'not_started',
   IN_PROGRESS = 'in_progress',
   COMPLETED = 'completed',
-  REWARD_CLAIMED = 'reward_claimed'
+  REWARD_CLAIMED = 'reward_claimed',
 }
 
 /**

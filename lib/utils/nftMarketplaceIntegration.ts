@@ -25,7 +25,9 @@ const MARKETPLACE_API_KEY = process.env.NEXT_PUBLIC_NFT_MARKETPLACE_API_KEY || '
  * @param nftItem The NFT item details derived from Avolve rewards or tokens
  * @returns Promise with the result of the listing operation
  */
-export async function listNFTOnMarketplace(nftItem: NFTItem): Promise<{ success: boolean; listingId?: string; error?: string }> {
+export async function listNFTOnMarketplace(
+  nftItem: NFTItem
+): Promise<{ success: boolean; listingId?: string; error?: string }> {
   if (!MARKETPLACE_API_KEY) {
     console.error('NFT Marketplace API key is not configured.');
     return { success: false, error: 'API key not configured' };
@@ -36,7 +38,7 @@ export async function listNFTOnMarketplace(nftItem: NFTItem): Promise<{ success:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${MARKETPLACE_API_KEY}`,
+        Authorization: `Bearer ${MARKETPLACE_API_KEY}`,
       },
       body: JSON.stringify({
         nftId: nftItem.id,
@@ -71,7 +73,10 @@ export async function listNFTOnMarketplace(nftItem: NFTItem): Promise<{ success:
  * @param userId The ID of the user owning the reward
  * @returns NFTItem formatted for marketplace integration
  */
-export function formatRewardAsNFT(reward: { reward_category: string; reward_amount: number; eligibility_reason: string }, userId: string): NFTItem {
+export function formatRewardAsNFT(
+  reward: { reward_category: string; reward_amount: number; eligibility_reason: string },
+  userId: string
+): NFTItem {
   const id = `${userId}-${reward.reward_category}-${Date.now()}`;
   return {
     id,

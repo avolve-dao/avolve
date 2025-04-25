@@ -1,9 +1,16 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTeams } from '@/hooks/useTeams';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,25 +63,29 @@ export const CreateTeamForm: React.FC = () => {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Not Eligible</AlertTitle>
             <AlertDescription>
-              {eligibility.reason || `You need to complete at least ${eligibility.requiredChallenges} challenges to create a team. You&apos;ve completed ${eligibility.completedChallenges} so far.`}
+              {eligibility.reason ||
+                `You need to complete at least ${eligibility.requiredChallenges} challenges to create a team. You&apos;ve completed ${eligibility.completedChallenges} so far.`}
             </AlertDescription>
             <div className="mt-4">
-              <Progress 
-                value={(eligibility.completedChallenges / eligibility.requiredChallenges) * 100} 
+              <Progress
+                value={(eligibility.completedChallenges / eligibility.requiredChallenges) * 100}
                 className="h-2"
               />
               <p className="text-xs text-right mt-1">
-                {eligibility.completedChallenges}/{eligibility.requiredChallenges} challenges completed
+                {eligibility.completedChallenges}/{eligibility.requiredChallenges} challenges
+                completed
               </p>
             </div>
           </Alert>
         ) : (
-          eligibility && eligibility.isEligible && (
+          eligibility &&
+          eligibility.isEligible && (
             <Alert className="mb-6 bg-green-50 border-green-200">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
               <AlertTitle className="text-green-800">You&apos;re Eligible!</AlertTitle>
               <AlertDescription className="text-green-700">
-                You&apos;ve completed {eligibility.completedChallenges} challenges and can now create a team.
+                You&apos;ve completed {eligibility.completedChallenges} challenges and can now
+                create a team.
               </AlertDescription>
             </Alert>
           )
@@ -88,19 +99,19 @@ export const CreateTeamForm: React.FC = () => {
                 id="name"
                 placeholder="Enter a unique team name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={e => setName(e.target.value)}
                 disabled={loading || (eligibility ? !eligibility.isEligible : false)}
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="description">Description (Optional)</Label>
               <Textarea
                 id="description"
-                placeholder="Describe your team&apos;s mission and goals"
+                placeholder="Describe your team's mission and goals"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={e => setDescription(e.target.value)}
                 disabled={loading || (eligibility ? !eligibility.isEligible : false)}
                 rows={4}
               />
@@ -116,11 +127,7 @@ export const CreateTeamForm: React.FC = () => {
         </form>
       </CardContent>
       <CardFooter className="flex justify-between bg-slate-50">
-        <Button
-          variant="outline"
-          onClick={() => router.back()}
-          disabled={loading}
-        >
+        <Button variant="outline" onClick={() => router.back()} disabled={loading}>
           Cancel
         </Button>
         <Button

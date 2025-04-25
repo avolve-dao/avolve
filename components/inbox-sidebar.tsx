@@ -1,12 +1,12 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { Users, Command, MessageCircle, UserRound, Settings, Phone } from "lucide-react"
+import * as React from 'react';
+import { Users, Command, MessageCircle, UserRound, Settings, Phone } from 'lucide-react';
 
-import { NavUser } from "@/components/nav-user"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { NavUser } from '@/components/nav-user';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Sidebar,
   SidebarContent,
@@ -19,150 +19,154 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { Switch } from "@/components/ui/switch"
+} from '@/components/ui/sidebar';
+import { Switch } from '@/components/ui/switch';
 
 // This is sample data
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: 'shadcn',
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
   },
   navMain: [
     {
-      title: "Chats",
-      url: "#",
+      title: 'Chats',
+      url: '#',
       icon: MessageCircle,
       isActive: true,
     },
     {
-      title: "Groups",
-      url: "#",
+      title: 'Groups',
+      url: '#',
       icon: Users,
       isActive: false,
     },
     {
-      title: "Contacts",
-      url: "#",
+      title: 'Contacts',
+      url: '#',
       icon: UserRound,
       isActive: false,
     },
     {
-      title: "Calls",
-      url: "#",
+      title: 'Calls',
+      url: '#',
       icon: Phone,
       isActive: false,
     },
     {
-      title: "Settings",
-      url: "#",
+      title: 'Settings',
+      url: '#',
       icon: Settings,
       isActive: false,
     },
   ],
   conversations: [
     {
-      id: "1",
-      name: "Sarah Johnson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Are we still meeting tomorrow at the coffee shop?",
-      timestamp: "09:34 AM",
+      id: '1',
+      name: 'Sarah Johnson',
+      avatar: '/placeholder.svg?height=40&width=40',
+      lastMessage: 'Are we still meeting tomorrow at the coffee shop?',
+      timestamp: '09:34 AM',
       unread: 2,
       online: true,
     },
     {
-      id: "2",
-      name: "Design Team",
-      avatar: "/placeholder.svg?height=40&width=40",
+      id: '2',
+      name: 'Design Team',
+      avatar: '/placeholder.svg?height=40&width=40',
       lastMessage: "Alice: I've uploaded the new mockups to Figma",
-      timestamp: "Yesterday",
+      timestamp: 'Yesterday',
       unread: 0,
       isGroup: true,
       members: 8,
     },
     {
-      id: "3",
-      name: "David Lee",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Thanks for the help with the project!",
-      timestamp: "2 days ago",
+      id: '3',
+      name: 'David Lee',
+      avatar: '/placeholder.svg?height=40&width=40',
+      lastMessage: 'Thanks for the help with the project!',
+      timestamp: '2 days ago',
       unread: 0,
       online: false,
     },
     {
-      id: "4",
-      name: "Marketing",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "John: When is the next campaign starting?",
-      timestamp: "2 days ago",
+      id: '4',
+      name: 'Marketing',
+      avatar: '/placeholder.svg?height=40&width=40',
+      lastMessage: 'John: When is the next campaign starting?',
+      timestamp: '2 days ago',
       unread: 5,
       isGroup: true,
       members: 12,
     },
     {
-      id: "5",
-      name: "Emily Wilson",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Can you send me the files we discussed?",
-      timestamp: "1 week ago",
+      id: '5',
+      name: 'Emily Wilson',
+      avatar: '/placeholder.svg?height=40&width=40',
+      lastMessage: 'Can you send me the files we discussed?',
+      timestamp: '1 week ago',
       unread: 0,
       online: true,
     },
     {
-      id: "6",
-      name: "Project Alpha",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Michael: The deadline has been extended to next Friday",
-      timestamp: "1 week ago",
+      id: '6',
+      name: 'Project Alpha',
+      avatar: '/placeholder.svg?height=40&width=40',
+      lastMessage: 'Michael: The deadline has been extended to next Friday',
+      timestamp: '1 week ago',
       unread: 0,
       isGroup: true,
       members: 5,
     },
     {
-      id: "7",
-      name: "James Martin",
-      avatar: "/placeholder.svg?height=40&width=40",
+      id: '7',
+      name: 'James Martin',
+      avatar: '/placeholder.svg?height=40&width=40',
       lastMessage: "I'll be in the office tomorrow if you want to meet",
-      timestamp: "1 week ago",
+      timestamp: '1 week ago',
       unread: 0,
       online: false,
     },
     {
-      id: "8",
-      name: "Support Team",
-      avatar: "/placeholder.svg?height=40&width=40",
-      lastMessage: "Lisa: New ticket #1234 has been assigned to you",
-      timestamp: "1 week ago",
+      id: '8',
+      name: 'Support Team',
+      avatar: '/placeholder.svg?height=40&width=40',
+      lastMessage: 'Lisa: New ticket #1234 has been assigned to you',
+      timestamp: '1 week ago',
       unread: 0,
       isGroup: true,
       members: 15,
     },
   ],
-}
+};
 
 export function InboxSidebar({
   onSelectConversation,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
-  onSelectConversation?: (conversation: any) => void
+  onSelectConversation?: (conversation: any) => void;
 }) {
   // Note: I'm using state to show active item.
   // IRL you should use the url/router.
-  const [activeItem, setActiveItem] = React.useState(data.navMain[0])
-  const [conversations, setConversations] = React.useState(data.conversations)
-  const [activeConversation, setActiveConversation] = React.useState<string | null>(null)
-  const { setOpen } = useSidebar()
+  const [activeItem, setActiveItem] = React.useState(data.navMain[0]);
+  const [conversations, setConversations] = React.useState(data.conversations);
+  const [activeConversation, setActiveConversation] = React.useState<string | null>(null);
+  const { setOpen } = useSidebar();
 
   const handleSelectConversation = (conversation: any) => {
-    setActiveConversation(conversation.id)
+    setActiveConversation(conversation.id);
     if (onSelectConversation) {
-      onSelectConversation(conversation)
+      onSelectConversation(conversation);
     }
-  }
+  };
 
   return (
-    <Sidebar collapsible="icon" className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row" {...props}>
+    <Sidebar
+      collapsible="icon"
+      className="overflow-hidden [&>[data-sidebar=sidebar]]:flex-row"
+      {...props}
+    >
       {/* This is the first sidebar */}
       {/* We disable collapsible and adjust width to icon. */}
       {/* This will make the sidebar appear as icons. */}
@@ -188,7 +192,7 @@ export function InboxSidebar({
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {data.navMain.map((item) => (
+                {data.navMain.map(item => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       tooltip={{
@@ -196,8 +200,8 @@ export function InboxSidebar({
                         hidden: false,
                       }}
                       onClick={() => {
-                        setActiveItem(item)
-                        setOpen(true)
+                        setActiveItem(item);
+                        setOpen(true);
                       }}
                       isActive={activeItem?.title === item.title}
                       className="px-2.5 md:px-2"
@@ -232,12 +236,14 @@ export function InboxSidebar({
         <SidebarContent>
           <SidebarGroup className="px-0">
             <SidebarGroupContent>
-              {conversations.map((conversation) => (
+              {conversations.map(conversation => (
                 <button
                   key={conversation.id}
                   onClick={() => handleSelectConversation(conversation)}
                   className={`flex w-full items-start gap-3 border-b p-4 text-left text-sm last:border-b-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-                    activeConversation === conversation.id ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                    activeConversation === conversation.id
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                      : ''
                   }`}
                 >
                   <div className="relative flex-shrink-0">
@@ -245,9 +251,9 @@ export function InboxSidebar({
                       <AvatarImage src={conversation.avatar} alt={conversation.name} />
                       <AvatarFallback>
                         {conversation.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")}
+                          .split(' ')
+                          .map(n => n[0])
+                          .join('')}
                       </AvatarFallback>
                     </Avatar>
                     {conversation.online && !conversation.isGroup && (
@@ -262,9 +268,13 @@ export function InboxSidebar({
                   <div className="flex flex-1 flex-col overflow-hidden">
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{conversation.name}</span>
-                      <span className="text-xs text-muted-foreground">{conversation.timestamp}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {conversation.timestamp}
+                      </span>
                     </div>
-                    <p className="line-clamp-1 text-xs text-muted-foreground">{conversation.lastMessage}</p>
+                    <p className="line-clamp-1 text-xs text-muted-foreground">
+                      {conversation.lastMessage}
+                    </p>
                   </div>
                   {conversation.unread > 0 && (
                     <Badge variant="default" className="ml-auto rounded-full px-2 py-0.5">
@@ -278,6 +288,5 @@ export function InboxSidebar({
         </SidebarContent>
       </Sidebar>
     </Sidebar>
-  )
+  );
 }
-

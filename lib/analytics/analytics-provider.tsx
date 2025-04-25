@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -26,25 +26,23 @@ export const useAnalytics = () => {
 
 /**
  * Analytics Provider Component
- * 
+ *
  * Provides analytics tracking functionality throughout the application
  * using lightweight performance monitoring
  */
 export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  
+
   // Track page views
   useEffect(() => {
     if (pathname) {
-      const url = searchParams?.toString() 
-        ? `${pathname}?${searchParams.toString()}`
-        : pathname;
-      
+      const url = searchParams?.toString() ? `${pathname}?${searchParams.toString()}` : pathname;
+
       trackPageView(url);
     }
   }, [pathname, searchParams]);
-  
+
   // Track page load performance
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -54,11 +52,11 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           const perfData = window.performance.timing;
           const pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
           trackTiming('page_load', pageLoadTime);
-          
+
           // Track Time to First Byte (TTFB)
           const ttfb = perfData.responseStart - perfData.navigationStart;
           trackTiming('ttfb', ttfb);
-          
+
           // Track DOM Content Loaded
           const domContentLoaded = perfData.domContentLoadedEventEnd - perfData.navigationStart;
           trackTiming('dom_content_loaded', domContentLoaded);
@@ -66,71 +64,67 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       });
     }
   }, []);
-  
+
   // Track custom events
   const trackEvent = (eventName: string, properties?: Record<string, any>) => {
     if (typeof window !== 'undefined' && 'gtag' in window) {
       // @ts-ignore - gtag is injected by the script
       window.gtag('event', eventName, properties);
     }
-    
+
     // Log events in development
     if (process.env.NODE_ENV === 'development') {
       console.log(`[Analytics] Event: ${eventName}`, properties);
     }
   };
-  
+
   // Track page views
   const trackPageView = (url: string, referrer?: string) => {
     if (typeof window !== 'undefined' && 'gtag' in window) {
       // @ts-ignore - gtag is injected by the script
       window.gtag('config', process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID, {
         page_path: url,
-        page_referrer: referrer
+        page_referrer: referrer,
       });
     }
-    
+
     // Log page views in development
     if (process.env.NODE_ENV === 'development') {
       console.log(`[Analytics] Page View: ${url}`, { referrer });
     }
   };
-  
+
   // Track errors
   const trackError = (error: Error, componentName?: string) => {
     trackEvent('error', {
       error_message: error.message,
       error_stack: error.stack,
-      component: componentName
+      component: componentName,
     });
   };
-  
+
   // Track timing metrics
   const trackTiming = (name: string, duration: number) => {
     trackEvent('timing_complete', {
       name,
       value: duration,
-      page_path: pathname
+      page_path: pathname,
     });
-    
+
     // Log timing in development
     if (process.env.NODE_ENV === 'development') {
       console.log(`[Analytics] Timing (${name}): ${duration}ms`);
     }
   };
-  
+
   const value = {
     trackEvent,
     trackPageView,
     trackError,
-    trackTiming
+    trackTiming,
   };
-  
-  return (
-    <AnalyticsContext.Provider value={value}>
-      {children}
-    </AnalyticsContext.Provider>
-  );
+
+  return <AnalyticsContext.Provider value={value}>{children}</AnalyticsContext.Provider>;
 };
 
 /**
@@ -143,12 +137,12 @@ export function withPerformanceTracking<P extends object>(
   return (props: P) => {
     const { trackTiming } = useAnalytics();
     const startTime = performance.now();
-    
+
     useEffect(() => {
       const renderTime = performance.now() - startTime;
       trackTiming(`${componentName}_render`, renderTime);
     }, []);
-    
+
     return <Component {...props} />;
   };
 }

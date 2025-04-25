@@ -1,19 +1,24 @@
-"use client"
+'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, MoreVertical, Info } from "lucide-react"
-import Link from "next/link"
-import { ThemeToggle } from "@/components/chat/theme-toggle"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, MoreVertical, Info } from 'lucide-react';
+import Link from 'next/link';
+import { ThemeToggle } from '@/components/chat/theme-toggle';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ChatHeaderProps {
-  chatName: string
-  chatImage?: string
-  isGroup?: boolean
-  memberCount?: number
-  onBackClick?: () => void
-  onViewInfo?: () => void
+  chatName: string;
+  chatImage?: string;
+  isGroup?: boolean;
+  memberCount?: number;
+  onBackClick?: () => void;
+  onViewInfo?: () => void;
 }
 
 export function ChatHeader({
@@ -38,7 +43,9 @@ export function ChatHeader({
         </Avatar>
         <div>
           <h2 className="font-semibold">{chatName}</h2>
-          {isGroup && memberCount && <p className="text-xs text-muted-foreground">{memberCount} members</p>}
+          {isGroup && memberCount && (
+            <p className="text-xs text-muted-foreground">{memberCount} members</p>
+          )}
         </div>
       </div>
       <div className="flex items-center">
@@ -71,6 +78,5 @@ export function ChatHeader({
         </DropdownMenu>
       </div>
     </div>
-  )
+  );
 }
-

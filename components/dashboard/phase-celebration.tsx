@@ -57,7 +57,7 @@ export function PhaseCelebration({ pillar, phase, onDismiss }: PhaseCelebrationP
       case 'endgame':
         return "You've mastered this pillar and unlocked its full potential!";
       default:
-        return "Congratulations on your progress!";
+        return 'Congratulations on your progress!';
     }
   };
 
@@ -85,7 +85,7 @@ export function PhaseCelebration({ pillar, phase, onDismiss }: PhaseCelebrationP
             >
               <X className="h-5 w-5" />
             </Button>
-            
+
             <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -97,26 +97,26 @@ export function PhaseCelebration({ pillar, phase, onDismiss }: PhaseCelebrationP
                 in your <span className="font-bold">{pillarNames[pillar]}</span> journey!
               </p>
               <p className="mb-6">{getCelebrationMessage()}</p>
-              
+
               <div className="flex justify-center">
                 <motion.div
                   className="w-16 h-16 rounded-full bg-white/30 flex items-center justify-center"
-                  animate={{ 
+                  animate={{
                     scale: [1, 1.2, 1],
-                    rotate: [0, 15, -15, 0]
+                    rotate: [0, 15, -15, 0],
                   }}
-                  transition={{ 
+                  transition={{
                     repeat: Infinity,
-                    duration: 2
+                    duration: 2,
                   }}
                 >
                   <span className="text-3xl">🎉</span>
                 </motion.div>
               </div>
-              
+
               <div className="mt-6 text-center">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="bg-white/20 hover:bg-white/30 text-white border-white"
                   onClick={handleDismiss}
                 >

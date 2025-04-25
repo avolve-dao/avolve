@@ -7,36 +7,34 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '@/types/supabase';
-import { 
-  TokenResult, 
-  TokenClaimOptions, 
+import {
+  TokenResult,
+  TokenClaimOptions,
   TokenClaimResult,
   UserStreak,
-  TokenTransferResult
+  TokenTransferResult,
 } from './token-service.types';
 import { TokenClaimService } from './token-claim';
 import { Logger } from '@/lib/monitoring/logger';
 
 /**
  * Token Service
- * 
+ *
  * Provides token operations with consent checks in accordance with
  * The Prime Law's principles of voluntary consent
  */
 export class TokenService {
   private logger: Logger;
   private tokenClaimService: TokenClaimService;
-  
-  constructor(
-    private supabase: SupabaseClient<Database>
-  ) {
+
+  constructor(private supabase: SupabaseClient<Database>) {
     this.logger = new Logger('TokenService');
     this.tokenClaimService = new TokenClaimService(supabase);
   }
-  
+
   /**
    * Check if user has given consent for a token operation
-   * 
+   *
    * @param userId - The user ID to check consent for
    * @param consentType - The type of consent to check
    * @param actionType - The action type to check
@@ -58,22 +56,22 @@ export class TokenService {
         .eq('interaction_type', consentType)
         .eq('terms->action', actionType)
         .eq('status', 'approved');
-      
+
       // Add resource ID filter if provided
       if (resourceId) {
         query = query.eq('resource_id', resourceId);
       }
-      
+
       // Execute query
       const { data, error } = await query;
-      
+
       if (error) {
         if (error instanceof Error) {
           this.logger.error('Error checking consent:', error);
         }
         return false;
       }
-      
+
       return data && data.length > 0;
     } catch (error) {
       if (error instanceof Error) {
@@ -82,10 +80,10 @@ export class TokenService {
       return false;
     }
   }
-  
+
   /**
    * Record user consent for a token operation
-   * 
+   *
    * @param userId - The user ID giving consent
    * @param consentType - The type of consent
    * @param actionType - The action type
@@ -108,15 +106,15 @@ export class TokenService {
           interaction_type: consentType,
           terms: {
             action: actionType,
-            ...terms
+            ...terms,
           },
           status: 'approved',
           metadata,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
         })
         .select('consent_id')
         .single();
-      
+
       if (error) {
         if (error instanceof Error) {
           this.logger.error('Error recording consent:', error);
@@ -126,14 +124,14 @@ export class TokenService {
           error: {
             code: 'CONSENT_ERROR',
             message: 'Failed to record consent',
-            details: error
-          }
+            details: error,
+          },
         };
       }
-      
+
       return {
         success: true,
-        data: { consent_id: data.consent_id }
+        data: { consent_id: data.consent_id },
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -144,15 +142,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while recording consent',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
-  
+
   /**
    * Claim daily token with consent check
-   * 
+   *
    * @param userId - The user ID claiming the token
    * @param challengeId - The challenge ID
    * @param amount - The amount to claim
@@ -170,31 +168,25 @@ export class TokenService {
     consentGiven: boolean = false
   ): Promise<TokenResult<TokenClaimResult>> {
     // Check if user has given consent or explicit consent is provided
-    const hasConsent = consentGiven || await this.hasConsent(userId, 'token_claim', 'claim');
-    
+    const hasConsent = consentGiven || (await this.hasConsent(userId, 'token_claim', 'claim'));
+
     if (!hasConsent) {
       return {
         success: false,
         error: {
           code: 'CONSENT_REQUIRED',
-          message: 'User consent is required to claim tokens in accordance with The Prime Law'
-        }
+          message: 'User consent is required to claim tokens in accordance with The Prime Law',
+        },
       };
     }
-    
+
     // Proceed with token claim
-    return this.tokenClaimService.claimDailyToken(
-      userId,
-      challengeId,
-      amount,
-      multiplier,
-      reason
-    );
+    return this.tokenClaimService.claimDailyToken(userId, challengeId, amount, multiplier, reason);
   }
-  
+
   /**
    * Claim challenge reward with consent check
-   * 
+   *
    * @param userId - The user ID
    * @param challengeId - The challenge ID
    * @param tokenId - The token ID
@@ -210,25 +202,28 @@ export class TokenService {
     baseAmount: number,
     streakLength: number,
     consentGiven: boolean = false
-  ): Promise<TokenResult<{ 
-    success: boolean; 
-    message: string; 
-    transaction_id?: string;
-    unlocked?: boolean;
-  }>> {
+  ): Promise<
+    TokenResult<{
+      success: boolean;
+      message: string;
+      transaction_id?: string;
+      unlocked?: boolean;
+    }>
+  > {
     // Check if user has given consent or explicit consent is provided
-    const hasConsent = consentGiven || await this.hasConsent(userId, 'token_claim', 'claim');
-    
+    const hasConsent = consentGiven || (await this.hasConsent(userId, 'token_claim', 'claim'));
+
     if (!hasConsent) {
       return {
         success: false,
         error: {
           code: 'CONSENT_REQUIRED',
-          message: 'User consent is required to claim challenge rewards in accordance with The Prime Law'
-        }
+          message:
+            'User consent is required to claim challenge rewards in accordance with The Prime Law',
+        },
       };
     }
-    
+
     // Proceed with challenge reward claim
     return this.tokenClaimService.claimChallengeReward(
       userId,
@@ -238,11 +233,11 @@ export class TokenService {
       streakLength
     );
   }
-  
+
   /**
    * Batch claim tokens for multiple challenges
    * This improves performance by reducing the number of database operations
-   * 
+   *
    * @param userId - The user ID claiming tokens
    * @param claims - Array of token claim requests
    * @param consentGiven - Whether consent has been given for all claims
@@ -258,74 +253,81 @@ export class TokenService {
       reason?: string;
     }>,
     consentGiven: boolean = false
-  ): Promise<TokenResult<{
-    results: Array<{
-      challengeId: string;
-      success: boolean;
-      message: string;
-      transaction_id?: string;
-      error?: string;
-    }>;
-    successCount: number;
-    failureCount: number;
-  }>> {
+  ): Promise<
+    TokenResult<{
+      results: Array<{
+        challengeId: string;
+        success: boolean;
+        message: string;
+        transaction_id?: string;
+        error?: string;
+      }>;
+      successCount: number;
+      failureCount: number;
+    }>
+  > {
     try {
       // Verify consent for batch operation
       if (!consentGiven) {
         const consentType = 'token_claim';
         const actionType = 'batch_claim';
-        
+
         // Record consent for batch operation
-        const consentResult = await this.recordConsent(
-          userId,
-          consentType,
-          actionType,
-          {
-            claims: claims.map(claim => ({
-              challengeId: claim.challengeId,
-              tokenId: claim.tokenId,
-              amount: claim.amount
-            }))
-          }
-        );
-        
+        const consentResult = await this.recordConsent(userId, consentType, actionType, {
+          claims: claims.map(claim => ({
+            challengeId: claim.challengeId,
+            tokenId: claim.tokenId,
+            amount: claim.amount,
+          })),
+        });
+
         if (!consentResult.success) {
           return {
             success: false,
             error: {
               code: 'CONSENT_REQUIRED',
-              message: 'Explicit consent is required for batch token claims in accordance with The Prime Law',
-              details: consentResult.error
-            }
+              message:
+                'Explicit consent is required for batch token claims in accordance with The Prime Law',
+              details: consentResult.error,
+            },
           };
         }
       }
-      
+
       // Prepare batch transaction
-      const { data: { session }, error: sessionError } = await this.supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error: sessionError,
+      } = await this.supabase.auth.getSession();
+
       if (sessionError || !session) {
         return {
           success: false,
           error: {
             code: 'AUTH_ERROR',
             message: 'Authentication required for token operations',
-            details: sessionError
-          }
+            details: sessionError,
+          },
         };
       }
-      
+
       // Execute all claims and collect results
       const results = await Promise.all(
         claims.map(async claim => {
           try {
             let result;
-            
+
             // Determine if this is a streak-based claim
             if (claim.streakLength) {
               // Fallback: just skip streak reward logic for now, or log a warning
-              this.logger.warn('Streak reward logic not implemented: claimStreakReward/processStreakReward missing on TokenClaimService', { claim });
-              result = { success: false, error: { code: 'NOT_IMPLEMENTED', message: 'Streak reward logic not implemented' } };
+              this.logger.warn(
+                'Streak reward logic not implemented: claimStreakReward/processStreakReward missing on TokenClaimService',
+                { claim }
+              );
+              result = {
+                success: false,
+                error: { code: 'NOT_IMPLEMENTED', message: 'Streak reward logic not implemented' },
+              };
             } else {
               // Normal claim logic: fallback to mintTokens (which is available)
               result = await this.tokenClaimService.mintTokens(
@@ -335,38 +337,41 @@ export class TokenService {
                 claim.reason ?? ''
               );
             }
-            
+
             return {
               challengeId: claim.challengeId,
               success: result.success,
               message: result.data?.message || 'Token claim processed',
-              transaction_id: result.data?.transaction_id
+              transaction_id: result.data?.transaction_id,
             };
           } catch (error) {
             if (error instanceof Error) {
-              this.logger.error(`Error processing claim for challenge ${claim.challengeId}:`, error);
+              this.logger.error(
+                `Error processing claim for challenge ${claim.challengeId}:`,
+                error
+              );
             }
             return {
               challengeId: claim.challengeId,
               success: false,
               message: 'Failed to process token claim',
-              error: error instanceof Error ? error.message : 'Unknown error'
+              error: error instanceof Error ? error.message : 'Unknown error',
             };
           }
         })
       );
-      
+
       // Count successes and failures
       const successCount = results.filter(r => r.success).length;
       const failureCount = results.length - successCount;
-      
+
       return {
         success: successCount > 0,
         data: {
           results,
           successCount,
-          failureCount
-        }
+          failureCount,
+        },
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -377,8 +382,8 @@ export class TokenService {
         error: {
           code: 'BATCH_OPERATION_FAILED',
           message: 'Failed to process batch token claims',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
@@ -386,7 +391,7 @@ export class TokenService {
   /**
    * Get token availability for the current day
    * Based on the weekly token schedule
-   * 
+   *
    * @returns Information about the available token for today
    */
   public getTokenForToday(): TokenResult<{
@@ -405,10 +410,8 @@ export class TokenService {
     };
   }> {
     try {
-      const days = [
-        'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-      ];
-      
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
       const tokens = [
         {
           day: 'Sunday',
@@ -416,7 +419,7 @@ export class TokenService {
           name: 'Superpuzzle Developments',
           description: 'Tokens for collective innovation and development',
           gradient: 'from-red-500 via-green-500 to-blue-500',
-          journey: 'collective' as const
+          journey: 'collective' as const,
         },
         {
           day: 'Monday',
@@ -424,7 +427,7 @@ export class TokenService {
           name: 'Superhuman Enhancements',
           description: 'Tokens for personal development and enhancement',
           gradient: 'from-rose-500 via-red-500 to-orange-500',
-          journey: 'collective' as const
+          journey: 'collective' as const,
         },
         {
           day: 'Tuesday',
@@ -432,7 +435,7 @@ export class TokenService {
           name: 'Personal Success Puzzle',
           description: 'Tokens for individual achievement and success',
           gradient: 'from-amber-500 to-yellow-500',
-          journey: 'individual' as const
+          journey: 'individual' as const,
         },
         {
           day: 'Wednesday',
@@ -440,7 +443,7 @@ export class TokenService {
           name: 'Supersociety Advancements',
           description: 'Tokens for social systems and community',
           gradient: 'from-lime-500 via-green-500 to-emerald-500',
-          journey: 'collective' as const
+          journey: 'collective' as const,
         },
         {
           day: 'Thursday',
@@ -448,7 +451,7 @@ export class TokenService {
           name: 'Business Success Puzzle',
           description: 'Tokens for business operations and growth',
           gradient: 'from-teal-500 to-cyan-500',
-          journey: 'individual' as const
+          journey: 'individual' as const,
         },
         {
           day: 'Friday',
@@ -456,7 +459,7 @@ export class TokenService {
           name: 'Supergenius Breakthroughs',
           description: 'Tokens for research and development',
           gradient: 'from-sky-500 via-blue-500 to-indigo-500',
-          journey: 'collective' as const
+          journey: 'collective' as const,
         },
         {
           day: 'Saturday',
@@ -464,15 +467,15 @@ export class TokenService {
           name: 'Supermind Superpowers',
           description: 'Tokens for mental capabilities and growth',
           gradient: 'from-violet-500 via-purple-500 to-fuchsia-500',
-          journey: 'individual' as const
-        }
+          journey: 'individual' as const,
+        },
       ];
-      
+
       const today = new Date();
       const dayIndex = today.getDay();
       const todayToken = tokens[dayIndex];
       const tomorrowToken = tokens[(dayIndex + 1) % 7];
-      
+
       return {
         success: true,
         data: {
@@ -481,9 +484,9 @@ export class TokenService {
           nextToken: {
             symbol: tomorrowToken.symbol,
             name: tomorrowToken.name,
-            day: days[(dayIndex + 1) % 7]
-          }
-        }
+            day: days[(dayIndex + 1) % 7],
+          },
+        },
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -493,16 +496,16 @@ export class TokenService {
         success: false,
         error: {
           code: 'TOKEN_SCHEDULE_ERROR',
-          message: 'Failed to determine today\'s token',
-          details: error
-        }
+          message: "Failed to determine today's token",
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Transfer tokens with consent check
-   * 
+   *
    * @param fromUserId - The user ID sending tokens
    * @param toUserId - The user ID receiving tokens
    * @param tokenId - The token ID
@@ -527,89 +530,89 @@ export class TokenService {
           error: {
             code: 'INVALID_PARAMETERS',
             message: 'Missing required parameters for token transfer',
-            details: { fromUserId, toUserId, tokenId }
-          }
+            details: { fromUserId, toUserId, tokenId },
+          },
         };
       }
-      
+
       if (amount <= 0) {
         return {
           success: false,
           error: {
             code: 'INVALID_AMOUNT',
             message: 'Transfer amount must be greater than zero',
-            details: { amount }
-          }
+            details: { amount },
+          },
         };
       }
-      
+
       // Get token details for validation and messaging
       const { data: token, error: tokenError } = await this.supabase
         .from('tokens')
         .select('id, symbol, name, transferable')
         .eq('id', tokenId)
         .single();
-      
+
       if (tokenError || !token) {
         return {
           success: false,
           error: {
             code: 'TOKEN_NOT_FOUND',
             message: 'The specified token does not exist',
-            details: tokenError
-          }
+            details: tokenError,
+          },
         };
       }
-      
+
       // Defensive: Only check transferable if token is a valid object and has the property
       if (token && typeof token === 'object' && !Array.isArray(token) && 'transferable' in token) {
         if ((token as any).transferable === false) {
-          const tokenSymbol = token && typeof token === 'object' && 'symbol' in token ? (token as any).symbol : undefined;
+          const tokenSymbol =
+            token && typeof token === 'object' && 'symbol' in token
+              ? (token as any).symbol
+              : undefined;
           return {
             success: false,
             error: {
               code: 'TOKEN_NOT_TRANSFERABLE',
               message: `${tokenSymbol ?? 'This'} token is not transferable`,
-              details: { tokenSymbol }
-            }
+              details: { tokenSymbol },
+            },
           };
         }
       }
-      
+
       // Defensive: Only use token fields if token is valid and has those fields
-      const tokenSymbol = token && typeof token === 'object' && 'symbol' in token ? (token as any).symbol : undefined;
-      
+      const tokenSymbol =
+        token && typeof token === 'object' && 'symbol' in token ? (token as any).symbol : undefined;
+
       // Verify consent if not explicitly given
       if (!consentGiven) {
         const consentType = 'token_transfer';
         const actionType = 'send';
-        
+
         // Record consent for transfer
-        const consentResult = await this.recordConsent(
-          fromUserId,
-          consentType,
-          actionType,
-          {
-            tokenId,
-            tokenSymbol,
-            amount,
-            recipient: toUserId,
-            reason
-          }
-        );
-        
+        const consentResult = await this.recordConsent(fromUserId, consentType, actionType, {
+          tokenId,
+          tokenSymbol,
+          amount,
+          recipient: toUserId,
+          reason,
+        });
+
         if (!consentResult.success) {
           return {
             success: false,
             error: {
               code: 'CONSENT_REQUIRED',
-              message: 'Explicit consent is required for token transfers in accordance with The Prime Law',
-              details: consentResult.error
-            }
+              message:
+                'Explicit consent is required for token transfers in accordance with The Prime Law',
+              details: consentResult.error,
+            },
           };
         }
       }
-      
+
       // Find or create a transaction record for this transfer
       let transaction: { id: string };
       // Try to find an existing transaction for this operation (idempotency)
@@ -636,7 +639,7 @@ export class TokenService {
             from_user_id: fromUserId,
             to_user_id: toUserId,
             reason,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
           })
           .select('id')
           .single();
@@ -648,20 +651,20 @@ export class TokenService {
             error: {
               code: 'TRANSACTION_CREATE_FAILED',
               message: 'Failed to create transaction record',
-              details: txInsertError
-            }
+              details: txInsertError,
+            },
           };
         }
       }
-      
+
       // Check sender's balance
-      const { data: senderBalanceData, error: senderBalanceError } = await this.supabase
+      const { data: senderBalanceData, error: senderBalanceError } = (await this.supabase
         .from('user_balances')
         .select('id, balance')
         .eq('user_id', fromUserId)
         .eq('token_id', tokenId)
-        .single() as { data: { id: string; balance: number } | null, error: any };
-      
+        .single()) as { data: { id: string; balance: number } | null; error: any };
+
       if (senderBalanceError || !senderBalanceData) {
         // Attempt to revert sender's balance
         if (senderBalanceData) {
@@ -675,8 +678,8 @@ export class TokenService {
           error: {
             code: 'SENDER_BALANCE_FETCH_FAILED',
             message: 'Failed to fetch sender balance for update',
-            details: senderBalanceError
-          }
+            details: senderBalanceError,
+          },
         };
       }
       const newSenderBalance = Number(senderBalanceData.balance) - amount;
@@ -693,8 +696,8 @@ export class TokenService {
           error: {
             code: 'NEGATIVE_SENDER_BALANCE',
             message: 'Sender balance would go negative',
-            details: { current: senderBalanceData.balance, attempted: amount }
-          }
+            details: { current: senderBalanceData.balance, attempted: amount },
+          },
         };
       }
       const { error: senderUpdateError } = await this.supabase
@@ -714,8 +717,8 @@ export class TokenService {
           error: {
             code: 'SENDER_UPDATE_FAILED',
             message: 'Failed to update sender balance',
-            details: senderUpdateError
-          }
+            details: senderUpdateError,
+          },
         };
       }
       // Update recipient's balance (increment)
@@ -727,7 +730,9 @@ export class TokenService {
         .eq('token_id', tokenId)
         .single();
       let recipientBalanceId = recipientBalanceData ? recipientBalanceData.id : undefined;
-      let newRecipientBalance = recipientBalanceData ? Number(recipientBalanceData.balance) + amount : amount;
+      let newRecipientBalance = recipientBalanceData
+        ? Number(recipientBalanceData.balance) + amount
+        : amount;
       let recipientUpdateError = null;
       if (recipientBalanceId) {
         // Update existing balance
@@ -756,8 +761,8 @@ export class TokenService {
           error: {
             code: 'RECIPIENT_UPDATE_FAILED',
             message: 'Failed to update recipient balance',
-            details: recipientUpdateError
-          }
+            details: recipientUpdateError,
+          },
         };
       }
       return {
@@ -765,8 +770,8 @@ export class TokenService {
         data: {
           success: true,
           message: `Successfully transferred ${amount} ${tokenSymbol} to recipient`,
-          transaction_id: transaction.id
-        }
+          transaction_id: transaction.id,
+        },
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -777,15 +782,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while transferring tokens',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
 
   /**
    * Get user token balances
-   * 
+   *
    * @param userId - The user ID to get balances for
    * @returns User token balances
    */
@@ -793,7 +798,8 @@ export class TokenService {
     try {
       const { data, error } = await this.supabase
         .from('user_balances')
-        .select(`
+        .select(
+          `
           balance,
           tokens:token_id (
             id,
@@ -806,9 +812,10 @@ export class TokenService {
             token_type,
             parent_id
           )
-        `)
+        `
+        )
         .eq('user_id', userId);
-      
+
       if (error) {
         if (error instanceof Error) {
           this.logger.error('Error getting user balances:', error);
@@ -818,17 +825,17 @@ export class TokenService {
           error: {
             code: 'QUERY_ERROR',
             message: 'Failed to get user balances',
-            details: error
-          }
+            details: error,
+          },
         };
       }
-      
+
       return {
         success: true,
         data: data.map(item => ({
           token: item.tokens,
-          balance: item.balance
-        }))
+          balance: item.balance,
+        })),
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -839,15 +846,15 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting user balances',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }
-  
+
   /**
    * Get user token transactions
-   * 
+   *
    * @param userId - The user ID to get transactions for
    * @param limit - Optional limit on number of transactions
    * @param offset - Optional offset for pagination
@@ -861,7 +868,8 @@ export class TokenService {
     try {
       const { data, error } = await this.supabase
         .from('transactions')
-        .select(`
+        .select(
+          `
           id,
           token_id,
           from_user_id,
@@ -882,12 +890,13 @@ export class TokenService {
             id,
             username
           )
-        `)
+        `
+        )
         .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
         .order('created_at', { ascending: false })
         .limit(limit)
         .range(offset, offset + limit - 1);
-      
+
       if (error) {
         if (error instanceof Error) {
           this.logger.error('Error getting user transactions:', error);
@@ -897,14 +906,14 @@ export class TokenService {
           error: {
             code: 'QUERY_ERROR',
             message: 'Failed to get user transactions',
-            details: error
-          }
+            details: error,
+          },
         };
       }
-      
+
       return {
         success: true,
-        data
+        data,
       };
     } catch (error) {
       if (error instanceof Error) {
@@ -915,8 +924,8 @@ export class TokenService {
         error: {
           code: 'UNEXPECTED_ERROR',
           message: 'An unexpected error occurred while getting user transactions',
-          details: error
-        }
+          details: error,
+        },
       };
     }
   }

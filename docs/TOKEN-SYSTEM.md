@@ -22,11 +22,13 @@ The Avolve token system implements a comprehensive tokenomics framework that sup
 Each pillar has its own set of utility tokens:
 
 1. **Superachiever Pillar**
+
    - **PSP (Personal Success Puzzle)**: Earned through personal development activities
    - **BSP (Business Success Puzzle)**: Earned through business development activities
    - **SMS (Supermind Superpowers)**: Earned through cognitive enhancement activities
 
 2. **Superachievers Pillar**
+
    - **SPD (Superpuzzle Developments)**: Earned through collaborative problem-solving
    - **SHE (Superhuman Enhancements)**: Earned through physical optimization
    - **SSA (Supersociety Advancements)**: Earned through community contributions
@@ -40,6 +42,7 @@ Each pillar has its own set of utility tokens:
 ### Tables
 
 1. **tokens**
+
    - `id`: UUID (primary key)
    - `symbol`: Text (e.g., "GEN", "PSP")
    - `name`: Text (full name)
@@ -56,6 +59,7 @@ Each pillar has its own set of utility tokens:
    - `updated_at`: Timestamptz
 
 2. **user_tokens**
+
    - `id`: UUID (primary key)
    - `user_id`: UUID (references auth.users)
    - `token_id`: UUID (references tokens)
@@ -65,6 +69,7 @@ Each pillar has its own set of utility tokens:
    - `last_updated`: Timestamptz
 
 3. **token_transactions**
+
    - `id`: UUID (primary key)
    - `from_user_id`: UUID (references auth.users, nullable)
    - `to_user_id`: UUID (references auth.users, nullable)
@@ -76,6 +81,7 @@ Each pillar has its own set of utility tokens:
    - `updated_at`: Timestamptz
 
 4. **token_burns**
+
    - `id`: UUID (primary key)
    - `transaction_id`: UUID (references token_transactions)
    - `token_id`: UUID (references tokens)
@@ -101,6 +107,7 @@ Each pillar has its own set of utility tokens:
 ### Functions
 
 1. **transfer_tokens**
+
    - Transfers tokens between users
    - Parameters:
      - `p_from_user_id`: UUID
@@ -111,6 +118,7 @@ Each pillar has its own set of utility tokens:
    - Returns: JSON with transaction result
 
 2. **spend_gen_tokens**
+
    - Implements GEN token spending with burn mechanism
    - Parameters:
      - `p_user_id`: UUID
@@ -119,6 +127,7 @@ Each pillar has its own set of utility tokens:
    - Returns: JSON with transaction result and burn amount
 
 3. **get_user_transactions**
+
    - Retrieves transaction history for a user
    - Parameters:
      - `p_user_id`: UUID
@@ -137,11 +146,13 @@ Each pillar has its own set of utility tokens:
 The token system is tightly integrated with the experience phases system:
 
 1. **Phase Milestone Rewards**
+
    - Completing milestones awards tokens
    - Different token types based on pillar and phase
    - Token rewards increase with phase progression
 
 2. **Token-Gated Features**
+
    - Features are unlocked based on token balances
    - Requirements vary by feature and experience phase
    - Progressive disclosure of advanced features
@@ -163,13 +174,7 @@ The token system is tightly integrated with the experience phases system:
 ```typescript
 // Example usage
 import { useTokens } from '@/hooks/use-tokens';
-const { 
-  tokens, 
-  userBalances, 
-  transferTokens, 
-  getTokenBalance, 
-  hasEnoughTokens 
-} = useTokens(); // from @/hooks/use-tokens
+const { tokens, userBalances, transferTokens, getTokenBalance, hasEnoughTokens } = useTokens(); // from @/hooks/use-tokens
 
 // Check if user has enough tokens
 if (hasEnoughTokens('GEN', 100)) {
@@ -194,30 +199,22 @@ const { data: tokens } = await tokensService.getAllTokens();
 const { data: balances } = await tokensService.getUserBalances(userId);
 
 // Transfer tokens
-const result = await tokensService.transferTokens(
-  fromUserId,
-  toUserId,
-  tokenId,
-  amount,
-  reason
-);
+const result = await tokensService.transferTokens(fromUserId, toUserId, tokenId, amount, reason);
 
 // Spend GEN tokens
-const { data } = await tokensService.spendGen(
-  userId,
-  amount,
-  'marketplace'
-);
+const { data } = await tokensService.spendGen(userId, amount, 'marketplace');
 ```
 
 ## Security Considerations
 
 1. **Row Level Security**
+
    - Users can only view their own token balances
    - Users can only initiate transfers from their own accounts
    - Token burn records are publicly viewable
 
 2. **Transaction Atomicity**
+
    - All token transfers use database transactions
    - Prevents partial transfers and data inconsistency
 
@@ -229,10 +226,12 @@ const { data } = await tokensService.spendGen(
 ## Performance Optimizations
 
 1. **Indexing**
+
    - Indexes on user_id, token_id, and created_at columns
    - Optimized for frequent balance lookups
 
 2. **Real-time Updates**
+
    - Efficient Supabase subscriptions for balance changes
    - Targeted updates to minimize unnecessary re-renders
 
@@ -243,14 +242,17 @@ const { data } = await tokensService.spendGen(
 ## Future Enhancements
 
 1. **Token Staking**
+
    - Allow users to stake tokens for rewards
    - Implement time-locked staking with variable rewards
 
 2. **Token Exchange**
+
    - Enable exchange between different token types
    - Implement variable exchange rates based on scarcity
 
 3. **NFT Integration**
+
    - Convert achievements to NFTs
    - Implement NFT marketplace for digital assets
 

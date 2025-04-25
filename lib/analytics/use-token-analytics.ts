@@ -3,16 +3,16 @@ import { useAnalytics } from './analytics-provider';
 
 /**
  * Custom hook to track token-related analytics events
- * 
+ *
  * This hook provides specialized tracking for token interactions
  * to help monitor user engagement with the token system
  */
 export function useTokenAnalytics() {
   const { trackEvent, trackTiming } = useAnalytics();
-  
+
   /**
    * Track token claim events
-   * 
+   *
    * @param tokenId - The ID of the token being claimed
    * @param amount - The amount of tokens claimed
    * @param durationMs - How long the claim operation took
@@ -29,13 +29,13 @@ export function useTokenAnalytics() {
       amount,
       success,
     });
-    
+
     trackTiming('token_claim_duration', durationMs);
   };
-  
+
   /**
    * Track token balance view events
-   * 
+   *
    * @param tokenIds - Array of token IDs being viewed
    */
   const trackTokenBalanceView = (tokenIds: string[]) => {
@@ -44,10 +44,10 @@ export function useTokenAnalytics() {
       token_count: tokenIds.length,
     });
   };
-  
+
   /**
    * Track token transfer events
-   * 
+   *
    * @param tokenId - The ID of the token being transferred
    * @param amount - The amount of tokens transferred
    * @param recipientType - The type of recipient (user, system, etc.)
@@ -67,13 +67,13 @@ export function useTokenAnalytics() {
       recipient_type: recipientType,
       success,
     });
-    
+
     trackTiming('token_transfer_duration', durationMs);
   };
-  
+
   /**
    * Track streak milestone events
-   * 
+   *
    * @param streakCount - The current streak count
    * @param isNewMilestone - Whether this is a new milestone (3, 6, 9, etc.)
    * @param bonusMultiplier - The bonus multiplier applied
@@ -89,10 +89,10 @@ export function useTokenAnalytics() {
       bonus_multiplier: bonusMultiplier,
     });
   };
-  
+
   /**
    * Track challenge completion events
-   * 
+   *
    * @param challengeId - The ID of the completed challenge
    * @param tokensEarned - The amount of tokens earned
    * @param completionTimeMs - How long it took to complete the challenge
@@ -106,10 +106,10 @@ export function useTokenAnalytics() {
       challenge_id: challengeId,
       tokens_earned: tokensEarned,
     });
-    
+
     trackTiming('challenge_completion_time', completionTimeMs);
   };
-  
+
   return {
     trackTokenClaim,
     trackTokenBalanceView,

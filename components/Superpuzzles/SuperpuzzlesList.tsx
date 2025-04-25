@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect } from 'react';
 import { useSuperpuzzles } from '@/hooks/useSuperpuzzles';
@@ -33,16 +33,16 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
   showTodayOnly = false,
   teamId,
   contributions,
-  showContributeButton = false
+  showContributeButton = false,
 }) => {
   const router = useRouter();
-  const { 
-    loading, 
-    activeSuperpuzzles, 
-    todaySuperpuzzles, 
-    loadActiveSuperpuzzles, 
+  const {
+    loading,
+    activeSuperpuzzles,
+    todaySuperpuzzles,
+    loadActiveSuperpuzzles,
     loadTodaySuperpuzzles,
-    getTokenNameForDay
+    getTokenNameForDay,
   } = useSuperpuzzles();
 
   useEffect(() => {
@@ -53,12 +53,13 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
     }
   }, [showTodayOnly, contributions, loadActiveSuperpuzzles, loadTodaySuperpuzzles]);
 
-  const superpuzzlesToDisplay = contributions || (showTodayOnly ? todaySuperpuzzles : activeSuperpuzzles);
+  const superpuzzlesToDisplay =
+    contributions || (showTodayOnly ? todaySuperpuzzles : activeSuperpuzzles);
 
   if (loading && superpuzzlesToDisplay.length === 0) {
     return (
       <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
+        {[1, 2, 3].map(i => (
           <div key={i} className="border rounded-lg p-4">
             <Skeleton className="h-8 w-3/4 mb-2" />
             <Skeleton className="h-4 w-1/2 mb-4" />
@@ -74,40 +75,40 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
   }
 
   // For team contributions, we need to format the data differently
-  const formattedSuperpuzzles: FormattedSuperpuzzleItem[] = contributions 
+  const formattedSuperpuzzles: FormattedSuperpuzzleItem[] = contributions
     ? contributions.map(contribution => ({
         contribution: {
           id: (contribution as any)?.id,
           points: (contribution as any)?.points,
           isCompleted: (contribution as any)?.isCompleted,
-          progress: (contribution as any)?.progress
+          progress: (contribution as any)?.progress,
         },
-        superpuzzle: (contribution as any)?.superpuzzle
+        superpuzzle: (contribution as any)?.superpuzzle,
       }))
     : superpuzzlesToDisplay.map((superpuzzle: unknown) => ({ superpuzzle }));
 
   // Split into active and completed
-  const activeItems = formattedSuperpuzzles.filter(item => 
-    !(item.contribution?.isCompleted ?? false) && (item.superpuzzle as any)?.status !== 'completed'
+  const activeItems = formattedSuperpuzzles.filter(
+    item =>
+      !(item.contribution?.isCompleted ?? false) &&
+      (item.superpuzzle as any)?.status !== 'completed'
   );
-  
-  const completedItems = formattedSuperpuzzles.filter(item => 
-    (item.contribution?.isCompleted ?? false) || (item.superpuzzle as any)?.status === 'completed'
+
+  const completedItems = formattedSuperpuzzles.filter(
+    item =>
+      (item.contribution?.isCompleted ?? false) || (item.superpuzzle as any)?.status === 'completed'
   );
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">
-          {showTodayOnly 
-            ? `Today&apos;s Superpuzzles: ${getTokenNameForDay(new Date().getDay())}` 
+          {showTodayOnly
+            ? `Today&apos;s Superpuzzles: ${getTokenNameForDay(new Date().getDay())}`
             : 'Superpuzzles'}
         </h2>
         {!showTodayOnly && !contributions && (
-          <Button 
-            onClick={() => router.push('/superpuzzles/today')}
-            variant="outline"
-          >
+          <Button onClick={() => router.push('/superpuzzles/today')} variant="outline">
             View Today&apos;s Superpuzzles
           </Button>
         )}
@@ -118,18 +119,14 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
           <PuzzleIcon className="mx-auto h-12 w-12 text-slate-400" />
           <h3 className="mt-4 text-lg font-medium">No superpuzzles found</h3>
           <p className="mt-2 text-sm text-slate-500">
-            {showTodayOnly 
-              ? "There are no superpuzzles available for today." 
-              : contributions 
-                ? "This team hasn&apos;t contributed to any superpuzzles yet."
-                : "There are no active superpuzzles available at the moment."}
+            {showTodayOnly
+              ? 'There are no superpuzzles available for today.'
+              : contributions
+                ? 'This team hasn&apos;t contributed to any superpuzzles yet.'
+                : 'There are no active superpuzzles available at the moment.'}
           </p>
           {!showTodayOnly && (
-            <Button 
-              onClick={() => router.push('/superpuzzles')}
-              variant="outline" 
-              className="mt-4"
-            >
+            <Button onClick={() => router.push('/superpuzzles')} variant="outline" className="mt-4">
               Browse All Superpuzzles
             </Button>
           )}
@@ -137,29 +134,23 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
       ) : (
         <Tabs defaultValue="active" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="active">
-              Active ({activeItems.length})
-            </TabsTrigger>
-            <TabsTrigger value="completed">
-              Completed ({completedItems.length})
-            </TabsTrigger>
+            <TabsTrigger value="active">Active ({activeItems.length})</TabsTrigger>
+            <TabsTrigger value="completed">Completed ({completedItems.length})</TabsTrigger>
           </TabsList>
-          
+
           <TabsContent value="active" className="mt-6">
             {activeItems.length === 0 ? (
               <div className="text-center py-12 border rounded-lg bg-slate-50">
                 <PuzzleIcon className="mx-auto h-12 w-12 text-slate-400" />
                 <h3 className="mt-4 text-lg font-medium">No active superpuzzles</h3>
-                <p className="mt-2 text-sm text-slate-500">
-                  All superpuzzles have been completed!
-                </p>
+                <p className="mt-2 text-sm text-slate-500">All superpuzzles have been completed!</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeItems.map((item) => (
-                  <SuperpuzzleCard 
-                    key={(item.superpuzzle as any)?.id} 
-                    superpuzzle={item.superpuzzle as any} 
+                {activeItems.map(item => (
+                  <SuperpuzzleCard
+                    key={(item.superpuzzle as any)?.id}
+                    superpuzzle={item.superpuzzle as any}
                     contribution={item.contribution}
                     showContributeButton={showContributeButton}
                     teamId={teamId}
@@ -168,7 +159,7 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value="completed" className="mt-6">
             {completedItems.length === 0 ? (
               <div className="text-center py-12 border rounded-lg bg-slate-50">
@@ -180,10 +171,10 @@ export const SuperpuzzlesList: React.FC<SuperpuzzlesListProps> = ({
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {completedItems.map((item) => (
-                  <SuperpuzzleCard 
-                    key={(item.superpuzzle as any)?.id} 
-                    superpuzzle={item.superpuzzle as any} 
+                {completedItems.map(item => (
+                  <SuperpuzzleCard
+                    key={(item.superpuzzle as any)?.id}
+                    superpuzzle={item.superpuzzle as any}
                     contribution={item.contribution}
                     teamId={teamId}
                   />

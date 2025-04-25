@@ -1,6 +1,6 @@
 /**
  * Audit Service
- * 
+ *
  * This service centralizes all audit logging functionality for the Avolve platform.
  * It provides methods for recording and retrieving audit logs.
  */
@@ -48,7 +48,7 @@ export enum AuditAction {
   CONSENSUS_CREATE = 'consensus_create',
   CONSENSUS_START = 'consensus_start',
   CONSENSUS_END = 'consensus_end',
-  RESPECT_GIVE = 'respect_give'
+  RESPECT_GIVE = 'respect_give',
 }
 
 // Entity Type enum
@@ -63,7 +63,7 @@ export enum EntityType {
   CONSENSUS_GROUP = 'consensus_group',
   NOTIFICATION = 'notification',
   SETTING = 'setting',
-  SESSION = 'session'
+  SESSION = 'session',
 }
 
 // Helper function to convert database error to AuthError
@@ -118,14 +118,14 @@ export class AuditService {
         p_old_data: oldData,
         p_new_data: newData,
         p_ip_address: ipAddress,
-        p_user_agent: userAgent
+        p_user_agent: userAgent,
       });
-      
+
       if (error) {
         console.error('Create audit log error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       // If the RPC returns the ID, fetch the full audit log
       if (data) {
         const { data: auditLog, error: fetchError } = await this.client
@@ -133,21 +133,21 @@ export class AuditService {
           .select('*')
           .eq('id', data)
           .single();
-        
+
         if (fetchError) {
           console.error('Fetch audit log error:', fetchError);
           return { data: null, error: convertError(fetchError) };
         }
-        
+
         return { data: auditLog, error: null };
       }
-      
+
       return { data: null, error: new AuthError('Failed to create audit log') };
     } catch (error) {
       console.error('Unexpected create audit log error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating audit log') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating audit log'),
       };
     }
   }
@@ -174,44 +174,44 @@ export class AuditService {
         // .offset(offset); // .offset is not supported on PostgrestFilterBuilder in supabase-js v2+
         // Instead, use range for pagination
         .range(offset, offset + limit - 1);
-      
+
       if (userId) {
         query = query.eq('user_id', userId);
       }
-      
+
       if (action) {
         query = query.eq('action', action);
       }
-      
+
       if (entityType) {
         query = query.eq('entity_type', entityType);
       }
-      
+
       if (entityId) {
         query = query.eq('entity_id', entityId);
       }
-      
+
       if (startDate) {
         query = query.gte('created_at', startDate.toISOString());
       }
-      
+
       if (endDate) {
         query = query.lte('created_at', endDate.toISOString());
       }
-      
+
       const { data, error } = await query;
-      
+
       if (error) {
         console.error('Get audit logs error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get audit logs error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting audit logs') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting audit logs'),
       };
     }
   }
@@ -226,18 +226,18 @@ export class AuditService {
         .select('*')
         .eq('id', id)
         .single();
-      
+
       if (error) {
         console.error('Get audit log by ID error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get audit log by ID error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting audit log') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting audit log'),
       };
     }
   }
@@ -303,47 +303,45 @@ export class AuditService {
     endDate?: Date
   ): Promise<AuditResult<number>> {
     try {
-      let query = this.client
-        .from('audit_logs')
-        .select('*', { count: 'exact', head: true });
-      
+      let query = this.client.from('audit_logs').select('*', { count: 'exact', head: true });
+
       if (userId) {
         query = query.eq('user_id', userId);
       }
-      
+
       if (action) {
         query = query.eq('action', action);
       }
-      
+
       if (entityType) {
         query = query.eq('entity_type', entityType);
       }
-      
+
       if (entityId) {
         query = query.eq('entity_id', entityId);
       }
-      
+
       if (startDate) {
         query = query.gte('created_at', startDate.toISOString());
       }
-      
+
       if (endDate) {
         query = query.lte('created_at', endDate.toISOString());
       }
-      
+
       const { count, error } = await query;
-      
+
       if (error) {
         console.error('Get audit log count error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: count || 0, error: null };
     } catch (error) {
       console.error('Unexpected get audit log count error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting audit log count') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting audit log count'),
       };
     }
   }
@@ -358,31 +356,31 @@ export class AuditService {
   ): Promise<AuditResult<{ key: string; count: number }[]>> {
     try {
       let timeFilter = '';
-      
+
       if (startDate) {
         timeFilter += ` AND created_at >= '${startDate.toISOString()}'`;
       }
-      
+
       if (endDate) {
         timeFilter += ` AND created_at <= '${endDate.toISOString()}'`;
       }
-      
+
       const { data, error } = await this.client.rpc('get_audit_log_summary', {
         p_group_by: groupBy,
-        p_time_filter: timeFilter
+        p_time_filter: timeFilter,
       });
-      
+
       if (error) {
         console.error('Get audit log summary error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get audit log summary error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting audit log summary') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting audit log summary'),
       };
     }
   }
@@ -488,9 +486,9 @@ export class AuditService {
       from_user_id: fromUserId,
       to_user_id: toUserId,
       amount,
-      reason
+      reason,
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.TRANSFER,
@@ -519,9 +517,9 @@ export class AuditService {
       token_type_id: tokenTypeId,
       to_user_id: toUserId,
       amount,
-      reason
+      reason,
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.MINT,
@@ -550,9 +548,9 @@ export class AuditService {
       token_type_id: tokenTypeId,
       from_user_id: fromUserId,
       amount,
-      reason
+      reason,
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.BURN,
@@ -581,9 +579,9 @@ export class AuditService {
       resource,
       action,
       granted_by: userId,
-      granted_at: new Date().toISOString()
+      granted_at: new Date().toISOString(),
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.PERMISSION_GRANT,
@@ -612,9 +610,9 @@ export class AuditService {
       resource,
       action,
       revoked_by: userId,
-      revoked_at: new Date().toISOString()
+      revoked_at: new Date().toISOString(),
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.PERMISSION_REVOKE,
@@ -641,9 +639,9 @@ export class AuditService {
       user_id: targetUserId,
       role,
       granted_by: userId,
-      granted_at: new Date().toISOString()
+      granted_at: new Date().toISOString(),
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.ROLE_ASSIGN,
@@ -670,9 +668,9 @@ export class AuditService {
       user_id: targetUserId,
       role,
       removed_by: userId,
-      removed_at: new Date().toISOString()
+      removed_at: new Date().toISOString(),
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.ROLE_REMOVE,
@@ -718,9 +716,9 @@ export class AuditService {
   ): Promise<AuditResult<AuditLog>> {
     const startData = {
       started_by: userId,
-      started_at: new Date().toISOString()
+      started_at: new Date().toISOString(),
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.CONSENSUS_START,
@@ -748,9 +746,9 @@ export class AuditService {
       ended_by: userId,
       ended_at: new Date().toISOString(),
       outcome,
-      notes
+      notes,
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.CONSENSUS_END,
@@ -780,9 +778,9 @@ export class AuditService {
       from_user_id: userId,
       to_user_id: toUserId,
       amount,
-      reason
+      reason,
     };
-    
+
     return this.createAuditLog(
       userId,
       AuditAction.RESPECT_GIVE,

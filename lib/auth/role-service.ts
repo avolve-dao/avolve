@@ -1,6 +1,6 @@
 /**
  * Role Service
- * 
+ *
  * This service centralizes all role and permission management functionality for the Avolve platform.
  * It provides methods for managing roles, permissions, and user role assignments.
  */
@@ -86,10 +86,12 @@ export class RoleService {
    */
   public static getBrowserInstance(): RoleService {
     if (!RoleService.instance) {
-      RoleService.instance = new RoleService(createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      ));
+      RoleService.instance = new RoleService(
+        createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+      );
     }
     return RoleService.instance;
   }
@@ -115,22 +117,19 @@ export class RoleService {
    */
   public async getAllRoles(): Promise<RoleResult<Role[]>> {
     try {
-      const { data, error } = await this.client
-        .from('roles')
-        .select('*')
-        .order('name');
-      
+      const { data, error } = await this.client.from('roles').select('*').order('name');
+
       if (error) {
         console.error('Get all roles error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get all roles error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting roles') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting roles'),
       };
     }
   }
@@ -140,23 +139,19 @@ export class RoleService {
    */
   public async getRoleById(id: string): Promise<RoleResult<Role>> {
     try {
-      const { data, error } = await this.client
-        .from('roles')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
+      const { data, error } = await this.client.from('roles').select('*').eq('id', id).single();
+
       if (error) {
         console.error('Get role by ID error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get role by ID error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting role'),
       };
     }
   }
@@ -166,23 +161,19 @@ export class RoleService {
    */
   public async getRoleByName(name: string): Promise<RoleResult<Role>> {
     try {
-      const { data, error } = await this.client
-        .from('roles')
-        .select('*')
-        .eq('name', name)
-        .single();
-      
+      const { data, error } = await this.client.from('roles').select('*').eq('name', name).single();
+
       if (error) {
         console.error('Get role by name error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get role by name error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting role'),
       };
     }
   }
@@ -197,18 +188,18 @@ export class RoleService {
         .insert([{ name, description, is_system: false }])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Create role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected create role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating role'),
       };
     }
   }
@@ -221,30 +212,30 @@ export class RoleService {
       // Don't allow updating system roles
       const { data: existingRole } = await this.getRoleById(id);
       if (existingRole?.is_system) {
-        return { 
-          data: null, 
-          error: new AuthError('Cannot update system roles') 
+        return {
+          data: null,
+          error: new AuthError('Cannot update system roles'),
         };
       }
-      
+
       const { data, error } = await this.client
         .from('roles')
         .update(updates)
         .eq('id', id)
         .select()
         .single();
-      
+
       if (error) {
         console.error('Update role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected update role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while updating role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while updating role'),
       };
     }
   }
@@ -257,28 +248,25 @@ export class RoleService {
       // Don't allow deleting system roles
       const { data: existingRole } = await this.getRoleById(id);
       if (existingRole?.is_system) {
-        return { 
-          data: null, 
-          error: new AuthError('Cannot delete system roles') 
+        return {
+          data: null,
+          error: new AuthError('Cannot delete system roles'),
         };
       }
-      
-      const { error } = await this.client
-        .from('roles')
-        .delete()
-        .eq('id', id);
-      
+
+      const { error } = await this.client.from('roles').delete().eq('id', id);
+
       if (error) {
         console.error('Delete role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected delete role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while deleting role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while deleting role'),
       };
     }
   }
@@ -293,18 +281,18 @@ export class RoleService {
         .select('*')
         .order('resource', { ascending: true })
         .order('action', { ascending: true });
-      
+
       if (error) {
         console.error('Get all permissions error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get all permissions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting permissions') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting permissions'),
       };
     }
   }
@@ -324,23 +312,31 @@ export class RoleService {
         return { data: null, error: convertError(error) };
       }
       // Normalize permissions: handle both array and object cases
-      const permissions = (data || []).map((item: { permissions: unknown }) => {
-        if (Array.isArray(item.permissions)) {
-          // permissions is an array: return the first valid Permission object, or null
-          const first = item.permissions.find((perm: any) => perm && typeof perm === 'object' && 'id' in perm);
-          return first ? (first as Permission) : null;
-        } else if (item.permissions && typeof item.permissions === 'object' && 'id' in item.permissions) {
-          // permissions is a single object
-          return item.permissions as Permission;
-        }
-        return null;
-      }).filter((p: Permission | null): p is Permission => !!p);
+      const permissions = (data || [])
+        .map((item: { permissions: unknown }) => {
+          if (Array.isArray(item.permissions)) {
+            // permissions is an array: return the first valid Permission object, or null
+            const first = item.permissions.find(
+              (perm: any) => perm && typeof perm === 'object' && 'id' in perm
+            );
+            return first ? (first as Permission) : null;
+          } else if (
+            item.permissions &&
+            typeof item.permissions === 'object' &&
+            'id' in item.permissions
+          ) {
+            // permissions is a single object
+            return item.permissions as Permission;
+          }
+          return null;
+        })
+        .filter((p: Permission | null): p is Permission => !!p);
       return { data: permissions, error: null };
     } catch (error) {
       console.error('Unexpected get role permissions error:', error);
       return {
         data: null,
-        error: new AuthError('An unexpected error occurred while getting role permissions')
+        error: new AuthError('An unexpected error occurred while getting role permissions'),
       };
     }
   }
@@ -348,25 +344,28 @@ export class RoleService {
   /**
    * Assign a permission to a role
    */
-  public async assignPermissionToRole(roleId: string, permissionId: string): Promise<RoleResult<RolePermission>> {
+  public async assignPermissionToRole(
+    roleId: string,
+    permissionId: string
+  ): Promise<RoleResult<RolePermission>> {
     try {
       const { data, error } = await this.client
         .from('role_permissions')
         .insert([{ role_id: roleId, permission_id: permissionId }])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Assign permission to role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected assign permission to role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while assigning permission to role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while assigning permission to role'),
       };
     }
   }
@@ -374,25 +373,28 @@ export class RoleService {
   /**
    * Revoke a permission from a role
    */
-  public async removePermissionFromRole(roleId: string, permissionId: string): Promise<RoleResult<boolean>> {
+  public async removePermissionFromRole(
+    roleId: string,
+    permissionId: string
+  ): Promise<RoleResult<boolean>> {
     try {
       const { error } = await this.client
         .from('role_permissions')
         .delete()
         .eq('role_id', roleId)
         .eq('permission_id', permissionId);
-      
+
       if (error) {
         console.error('Revoke permission from role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected revoke permission from role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while revoking permission from role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while revoking permission from role'),
       };
     }
   }
@@ -400,38 +402,47 @@ export class RoleService {
   /**
    * Get all users with a specific role
    */
-  public async getUsersWithRole(roleId: string): Promise<RoleResult<{ id: string, email: string }[]>> {
+  public async getUsersWithRole(
+    roleId: string
+  ): Promise<RoleResult<{ id: string; email: string }[]>> {
     try {
       const { data, error } = await this.client
         .from('user_roles')
-        .select(`
+        .select(
+          `
           user_id,
           users:user_id (
             id,
             email
           )
-        `)
+        `
+        )
         .eq('role_id', roleId);
-      
+
       if (error) {
         console.error('Get users with role error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       // Extract users from the nested structure and ensure proper typing
-      const users: { id: string, email: string }[] = data.map((item: { users: any }) => ({
-        // item.users may be an array or an object
-        ...(Array.isArray(item.users)
-          ? item.users[0] || {}
-          : (typeof item.users === 'object' && item.users !== null ? item.users : {}))
-      } as { id: string, email: string }));
-      
+      const users: { id: string; email: string }[] = data.map(
+        (item: { users: any }) =>
+          ({
+            // item.users may be an array or an object
+            ...(Array.isArray(item.users)
+              ? item.users[0] || {}
+              : typeof item.users === 'object' && item.users !== null
+                ? item.users
+                : {}),
+          }) as { id: string; email: string }
+      );
+
       return { data: users, error: null };
     } catch (error) {
       console.error('Unexpected get users with role error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting users with role') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting users with role'),
       };
     }
   }
@@ -446,18 +457,18 @@ export class RoleService {
         .insert([{ user_id: userId, role_id: roleId }])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Assign role to user error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected assign role to user error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while assigning role to user') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while assigning role to user'),
       };
     }
   }
@@ -472,18 +483,18 @@ export class RoleService {
         .delete()
         .eq('user_id', userId)
         .eq('role_id', roleId);
-      
+
       if (error) {
         console.error('Remove role from user error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected remove role from user error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while removing role from user') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while removing role from user'),
       };
     }
   }
@@ -495,14 +506,14 @@ export class RoleService {
     try {
       const { data, error } = await this.client.rpc('has_role', {
         p_user_id: userId,
-        p_role_name: roleName
+        p_role_name: roleName,
       });
-      
+
       if (error) {
         console.error('Check role error:', error);
         return false;
       }
-      
+
       return !!data;
     } catch (error) {
       console.error('Unexpected check role error:', error);
@@ -518,14 +529,14 @@ export class RoleService {
       const { data, error } = await this.client.rpc('has_permission', {
         p_user_id: userId,
         p_resource: resource,
-        p_action: action
+        p_action: action,
       });
-      
+
       if (error) {
         console.error('Check permission error:', error);
         return false;
       }
-      
+
       return !!data;
     } catch (error) {
       console.error('Unexpected check permission error:', error);
@@ -539,20 +550,20 @@ export class RoleService {
   public async getRoleHierarchy(roleId: string): Promise<RoleResult<Role[]>> {
     try {
       const { data, error } = await this.client.rpc('get_role_hierarchy', {
-        p_role_id: roleId
+        p_role_id: roleId,
       });
-      
+
       if (error) {
         console.error('Get role hierarchy error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get role hierarchy error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting role hierarchy') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting role hierarchy'),
       };
     }
   }
@@ -564,14 +575,14 @@ export class RoleService {
     try {
       const { data, error } = await this.client.rpc('role_inherits_from', {
         p_child_role_id: childRoleId,
-        p_parent_role_id: parentRoleId
+        p_parent_role_id: parentRoleId,
       });
-      
+
       if (error) {
         console.error('Check role inheritance error:', error);
         return false;
       }
-      
+
       return !!data;
     } catch (error) {
       console.error('Unexpected check role inheritance error:', error);
@@ -582,18 +593,21 @@ export class RoleService {
   /**
    * Create a role hierarchy relationship
    */
-  public async createRoleHierarchy(parentRoleName: string, childRoleName: string): Promise<RoleResult<RoleHierarchy>> {
+  public async createRoleHierarchy(
+    parentRoleName: string,
+    childRoleName: string
+  ): Promise<RoleResult<RoleHierarchy>> {
     try {
       const { data, error } = await this.client.rpc('create_role_hierarchy', {
         p_parent_role_name: parentRoleName,
-        p_child_role_name: childRoleName
+        p_child_role_name: childRoleName,
       });
-      
+
       if (error) {
         console.error('Create role hierarchy error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       // Fetch the created hierarchy relationship
       if (data) {
         const { data: hierarchyData, error: hierarchyError } = await this.client
@@ -601,21 +615,21 @@ export class RoleService {
           .select('*')
           .eq('id', data)
           .single();
-          
+
         if (hierarchyError) {
           console.error('Fetch created hierarchy error:', hierarchyError);
           return { data: null, error: convertError(hierarchyError) };
         }
-        
+
         return { data: hierarchyData, error: null };
       }
-      
+
       return { data: null, error: new AuthError('Failed to create role hierarchy') };
     } catch (error) {
       console.error('Unexpected create role hierarchy error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating role hierarchy') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating role hierarchy'),
       };
     }
   }
@@ -623,24 +637,27 @@ export class RoleService {
   /**
    * Remove a role hierarchy relationship
    */
-  public async removeRoleHierarchy(parentRoleName: string, childRoleName: string): Promise<RoleResult<boolean>> {
+  public async removeRoleHierarchy(
+    parentRoleName: string,
+    childRoleName: string
+  ): Promise<RoleResult<boolean>> {
     try {
       const { data, error } = await this.client.rpc('remove_role_hierarchy', {
         p_parent_role_name: parentRoleName,
-        p_child_role_name: childRoleName
+        p_child_role_name: childRoleName,
       });
-      
+
       if (error) {
         console.error('Remove role hierarchy error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: !!data, error: null };
     } catch (error) {
       console.error('Unexpected remove role hierarchy error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while removing role hierarchy') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while removing role hierarchy'),
       };
     }
   }
@@ -654,18 +671,18 @@ export class RoleService {
         .from('role_hierarchy')
         .select('*')
         .order('parent_role_id');
-      
+
       if (error) {
         console.error('Get all role hierarchies error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get all role hierarchies error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting role hierarchies') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting role hierarchies'),
       };
     }
   }
@@ -677,14 +694,14 @@ export class RoleService {
     try {
       const { data, error } = await this.client.rpc('has_role_enhanced', {
         p_user_id: userId,
-        p_role_name: roleName
+        p_role_name: roleName,
       });
-      
+
       if (error) {
         console.error('Check enhanced role error:', error);
         return false;
       }
-      
+
       return !!data;
     } catch (error) {
       console.error('Unexpected check enhanced role error:', error);
@@ -695,19 +712,23 @@ export class RoleService {
   /**
    * Check if a user has a specific permission (including from inherited roles)
    */
-  public async hasPermissionEnhanced(userId: string, resource: string, action: string): Promise<boolean> {
+  public async hasPermissionEnhanced(
+    userId: string,
+    resource: string,
+    action: string
+  ): Promise<boolean> {
     try {
       const { data, error } = await this.client.rpc('has_permission_enhanced', {
         p_user_id: userId,
         p_resource: resource,
-        p_action: action
+        p_action: action,
       });
-      
+
       if (error) {
         console.error('Check enhanced permission error:', error);
         return false;
       }
-      
+
       return !!data;
     } catch (error) {
       console.error('Unexpected check enhanced permission error:', error);
@@ -721,20 +742,22 @@ export class RoleService {
   public async getUserPermissionsEnhanced(userId: string): Promise<RoleResult<Permission[]>> {
     try {
       const { data, error } = await this.client.rpc('get_user_permissions_enhanced', {
-        p_user_id: userId
+        p_user_id: userId,
       });
-      
+
       if (error) {
         console.error('Get enhanced user permissions error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get enhanced user permissions error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting enhanced user permissions') 
+      return {
+        data: null,
+        error: new AuthError(
+          'An unexpected error occurred while getting enhanced user permissions'
+        ),
       };
     }
   }

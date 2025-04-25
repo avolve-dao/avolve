@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
 
 /**
  * Apply security headers to response
- * 
+ *
  * @param response - The NextResponse object to add headers to
  * @returns The response with security headers added
  */
@@ -26,9 +26,9 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "block-all-mixed-content",
-    "upgrade-insecure-requests",
-    "connect-src 'self' https://api.supabase.io"
+    'block-all-mixed-content',
+    'upgrade-insecure-requests',
+    "connect-src 'self' https://api.supabase.io",
   ].join('; ');
 
   const headers = response.headers;
@@ -50,10 +50,7 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
 
   // HSTS (Strict Transport Security)
   if (process.env.NODE_ENV === 'production') {
-    headers.set(
-      'Strict-Transport-Security',
-      'max-age=31536000; includeSubDomains; preload'
-    );
+    headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   }
 
   // Return modified response
@@ -62,7 +59,7 @@ export function applySecurityHeaders(response: NextResponse): NextResponse {
 
 /**
  * Get CSP nonce for use in inline scripts
- * 
+ *
  * @returns A unique nonce value
  */
 export function getCspNonce(): string {

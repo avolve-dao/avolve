@@ -11,25 +11,25 @@ graph TD
     B --> C[PostgreSQL Database]
     B --> D[Supabase Auth]
     B --> E[Supabase Storage]
-    
+
     %% Token System
     F[Token System] --> B
     F --> G[Token UI Components]
     F --> H[Token Access Control]
-    
+
     %% User Journey
     I[User Journey] --> F
     I --> J[Progress Tracking]
-    
+
     %% Authentication
     K[Auth Flow] --> D
     K --> L[RBAC System]
     L --> F
-    
+
     %% Frontend Components
     M[UI Components] --> N[shadcn/ui]
     G --> M
-    
+
     %% Sacred Geometry
     O[Sacred Geometry] --> P[Design System]
     O --> Q[Database Schema]
@@ -43,26 +43,26 @@ graph TD
     %% Token Hierarchy
     A[GEN Token] --> B[SAP Token]
     A --> C[SCQ Token]
-    
+
     %% SAP Tokens
     B --> D[PSP Token]
     B --> E[BSP Token]
     B --> F[SMS Token]
-    
+
     %% SCQ Tokens
     C --> G[SPD Token]
     C --> H[SHE Token]
     C --> I[SSA Token]
     C --> J[SGB Token]
-    
+
     %% Token Components
     K[TokenBadge] --> L[useTokens Hook]
     K --> M[useTokensRBAC Hook]
-    
+
     %% Token Access
     N[TokenProtectedRoute] --> O[hasTokenAccess]
     O --> P[Database Token Tables]
-    
+
     %% Token Claims
     Q[DailyClaimCard] --> R[claimDailyToken]
     R --> S[Token Transactions]
@@ -72,32 +72,32 @@ graph TD
 
 ### Frontend Components
 
-| Component | Dependencies | Database Tables | Hooks |
-|-----------|--------------|----------------|-------|
-| `TokenBadge` | `Badge`, `Tooltip` | `tokens`, `user_tokens` | `useTokens`, `useTokensRBAC` |
-| `DailyClaimCard` | `Card`, `Button` | `tokens`, `user_tokens`, `token_transactions` | `useTokens`, `useToast` |
-| `TokenProtectedRoute` | `Redirect` | `tokens`, `user_tokens` | `useTokensRBAC` |
-| `TokenDisplay` | `TokenBadge` | `tokens`, `user_tokens` | `useTokens` |
-| `JourneyDashboard` | `Progress` | `pillars`, `user_journeys` | `useJourney` |
+| Component             | Dependencies       | Database Tables                               | Hooks                        |
+| --------------------- | ------------------ | --------------------------------------------- | ---------------------------- |
+| `TokenBadge`          | `Badge`, `Tooltip` | `tokens`, `user_tokens`                       | `useTokens`, `useTokensRBAC` |
+| `DailyClaimCard`      | `Card`, `Button`   | `tokens`, `user_tokens`, `token_transactions` | `useTokens`, `useToast`      |
+| `TokenProtectedRoute` | `Redirect`         | `tokens`, `user_tokens`                       | `useTokensRBAC`              |
+| `TokenDisplay`        | `TokenBadge`       | `tokens`, `user_tokens`                       | `useTokens`                  |
+| `JourneyDashboard`    | `Progress`         | `pillars`, `user_journeys`                    | `useJourney`                 |
 
 ### API Routes
 
-| Route | Dependencies | Database Tables | External APIs |
-|-------|--------------|----------------|--------------|
-| `/api/tokens/claim` | `createClient`, `claimDailyToken` | `tokens`, `user_tokens`, `token_transactions` | None |
-| `/api/tokens/balance` | `createClient`, `getUserTokenBalance` | `tokens`, `user_tokens` | None |
-| `/api/journey/progress` | `createClient`, `updateComponentProgress` | `user_component_progress` | None |
-| `/api/auth/csrf/token` | `createClient` | `auth.users` | None |
-| `/api/chat` | `StreamingTextResponse`, `OpenAIStream` | `chat_history` | OpenAI API |
+| Route                   | Dependencies                              | Database Tables                               | External APIs |
+| ----------------------- | ----------------------------------------- | --------------------------------------------- | ------------- |
+| `/api/tokens/claim`     | `createClient`, `claimDailyToken`         | `tokens`, `user_tokens`, `token_transactions` | None          |
+| `/api/tokens/balance`   | `createClient`, `getUserTokenBalance`     | `tokens`, `user_tokens`                       | None          |
+| `/api/journey/progress` | `createClient`, `updateComponentProgress` | `user_component_progress`                     | None          |
+| `/api/auth/csrf/token`  | `createClient`                            | `auth.users`                                  | None          |
+| `/api/chat`             | `StreamingTextResponse`, `OpenAIStream`   | `chat_history`                                | OpenAI API    |
 
 ### Database Functions
 
-| Function | Dependencies | Tables Accessed | Called By |
-|----------|--------------|----------------|-----------|
-| `has_token_access` | None | `tokens`, `user_tokens` | `hasTokenAccess` utility |
-| `claim_daily_token` | `get_digital_root` | `tokens`, `user_tokens`, `token_transactions` | `/api/tokens/claim` |
-| `update_component_progress` | None | `components`, `user_component_progress` | `/api/journey/progress` |
-| `get_user_progress_summary` | None | `pillars`, `sections`, `components`, `user_journeys`, `user_section_progress`, `user_component_progress` | `/api/journey/summary` |
+| Function                    | Dependencies       | Tables Accessed                                                                                          | Called By                |
+| --------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `has_token_access`          | None               | `tokens`, `user_tokens`                                                                                  | `hasTokenAccess` utility |
+| `claim_daily_token`         | `get_digital_root` | `tokens`, `user_tokens`, `token_transactions`                                                            | `/api/tokens/claim`      |
+| `update_component_progress` | None               | `components`, `user_component_progress`                                                                  | `/api/journey/progress`  |
+| `get_user_progress_summary` | None               | `pillars`, `sections`, `components`, `user_journeys`, `user_section_progress`, `user_component_progress` | `/api/journey/summary`   |
 
 ## Authentication Flow
 
@@ -108,7 +108,7 @@ sequenceDiagram
     participant NextJS
     participant SupabaseAuth
     participant Database
-    
+
     User->>Browser: Visit /auth/login
     Browser->>NextJS: Request login page
     NextJS->>Browser: Return login page
@@ -132,7 +132,7 @@ sequenceDiagram
     participant NextJS
     participant API
     participant Database
-    
+
     User->>Browser: Click "Claim Daily Token"
     Browser->>API: POST /api/tokens/claim
     API->>Database: Execute claim_daily_token function

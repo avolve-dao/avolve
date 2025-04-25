@@ -1,6 +1,6 @@
 /**
  * Feature Types
- * 
+ *
  * Type definitions for the feature system
  * Copyright © 2025 Avolve DAO. All rights reserved.
  */

@@ -1,5 +1,5 @@
-import Sidebar from "@/components/Sidebar";
-import type { ReactNode } from "react";
+import Sidebar from '@/components/Sidebar';
+import type { ReactNode } from 'react';
 
 export default function SupercivilizationLayout({ children }: { children: ReactNode }) {
   return (

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -61,13 +61,19 @@ export function StuckOnboardingTable() {
     // Optionally, show a spinner or disable the button for this user
     await supabase.functions.invoke('send_onboarding_reminder', { body: { userId } });
     // Optimistically update UI
-    setUsers(users => users.map(u => u.user_id === userId ? { ...u, last_reminder: new Date().toISOString() } : u));
+    setUsers(users =>
+      users.map(u => (u.user_id === userId ? { ...u, last_reminder: new Date().toISOString() } : u))
+    );
   }
 
   if (loading) return <div className="p-4 text-center">Loading stuck users...</div>;
 
   if (users.length === 0) {
-    return <div className="p-4 text-center text-gray-500">No users are currently stuck in onboarding 🎉</div>;
+    return (
+      <div className="p-4 text-center text-gray-500">
+        No users are currently stuck in onboarding 🎉
+      </div>
+    );
   }
 
   return (
@@ -84,12 +90,18 @@ export function StuckOnboardingTable() {
           </tr>
         </thead>
         <tbody>
-          {users.map((u) => (
+          {users.map(u => (
             <tr key={u.user_id} className="border-b last:border-b-0">
               <td>{u.full_name}</td>
               <td>{u.email}</td>
               <td>{u.updated_at ? new Date(u.updated_at).toLocaleString() : '-'}</td>
-              <td>{u.last_reminder ? new Date(u.last_reminder).toLocaleString() : <span className="text-red-500">Never</span>}</td>
+              <td>
+                {u.last_reminder ? (
+                  new Date(u.last_reminder).toLocaleString()
+                ) : (
+                  <span className="text-red-500">Never</span>
+                )}
+              </td>
               <td>
                 <button
                   className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded text-xs"

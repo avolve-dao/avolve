@@ -1,6 +1,6 @@
 /**
  * Dashboard Widgets Exports
- * 
+ *
  * This file exports all dashboard widgets for the Avolve platform.
  */
 

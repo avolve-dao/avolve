@@ -1,72 +1,57 @@
-"use client";
+'use client';
 
-import { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react';
+import { createClient } from '../../lib/supabase/client';
+import { Button } from '@/components/ui/button';
 
 interface User {
-  id: string
-  email: string
-  full_name: string
-  created_at: string
-  roles: { role_name: string }[]
-  onboarding: { stage: string }[]
-  teams: { team_id: string }[]
+  id: string;
+  email: string;
+  full_name: string;
+  created_at: string;
+  roles: { role_name: string }[];
+  onboarding: { stage: string }[];
+  teams: { team_id: string }[];
 }
 
 interface UserTableProps {
-  users?: User[]
+  users?: User[];
 }
 
 export function UserTable({ users = [] }: UserTableProps) {
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([])
-  const supabase = createClientComponentClient()
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const supabase = createClient();
 
   const toggleUser = (userId: string) => {
-    setSelectedUsers((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
-    )
-  }
+    setSelectedUsers(prev =>
+      prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
+    );
+  };
 
   const toggleAllUsers = () => {
-    setSelectedUsers((prev) =>
-      prev.length === users.length
-        ? []
-        : users.map((user) => user.id)
-    )
-  }
+    setSelectedUsers(prev => (prev.length === users.length ? [] : users.map(user => user.id)));
+  };
 
   const handleAction = async (action: string) => {
-    if (!selectedUsers.length) return
+    if (!selectedUsers.length) return;
 
     switch (action) {
       case 'suspend':
-        await supabase
-          .from('profiles')
-          .update({ status: 'suspended' })
-          .in('id', selectedUsers)
-        break
+        await supabase.from('profiles').update({ status: 'suspended' }).in('id', selectedUsers);
+        break;
       case 'activate':
-        await supabase
-          .from('profiles')
-          .update({ status: 'active' })
-          .in('id', selectedUsers)
-        break
+        await supabase.from('profiles').update({ status: 'active' }).in('id', selectedUsers);
+        break;
       case 'delete':
         // Show confirmation dialog first
-        if (!confirm('Are you sure you want to delete these users?')) return
-        await supabase
-          .from('profiles')
-          .delete()
-          .in('id', selectedUsers)
-        break
+        if (!confirm('Are you sure you want to delete these users?')) return;
+        await supabase.from('profiles').delete().in('id', selectedUsers);
+        break;
     }
 
     // Reset selection
-    setSelectedUsers([])
-  }
+    setSelectedUsers([]);
+  };
 
   return (
     <div className="rounded-lg border border-zinc-800 bg-zinc-900/50">
@@ -78,25 +63,13 @@ export function UserTable({ users = [] }: UserTableProps) {
               {selectedUsers.length} user{selectedUsers.length === 1 ? '' : 's'} selected
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleAction('activate')}
-              >
+              <Button variant="outline" size="sm" onClick={() => handleAction('activate')}>
                 Activate
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleAction('suspend')}
-              >
+              <Button variant="outline" size="sm" onClick={() => handleAction('suspend')}>
                 Suspend
               </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleAction('delete')}
-              >
+              <Button variant="destructive" size="sm" onClick={() => handleAction('delete')}>
                 Delete
               </Button>
             </div>
@@ -150,7 +123,7 @@ export function UserTable({ users = [] }: UserTableProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-800">
-            {users.map((user) => (
+            {users.map(user => (
               <tr key={user.id} className="hover:bg-zinc-800/50">
                 <td className="relative w-4 px-4 py-3">
                   <input
@@ -166,16 +139,14 @@ export function UserTable({ users = [] }: UserTableProps) {
                       <span className="sr-only">{user.full_name}</span>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-zinc-100">
-                        {user.full_name}
-                      </div>
+                      <div className="text-sm font-medium text-zinc-100">{user.full_name}</div>
                       <div className="text-sm text-zinc-400">{user.email}</div>
                     </div>
                   </div>
                 </td>
                 <td className="whitespace-nowrap px-3 py-3">
                   <div className="flex gap-1">
-                    {user.roles.map((role) => (
+                    {user.roles.map(role => (
                       <span
                         key={role.role_name}
                         className="inline-flex items-center rounded-md bg-blue-400/10 px-2 py-1 text-xs font-medium text-blue-400 ring-1 ring-inset ring-blue-400/30"
@@ -202,5 +173,5 @@ export function UserTable({ users = [] }: UserTableProps) {
         </table>
       </div>
     </div>
-  )
+  );
 }

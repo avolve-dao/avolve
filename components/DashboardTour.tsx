@@ -1,22 +1,23 @@
-"use client";
-import { useEffect, useState } from "react";
+'use client';
+import { useEffect, useState } from 'react';
 
 const TOUR_STEPS = [
   {
-    title: "Welcome to Your Dashboard!",
-    content: "This is your central hub for tracking progress, joining groups, and celebrating achievements.",
+    title: 'Welcome to Your Dashboard!',
+    content:
+      'This is your central hub for tracking progress, joining groups, and celebrating achievements.',
   },
   {
-    title: "Peer Recognition",
-    content: "Thank a peer or nominate someone for recognition using the button at the top right.",
+    title: 'Peer Recognition',
+    content: 'Thank a peer or nominate someone for recognition using the button at the top right.',
   },
   {
-    title: "Analytics & Insights",
-    content: "See your recognitions, onboarding progress, and more in the analytics widgets.",
+    title: 'Analytics & Insights',
+    content: 'See your recognitions, onboarding progress, and more in the analytics widgets.',
   },
   {
-    title: "Need Help?",
-    content: "Look for the ? icons throughout the dashboard for tooltips and guidance.",
+    title: 'Need Help?',
+    content: 'Look for the ? icons throughout the dashboard for tooltips and guidance.',
   },
 ];
 
@@ -26,7 +27,7 @@ export default function DashboardTour() {
 
   useEffect(() => {
     // Only show for first-time users (localStorage flag)
-    if (typeof window !== "undefined" && !localStorage.getItem("dashboardTourDone")) {
+    if (typeof window !== 'undefined' && !localStorage.getItem('dashboardTourDone')) {
       setShow(true);
     }
   }, []);
@@ -36,8 +37,8 @@ export default function DashboardTour() {
       setStep(step + 1);
     } else {
       setShow(false);
-      if (typeof window !== "undefined") {
-        localStorage.setItem("dashboardTourDone", "1");
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dashboardTourDone', '1');
       }
     }
   };
@@ -53,7 +54,7 @@ export default function DashboardTour() {
           className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
           onClick={handleNext}
         >
-          {step < TOUR_STEPS.length - 1 ? "Next" : "Finish"}
+          {step < TOUR_STEPS.length - 1 ? 'Next' : 'Finish'}
         </button>
       </div>
     </div>

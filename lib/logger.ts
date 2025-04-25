@@ -32,15 +32,15 @@ const MIN_LOG_LEVEL = isProduction ? LogLevel.INFO : LogLevel.DEBUG;
  */
 function formatLogEntry(entry: LogEntry): string {
   const { timestamp, level, message, context } = entry;
-  
+
   // Basic log format
   let logString = `[${timestamp}] ${level.toUpperCase()}: ${message}`;
-  
+
   // Add context if available
   if (context && Object.keys(context).length > 0) {
     logString += `\nContext: ${JSON.stringify(context, null, isDevelopment ? 2 : 0)}`;
   }
-  
+
   return logString;
 }
 
@@ -51,7 +51,7 @@ function shouldLog(level: LogLevel): boolean {
   const levels = Object.values(LogLevel);
   const minLevelIndex = levels.indexOf(MIN_LOG_LEVEL);
   const currentLevelIndex = levels.indexOf(level);
-  
+
   return currentLevelIndex >= minLevelIndex;
 }
 
@@ -83,10 +83,10 @@ function log(
   error?: Error | unknown
 ): void {
   if (!shouldLog(level)) return;
-  
+
   const entry = createLogEntry(level, message, context, error);
   const formattedLog = formatLogEntry(entry);
-  
+
   switch (level) {
     case LogLevel.DEBUG:
       console.debug(formattedLog);
@@ -104,7 +104,7 @@ function log(
       }
       break;
   }
-  
+
   // In a production environment, you might want to send logs to a service like Datadog, Sentry, etc.
   if (isProduction && level === LogLevel.ERROR) {
     // Example: Send to error monitoring service
@@ -116,30 +116,27 @@ function log(
  * Logger interface
  */
 export const logger = {
-  debug: (message: string, context?: Record<string, any>) => 
-    log(LogLevel.DEBUG, message, context),
-  
-  info: (message: string, context?: Record<string, any>) => 
-    log(LogLevel.INFO, message, context),
-  
-  warn: (message: string, context?: Record<string, any>) => 
-    log(LogLevel.WARN, message, context),
-  
-  error: (message: string, error?: Error | unknown, context?: Record<string, any>) => 
+  debug: (message: string, context?: Record<string, any>) => log(LogLevel.DEBUG, message, context),
+
+  info: (message: string, context?: Record<string, any>) => log(LogLevel.INFO, message, context),
+
+  warn: (message: string, context?: Record<string, any>) => log(LogLevel.WARN, message, context),
+
+  error: (message: string, error?: Error | unknown, context?: Record<string, any>) =>
     log(LogLevel.ERROR, message, context, error),
-  
+
   // Create a logger with predefined context
   withContext: (baseContext: Record<string, any>) => ({
-    debug: (message: string, additionalContext?: Record<string, any>) => 
+    debug: (message: string, additionalContext?: Record<string, any>) =>
       log(LogLevel.DEBUG, message, { ...baseContext, ...additionalContext }),
-    
-    info: (message: string, additionalContext?: Record<string, any>) => 
+
+    info: (message: string, additionalContext?: Record<string, any>) =>
       log(LogLevel.INFO, message, { ...baseContext, ...additionalContext }),
-    
-    warn: (message: string, additionalContext?: Record<string, any>) => 
+
+    warn: (message: string, additionalContext?: Record<string, any>) =>
       log(LogLevel.WARN, message, { ...baseContext, ...additionalContext }),
-    
-    error: (message: string, error?: Error | unknown, additionalContext?: Record<string, any>) => 
+
+    error: (message: string, error?: Error | unknown, additionalContext?: Record<string, any>) =>
       log(LogLevel.ERROR, message, { ...baseContext, ...additionalContext }, error),
   }),
 };

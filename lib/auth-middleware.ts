@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerComponentClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 /**
@@ -7,8 +7,10 @@ import { cookies } from 'next/headers';
  * Usage: Call requireAuth(req, ['admin', 'moderator']) at the top of your handler.
  */
 export async function requireAuth(req: NextRequest, requiredRoles?: string | string[]) {
-  const supabase = createRouteHandlerClient({ cookies });
-  const { data: { session } } = await supabase.auth.getSession();
+  const supabase = createServerComponentClient({ cookies });
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

@@ -1,6 +1,6 @@
 /**
  * Notification Service
- * 
+ *
  * This service centralizes all notification-related functionality for the Avolve platform.
  * It provides methods for creating, retrieving, and managing user notifications.
  */
@@ -38,7 +38,7 @@ export enum NotificationType {
   TOKEN = 'token',
   CONSENSUS = 'consensus',
   SYSTEM = 'system',
-  MENTION = 'mention'
+  MENTION = 'mention',
 }
 
 // Helper function to convert database error to AuthError
@@ -76,24 +76,24 @@ export class NotificationService {
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
-      
+
       if (unreadOnly) {
         query = query.eq('is_read', false);
       }
-      
+
       const { data, error } = await query;
-      
+
       if (error) {
         console.error('Get user notifications error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get user notifications error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting notifications') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting notifications'),
       };
     }
   }
@@ -112,18 +112,18 @@ export class NotificationService {
         .eq('id', notificationId)
         .eq('user_id', userId)
         .single();
-      
+
       if (error) {
         console.error('Get notification by ID error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected get notification by ID error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting notification') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while getting notification'),
       };
     }
   }
@@ -138,18 +138,20 @@ export class NotificationService {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('is_read', false);
-      
+
       if (error) {
         console.error('Get unread notification count error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: count || 0, error: null };
     } catch (error) {
       console.error('Unexpected get unread notification count error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while getting unread notification count') 
+      return {
+        data: null,
+        error: new AuthError(
+          'An unexpected error occurred while getting unread notification count'
+        ),
       };
     }
   }
@@ -168,29 +170,31 @@ export class NotificationService {
     try {
       const { data, error } = await this.client
         .from('notifications')
-        .insert([{
-          user_id: userId,
-          type,
-          title,
-          message,
-          link,
-          is_read: false,
-          metadata
-        }])
+        .insert([
+          {
+            user_id: userId,
+            type,
+            title,
+            message,
+            link,
+            is_read: false,
+            metadata,
+          },
+        ])
         .select()
         .single();
-      
+
       if (error) {
         console.error('Create notification error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected create notification error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating notification') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating notification'),
       };
     }
   }
@@ -211,9 +215,9 @@ export class NotificationService {
       const metadata = {
         tokenAmount,
         tokenSymbol,
-        transactionId
+        transactionId,
       };
-      
+
       return await this.createNotification(
         userId,
         NotificationType.TOKEN,
@@ -224,9 +228,9 @@ export class NotificationService {
       );
     } catch (error) {
       console.error('Unexpected create token notification error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating token notification') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating token notification'),
       };
     }
   }
@@ -245,9 +249,9 @@ export class NotificationService {
     try {
       const metadata = {
         meetingId,
-        meetingTitle
+        meetingTitle,
       };
-      
+
       return await this.createNotification(
         userId,
         NotificationType.CONSENSUS,
@@ -258,9 +262,9 @@ export class NotificationService {
       );
     } catch (error) {
       console.error('Unexpected create consensus notification error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating consensus notification') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating consensus notification'),
       };
     }
   }
@@ -281,9 +285,9 @@ export class NotificationService {
       const metadata = {
         mentionedBy,
         contextType,
-        contextId
+        contextId,
       };
-      
+
       return await this.createNotification(
         userId,
         NotificationType.MENTION,
@@ -294,9 +298,9 @@ export class NotificationService {
       );
     } catch (error) {
       console.error('Unexpected create mention notification error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while creating mention notification') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while creating mention notification'),
       };
     }
   }
@@ -313,22 +317,22 @@ export class NotificationService {
         .from('notifications')
         .update({
           is_read: true,
-          read_at: new Date().toISOString()
+          read_at: new Date().toISOString(),
         })
         .eq('id', notificationId)
         .eq('user_id', userId);
-      
+
       if (error) {
         console.error('Mark notification as read error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected mark notification as read error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while marking notification as read') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while marking notification as read'),
       };
     }
   }
@@ -339,20 +343,22 @@ export class NotificationService {
   public async markAllNotificationsAsRead(userId: string): Promise<NotificationResult<number>> {
     try {
       const { data, error } = await this.client.rpc('mark_all_notifications_read', {
-        p_user_id: userId
+        p_user_id: userId,
       });
-      
+
       if (error) {
         console.error('Mark all notifications as read error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data, error: null };
     } catch (error) {
       console.error('Unexpected mark all notifications as read error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while marking all notifications as read') 
+      return {
+        data: null,
+        error: new AuthError(
+          'An unexpected error occurred while marking all notifications as read'
+        ),
       };
     }
   }
@@ -370,18 +376,18 @@ export class NotificationService {
         .delete()
         .eq('id', notificationId)
         .eq('user_id', userId);
-      
+
       if (error) {
         console.error('Delete notification error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: true, error: null };
     } catch (error) {
       console.error('Unexpected delete notification error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while deleting notification') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while deleting notification'),
       };
     }
   }
@@ -396,18 +402,18 @@ export class NotificationService {
         .delete({ count: 'exact' })
         .eq('user_id', userId)
         .eq('is_read', true);
-      
+
       if (error) {
         console.error('Delete all read notifications error:', error);
         return { data: null, error: convertError(error) };
       }
-      
+
       return { data: count || 0, error: null };
     } catch (error) {
       console.error('Unexpected delete all read notifications error:', error);
-      return { 
-        data: null, 
-        error: new AuthError('An unexpected error occurred while deleting all read notifications') 
+      return {
+        data: null,
+        error: new AuthError('An unexpected error occurred while deleting all read notifications'),
       };
     }
   }
@@ -428,18 +434,18 @@ export class NotificationService {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${userId}`
+          filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
+        payload => {
           callback(payload.new as Notification);
         }
       )
       .subscribe();
-    
+
     return {
       unsubscribe: () => {
         subscription.unsubscribe();
-      }
+      },
     };
   }
 }

@@ -8,13 +8,16 @@ import { Database } from '../types/database';
 export class OnboardingService {
   private supabase: SupabaseClient<Database>;
 
-  constructor(supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '', supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '') {
+  constructor(
+    supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+    supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  ) {
     this.supabase = createClient<Database>(supabaseUrl, supabaseKey);
   }
 
   /**
    * Start or continue the onboarding process for a user
-   * 
+   *
    * @param userId User ID to start onboarding for
    * @returns Current onboarding step and status
    */
@@ -29,12 +32,14 @@ export class OnboardingService {
   }> {
     try {
       // The 'start_onboarding' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
-      throw new Error("The 'start_onboarding' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
+      throw new Error(
+        "The 'start_onboarding' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database."
+      );
     } catch (error) {
       console.error('Start onboarding error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error starting onboarding'
+        error: error instanceof Error ? error.message : 'Unknown error starting onboarding',
       };
     }
   }
@@ -42,12 +47,15 @@ export class OnboardingService {
   /**
    * Update the user's onboarding step
    * Boosts Retention in metrics on completion
-   * 
+   *
    * @param userId User ID to update onboarding for
    * @param step New onboarding step
    * @returns Updated onboarding status
    */
-  async updateOnboardingStep(userId: string, step: number): Promise<{
+  async updateOnboardingStep(
+    userId: string,
+    step: number
+  ): Promise<{
     success: boolean;
     data?: {
       onboardingId: string;
@@ -58,19 +66,21 @@ export class OnboardingService {
   }> {
     try {
       // The 'update_onboarding_step' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.
-      throw new Error("The 'update_onboarding_step' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database.");
+      throw new Error(
+        "The 'update_onboarding_step' RPC function does not exist in the current Supabase schema. Please implement this logic in-app or create the function in your database."
+      );
     } catch (error) {
       console.error('Update onboarding step error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error updating onboarding step'
+        error: error instanceof Error ? error.message : 'Unknown error updating onboarding step',
       };
     }
   }
 
   /**
    * Get the current onboarding status for a user
-   * 
+   *
    * @param userId User ID to get onboarding status for
    * @returns Current onboarding status
    */
@@ -92,7 +102,8 @@ export class OnboardingService {
         .eq('user_id', userId)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" error
+      if (error && error.code !== 'PGRST116') {
+        // PGRST116 is "no rows returned" error
         throw error;
       }
 
@@ -104,8 +115,8 @@ export class OnboardingService {
             startedAt: '',
             updatedAt: '',
             completedAt: null,
-            isCompleted: false
-          }
+            isCompleted: false,
+          },
         };
       }
 
@@ -116,21 +127,21 @@ export class OnboardingService {
           startedAt: data.started_at,
           updatedAt: data.updated_at,
           completedAt: data.completed_at,
-          isCompleted: !!data.completed_at
-        }
+          isCompleted: !!data.completed_at,
+        },
       };
     } catch (error) {
       console.error('Get onboarding status error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error getting onboarding status'
+        error: error instanceof Error ? error.message : 'Unknown error getting onboarding status',
       };
     }
   }
 
   /**
    * Get onboarding content for a specific step
-   * 
+   *
    * @param step Onboarding step to get content for
    * @returns Content for the specified step
    */
@@ -144,23 +155,24 @@ export class OnboardingService {
     const steps = [
       {
         title: 'Welcome to Avolve',
-        description: 'Let\'s get you started on your journey to becoming a Superachiever!',
+        description: "Let's get you started on your journey to becoming a Superachiever!",
         instructions: [
           'Create your account and set up your profile',
           'Explore the platform and learn about the different tokens',
-          'Click "Next" to continue to the next step'
+          'Click "Next" to continue to the next step',
         ],
-        image: '/images/onboarding/welcome.png'
+        image: '/images/onboarding/welcome.png',
       },
       {
         title: 'Subscribing with GEN',
-        description: 'GEN is the top-level token representing the entire Supercivilization ecosystem.',
+        description:
+          'GEN is the top-level token representing the entire Supercivilization ecosystem.',
         instructions: [
           'Subscribe to unlock premium features',
           'Earn GEN by completing challenges and contributing to superpuzzles',
-          'Use GEN for governance voting and marketplace purchases'
+          'Use GEN for governance voting and marketplace purchases',
         ],
-        image: '/images/onboarding/gen.png'
+        image: '/images/onboarding/gen.png',
       },
       {
         title: 'Daily Participation with SAP',
@@ -168,9 +180,9 @@ export class OnboardingService {
         instructions: [
           'Claim your daily tokens based on the day of the week',
           'Complete daily challenges to earn more tokens',
-          'Build your streak for bonus rewards'
+          'Build your streak for bonus rewards',
         ],
-        image: '/images/onboarding/sap.png'
+        image: '/images/onboarding/sap.png',
       },
       {
         title: 'Contributing with SCQ',
@@ -178,20 +190,20 @@ export class OnboardingService {
         instructions: [
           'Join or create a team after completing 10 challenges',
           'Contribute to superpuzzles with your team',
-          'Earn SCQ tokens when your team completes superpuzzles'
+          'Earn SCQ tokens when your team completes superpuzzles',
         ],
-        image: '/images/onboarding/scq.png'
+        image: '/images/onboarding/scq.png',
       },
       {
-        title: 'You\'re Ready!',
-        description: 'You\'ve completed the onboarding process and are ready to start your journey!',
+        title: "You're Ready!",
+        description: "You've completed the onboarding process and are ready to start your journey!",
         instructions: [
           'Visit the Participation page to claim your daily tokens',
           'Check out the Challenges page to start earning rewards',
-          'Join a team and contribute to superpuzzles'
+          'Join a team and contribute to superpuzzles',
         ],
-        image: '/images/onboarding/complete.png'
-      }
+        image: '/images/onboarding/complete.png',
+      },
     ];
 
     // Return content for the requested step (0-indexed)

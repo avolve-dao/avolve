@@ -21,20 +21,20 @@ export function ContributeForm({ puzzleId }: { puzzleId: string }) {
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         throw new Error('You must be logged in to contribute');
       }
 
-      const { error } = await supabase
-        .from('puzzle_contributions')
-        .insert({
-          puzzle_id: puzzleId,
-          user_id: user.id,
-          title,
-          description
-        });
+      const { error } = await supabase.from('puzzle_contributions').insert({
+        puzzle_id: puzzleId,
+        user_id: user.id,
+        title,
+        description,
+      });
 
       if (error) throw error;
 
@@ -49,16 +49,11 @@ export function ContributeForm({ puzzleId }: { puzzleId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        placeholder="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        required
-      />
+      <Input placeholder="Title" value={title} onChange={e => setTitle(e.target.value)} required />
       <Textarea
         placeholder="Description"
         value={description}
-        onChange={(e) => setDescription(e.target.value)}
+        onChange={e => setDescription(e.target.value)}
         required
       />
       <Button type="submit" disabled={loading}>

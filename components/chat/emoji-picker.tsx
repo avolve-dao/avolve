@@ -1,23 +1,77 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // Common emoji sets
 const EMOJI_SETS = {
-  smileys: ["😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", "🙂", "🙃", "😉", "😌", "😍", "🥰", "😘"],
-  gestures: ["👍", "👎", "👌", "✌️", "🤞", "🤟", "🤘", "👏", "🙌", "👐", "🤲", "🤝", "🙏"],
-  symbols: ["❤️", "🧡", "💛", "💚", "💙", "💜", "🖤", "💔", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟"],
-  objects: ["🎁", "🎈", "🎉", "🎊", "🎂", "🍰", "☕", "🍺", "🍷", "🍴", "🍕", "🍔", "🍟", "🌮", "🌯", "🍣", "🍦"],
-}
+  smileys: [
+    '😀',
+    '😃',
+    '😄',
+    '😁',
+    '😆',
+    '😅',
+    '😂',
+    '🤣',
+    '😊',
+    '😇',
+    '🙂',
+    '🙃',
+    '😉',
+    '😌',
+    '😍',
+    '🥰',
+    '😘',
+  ],
+  gestures: ['👍', '👎', '👌', '✌️', '🤞', '🤟', '🤘', '👏', '🙌', '👐', '🤲', '🤝', '🙏'],
+  symbols: [
+    '❤️',
+    '🧡',
+    '💛',
+    '💚',
+    '💙',
+    '💜',
+    '🖤',
+    '💔',
+    '❣️',
+    '💕',
+    '💞',
+    '💓',
+    '💗',
+    '💖',
+    '💘',
+    '💝',
+    '💟',
+  ],
+  objects: [
+    '🎁',
+    '🎈',
+    '🎉',
+    '🎊',
+    '🎂',
+    '🍰',
+    '☕',
+    '🍺',
+    '🍷',
+    '🍴',
+    '🍕',
+    '🍔',
+    '🍟',
+    '🌮',
+    '🌯',
+    '🍣',
+    '🍦',
+  ],
+};
 
 interface EmojiPickerProps {
-  onEmojiSelect: (emoji: string) => void
+  onEmojiSelect: (emoji: string) => void;
 }
 
 export function EmojiPicker({ onEmojiSelect }: EmojiPickerProps) {
-  const [activeTab, setActiveTab] = useState("smileys")
+  const [activeTab, setActiveTab] = useState('smileys');
 
   return (
     <Card className="w-64 p-2">
@@ -45,6 +99,5 @@ export function EmojiPicker({ onEmojiSelect }: EmojiPickerProps) {
         ))}
       </Tabs>
     </Card>
-  )
+  );
 }
-

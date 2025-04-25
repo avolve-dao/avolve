@@ -23,8 +23,10 @@ export function AIRecommendations() {
 
   useEffect(() => {
     async function loadRecommendations() {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       if (!user) {
         setLoading(false);
         return;
@@ -44,25 +46,22 @@ export function AIRecommendations() {
   }, [supabase]);
 
   const handleDismiss = async (id: string) => {
-    const { error } = await supabase
-      .from('ai_recommendations')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from('ai_recommendations').delete().eq('id', id);
 
     if (error) {
       toast({
-        title: "Error",
-        description: "Failed to dismiss recommendation",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to dismiss recommendation',
+        variant: 'destructive',
       });
       return;
     }
 
     setRecommendations(prev => prev.filter(rec => rec.id !== id));
     toast({
-      title: "Success",
-      description: "Recommendation dismissed",
-      variant: "default"
+      title: 'Success',
+      description: 'Recommendation dismissed',
+      variant: 'default',
     });
   };
 
@@ -86,7 +85,7 @@ export function AIRecommendations() {
 
   return (
     <div className="space-y-4">
-      {recommendations.map((rec) => (
+      {recommendations.map(rec => (
         <Card key={rec.id} className="p-6">
           <div className="flex justify-between items-start">
             <div>
@@ -98,11 +97,7 @@ export function AIRecommendations() {
                 </span>
               </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleDismiss(rec.id)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => handleDismiss(rec.id)}>
               Dismiss
             </Button>
           </div>

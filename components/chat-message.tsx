@@ -1,10 +1,10 @@
-import { cn } from '@/lib/utils'
-import type { ChatMessage } from '@/hooks/use-realtime-chat'
+import { cn } from '@/lib/utils';
+import type { ChatMessage } from '@/hooks/use-realtime-chat';
 
 interface ChatMessageItemProps {
-  message: ChatMessage
-  isOwnMessage: boolean
-  showHeader: boolean
+  message: ChatMessage;
+  isOwnMessage: boolean;
+  showHeader: boolean;
 }
 
 export const ChatMessageItem = ({ message, isOwnMessage, showHeader }: ChatMessageItemProps) => {
@@ -41,6 +41,5 @@ export const ChatMessageItem = ({ message, isOwnMessage, showHeader }: ChatMessa
         </div>
       </div>
     </div>
-  )
-}
-
+  );
+};

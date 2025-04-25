@@ -20,6 +20,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ balances: data });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : String(error) }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
   }
 }

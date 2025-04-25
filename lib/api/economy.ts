@@ -1,20 +1,20 @@
 /**
  * Economy API Client
- * 
+ *
  * This file provides functions for interacting with the token economy
  * of the Avolve platform, including tokens, balances, transactions, rewards, and staking.
  */
 
-import { ApiClient, ApiError } from './client'
-import type { 
-  Token, 
-  UserToken, 
-  TokenTransaction, 
-  TokenReward, 
+import { ApiClient, ApiError } from './client';
+import type {
+  Token,
+  UserToken,
+  TokenTransaction,
+  TokenReward,
   TokenStaking,
   ActivityType,
-  TransactionType
-} from '@/lib/types/database.types'
+  TransactionType,
+} from '@/lib/types/database.types';
 
 export class EconomyApi extends ApiClient {
   /**
@@ -25,16 +25,16 @@ export class EconomyApi extends ApiClient {
       const { data, error } = await this.client
         .from('tokens')
         .select('*')
-        .order('is_primary', { ascending: false })
-      
-      if (error) throw error
-      
-      return data as Token[]
+        .order('is_primary', { ascending: false });
+
+      if (error) throw error;
+
+      return data as Token[];
     } catch (error) {
-      this.handleError(error, 'Failed to fetch tokens')
+      this.handleError(error, 'Failed to fetch tokens');
     }
   }
-  
+
   /**
    * Get a token by symbol
    */
@@ -44,16 +44,16 @@ export class EconomyApi extends ApiClient {
         .from('tokens')
         .select('*')
         .eq('symbol', symbol)
-        .single()
-      
-      if (error) throw error
-      
-      return data as Token
+        .single();
+
+      if (error) throw error;
+
+      return data as Token;
     } catch (error) {
-      this.handleError(error, `Failed to fetch token with symbol: ${symbol}`)
+      this.handleError(error, `Failed to fetch token with symbol: ${symbol}`);
     }
   }
-  
+
   /**
    * Get all tokens for a user
    */
@@ -62,33 +62,33 @@ export class EconomyApi extends ApiClient {
       const { data, error } = await this.client
         .from('user_tokens')
         .select('*')
-        .eq('user_id', userId)
-      
-      if (error) throw error
-      
-      return data as UserToken[]
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      return data as UserToken[];
     } catch (error) {
-      this.handleError(error, 'Failed to fetch user tokens')
+      this.handleError(error, 'Failed to fetch user tokens');
     }
   }
-  
+
   /**
    * Get user token balances
    */
   async getUserTokenBalances(userId: string) {
     try {
       const { data, error } = await this.client.rpc('get_user_token_balances', {
-        p_user_id: userId
-      })
-      
-      if (error) throw error
-      
-      return data
+        p_user_id: userId,
+      });
+
+      if (error) throw error;
+
+      return data;
     } catch (error) {
-      this.handleError(error, 'Failed to fetch user token balances')
+      this.handleError(error, 'Failed to fetch user token balances');
     }
   }
-  
+
   /**
    * Get user token transactions
    */
@@ -99,16 +99,16 @@ export class EconomyApi extends ApiClient {
         .select('*, tokens(*)')
         .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
         .order('created_at', { ascending: false })
-        .range(offset, offset + limit - 1)
-      
-      if (error) throw error
-      
-      return data
+        .range(offset, offset + limit - 1);
+
+      if (error) throw error;
+
+      return data;
     } catch (error) {
-      this.handleError(error, 'Failed to fetch user token transactions')
+      this.handleError(error, 'Failed to fetch user token transactions');
     }
   }
-  
+
   /**
    * Get transactions for a user
    */
@@ -119,24 +119,24 @@ export class EconomyApi extends ApiClient {
         .select('*')
         .or(`from_user_id.eq.${userId},to_user_id.eq.${userId}`)
         .order('created_at', { ascending: false })
-        .limit(limit)
-      
-      if (error) throw error
-      
-      return data as TokenTransaction[]
+        .limit(limit);
+
+      if (error) throw error;
+
+      return data as TokenTransaction[];
     } catch (error) {
-      this.handleError(error, 'Failed to fetch user transactions')
+      this.handleError(error, 'Failed to fetch user transactions');
     }
   }
-  
+
   /**
    * Transfer tokens between users
    */
   async transferTokens(
-    fromUserId: string, 
-    toUserId: string, 
-    tokenSymbol: string, 
-    amount: number, 
+    fromUserId: string,
+    toUserId: string,
+    tokenSymbol: string,
+    amount: number,
     reason?: string
   ) {
     try {
@@ -145,25 +145,25 @@ export class EconomyApi extends ApiClient {
         p_to_user_id: toUserId,
         p_token_symbol: tokenSymbol,
         p_amount: amount,
-        p_reason: reason
-      })
-      
-      if (error) throw error
-      
-      return data
+        p_reason: reason,
+      });
+
+      if (error) throw error;
+
+      return data;
     } catch (error) {
-      this.handleError(error, 'Failed to transfer tokens')
+      this.handleError(error, 'Failed to transfer tokens');
     }
   }
-  
+
   /**
    * Reward user with tokens
    */
   async rewardUser(
-    userId: string, 
-    tokenSymbol: string, 
-    activityType: ActivityType, 
-    customAmount?: number, 
+    userId: string,
+    tokenSymbol: string,
+    activityType: ActivityType,
+    customAmount?: number,
     customMultiplier?: number
   ) {
     try {
@@ -172,40 +172,38 @@ export class EconomyApi extends ApiClient {
         p_token_symbol: tokenSymbol,
         p_activity_type: activityType,
         p_custom_amount: customAmount,
-        p_custom_multiplier: customMultiplier
-      })
-      
-      if (error) throw error
-      
-      return data
+        p_custom_multiplier: customMultiplier,
+      });
+
+      if (error) throw error;
+
+      return data;
     } catch (error) {
-      this.handleError(error, 'Failed to reward user')
+      this.handleError(error, 'Failed to reward user');
     }
   }
-  
+
   /**
    * Get token rewards configuration
    */
   async getTokenRewards(tokenId?: string) {
     try {
-      let query = this.client
-        .from('token_rewards')
-        .select('*, tokens(*)')
-      
+      let query = this.client.from('token_rewards').select('*, tokens(*)');
+
       if (tokenId) {
-        query = query.eq('token_id', tokenId)
+        query = query.eq('token_id', tokenId);
       }
-      
-      const { data, error } = await query
-      
-      if (error) throw error
-      
-      return data
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      return data;
     } catch (error) {
-      this.handleError(error, 'Failed to fetch token rewards')
+      this.handleError(error, 'Failed to fetch token rewards');
     }
   }
-  
+
   /**
    * Get user token staking
    */
@@ -215,41 +213,36 @@ export class EconomyApi extends ApiClient {
         .from('token_staking')
         .select('*, tokens(*)')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-      
-      if (error) throw error
-      
-      return data
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data;
     } catch (error) {
-      this.handleError(error, 'Failed to fetch user token staking')
+      this.handleError(error, 'Failed to fetch user token staking');
     }
   }
-  
+
   /**
    * Stake tokens
    */
-  async stakeTokens(
-    userId: string, 
-    tokenId: string, 
-    amount: number, 
-    lockDurationDays: number
-  ) {
+  async stakeTokens(userId: string, tokenId: string, amount: number, lockDurationDays: number) {
     try {
       // Calculate end date
-      const endDate = new Date()
-      endDate.setDate(endDate.getDate() + lockDurationDays)
-      
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + lockDurationDays);
+
       // Calculate reward rate based on duration
       // 30 days = 5%, 90 days = 10%, 180 days = 15%, 365 days = 20%
-      let rewardRate = 0.05
+      let rewardRate = 0.05;
       if (lockDurationDays >= 365) {
-        rewardRate = 0.20
+        rewardRate = 0.2;
       } else if (lockDurationDays >= 180) {
-        rewardRate = 0.15
+        rewardRate = 0.15;
       } else if (lockDurationDays >= 90) {
-        rewardRate = 0.10
+        rewardRate = 0.1;
       }
-      
+
       // Insert staking record
       const { data: stakingData, error: stakingError } = await this.client
         .from('token_staking')
@@ -262,27 +255,27 @@ export class EconomyApi extends ApiClient {
           end_date: endDate.toISOString(),
           status: 'active',
           reward_rate: rewardRate,
-          reward_amount: 0
+          reward_amount: 0,
         })
         .select()
-        .single()
-      
-      if (stakingError) throw stakingError
-      
+        .single();
+
+      if (stakingError) throw stakingError;
+
       // Update user token balance
       const { data: userTokenData, error: userTokenError } = await this.client
         .from('user_tokens')
         .update({
           balance: this.client.rpc('decrement', { x: amount }),
-          staked_balance: this.client.rpc('increment', { x: amount })
+          staked_balance: this.client.rpc('increment', { x: amount }),
         })
         .eq('user_id', userId)
         .eq('token_id', tokenId)
         .select()
-        .single()
-      
-      if (userTokenError) throw userTokenError
-      
+        .single();
+
+      if (userTokenError) throw userTokenError;
+
       // Record transaction
       const { data: transactionData, error: transactionError } = await this.client
         .from('token_transactions')
@@ -292,14 +285,14 @@ export class EconomyApi extends ApiClient {
           to_user_id: userId,
           amount: amount,
           transaction_type: 'stake',
-          reason: `Staked for ${lockDurationDays} days at ${rewardRate * 100}% reward rate`
-        })
-      
-      if (transactionError) throw transactionError
-      
-      return stakingData
+          reason: `Staked for ${lockDurationDays} days at ${rewardRate * 100}% reward rate`,
+        });
+
+      if (transactionError) throw transactionError;
+
+      return stakingData;
     } catch (error) {
-      this.handleError(error, 'Failed to stake tokens')
+      this.handleError(error, 'Failed to stake tokens');
     }
   }
 }

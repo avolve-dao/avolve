@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 // Define token color system
 export const tokenColors = {
@@ -130,7 +131,7 @@ export function TokenBadge({
         borderStyle: 'solid',
       }}
     >
-      {showIcon && <img src={token.icon} alt={tokenType} className={`${iconSizes[size]} mr-1`} />}
+      {showIcon && <Image src={token.icon} alt={tokenType} className={`${iconSizes[size]} mr-1`} width={20} height={20} />}
       {tokenType}
       {amount !== undefined && <span className="ml-1 font-bold">{amount}</span>}
     </span>
@@ -164,7 +165,7 @@ export function TokenIcon({ tokenType, size = 'md', className = '' }: TokenIconP
         borderStyle: 'solid',
       }}
     >
-      <img src={token.icon} alt={tokenType} className="w-2/3 h-2/3" />
+      <Image src={token.icon} alt={tokenType} className="w-2/3 h-2/3" width={32} height={32} />
     </div>
   );
 }

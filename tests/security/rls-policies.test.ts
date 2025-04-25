@@ -113,7 +113,7 @@ jest.mock('@supabase/supabase-js', () => {
   return {
     createClient: jest.fn((url, key, options) => {
       // Determine which user is making the request based on the auth header
-      let currentUserId = null;
+      let currentUserId: keyof typeof mockSessions | null = null;
       if (options?.global?.headers?.Authorization) {
         const token = options.global.headers.Authorization.split(' ')[1];
         if (token === 'test-user-token') currentUserId = 'test-user-id';
@@ -124,7 +124,7 @@ jest.mock('@supabase/supabase-js', () => {
       return {
         auth: {
           signInWithPassword: jest.fn(({ email }: { email: string }) => {
-            let userId = null;
+            let userId: keyof typeof mockSessions | null = null;
             
             if (email === 'test-user@example.com') userId = 'test-user-id';
             else if (email === 'admin@avolve.io') userId = 'admin-user-id';
@@ -153,7 +153,7 @@ jest.mock('@supabase/supabase-js', () => {
             select: jest.fn(() => ({
               eq: jest.fn((field, value) => {
                 // Filter data based on RLS policies
-                let filteredData = [];
+                let filteredData: any[] = [];
                 
                 if (table === 'profiles') {
                   // Profiles: users can only see their own profile, admins can see all
@@ -177,14 +177,14 @@ jest.mock('@supabase/supabase-js', () => {
                   data: filteredData.length > 0 ? filteredData[0] : null,
                   error: null,
                 };
-              })),
-              data: isAdmin || table === 'posts' || (table === 'invitations' && isAnon)
-                ? mockData[table as keyof MockData] || []
+              }),
+              data: (isAdmin || table === 'posts' || (table === 'invitations' && isAnon))
+                ? (mockData[table as keyof MockData] || [])
                 : (mockData[table as keyof MockData] || []).filter(
-                    item => (item as any).user_id === currentUserId
+                    (item: any) => item.user_id === currentUserId
                   ),
               error: null,
-              single: function() {
+              single: () => {
                 return this;
               }
             })),

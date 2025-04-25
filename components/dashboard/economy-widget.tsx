@@ -14,6 +14,7 @@ import { useUser } from '@/lib/hooks/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
+import Image from 'next/image';
 
 export function EconomyWidget() {
   const economyApi = useEconomyApi();
@@ -102,7 +103,7 @@ export function EconomyWidget() {
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center">
                           {token?.icon_url ? (
-                            <img src={token.icon_url} alt={token?.name} className="w-5 h-5 mr-2" />
+                            <Image src={token.icon_url} alt={token?.name || 'Token Icon'} className="w-5 h-5 mr-2" width={20} height={20} />
                           ) : (
                             <div className="w-5 h-5 rounded-full bg-white/20 mr-2 flex items-center justify-center">
                               <span className="text-xs text-white font-bold">

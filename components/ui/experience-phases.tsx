@@ -3,6 +3,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ContextualTooltip } from '@/components/ui/contextual-tooltip';
+import Image from 'next/image';
 
 // Define experience phase color system
 export const phaseColors = {
@@ -84,7 +85,15 @@ export function PhaseBadge({
         borderStyle: 'solid',
       }}
     >
-      {showIcon && <img src={phaseColor.icon} alt={phase} className={`${iconSizes[size]} mr-1`} />}
+      {showIcon && (
+        <Image
+          src={phaseColor.icon}
+          alt={phase}
+          className={`${iconSizes[size]} mr-1`}
+          width={20}
+          height={20}
+        />
+      )}
       {formattedPhase} Phase
     </Badge>
   );
@@ -132,7 +141,7 @@ export function PhaseCard({
           className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
           style={{ backgroundColor: `${phaseColor.primary}30` }}
         >
-          <img src={phaseColor.icon} alt={phase} className="w-6 h-6" />
+          <Image src={phaseColor.icon} alt={phase} className="w-6 h-6" width={24} height={24} />
         </div>
         <div>
           <h3 className="font-medium" style={{ color: phaseColor.primary }}>
@@ -174,7 +183,9 @@ export function PhaseProgress({ currentPhase, className = '' }: PhaseProgressPro
                   backgroundColor: isActive ? phaseColor.primary : '#374151',
                 }}
               >
-                {isActive && <img src={phaseColor.icon} alt={phase} className="w-3 h-3" />}
+                {isActive && (
+                  <Image src={phaseColor.icon} alt={phase} className="w-3 h-3" width={12} height={12} />
+                )}
               </div>
               <span
                 className="text-xs mt-1"

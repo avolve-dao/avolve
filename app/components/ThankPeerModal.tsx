@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import Toast from './Toast';
+import Image from 'next/image';
 
 interface Profile {
   id: string;
@@ -131,7 +132,7 @@ export default function ThankPeerModal({
               role="option"
             >
               {p.avatar_url && (
-                <img src={p.avatar_url} alt={p.full_name} className="w-6 h-6 rounded-full" />
+                <Image src={p.avatar_url} alt={p.full_name} className="w-6 h-6 rounded-full" width={24} height={24} />
               )}
               <span>{p.full_name}</span>
               {recipient === p.id && <span className="ml-auto text-blue-600 font-bold">✓</span>}

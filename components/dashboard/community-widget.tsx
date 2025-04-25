@@ -14,6 +14,7 @@ import { Pillar, UserJourney } from '@/lib/types/database.types';
 import { useUser } from '@/lib/hooks/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import Image from 'next/image';
 
 export function CommunityWidget() {
   const communityApi = useCommunityApi();
@@ -88,7 +89,7 @@ export function CommunityWidget() {
                       className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${pillar.gradient_class}`}
                     >
                       {pillar.icon_url ? (
-                        <img src={pillar.icon_url} alt={pillar.title} className="w-6 h-6" />
+                        <Image src={pillar.icon_url} alt={pillar.title} className="w-6 h-6" width={24} height={24} />
                       ) : (
                         <span className="text-white font-bold">{pillar.title.charAt(0)}</span>
                       )}

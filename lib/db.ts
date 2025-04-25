@@ -1,11 +1,14 @@
 import { createClient as createClientBrowser } from '@/lib/supabase/client';
-import { LRUCache } from 'lru-cache';
 
 // Create a cache for database queries
-const queryCache = new LRUCache<string, any>({
-  max: 100, // Maximum number of items to store in cache
-  ttl: 1000 * 60 * 5, // 5 minutes TTL
-});
+// import { LRUCache } from 'lru-cache';
+// const queryCache = new LRUCache<string, any>({
+//   max: 100, // Maximum number of items to store in cache
+//   ttl: 1000 * 60 * 5, // 5 minutes TTL
+// });
+
+// Replace with in-memory cache (if needed for MVP):
+const queryCache = new Map<string, { data: any; expiry: number | null }>();
 
 // Client-side database functions
 export const clientDb = {
@@ -30,7 +33,7 @@ export const clientDb = {
 
     // Check cache first
     const cached = queryCache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) return cached.data;
 
     const supabase = this.getSupabaseClient();
     // Fixed query syntax
@@ -46,9 +49,8 @@ export const clientDb = {
     }
 
     // Cache the result
-    if (typeof data === 'object' && data !== null) {
-      queryCache.set(cacheKey, data as any);
-    }
+    queryCache.set(cacheKey, { data, expiry: null });
+
     return data;
   },
 
@@ -121,7 +123,7 @@ export const clientDb = {
 
     // Check cache first
     const cached = queryCache.get(cacheKey);
-    if (cached !== undefined) return cached;
+    if (cached !== undefined) return cached.data;
 
     const supabase = this.getSupabaseClient();
     const { data, error } = await supabase
@@ -138,9 +140,8 @@ export const clientDb = {
 
     const result = !!data;
     // Cache the result
-    if (typeof result === 'object' && result !== null) {
-      queryCache.set(cacheKey, result as any);
-    }
+    queryCache.set(cacheKey, { data: result, expiry: null });
+
     return result;
   },
 
@@ -191,7 +192,7 @@ export const clientDb = {
 
     // Check cache first
     const cached = queryCache.get(cacheKey);
-    if (cached !== undefined) return cached;
+    if (cached !== undefined) return cached.data;
 
     const supabase = this.getSupabaseClient();
     const { data, error } = await supabase
@@ -208,9 +209,8 @@ export const clientDb = {
 
     const result = !!data;
     // Cache the result
-    if (typeof result === 'object' && result !== null) {
-      queryCache.set(cacheKey, result as any);
-    }
+    queryCache.set(cacheKey, { data: result, expiry: null });
+
     return result;
   },
 
@@ -219,7 +219,7 @@ export const clientDb = {
 
     // Check cache first
     const cached = queryCache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) return cached.data;
 
     const supabase = this.getSupabaseClient();
 
@@ -249,9 +249,8 @@ export const clientDb = {
     };
 
     // Cache the result
-    if (typeof result === 'object' && result !== null) {
-      queryCache.set(cacheKey, result as any);
-    }
+    queryCache.set(cacheKey, { data: result, expiry: null });
+
     return result;
   },
 
@@ -282,7 +281,7 @@ export const clientDb = {
 
     // Check cache first
     const cached = queryCache.get(cacheKey);
-    if (cached) return cached;
+    if (cached) return cached.data;
 
     const supabase = this.getSupabaseClient();
     const { data, error } = await supabase
@@ -307,9 +306,8 @@ export const clientDb = {
     }
 
     // Cache the result
-    if (typeof data === 'object' && data !== null) {
-      queryCache.set(cacheKey, data as any);
-    }
+    queryCache.set(cacheKey, { data, expiry: null });
+
     return data;
   },
 

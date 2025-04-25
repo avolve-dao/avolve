@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-import { LRUCache } from 'lru-cache';
 
 export interface RateLimitOptions {
   uniqueIdentifier?: string;
@@ -17,14 +16,19 @@ export interface RateLimitResult {
 }
 
 // Initialize cache for rate limiting
-const cache = new LRUCache<string, number[]>({
-  max: 10000, // Store max 10k IPs
-  ttl: 1000 * 60 * 60, // Items expire after 1 hour
-});
+// import { LRUCache } from 'lru-cache';
+// const cache = new LRUCache<string, number[]>({
+//   max: 10000, // Store max 10k IPs
+//   ttl: 1000 * 60 * 60, // Items expire after 1 hour
+// });
+
+// Replace with in-memory cache (if needed for MVP):
+const cache = new Map<string, { data: number[]; expiry: number | null }>();
 
 /**
  * Rate limiting function using in-memory LRU cache
  * Note: For production, consider using a distributed cache like Redis
+ * Note: In-memory cache is used as MVP fallback
  */
 export async function rateLimit(
   request: NextRequest,
@@ -48,12 +52,18 @@ export async function rateLimit(
     const windowStart = now - timeframe * 1000;
 
     // Get existing timestamps and filter old ones
-    const timestamps = cache.get(key) || [];
+    const existingCache = cache.get(key);
+    let timestamps: number[];
+    if (existingCache && existingCache.expiry && existingCache.expiry > now) {
+      timestamps = existingCache.data;
+    } else {
+      timestamps = [];
+    }
     const validTimestamps = timestamps.filter(time => time > windowStart);
 
     // Add current timestamp
     validTimestamps.push(now);
-    cache.set(key, validTimestamps);
+    cache.set(key, { data: validTimestamps, expiry: now + timeframe * 1000 });
 
     // Calculate remaining requests
     const count = validTimestamps.length;

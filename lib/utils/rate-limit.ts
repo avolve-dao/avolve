@@ -1,4 +1,4 @@
-import { LRUCache } from 'lru-cache';
+// import { LRUCache } from 'lru-cache';
 
 type RateLimitOptions = {
   interval: number;
@@ -14,10 +14,8 @@ type RateLimitOptions = {
 export function rateLimit(options: RateLimitOptions) {
   const { interval, limit, uniqueTokenPerInterval } = options;
 
-  const tokenCache = new LRUCache<string, number[]>({
-    max: uniqueTokenPerInterval,
-    ttl: interval,
-  });
+  // Replace with in-memory cache (if needed for MVP):
+  const tokenCache = new Map<string, { data: number[]; expiry: number | null }>();
 
   return {
     /**
@@ -29,12 +27,20 @@ export function rateLimit(options: RateLimitOptions) {
       token: string
     ): Promise<{ success: boolean; limit: number; remaining: number }> => {
       const now = Date.now();
-      const timestamps = tokenCache.get(token) || [];
+      const cacheEntry = tokenCache.get(token);
+      let timestamps: number[];
+
+      if (cacheEntry && (cacheEntry.expiry === null || now < cacheEntry.expiry)) {
+        timestamps = cacheEntry.data;
+      } else {
+        timestamps = [];
+      }
+
       const validTimestamps = timestamps.filter(timestamp => now - timestamp < interval);
 
       // Add current timestamp
       validTimestamps.push(now);
-      tokenCache.set(token, validTimestamps);
+      tokenCache.set(token, { data: validTimestamps, expiry: now + interval });
 
       const remaining = Math.max(0, limit - validTimestamps.length);
       const success = validTimestamps.length <= limit;

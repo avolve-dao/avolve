@@ -198,12 +198,25 @@ Avolve is designed for maintainability, clarity, and DRY principles:
 - `/scripts`: Utility scripts including e2e testing
 - `/docs`: Documentation including launch guide
 
-### Database (Supabase)
+### Directory Structure (April 2025)
 
-- Managed via migrations in `/supabase/migrations` (follows Supabase best practices)
-- RLS enabled with granular policies for all tables
-- Types auto-generated in `/types/supabase.ts` and extended in `/types/database-extensions.ts`
-- Edge functions in `/supabase/functions`
+- All application routes, onboarding, and API endpoints use the Next.js App Router in `/app`.
+- The legacy `/pages` directory has been fully removed.
+- All documentation and onboarding guides reference `/app` (not `/pages`).
+
+### Testing
+
+- **Vitest** is the sole test runner for unit/integration tests.
+- **Playwright** is used for E2E testing; reports are generated in `playwright-report/` (not committed to git).
+- `.husky/` is used for shared Git hooks (pre-commit, pre-push, etc.) and should remain in the repo.
+
+### Onboarding Checklist
+
+- See [`/docs/ONBOARDING_CHECKLIST.md`](docs/ONBOARDING_CHECKLIST.md) for the latest onboarding flows and admin setup.
+
+### Migration Note
+
+**April 2025:** All `/pages` references have been migrated to `/app`. If you find any lingering `/pages` references in code or docs, update them to `/app` for accuracy and maintainability.
 
 ---
 

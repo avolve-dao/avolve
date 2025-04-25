@@ -32,4 +32,6 @@
 
 ---
 
+**Update April 2025:** All application routes, onboarding, and admin flows now use the `/app` directory and Next.js App Router. Remove any `/pages` references in documentation or code.
+
 This structure ensures clarity, future-proofing, and alignment with Avolve's core journeys and values.

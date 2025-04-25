@@ -1,6 +1,6 @@
-# Avolve Platform Guides
+# Avolve Platform Guides (Merged)
 
-Welcome to Avolve! This single guide provides everything users, admins, and developers need to get started and thrive on the platform.
+This file now serves as a single entry point for all onboarding and quick start content. For full onboarding, admin, and developer guides, see the links below and the main documentation index.
 
 ---
 
@@ -50,8 +50,10 @@ Welcome to Avolve! This single guide provides everything users, admins, and deve
 
 - For help, open a GitHub issue or email admin@avolve.io
 - See [README.md](../README.md) for project overview
-- See [API.md](./API.md) and [DATABASE.md](./DATABASE.md) for technical reference
+- See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) and [DATABASE_SCHEMA.md](./DATABASE_SCHEMA.md) for technical reference
 
 ---
+
+*Redundant onboarding and quickstart files have been merged here for clarity and maintainability. See the main documentation index for more.*
 
 Avolve is designed to empower and delight you on your journey. Welcome aboard!

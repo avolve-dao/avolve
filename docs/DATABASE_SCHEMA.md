@@ -12,7 +12,16 @@ The Avolve platform uses a PostgreSQL database managed through Supabase, with Ro
 - Invitation system
 - Analytics and metrics
 
-## Core Tables
+## Inventory, Schema, and RLS
+
+This file now serves as the single source of truth for:
+- Table/entity inventory (see below)
+- Schema details (see table sections)
+- RLS and security policies (see dedicated section)
+
+For visual ERDs, see `diagrams.md`.
+
+## Table Inventory
 
 ### profiles
 
@@ -150,6 +159,38 @@ Tracks user onboarding progress.
 | completed_at | timestamptz | When onboarding was completed    |
 | created_at   | timestamptz | When the record was created      |
 | updated_at   | timestamptz | When the record was last updated |
+
+## Security & RLS Policies
+
+- RLS is enabled on all tables by default.
+- Policies are granular: one per action (select, insert, update, delete) and per role (`anon`, `authenticated`).
+- All policies are documented in migration files.
+- Only authenticated users can select from sensitive tables; only admins can insert/update/delete where appropriate.
+- All admin actions (create/mint/transfer tokens, promote phases) are RBAC enforced.
+
+## Data Flow
+
+- All admin and onboarding UI components fetch and mutate data directly via Supabase queries.
+- No hardcoded or simulated data is used in any user-facing or admin feature.
+- All analytics, onboarding, and admin flows are live and production-grade.
+
+## Migrations & Best Practices
+
+- All migration files are timestamped and well-commented.
+- RLS is enforced in every new table creation.
+- Policies include rationale and are never combined across roles/actions.
+- All functions use `SECURITY INVOKER` and `set search_path = ''`.
+- Explicit typing for inputs/outputs.
+- Prefer `IMMUTABLE` or `STABLE` unless side effects are required.
+- Triggers are documented with their purpose and policy.
+
+## Supabase Extensions
+
+- Notable: `pgjwt`, `pg_graphql`, `pg_stat_monitor`, `pgaudit`, `timescaledb`
+
+## How to Contribute
+
+See `contributing.md` for guidelines.
 
 ## Key Functions
 
@@ -629,3 +670,5 @@ limit 10;
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Avolve API Documentation](./API_DOCUMENTATION.md)
 - [Avolve Production Launch Checklist](./PRODUCTION_LAUNCH_CHECKLIST.md)
+
+*Redundant database schema, inventory, and policy files have been merged here for clarity and maintainability.*

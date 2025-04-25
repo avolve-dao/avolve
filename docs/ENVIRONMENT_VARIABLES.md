@@ -75,9 +75,15 @@ This document outlines all environment variables required for the Avolve platfor
 | Variable                             | Description            | Required | Example                               |
 | ------------------------------------ | ---------------------- | -------- | ------------------------------------- |
 | `OPENAI_API_KEY`                     | OpenAI API key         | No       | `sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` |
-| `STRIPE_SECRET_KEY`                  | Stripe secret key      | No       | `***REMOVED***xxxxxxxxxxxxxxxxxxxxxxxx`    |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | No       | `pk_live_xxxxxxxxxxxxxxxxxxxxxxxx`    |
-| `STRIPE_WEBHOOK_SECRET`              | Stripe webhook secret  | No       | `whsec_xxxxxxxxxxxxxxxxxxxxxxxx`      |
+| # Stripe API Key
+|#STRIPE_SECRET_KEY=your_actual_stripe_key_here
+STRIPE_SECRET_KEY=YOUR_STRIPE_API_KEY
+|# Stripe Publishable Key
+|#NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_actual_stripe_publishable_key_here
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=YOUR_STRIPE_PUBLISHABLE_KEY
+|# Stripe Webhook Secret
+|#STRIPE_WEBHOOK_SECRET=your_actual_stripe_webhook_secret_here
+STRIPE_WEBHOOK_SECRET=YOUR_STRIPE_WEBHOOK_SECRET
 
 ## CDN & Performance
 

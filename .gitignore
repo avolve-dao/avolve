@@ -23,8 +23,10 @@ node_modules/
 .npm
 
 # dotenv environment variables
+# Ignore all environment files for secrets
 .env
 .env.*
+.env.local
 .env.development
 .env.production
 .env.test

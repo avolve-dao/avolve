@@ -1,5 +1,5 @@
+"use client";
 import { useState } from 'react';
-import OnboardingWizard from '../components/OnboardingWizard';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -21,19 +21,15 @@ export default function RegisterPage() {
     const data = await res.json();
     if (!res.ok) {
       setError(data.error || 'Registration failed');
-      return;
+    } else {
+      setSuccess('Registration successful! Check your email.');
+      setShowOnboarding(true);
     }
-    setSuccess(data.message);
-    setShowOnboarding(true);
   };
 
-  if (showOnboarding) {
-    return <OnboardingWizard onComplete={() => (window.location.href = '/dashboard')} />;
-  }
-
   return (
-    <div className="max-w-md mx-auto bg-white p-8 rounded shadow-md mt-12 animate-fade-in">
-      <h1 className="text-2xl font-bold mb-6">Register for Avolve</h1>
+    <div className="max-w-md mx-auto mt-12 p-6 bg-white rounded shadow">
+      <h1 className="text-2xl font-bold mb-4">Register</h1>
       <form onSubmit={handleRegister} className="space-y-4">
         <input
           type="email"
@@ -65,6 +61,15 @@ export default function RegisterPage() {
         {error && <div className="text-red-600 mt-2">{error}</div>}
         {success && <div className="text-green-600 mt-2">{success}</div>}
       </form>
+      {showOnboarding && (
+        <div className="mt-6 p-4 bg-blue-50 rounded">
+          <h2 className="font-semibold mb-2">Next Steps</h2>
+          <ul className="list-disc ml-5 text-sm">
+            <li>Check your inbox for a confirmation email.</li>
+            <li>Complete your onboarding checklist for rewards!</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

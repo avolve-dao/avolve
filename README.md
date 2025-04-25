@@ -97,6 +97,32 @@ Avolve includes robust, accessible, and delightful features designed to magnetic
 
 ---
 
+## 📚 Documentation
+
+- [Hall of Fame](docs/HALL_OF_FAME.md)
+- [Implementation Guide](docs/IMPLEMENTATION-GUIDE.md)
+- [Onboarding Checklist](docs/ONBOARDING_CHECKLIST.md)
+- [Platform Plan](docs/PLATFORM_PLAN.md)
+- [Privacy Policy](docs/PRIVACY.md)
+- [Security Policy](docs/SECURITY.md)
+- [Terms of Service](docs/TERMS.md)
+- [Contributing Guide](docs/contributing.md)
+
+For additional technical and feature documentation, see the `docs/` directory:
+
+- [Launch Guide](docs/LAUNCH_GUIDE.md)
+- [User Onboarding Guide](docs/guides/onboarding-user.md)
+- [Admin Onboarding Guide](docs/guides/onboarding-admin.md)
+- [Invitation System](docs/features/invitation-system.md)
+- [Feature Flags](docs/features/feature-flags.md)
+- [Database Schema](docs/database/README.md)
+- [API Documentation](docs/api/README.md)
+- [Security Guidelines](docs/security/README.md)
+- [Environment Variables](docs/ENVIRONMENT_VARIABLES.md)
+- [Mobile App Integration Plan](docs/MOBILE_APP_INTEGRATION_PLAN.md)
+
+---
+
 ## 🛠️ Development & Testing
 
 ### Running Locally
@@ -178,19 +204,6 @@ Avolve is designed for maintainability, clarity, and DRY principles:
 - RLS enabled with granular policies for all tables
 - Types auto-generated in `/types/supabase.ts` and extended in `/types/database-extensions.ts`
 - Edge functions in `/supabase/functions`
-
----
-
-## 📚 Documentation
-
-- [Launch Guide](docs/LAUNCH_GUIDE.md) - **NEW**: Comprehensive guide for platform launch
-- [User Onboarding Guide](docs/guides/onboarding-user.md)
-- [Admin Onboarding Guide](docs/guides/onboarding-admin.md)
-- [Invitation System](docs/features/invitation-system.md)
-- [Feature Flags](docs/features/feature-flags.md)
-- [Database Schema](docs/database/README.md)
-- [API Documentation](docs/api/README.md)
-- [Security Guidelines](docs/security/README.md)
 
 ---
 

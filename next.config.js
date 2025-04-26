@@ -10,10 +10,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  experimental: {
-    // Disable some experimental features that might be causing issues
-    esmExternals: false,
-  },
 }
 
 module.exports = nextConfig

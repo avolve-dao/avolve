@@ -498,3 +498,27 @@ html {
   transform: translateZ(0);
   -webkit-font-smoothing: subpixel-antialiased;
 }
+
+/* Ensure dark mode gradients are not too bright */
+.dark .elegant-badge {
+  filter: brightness(0.85) drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+
+/* Improve contrast for text on dark backgrounds */ \
+.dark .text-white/80 {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dark .text-white/70 {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Ensure glow effects aren't too bright in dark mode */
+.dark .badge-glow {
+  filter: brightness(0.85) drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
+}
+
+/* Adjust card hover effects for dark mode */
+.dark .card-with-badge:hover .elegant-badge {
+  filter: brightness(0.9) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}

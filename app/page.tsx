@@ -191,10 +191,10 @@ export default function HomePage() {
               <motion.div
                 className={`inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full ${
                   currentTextIndex === 0
-                    ? "bg-gradient-to-r from-zinc-400 to-zinc-600 dark:from-zinc-500 dark:to-zinc-800"
+                    ? "bg-gradient-to-r from-zinc-400 to-zinc-600 dark:from-zinc-600 dark:to-zinc-800"
                     : currentTextIndex === 1
-                      ? "bg-gradient-to-r from-stone-400 to-stone-600 dark:from-stone-500 dark:to-stone-800"
-                      : "bg-gradient-to-r from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-800"
+                      ? "bg-gradient-to-r from-stone-400 to-stone-600 dark:from-stone-600 dark:to-stone-800"
+                      : "bg-gradient-to-r from-slate-400 to-slate-600 dark:from-slate-600 dark:to-slate-800"
                 } shadow-sm border border-white/10 z-20 elegant-badge badge-glow hardware-accelerated`}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -250,7 +250,7 @@ export default function HomePage() {
 
             <Link href="/learn-more" className="group">
               <motion.div
-                className="relative overflow-hidden bg-transparent border border-zinc-200 dark:border-zinc-800 text-slate-700 dark:text-slate-300 px-6 sm:px-8 py-3 sm:py-4 rounded-lg flex items-center gap-2 font-medium text-base sm:text-lg shadow-md hover:shadow-lg transition-all duration-700 backdrop-blur-sm luxury-card hardware-accelerated"
+                className="relative overflow-hidden bg-transparent border border-zinc-200 dark:border-zinc-800 text-zinc-950 dark:text-zinc-50 px-6 sm:px-8 py-3 sm:py-4 rounded-lg flex items-center gap-2 font-medium text-base sm:text-lg shadow-md hover:shadow-lg transition-all duration-700 backdrop-blur-sm luxury-card hardware-accelerated"
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 0 }}
                 transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
@@ -260,7 +260,7 @@ export default function HomePage() {
 
                 {/* Subtle hover effect */}
                 <motion.div
-                  className="absolute inset-0 bg-white/5 dark:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                  className="absolute inset-0 bg-zinc-50/10 dark:bg-zinc-700/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
                   initial={{ opacity: 0 }}
                   transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
                 ></motion.div>
@@ -295,9 +295,9 @@ export default function HomePage() {
             <motion.div
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full shadow-sm border border-white/10 mb-8 z-20 elegant-badge badge-glow hardware-accelerated"
               style={{
-                background: isDark
-                  ? "linear-gradient(to right, #d946ef, #ec4899, #f43f5e, #ef4444, #f97316, #f59e0b, #eab308, #84cc16, #22c55e, #10b981, #14b8a6, #06b6d4, #0ea5e9, #3b82f6, #6366f1, #8b5cf6, #a855f7)"
-                  : "linear-gradient(to right, #c026d3, #db2777, #e11d48, #dc2626, #ea580c, #d97706, #ca8a04, #65a30d, #16a34a, #059669, #0d9488, #0891b2, #0284c7, #2563eb, #4f46e5, #7c3aed, #9333ea)",
+                backgroundImage: isDark
+                  ? "linear-gradient(to right, #9d174d, #be185d, #dc2626, #b45309, #a16207, #65a30d, #15803d, #0f766e, #0e7490, #0369a1, #1e40af, #4338ca, #6d28d9, #7e22ce)"
+                  : "linear-gradient(to right, #db2777, #e11d48, #dc2626, #ea580c, #d97706, #65a30d, #16a34a, #0d9488, #0891b2, #0284c7, #1d4ed8, #4f46e5, #7c3aed, #9333ea)",
                 backgroundSize: "300% 100%",
                 animation: "gradient-shift 20s ease-in-out infinite",
               }}
@@ -336,7 +336,7 @@ export default function HomePage() {
               id="gen"
               title="Supercivilization"
               description="Avolve from Degen to Regen"
-              gradient="from-zinc-600 to-zinc-700 dark:from-zinc-600 dark:to-zinc-900"
+              gradient="from-zinc-500 to-zinc-700 dark:from-zinc-700 dark:to-zinc-900"
               glowColor="rgba(161, 161, 170, 0.2)"
               delay={0.1}
               isLarge
@@ -350,7 +350,7 @@ export default function HomePage() {
                 id="sap"
                 title="Superachiever"
                 description="Create Your Success Puzzle"
-                gradient="from-stone-600 to-stone-700 dark:from-stone-600 dark:to-stone-900"
+                gradient="from-stone-500 to-stone-700 dark:from-stone-700 dark:to-stone-900"
                 glowColor="rgba(168, 162, 158, 0.2)"
                 delay={0.2}
                 token="SAP"
@@ -361,7 +361,7 @@ export default function HomePage() {
                 id="scq"
                 title="Superachievers"
                 description="Co-Create Your Superpuzzle"
-                gradient="from-slate-600 to-slate-700 dark:from-slate-600 dark:to-slate-900"
+                gradient="from-slate-500 to-slate-700 dark:from-slate-700 dark:to-slate-900"
                 glowColor="rgba(148, 163, 184, 0.2)"
                 delay={0.3}
                 token="SCQ"
@@ -379,7 +379,7 @@ export default function HomePage() {
                   id="psp"
                   title="Personal Success Puzzle"
                   description="Greater Personal Successes"
-                  gradient="from-amber-600 to-yellow-600 dark:from-amber-600 dark:to-yellow-600"
+                  gradient="from-amber-500 to-yellow-600 dark:from-amber-700 dark:to-yellow-900"
                   glowColor="rgba(245, 158, 11, 0.2)"
                   delay={0.4}
                   token="PSP"
@@ -390,7 +390,7 @@ export default function HomePage() {
                   id="bsp"
                   title="Business Success Puzzle"
                   description="Greater Business Successes"
-                  gradient="from-teal-600 to-cyan-600 dark:from-teal-600 dark:to-cyan-600"
+                  gradient="from-teal-500 to-cyan-600 dark:from-teal-700 dark:to-cyan-900"
                   glowColor="rgba(20, 184, 166, 0.2)"
                   delay={0.5}
                   token="BSP"
@@ -401,7 +401,7 @@ export default function HomePage() {
                   id="sms"
                   title="Supermind Superpowers"
                   description="Go Further, Faster, & Forever"
-                  gradient="from-violet-600 via-purple-600 to-fuchsia-600 dark:from-violet-600 dark:via-purple-600 dark:to-fuchsia-600"
+                  gradient="from-violet-500 via-purple-500 to-fuchsia-500 dark:from-violet-700 dark:via-purple-700 dark:to-fuchsia-700"
                   glowColor="rgba(139, 92, 246, 0.2)"
                   delay={0.6}
                   token="SMS"
@@ -420,7 +420,7 @@ export default function HomePage() {
                   id="spd"
                   title="Superpuzzle Developments"
                   description="Conceive, Believe, & Achieve"
-                  gradient="from-red-600 via-green-600 to-blue-600 dark:from-red-600 dark:via-green-600 dark:to-blue-600"
+                  gradient="from-red-500 via-green-500 to-blue-500 dark:from-red-700 dark:via-green-700 dark:to-blue-700"
                   glowColor="rgba(34, 197, 94, 0.2)"
                   delay={0.7}
                   token="SPD"
@@ -431,7 +431,7 @@ export default function HomePage() {
                   id="she"
                   title="Superhuman Enhancements"
                   description="Super Enhanced Individuals"
-                  gradient="from-rose-600 via-red-600 to-orange-600 dark:from-rose-600 dark:via-red-600 dark:to-orange-600"
+                  gradient="from-rose-500 via-red-500 to-orange-500 dark:from-rose-700 dark:via-red-700 dark:to-orange-700"
                   glowColor="rgba(239, 68, 68, 0.2)"
                   delay={0.8}
                   token="SHE"
@@ -442,7 +442,7 @@ export default function HomePage() {
                   id="ssa"
                   title="Supersociety Advancements"
                   description="Super Advanced Collectives"
-                  gradient="from-lime-600 via-green-600 to-emerald-600 dark:from-lime-600 dark:via-green-600 dark:to-emerald-600"
+                  gradient="from-lime-500 via-green-500 to-emerald-500 dark:from-lime-700 dark:via-green-700 dark:to-emerald-700"
                   glowColor="rgba(132, 204, 22, 0.2)"
                   delay={0.9}
                   token="SSA"
@@ -453,7 +453,7 @@ export default function HomePage() {
                   id="sgb"
                   title="Supergenius Breakthroughs"
                   description="Super Balanced Ecosystems"
-                  gradient="from-sky-600 via-blue-600 to-indigo-600 dark:from-sky-600 dark:via-blue-600 dark:to-indigo-600"
+                  gradient="from-sky-500 via-blue-500 to-indigo-500 dark:from-sky-700 dark:via-blue-700 dark:to-indigo-700"
                   glowColor="rgba(14, 165, 233, 0.2)"
                   delay={1.0}
                   token="SGB"

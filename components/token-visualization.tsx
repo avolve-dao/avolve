@@ -41,7 +41,7 @@ const TokenVisualization = () => {
         name: "Supercivilization",
         size: 120,
         color: "#71717a", // zinc-500
-        gradient: "from-zinc-500 to-zinc-700 dark:from-zinc-600 dark:to-zinc-900",
+        gradient: "from-zinc-500 to-zinc-700 dark:from-zinc-700 dark:to-zinc-900",
         parent: "",
         orbitSpeed: 0,
         orbitOffset: 0,
@@ -53,8 +53,7 @@ const TokenVisualization = () => {
         name: "Superachiever",
         size: 90,
         color: "#78716c", // stone-500
-        gradient: "from-stone-500 to-stone-700 dark:from-stone-600 dark:to-stone-900", // stone-500
-        gradient: "from-stone-500 to-stone-700 dark:from-stone-600 dark:to-stone-900",
+        gradient: "from-stone-500 to-stone-700 dark:from-stone-700 dark:to-stone-900",
         parent: "gen",
         orbitSpeed: 0.0003,
         orbitOffset: 0,
@@ -65,7 +64,7 @@ const TokenVisualization = () => {
         name: "Superachievers",
         size: 90,
         color: "#64748b", // slate-500
-        gradient: "from-slate-500 to-slate-700 dark:from-slate-600 dark:to-slate-900",
+        gradient: "from-slate-500 to-slate-700 dark:from-slate-700 dark:to-slate-900",
         parent: "gen",
         orbitSpeed: 0.0003,
         orbitOffset: Math.PI,
@@ -76,7 +75,7 @@ const TokenVisualization = () => {
         name: "Personal Success Puzzle",
         size: 70,
         color: "#f59e0b", // amber-500
-        gradient: "from-amber-500 to-yellow-500 dark:from-amber-600 dark:to-yellow-600",
+        gradient: "from-amber-500 to-yellow-600 dark:from-amber-700 dark:to-yellow-900",
         parent: "sap",
         orbitSpeed: 0.0005,
         orbitOffset: Math.PI * 0.5,
@@ -87,7 +86,7 @@ const TokenVisualization = () => {
         name: "Business Success Puzzle",
         size: 70,
         color: "#14b8a6", // teal-500
-        gradient: "from-teal-500 to-cyan-500 dark:from-teal-600 dark:to-cyan-600",
+        gradient: "from-teal-500 to-cyan-600 dark:from-teal-700 dark:to-cyan-900",
         parent: "sap",
         orbitSpeed: 0.0005,
         orbitOffset: Math.PI * 1.5,
@@ -99,7 +98,7 @@ const TokenVisualization = () => {
         size: 70,
         color: "#8b5cf6", // violet-500
         gradient:
-          "from-violet-500 via-purple-500 to-fuchsia-500 dark:from-violet-600 dark:via-purple-600 dark:to-fuchsia-600",
+          "from-violet-500 via-purple-500 to-fuchsia-500 dark:from-violet-700 dark:via-purple-700 dark:to-fuchsia-700",
         parent: "sap",
         orbitSpeed: 0.0005,
         orbitOffset: Math.PI,
@@ -110,7 +109,7 @@ const TokenVisualization = () => {
         name: "Superpuzzle Developments",
         size: 70,
         color: "#22c55e", // green-500
-        gradient: "from-red-500 via-green-500 to-blue-500 dark:from-red-600 dark:via-green-600 dark:to-blue-600",
+        gradient: "from-red-500 via-green-500 to-blue-500 dark:from-red-700 dark:via-green-700 dark:to-blue-700",
         parent: "scq",
         orbitSpeed: 0.0005,
         orbitOffset: Math.PI * 0.5,
@@ -121,7 +120,7 @@ const TokenVisualization = () => {
         name: "Superhuman Enhancements",
         size: 70,
         color: "#ef4444", // red-500
-        gradient: "from-rose-500 via-red-500 to-orange-500 dark:from-rose-600 dark:via-red-600 dark:to-orange-600",
+        gradient: "from-rose-500 via-red-500 to-orange-500 dark:from-rose-700 dark:via-red-700 dark:to-orange-700",
         parent: "scq",
         orbitSpeed: 0.0005,
         orbitOffset: Math.PI * 1.1,
@@ -133,7 +132,7 @@ const TokenVisualization = () => {
         size: 70,
         color: "#84cc16", // lime-500
         gradient:
-          "from-lime-500 via-green-500 to-emerald-500 dark:from-lime-600 dark:via-green-600 dark:to-emerald-600",
+          "from-lime-500 via-green-500 to-emerald-500 dark:from-lime-700 dark:via-green-700 dark:to-emerald-700",
         parent: "scq",
         orbitSpeed: 0.0005,
         orbitOffset: Math.PI * 1.5,
@@ -144,7 +143,7 @@ const TokenVisualization = () => {
         name: "Supergenius Breakthroughs",
         size: 70,
         color: "#0ea5e9", // sky-500
-        gradient: "from-sky-500 via-blue-500 to-indigo-500 dark:from-sky-600 dark:via-blue-600 dark:to-indigo-600",
+        gradient: "from-sky-500 via-blue-500 to-indigo-500 dark:from-sky-700 dark:via-blue-700 dark:to-indigo-700",
         parent: "scq",
         orbitSpeed: 0.0005,
         orbitOffset: Math.PI * 1.9,
@@ -246,7 +245,7 @@ const TokenVisualization = () => {
   }, [dimensions])
 
   return (
-    <div ref={containerRef} className="w-full h-full relative overflow-hidden">
+    <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-transparent dark:bg-opacity-50">
       {/* Connections between tokens */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {tokens.map((token) => {
@@ -311,10 +310,10 @@ const TokenVisualization = () => {
               boxShadow:
                 hoveredToken === token.id
                   ? isDark
-                    ? "0 0 40px rgba(255,255,255,0.5), 0 0 20px rgba(255,255,255,0.3)"
+                    ? "0 0 30px rgba(255,255,255,0.3), 0 0 15px rgba(255,255,255,0.2)"
                     : "0 0 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,0,0,0.2)"
                   : isDark
-                    ? "0 0 20px rgba(255,255,255,0.15)"
+                    ? "0 0 15px rgba(255,255,255,0.1)"
                     : "0 0 20px rgba(0,0,0,0.15)",
               zIndex: hoveredToken === token.id ? 10 : token.id === "gen" ? 5 : 1,
             }}
@@ -347,12 +346,12 @@ const TokenVisualization = () => {
           >
             {/* Inner glow effect */}
             <motion.div
-              className="absolute inset-2 rounded-full opacity-60 blur-md"
+              className="absolute inset-2 rounded-full opacity-60 dark:opacity-40 blur-md"
               style={{
                 background: `radial-gradient(circle at center, white, transparent 70%)`,
               }}
               animate={{
-                opacity: [0.4, 0.6, 0.4],
+                opacity: isDark ? [0.3, 0.4, 0.3] : [0.4, 0.6, 0.4],
                 scale: [0.8, 1, 0.8],
               }}
               transition={{

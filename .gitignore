@@ -1,100 +1,27 @@
-# Node, Next.js, and build output
-node_modules/
-.next/
-.next/cache/
-.next/server/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Logs
-logs/
-*.log
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# debug
 npm-debug.log*
 yarn-debug.log*
-pnpm-debug.log*
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# npm/yarn/pnpm cache
-.npm/
+yarn-error.log*
 .pnpm-debug.log*
 
-# dotenv environment variables (never commit secrets)
-.env
-.env.*
-.env.local
-.env.development
-.env.production
-.env.test
-.envrc
+# env files
+.env*
 
-# Allow only example env files
-!.env.example
+# vercel
+.vercel
 
-# Supabase local artifacts
-.supabase/
-supabase/.temp/
-supabase/.env
-
-# OS files
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
-
-# Editor/IDE
-.vscode/
-.idea/
-*.sw?
-
-# Misc
-coverage/
-dist/
-build/
-__snapshots__/
-
-# Tool-specific and local state
-.cursor/
-.husky/_/
-.windsurf/
-tsconfig.tsbuildinfo
-.vercel/
-
-# Ignore Playwright and test output
-playwright-report/
-test-results/
-
-# Ignore macOS system files
-.AppleDouble
-.LSOverride
-
-# Ignore local config/scripts
-*.local.js
-
-# Ignore backup files
-*~
-*.bak
-*.tmp
-
-# Ignore VS Code settings
-.vscode/
-
-# Ignore JetBrains IDE settings
-.idea/
-
-# Ignore Prettier, lint, and config caches
-.prettierignore
-.prettierrc
-.lintstagedrc.js
-
-# Ignore pnpm config
-.pnpmrc
-
-# Ignore Docker artifacts
-Dockerfile*
-.dockerignore
-
-# Ignore BFG/cleanup artifacts
-.bfg*
+# typescript
+*.tsbuildinfo
+next-env.d.ts

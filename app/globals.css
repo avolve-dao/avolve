@@ -1,273 +1,147 @@
-/* Import Inter font from Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import sacred geometry styles */
-@import '../styles/sacred-geometry.css';
-
 @layer base {
   :root {
-    --background: 240 5% 96%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0.75rem;
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
 
-    /* Sidebar specific variables - zinc palette for light mode */
-    --sidebar-background: 240 5% 98%;
-    --sidebar-foreground: 240 5% 25%;
-    --sidebar-primary: 240 5% 34%;
-    --sidebar-primary-foreground: 240 5% 98%;
-    --sidebar-accent: 240 5% 96%;
-    --sidebar-accent-foreground: 240 5% 25%;
-    --sidebar-border: 240 5% 90%;
-    --sidebar-ring: 240 5% 65%;
-    
-    /* Layout variables */
-    --sidebar-width: 16rem;
-    --sidebar-width-collapsed: 3rem;
-    --sidebar-transition-duration: 200ms;
-    --sidebar-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    /* Golden ratio variables */
+    --phi: 1.618;
+    --base-unit: 1rem;
+    --phi-1: calc(var(--base-unit) * 1);
+    --phi-2: calc(var(--base-unit) * var(--phi));
+    --phi-3: calc(var(--phi-2) * var(--phi));
+    --phi-4: calc(var(--phi-3) * var(--phi));
+    --phi-5: calc(var(--phi-4) * var(--phi));
+
+    /* Spacing system based on golden ratio */
+    --space-xs: calc(var(--base-unit) / var(--phi));
+    --space-sm: var(--base-unit);
+    --space-md: var(--phi-2);
+    --space-lg: var(--phi-3);
+    --space-xl: var(--phi-4);
+    --space-2xl: var(--phi-5);
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    /* Sidebar specific variables - zinc palette for dark mode */
-    --sidebar-background: 240 5% 12%;
-    --sidebar-foreground: 240 5% 84%;
-    --sidebar-primary: 240 5% 84%;
-    --sidebar-primary-foreground: 240 5% 12%;
-    --sidebar-accent: 240 5% 16%;
-    --sidebar-accent-foreground: 240 5% 84%;
-    --sidebar-border: 240 5% 20%;
-    --sidebar-ring: 240 5% 65%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
   }
 }
 
 @layer base {
   * {
-    border-width: 1px;
-    border-style: solid;
-    border-color: var(--border);
+    @apply border-border;
   }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-feature-settings: "rlig" 1, "calt" 1;
+    @apply bg-background text-foreground;
+    overflow-x: hidden;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    text-rendering: optimizeLegibility;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply tracking-tight;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
   }
 }
 
-/* Apple-inspired styles */
-.apple-blur {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  background-color: rgba(250, 250, 250, 0.8);
-  border-bottom: 1px solid rgba(212, 212, 216, 0.5);
+/* Custom gradient for dark mode */
+.dark .bg-gradient-to-b {
+  background-image: linear-gradient(
+    to bottom,
+    theme("colors.violet.500"),
+    theme("colors.purple.500"),
+    theme("colors.indigo.500"),
+    theme("colors.blue.500"),
+    theme("colors.sky.500"),
+    theme("colors.cyan.500"),
+    theme("colors.teal.500"),
+    theme("colors.emerald.500"),
+    theme("colors.green.500"),
+    theme("colors.lime.500"),
+    theme("colors.yellow.500"),
+    theme("colors.amber.500"),
+    theme("colors.orange.500"),
+    theme("colors.red.500"),
+    theme("colors.rose.500"),
+    theme("colors.pink.500"),
+    theme("colors.fuchsia.500")
+  );
 }
 
-@media (prefers-color-scheme: dark) {
-  .apple-blur {
-    background-color: rgba(24, 24, 27, 0.8);
-    border-bottom: 1px solid rgba(39, 39, 42, 0.5);
-  }
+/* Background grid pattern - more subtle */
+.bg-grid-pattern {
+  background-image: linear-gradient(to right, rgba(100, 100, 100, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 100, 100, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
 }
 
-.apple-icon {
-  color: #71717a;
+.dark .bg-grid-pattern {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
 }
 
-@media (prefers-color-scheme: dark) {
-  .apple-icon {
-    color: #a1a1aa;
-  }
-}
-
-.apple-menu-item {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.apple-menu-item:hover {
-  background-color: rgba(244, 244, 245, 0.8);
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu-item:hover {
-    background-color: rgba(39, 39, 42, 0.8);
-  }
-}
-
-.apple-card {
-  background-color: rgba(255,255,255,0.8);
-  border: 1px solid rgba(212,212,216,0.5);
-  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-@media (prefers-color-scheme: dark) {
-  .apple-card {
-    background-color: rgba(39,39,42,0.8);
-    border: 1px solid rgba(63,63,70,0.5);
-  }
-}
-
-.apple-menu {
-  border: 1px solid #e4e4e7;
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu {
-    border: 1px solid #3f3f46;
-  }
-}
-
-.apple-menu-header {
-  border-bottom: 1px solid #e4e4e7;
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu-header {
-    border-bottom: 1px solid #3f3f46;
-  }
-}
-
-.apple-menu-footer {
-  border-top: 1px solid #e4e4e7;
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu-footer {
-    border-top: 1px solid #3f3f46;
-  }
-}
-
-.apple-menu-section {
-  border-top: 1px solid #e4e4e7;
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu-section {
-    border-top: 1px solid #3f3f46;
-  }
-}
-
-.apple-menu-divider {
-  border-top: 1px solid #e4e4e7;
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu-divider {
-    border-top: 1px solid #3f3f46;
-  }
-}
-
-.apple-menu-item.selected {
-  background-color: #f4f4f5;
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu-item.selected {
-    background-color: #27272a;
-  }
-}
-
-.apple-menu-item.disabled {
-  color: #d4d4d8;
-}
-@media (prefers-color-scheme: dark) {
-  .apple-menu-item.disabled {
-    color: #52525b;
-  }
-}
-
-/* Layout transitions */
-.sidebar-transition {
-  transition: margin-left var(--sidebar-transition-duration) var(--sidebar-transition-timing),
-              width var(--sidebar-transition-duration) var(--sidebar-transition-timing);
-}
-
-.content-transition {
-  transition: margin-left var(--sidebar-transition-duration) var(--sidebar-transition-timing),
-              width var(--sidebar-transition-duration) var(--sidebar-transition-timing);
-}
-
-/* Gradient text animations */
-.gradient-text {
-  background-size: 200% 200%;
-  animation: gradient-x 10s ease infinite;
-  background-clip: text;
-  text-fill-color: transparent;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Avolve gradient classes */
-.gradient-superachiever {
-  background-image: linear-gradient(to right, #a1a1aa, #71717a);
-}
-
-.gradient-personal {
-  background-image: linear-gradient(to right, #ffc107, #ff9800);
-}
-
-.gradient-business {
-  background-image: linear-gradient(to right, #009688, #03a9f4);
-}
-
-.gradient-supermind {
-  background-image: linear-gradient(to right, #7a288a, #7a288a, #c51077);
-}
-
-.gradient-superachievers {
-  background-image: linear-gradient(to right, #718096, #4b5563);
-}
-
-.gradient-superhuman {
-  background-image: linear-gradient(to right, #ff69b4, #ff9800, #ffc107);
-}
-
-.gradient-supersociety {
-  background-image: linear-gradient(to right, #34c759, #2ecc71, #1abc9c);
-}
-
-.gradient-supergenius {
-  background-image: linear-gradient(to right, #87ceeb, #4682b4, #6495ed);
-}
-
-.gradient-supercivilization {
-  background-image: linear-gradient(to right, #718096, #4b5563);
-}
-
-/* Animations */
-@keyframes gradient-x {
+/* Subtle gradient shift animation */
+@keyframes gradient-shift {
   0% {
     background-position: 0% 50%;
   }
@@ -279,103 +153,348 @@
   }
 }
 
-/* Fade-in animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+.animate-gradient {
+  background-size: 300% auto;
+  animation: gradient-shift 20s ease-in-out infinite;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Elegant glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Add a subtle texture overlay for more depth */
+.texture-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23000000' fill-opacity='0.02' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+.dark .texture-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23ffffff' fill-opacity='0.02' d='M1 3h1v1H1V3zm2-2h1v1H3V1z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Add a subtle text shadow for better readability on gradients */
+.text-shadow-sm {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.dark .text-shadow-sm {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Optimize the CSS by adding will-change properties for smoother animations */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+.will-change-colors {
+  will-change: background-color, color;
+}
+
+/* Luxury card styles */
+.luxury-card {
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  position: relative;
+  z-index: 10;
+  will-change: transform, box-shadow;
+}
+
+.luxury-card:hover {
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.2);
+}
+
+.dark .luxury-card {
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+}
+
+.dark .luxury-card:hover {
+  box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.4);
+}
+
+/* Card spacing utilities based on golden ratio */
+.card-grid {
+  --card-spacing: var(--space-lg);
+  margin-top: var(--card-spacing);
+}
+
+@media (min-width: 768px) {
+  .card-grid {
+    --card-spacing: var(--space-xl);
   }
 }
 
-.animate-fadeInUp {
-  animation: fadeInUp 0.5s ease-out forwards;
+/* Elegant badge styles */
+.elegant-badge {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  position: relative;
+  z-index: 20;
 }
 
-/* Tesla 3-6-9 Pattern Animations */
-@keyframes tesla-3 {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 0.9;
+.elegant-badge:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dark .elegant-badge {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.dark .elegant-badge:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Badge positioning */
+.badge-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 20;
+}
+
+/* Luxury gradient overlay */
+.luxury-gradient-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.05));
+}
+
+.dark .luxury-gradient-overlay {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+}
+
+/* Elegant divider */
+.elegant-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.dark .elegant-divider {
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+/* Card with attached badge - using golden ratio for spacing */
+.card-with-badge {
+  position: relative;
+  margin-top: calc(var(--phi-1) * 0.5);
+}
+
+/* Attached badge positioning - adjusted to be attached to the top of the card */
+.attached-badge {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 30;
+}
+
+/* Card with top badge padding */
+.card-with-top-badge {
+  padding-top: calc(var(--phi-1) * 0.75);
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+
+/* Responsive typography adjustments */
+@media (max-width: 640px) {
+  .responsive-heading {
+    font-size: 1.75rem;
   }
-  33.33% {
-    transform: scale(1.03);
-    opacity: 1;
+
+  .responsive-subheading {
+    font-size: 1.125rem;
   }
 }
 
-@keyframes tesla-6 {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  33.33% {
-    transform: rotate(60deg);
-  }
-  66.66% {
-    transform: rotate(120deg);
+/* Ensure consistent card heights on mobile */
+@media (max-width: 640px) {
+  .card-content {
+    min-height: 7rem;
   }
 }
 
-@keyframes tesla-9 {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  33.33% {
-    transform: scale(1.09) rotate(120deg);
-  }
-  66.66% {
-    transform: scale(1) rotate(240deg);
-  }
-  100% {
-    transform: scale(1) rotate(360deg);
-  }
+/* Improve contrast for light/dark mode */
+.light-mode-text {
+  color: rgba(15, 23, 42, 0.9);
 }
 
-.animate-tesla-3 {
-  animation: tesla-3 3s ease-in-out infinite;
+.dark .light-mode-text {
+  color: rgba(255, 255, 255, 0.9);
 }
 
-.animate-tesla-6 {
-  animation: tesla-6 6s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+/* Ensure badge visibility */
+.badge-glow {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
 }
 
-.animate-tesla-9 {
-  animation: tesla-9 9s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.dark .badge-glow {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
-/* Staggered animations for list items */
-.stagger-item:nth-child(1) { animation-delay: 0.05s; }
-.stagger-item:nth-child(2) { animation-delay: 0.1s; }
-.stagger-item:nth-child(3) { animation-delay: 0.15s; }
-.stagger-item:nth-child(4) { animation-delay: 0.2s; }
-.stagger-item:nth-child(5) { animation-delay: 0.25s; }
-.stagger-item:nth-child(6) { animation-delay: 0.3s; }
-.stagger-item:nth-child(7) { animation-delay: 0.35s; }
-.stagger-item:nth-child(8) { animation-delay: 0.4s; }
-.stagger-item:nth-child(9) { animation-delay: 0.45s; }
-.stagger-item:nth-child(10) { animation-delay: 0.5s; }
+/* Golden ratio based spacing classes */
+.phi-space-1 {
+  margin: var(--phi-1);
+}
 
-/* Tesla 3-6-9 based staggered animations */
-.tesla-stagger-3:nth-child(3n+1) { animation-delay: 0.3s; }
-.tesla-stagger-3:nth-child(3n+2) { animation-delay: 0.6s; }
-.tesla-stagger-3:nth-child(3n+3) { animation-delay: 0.9s; }
+.phi-space-2 {
+  margin: var(--phi-2);
+}
 
-.tesla-stagger-6:nth-child(6n+1) { animation-delay: 0.3s; }
-.tesla-stagger-6:nth-child(6n+2) { animation-delay: 0.6s; }
-.tesla-stagger-6:nth-child(6n+3) { animation-delay: 0.9s; }
-.tesla-stagger-6:nth-child(6n+4) { animation-delay: 1.2s; }
-.tesla-stagger-6:nth-child(6n+5) { animation-delay: 1.5s; }
-.tesla-stagger-6:nth-child(6n+6) { animation-delay: 1.8s; }
+.phi-space-3 {
+  margin: var(--phi-3);
+}
 
-.tesla-stagger-9:nth-child(9n+1) { animation-delay: 0.3s; }
-.tesla-stagger-9:nth-child(9n+2) { animation-delay: 0.6s; }
-.tesla-stagger-9:nth-child(9n+3) { animation-delay: 0.9s; }
-.tesla-stagger-9:nth-child(9n+4) { animation-delay: 1.2s; }
-.tesla-stagger-9:nth-child(9n+5) { animation-delay: 1.5s; }
-.tesla-stagger-9:nth-child(9n+6) { animation-delay: 1.8s; }
-.tesla-stagger-9:nth-child(9n+7) { animation-delay: 2.1s; }
-.tesla-stagger-9:nth-child(9n+8) { animation-delay: 2.4s; }
-.tesla-stagger-9:nth-child(9n+9) { animation-delay: 2.7s; }
+.phi-space-4 {
+  margin: var(--phi-4);
+}
+
+.phi-space-5 {
+  margin: var(--phi-5);
+}
+
+.phi-py-1 {
+  padding-top: var(--phi-1);
+  padding-bottom: var(--phi-1);
+}
+
+.phi-py-2 {
+  padding-top: var(--phi-2);
+  padding-bottom: var(--phi-2);
+}
+
+.phi-py-3 {
+  padding-top: var(--phi-3);
+  padding-bottom: var(--phi-3);
+}
+
+.phi-px-1 {
+  padding-left: var(--phi-1);
+  padding-right: var(--phi-1);
+}
+
+.phi-px-2 {
+  padding-left: var(--phi-2);
+  padding-right: var(--phi-2);
+}
+
+.phi-px-3 {
+  padding-left: var(--phi-3);
+  padding-right: var(--phi-3);
+}
+
+/* Sacred geometry inspired spacing */
+.sacred-container {
+  width: 100%;
+  max-width: 1440px; /* 90rem - based on golden ratio calculations */
+  margin: 0 auto;
+  padding: 0 var(--phi-2);
+}
+
+/* Smooth animation curves */
+.smooth-transition {
+  transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); /* Improved easing function */
+  transition-duration: 0.7s;
+}
+
+/* Improved animation performance */
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Hexagon-inspired layout (sacred geometry) */
+.hexagon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(calc(var(--phi-4) * 1.5), 1fr));
+  gap: var(--phi-2);
+}
+
+/* Vesica piscis inspired container (sacred geometry) */
+.vesica-container {
+  position: relative;
+  width: 100%;
+  padding-top: 61.8%; /* Golden ratio based aspect ratio */
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+/* Fibonacci spiral spacing */
+.fibonacci-spacing > * + * {
+  margin-top: var(--phi-2);
+}
+
+.fibonacci-spacing > * + * + * {
+  margin-top: var(--phi-3);
+}
+
+.fibonacci-spacing > * + * + * + * {
+  margin-top: var(--phi-4);
+}
+
+/* Improved card aspect ratio based on golden ratio */
+.golden-card {
+  aspect-ratio: 1.618;
+}
+
+/* Pentagram-based layout (sacred geometry) */
+.pentagram-layout {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--phi-1);
+}
+
+/* Add these new utility classes for smoother animations */
+.smooth-hover {
+  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  will-change: transform, opacity;
+}
+
+.smooth-hover:hover {
+  transform: translateY(-8px);
+}
+
+/* Optimize animation performance */
+.optimize-animation {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: subpixel-antialiased;
+}

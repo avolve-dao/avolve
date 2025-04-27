@@ -261,56 +261,6 @@ html {
   }
 }
 
-/* Elegant badge styles */
-.elegant-badge {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), box-shadow 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-  position: relative;
-  z-index: 20;
-}
-
-.elegant-badge:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.dark .elegant-badge {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.dark .elegant-badge:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-}
-
-/* Badge positioning */
-.badge-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  z-index: 20;
-}
-
-/* Luxury gradient overlay */
-.luxury-gradient-overlay {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.05));
-}
-
-.dark .luxury-gradient-overlay {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
-}
-
-/* Elegant divider */
-.elegant-divider {
-  height: 1px;
-  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
-}
-
-.dark .elegant-divider {
-  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
-}
-
 /* Card with attached badge - using golden ratio for spacing */
 .card-with-badge {
   position: relative;
@@ -333,22 +283,55 @@ html {
   border-top-right-radius: var(--radius);
 }
 
+/* Sacred geometry inspired spacing */
+.sacred-container {
+  width: 100%;
+  max-width: 1440px; /* 90rem - based on golden ratio calculations */
+  margin: 0 auto;
+  padding: 0 var(--phi-2);
+}
+
+/* Fibonacci spacing */
+.fibonacci-spacing > * + * {
+  margin-top: var(--phi-2);
+}
+
+.fibonacci-spacing > * + * + * {
+  margin-top: var(--phi-3);
+}
+
+.fibonacci-spacing > * + * + * + * {
+  margin-top: var(--phi-4);
+}
+
+/* Elegant divider */
+.elegant-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
+}
+
+.dark .elegant-divider {
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
 /* Responsive typography adjustments */
 @media (max-width: 640px) {
   .responsive-heading {
-    font-size: 1.75rem;
+    font-size: clamp(1.5rem, 5vw, 2.25rem);
+    line-height: 1.2;
   }
 
   .responsive-subheading {
-    font-size: 1.125rem;
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    line-height: 1.4;
   }
 }
 
-/* Ensure consistent card heights on mobile */
-@media (max-width: 640px) {
-  .card-content {
-    min-height: 7rem;
-  }
+/* Hardware acceleration for animations */
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 /* Improve contrast for light/dark mode */
@@ -360,36 +343,7 @@ html {
   color: rgba(255, 255, 255, 0.9);
 }
 
-/* Ensure badge visibility */
-.badge-glow {
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
-}
-
-.dark .badge-glow {
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
-}
-
 /* Golden ratio based spacing classes */
-.phi-space-1 {
-  margin: var(--phi-1);
-}
-
-.phi-space-2 {
-  margin: var(--phi-2);
-}
-
-.phi-space-3 {
-  margin: var(--phi-3);
-}
-
-.phi-space-4 {
-  margin: var(--phi-4);
-}
-
-.phi-space-5 {
-  margin: var(--phi-5);
-}
-
 .phi-py-1 {
   padding-top: var(--phi-1);
   padding-bottom: var(--phi-1);
@@ -420,14 +374,6 @@ html {
   padding-right: var(--phi-3);
 }
 
-/* Sacred geometry inspired spacing */
-.sacred-container {
-  width: 100%;
-  max-width: 1440px; /* 90rem - based on golden ratio calculations */
-  margin: 0 auto;
-  padding: 0 var(--phi-2);
-}
-
 /* Smooth animation curves */
 .smooth-transition {
   transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); /* Improved easing function */
@@ -435,64 +381,6 @@ html {
 }
 
 /* Improved animation performance */
-.hardware-accelerated {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-/* Hexagon-inspired layout (sacred geometry) */
-.hexagon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(calc(var(--phi-4) * 1.5), 1fr));
-  gap: var(--phi-2);
-}
-
-/* Vesica piscis inspired container (sacred geometry) */
-.vesica-container {
-  position: relative;
-  width: 100%;
-  padding-top: 61.8%; /* Golden ratio based aspect ratio */
-  overflow: hidden;
-  border-radius: var(--radius);
-}
-
-/* Fibonacci spiral spacing */
-.fibonacci-spacing > * + * {
-  margin-top: var(--phi-2);
-}
-
-.fibonacci-spacing > * + * + * {
-  margin-top: var(--phi-3);
-}
-
-.fibonacci-spacing > * + * + * + * {
-  margin-top: var(--phi-4);
-}
-
-/* Improved card aspect ratio based on golden ratio */
-.golden-card {
-  aspect-ratio: 1.618;
-}
-
-/* Pentagram-based layout (sacred geometry) */
-.pentagram-layout {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--phi-1);
-}
-
-/* Add these new utility classes for smoother animations */
-.smooth-hover {
-  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-  will-change: transform, opacity;
-}
-
-.smooth-hover:hover {
-  transform: translateY(-8px);
-}
-
-/* Optimize animation performance */
 .optimize-animation {
   backface-visibility: hidden;
   transform: translateZ(0);
@@ -504,18 +392,18 @@ html {
   filter: brightness(0.85) drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
 }
 
-/* Improve contrast for text on dark backgrounds */ \
-.dark .text-white/80 {
+/* Improve contrast for text on dark backgrounds */
+.dark .text-white\/80 {
   color: rgba(255, 255, 255, 0.85);
 }
 
-.dark .text-white/70 {
+.dark .text-white\/70 {
   color: rgba(255, 255, 255, 0.75);
 }
 
 /* Ensure glow effects aren't too bright in dark mode */
 .dark .badge-glow {
-  filter: brightness(0.85) drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
 /* Adjust card hover effects for dark mode */

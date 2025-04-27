@@ -1,20 +1,21 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import type { LucideIcon } from "lucide-react"
 import { useTheme } from "next-themes"
+import { cn } from "@/lib/utils"
 
 interface InteractiveButtonProps {
   children: React.ReactNode
   icon?: LucideIcon
-  variant?: "default" | "outline"
+  variant?: "default" | "outline" | "secondary" | "ghost"
   onClick?: () => void
   className?: string
   iconPosition?: "left" | "right"
+  size?: "default" | "sm" | "lg" | "icon"
 }
 
 export default function InteractiveButton({
@@ -24,6 +25,7 @@ export default function InteractiveButton({
   onClick,
   className = "",
   iconPosition = "right",
+  size = "lg",
 }: InteractiveButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
   const { resolvedTheme } = useTheme()
@@ -37,17 +39,19 @@ export default function InteractiveButton({
     if (onClick) onClick()
   }
 
-  const isPrimary = variant === "default"
-
   return (
     <Button
-      size="lg"
+      size={size}
       variant={variant}
-      className={`relative overflow-hidden font-medium px-8 py-6 text-lg group ${
-        isPrimary
-          ? `bg-gradient-to-r from-stone-200 via-zinc-200 to-slate-200 text-slate-800 hover:text-slate-900 dark:from-stone-800 dark:via-zinc-800 dark:to-slate-800 dark:text-slate-200 dark:hover:text-white ${className}`
-          : `border-white/30 bg-gradient-to-r from-stone-900/20 via-zinc-900/20 to-slate-900/20 text-white backdrop-blur-sm hover:bg-white/10 dark:from-stone-300/10 dark:via-zinc-300/10 dark:to-slate-300/10 ${className}`
-      }`}
+      className={cn(
+        "relative overflow-hidden font-medium group",
+        variant === "default" &&
+          "bg-gradient-to-r from-stone-200 via-zinc-200 to-slate-200 text-slate-800 hover:text-slate-900 dark:from-stone-800 dark:via-zinc-800 dark:to-slate-800 dark:text-slate-200 dark:hover:text-white",
+        variant === "outline" &&
+          "border-white/30 bg-gradient-to-r from-stone-900/20 via-zinc-900/20 to-slate-900/20 text-white backdrop-blur-sm hover:bg-white/10 dark:from-stone-300/10 dark:via-zinc-300/10 dark:to-slate-300/10",
+        size === "lg" && "px-8 py-6 text-lg",
+        className,
+      )}
       onMouseEnter={handleHoverStart}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
@@ -64,22 +68,23 @@ export default function InteractiveButton({
         {Icon && iconPosition === "right" && <Icon className="h-5 w-5" />}
       </motion.span>
 
-      {isPrimary && (
+      {variant === "default" && (
         <motion.span
-          className={`absolute inset-0 ${
+          className={cn(
+            "absolute inset-0",
             isDarkMode
               ? "bg-gradient-to-r from-stone-700 via-zinc-700 to-slate-700"
-              : "bg-gradient-to-r from-stone-300 via-zinc-300 to-slate-300"
-          }`}
+              : "bg-gradient-to-r from-stone-300 via-zinc-300 to-slate-300",
+          )}
           initial={{ x: "-100%" }}
           animate={{ x: isHovered ? 0 : "-100%" }}
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
         />
       )}
 
-      {!isPrimary && (
+      {variant !== "default" && (
         <motion.span
-          className={`absolute inset-0 ${isDarkMode ? "bg-white/15" : "bg-white/25"}`}
+          className={cn("absolute inset-0", isDarkMode ? "bg-white/15" : "bg-white/25")}
           initial={{ scale: 0, opacity: 0 }}
           animate={{
             scale: isHovered ? 1.5 : 0,

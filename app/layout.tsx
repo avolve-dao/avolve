@@ -24,7 +24,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
       </head>
       <body className="bg-white dark:bg-gray-950 transition-colors duration-300">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense
             fallback={
               <div className="flex items-center justify-center min-h-screen">

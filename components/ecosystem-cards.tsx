@@ -2,6 +2,10 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { ArrowRight } from "lucide-react"
 
 interface CardProps {
   title: string
@@ -17,7 +21,7 @@ function EcosystemCard({ title, subtitle, gradient, token, onClick, className = 
 
   return (
     <motion.div
-      className={`relative rounded-xl p-6 cursor-pointer overflow-hidden shadow-lg ${gradient} ${className}`}
+      className={cn("relative rounded-xl overflow-hidden shadow-lg cursor-pointer", gradient, className)}
       whileHover={{ scale: 1.02, y: -5 }}
       whileTap={{ scale: 0.98 }}
       onMouseEnter={() => setIsHovered(true)}
@@ -27,15 +31,43 @@ function EcosystemCard({ title, subtitle, gradient, token, onClick, className = 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="relative z-10 text-center">
-        <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-sm">{title}</h3>
-        <p className="text-white/90 font-medium text-sm md:text-base">{subtitle}</p>
-        {token && (
-          <span className="absolute top-2 right-2 px-2 py-0.5 bg-black/20 dark:bg-white/20 rounded-full text-xs text-white font-medium">
-            {token}
-          </span>
-        )}
-      </div>
+      <Card className="bg-transparent border-0 h-full">
+        <CardContent className="relative z-10 flex flex-col items-center justify-center text-center p-6">
+          <h3 className="text-xl md:text-2xl font-bold text-white mb-2 drop-shadow-sm">{title}</h3>
+          <p className="text-white/90 font-medium text-sm md:text-base">{subtitle}</p>
+
+          {/* Divider line */}
+          <motion.div
+            className="w-12 h-px bg-white/30 my-3"
+            initial={{ width: 0 }}
+            animate={{ width: isHovered ? 48 : 0 }}
+            transition={{ duration: 0.3 }}
+          />
+
+          {/* Learn more text that appears on hover */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{
+              opacity: isHovered ? 1 : 0,
+              y: isHovered ? 0 : 10,
+            }}
+            transition={{ duration: 0.3 }}
+            className="flex items-center gap-1.5 mt-2"
+          >
+            <span className="text-xs font-medium text-white/80">Learn more</span>
+            <ArrowRight className="w-3 h-3 text-white/80" />
+          </motion.div>
+
+          {token && (
+            <Badge
+              variant="outline"
+              className="absolute top-2 right-2 bg-black/20 dark:bg-white/20 text-white border-transparent"
+            >
+              {token}
+            </Badge>
+          )}
+        </CardContent>
+      </Card>
 
       <motion.div
         className="absolute inset-0 bg-white/10"
@@ -57,6 +89,15 @@ function EcosystemCard({ title, subtitle, gradient, token, onClick, className = 
           scale: isHovered ? 1.1 : 1,
         }}
         transition={{ duration: 0.5 }}
+      />
+
+      {/* Subtle shine effect */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        initial={{ x: "-100%" }}
+        animate={{ x: isHovered ? "100%" : "-100%" }}
+        transition={{ duration: 1.5, ease: "easeInOut" }}
+        style={{ transformOrigin: "left" }}
       />
     </motion.div>
   )

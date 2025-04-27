@@ -1,9 +1,12 @@
 "use client"
 
 import { useRef, useEffect } from "react"
+import { useTheme } from "next-themes"
 
 export default function AmbientBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -14,8 +17,12 @@ export default function AmbientBackground() {
 
     // Set canvas dimensions
     const setCanvasDimensions = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
+      const dpr = window.devicePixelRatio || 1
+      canvas.width = window.innerWidth * dpr
+      canvas.height = window.innerHeight * dpr
+      canvas.style.width = `${window.innerWidth}px`
+      canvas.style.height = `${window.innerHeight}px`
+      ctx.scale(dpr, dpr)
     }
 
     setCanvasDimensions()
@@ -26,21 +33,21 @@ export default function AmbientBackground() {
       clearTimeout(resizeTimeout)
       resizeTimeout = setTimeout(() => {
         setCanvasDimensions()
-      }, 100)
+      }, 200)
     }
 
     window.addEventListener("resize", handleResize)
 
     // Create gradient points - reduce count for better performance
     const points: Point[] = []
-    const pointCount = 10 // Reduced from 15
+    const pointCount = Math.min(8, Math.floor(window.innerWidth / 200)) // Adaptive point count based on screen size
 
     for (let i = 0; i < pointCount; i++) {
       points.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         radius: Math.random() * 100 + 50,
-        color: getRandomColor(),
+        color: getRandomColor(isDark),
         vx: (Math.random() - 0.5) * 0.2, // Reduced speed
         vy: (Math.random() - 0.5) * 0.2, // Reduced speed
       })
@@ -50,9 +57,10 @@ export default function AmbientBackground() {
     let lastTime = 0
     const fps = 24 // Limit to 24 FPS for this background effect
     const fpsInterval = 1000 / fps
+    let animationId: number
 
     const animate = (time: number) => {
-      requestAnimationFrame(animate)
+      animationId = requestAnimationFrame(animate)
 
       // Calculate elapsed time
       const elapsed = time - lastTime
@@ -62,7 +70,7 @@ export default function AmbientBackground() {
         lastTime = time - (elapsed % fpsInterval)
 
         // Clear canvas with slight fade effect
-        ctx.fillStyle = "rgba(0, 0, 0, 0.03)"
+        ctx.fillStyle = isDark ? "rgba(0, 0, 0, 0.03)" : "rgba(255, 255, 255, 0.03)"
         ctx.fillRect(0, 0, canvas.width, canvas.height)
 
         // Update and draw points
@@ -89,13 +97,14 @@ export default function AmbientBackground() {
       }
     }
 
-    animate(0)
+    animationId = requestAnimationFrame(animate)
 
     return () => {
       window.removeEventListener("resize", handleResize)
       clearTimeout(resizeTimeout)
+      cancelAnimationFrame(animationId)
     }
-  }, [])
+  }, [isDark])
 
   return <canvas ref={canvasRef} className="absolute inset-0 -z-5 opacity-30 mix-blend-screen" aria-hidden="true" />
 }
@@ -109,26 +118,29 @@ interface Point {
   vy: number
 }
 
-function getRandomColor() {
-  const colors = [
-    "#a855f7", // purple
-    "#8b5cf6", // violet
-    "#6366f1", // indigo
-    "#3b82f6", // blue
-    "#0ea5e9", // sky
-    "#06b6d4", // cyan
-    "#14b8a6", // teal
-    "#10b981", // emerald
-    "#22c55e", // green
-    "#84cc16", // lime
-    "#eab308", // yellow
-    "#f59e0b", // amber
-    "#f97316", // orange
-    "#ef4444", // red
-    "#f43f5e", // rose
-    "#ec4899", // pink
-    "#d946ef", // fuchsia
-  ]
+function getRandomColor(isDark: boolean) {
+  const colors = isDark
+    ? [
+        "#a855f7", // purple
+        "#8b5cf6", // violet
+        "#6366f1", // indigo
+        "#3b82f6", // blue
+        "#0ea5e9", // sky
+        "#06b6d4", // cyan
+        "#14b8a6", // teal
+        "#10b981", // emerald
+        "#22c55e", // green
+      ]
+    : [
+        "#d946ef", // fuchsia
+        "#ec4899", // pink
+        "#f43f5e", // rose
+        "#ef4444", // red
+        "#f97316", // orange
+        "#f59e0b", // amber
+        "#eab308", // yellow
+        "#84cc16", // lime
+      ]
 
   return colors[Math.floor(Math.random() * colors.length)]
 }

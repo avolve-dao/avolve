@@ -1,13 +1,21 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import * as THREE from "three"
+import { useTheme } from "next-themes"
 
 export default function ThreeBackground() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [isMounted, setIsMounted] = useState(false)
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
 
   useEffect(() => {
-    if (!containerRef.current) return
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!containerRef.current || !isMounted) return
 
     // Setup
     const scene = new THREE.Scene()
@@ -26,13 +34,15 @@ export default function ThreeBackground() {
     // Create floating objects - use instanced mesh for better performance
     const geometry = new THREE.IcosahedronGeometry(1, 0)
     const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: isDark ? 0xffffff : 0x000000,
       wireframe: true,
       transparent: true,
-      opacity: 0.1,
+      opacity: isDark ? 0.1 : 0.05,
     })
 
-    const objectCount = 5
+    // Adjust object count based on device performance
+    const isMobile = window.innerWidth < 768
+    const objectCount = isMobile ? 3 : 5
 
     // Use instanced mesh for better performance with multiple objects
     const instancedMesh = new THREE.InstancedMesh(geometry, material, objectCount)
@@ -88,11 +98,12 @@ export default function ThreeBackground() {
 
     // Animation loop with frame limiting
     let lastTime = 0
-    const fps = 30 // Limit to 30 FPS for better performance
+    const fps = isMobile ? 24 : 30 // Lower FPS on mobile
     const fpsInterval = 1000 / fps
+    let animationId: number
 
     const animate = (time: number) => {
-      requestAnimationFrame(animate)
+      animationId = requestAnimationFrame(animate)
 
       // Calculate elapsed time
       const elapsed = time - lastTime
@@ -126,22 +137,23 @@ export default function ThreeBackground() {
       }
     }
 
-    animate(0)
+    animationId = requestAnimationFrame(animate)
 
     // Cleanup
     return () => {
-      if (containerRef.current) {
+      if (containerRef.current && containerRef.current.contains(renderer.domElement)) {
         containerRef.current.removeChild(renderer.domElement)
       }
       window.removeEventListener("resize", handleResize)
       document.removeEventListener("mousemove", onDocumentMouseMove)
+      cancelAnimationFrame(animationId)
 
       // Dispose resources
       geometry.dispose()
       material.dispose()
       renderer.dispose()
     }
-  }, [])
+  }, [isMounted, isDark])
 
   return <div ref={containerRef} className="absolute inset-0 -z-5 pointer-events-none" aria-hidden="true" />
 }

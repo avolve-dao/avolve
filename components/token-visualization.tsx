@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, memo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 import React from "react"
+import { cn } from "@/lib/utils"
 
 interface TokenNode {
   id: string
@@ -31,6 +32,21 @@ const TokenVisualization = () => {
   const isDark = resolvedTheme === "dark"
   const [isInitialized, setIsInitialized] = useState(false)
   const animationRef = useRef<number>()
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+
+    return () => {
+      window.removeEventListener("resize", checkMobile)
+    }
+  }, [])
 
   // Define the token structure
   useEffect(() => {
@@ -39,7 +55,7 @@ const TokenVisualization = () => {
         id: "gen",
         token: "GEN",
         name: "Supercivilization",
-        size: 120,
+        size: isMobile ? 80 : 120,
         color: "#71717a", // zinc-500
         gradient: "from-zinc-500 to-zinc-700 dark:from-zinc-700 dark:to-zinc-900",
         parent: "",
@@ -51,7 +67,7 @@ const TokenVisualization = () => {
         id: "sap",
         token: "SAP",
         name: "Superachiever",
-        size: 90,
+        size: isMobile ? 60 : 90,
         color: "#78716c", // stone-500
         gradient: "from-stone-500 to-stone-700 dark:from-stone-700 dark:to-stone-900",
         parent: "gen",
@@ -62,7 +78,7 @@ const TokenVisualization = () => {
         id: "scq",
         token: "SCQ",
         name: "Superachievers",
-        size: 90,
+        size: isMobile ? 60 : 90,
         color: "#64748b", // slate-500
         gradient: "from-slate-500 to-slate-700 dark:from-slate-700 dark:to-slate-900",
         parent: "gen",
@@ -73,7 +89,7 @@ const TokenVisualization = () => {
         id: "psp",
         token: "PSP",
         name: "Personal Success Puzzle",
-        size: 70,
+        size: isMobile ? 50 : 70,
         color: "#f59e0b", // amber-500
         gradient: "from-amber-500 to-yellow-600 dark:from-amber-700 dark:to-yellow-900",
         parent: "sap",
@@ -84,7 +100,7 @@ const TokenVisualization = () => {
         id: "bsp",
         token: "BSP",
         name: "Business Success Puzzle",
-        size: 70,
+        size: isMobile ? 50 : 70,
         color: "#14b8a6", // teal-500
         gradient: "from-teal-500 to-cyan-600 dark:from-teal-700 dark:to-cyan-900",
         parent: "sap",
@@ -95,7 +111,7 @@ const TokenVisualization = () => {
         id: "sms",
         token: "SMS",
         name: "Supermind Superpowers",
-        size: 70,
+        size: isMobile ? 50 : 70,
         color: "#8b5cf6", // violet-500
         gradient:
           "from-violet-500 via-purple-500 to-fuchsia-500 dark:from-violet-700 dark:via-purple-700 dark:to-fuchsia-700",
@@ -107,7 +123,7 @@ const TokenVisualization = () => {
         id: "spd",
         token: "SPD",
         name: "Superpuzzle Developments",
-        size: 70,
+        size: isMobile ? 50 : 70,
         color: "#22c55e", // green-500
         gradient: "from-red-500 via-green-500 to-blue-500 dark:from-red-700 dark:via-green-700 dark:to-blue-700",
         parent: "scq",
@@ -118,7 +134,7 @@ const TokenVisualization = () => {
         id: "she",
         token: "SHE",
         name: "Superhuman Enhancements",
-        size: 70,
+        size: isMobile ? 50 : 70,
         color: "#ef4444", // red-500
         gradient: "from-rose-500 via-red-500 to-orange-500 dark:from-rose-700 dark:via-red-700 dark:to-orange-700",
         parent: "scq",
@@ -129,7 +145,7 @@ const TokenVisualization = () => {
         id: "ssa",
         token: "SSA",
         name: "Supersociety Advancements",
-        size: 70,
+        size: isMobile ? 50 : 70,
         color: "#84cc16", // lime-500
         gradient:
           "from-lime-500 via-green-500 to-emerald-500 dark:from-lime-700 dark:via-green-700 dark:to-emerald-700",
@@ -141,7 +157,7 @@ const TokenVisualization = () => {
         id: "sgb",
         token: "SGB",
         name: "Supergenius Breakthroughs",
-        size: 70,
+        size: isMobile ? 50 : 70,
         color: "#0ea5e9", // sky-500
         gradient: "from-sky-500 via-blue-500 to-indigo-500 dark:from-sky-700 dark:via-blue-700 dark:to-indigo-700",
         parent: "scq",
@@ -152,7 +168,7 @@ const TokenVisualization = () => {
 
     // Set initial tokens
     setTokens(tokenData)
-  }, [])
+  }, [isMobile])
 
   // Handle window resize and initialize dimensions
   useEffect(() => {
@@ -215,7 +231,7 @@ const TokenVisualization = () => {
 
             // Calculate orbit radius based on parent size and token size
             // Use a larger multiplier to spread tokens out more
-            const orbitRadius = parent.size * 3.2
+            const orbitRadius = parent.size * (isMobile ? 2.5 : 3.2)
             token.orbitRadius = orbitRadius
 
             // Calculate angle based on time and orbit speed
@@ -242,7 +258,7 @@ const TokenVisualization = () => {
         cancelAnimationFrame(animationId)
       }
     }
-  }, [dimensions])
+  }, [dimensions, isMobile])
 
   return (
     <div ref={containerRef} className="w-full h-full relative overflow-hidden bg-transparent dark:bg-opacity-50">
@@ -263,34 +279,35 @@ const TokenVisualization = () => {
                 x2={token.x}
                 y2={token.y}
                 stroke={isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"}
-                strokeWidth={2}
+                strokeWidth={isMobile ? 1 : 2}
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 1 }}
                 transition={{ duration: 1, delay: 0.5 }}
               />
 
               {/* Animated pulse effect along the line - multiple pulses */}
-              {[...Array(2)].map((_, i) => (
-                <motion.circle
-                  key={`pulse-${parent.id}-${token.id}-${i}`}
-                  cx={parent.x}
-                  cy={parent.y}
-                  r={4}
-                  fill={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)"}
-                  animate={{
-                    cx: [parent.x, token.x, parent.x],
-                    cy: [parent.y, token.y, parent.y],
-                    opacity: [0.8, 0.2, 0.8],
-                    r: [3, 5, 3],
-                  }}
-                  transition={{
-                    duration: 3 + Math.random() * 2,
-                    repeat: Number.POSITIVE_INFINITY,
-                    ease: "linear",
-                    delay: i * 1.5 + Math.random(),
-                  }}
-                />
-              ))}
+              {!isMobile &&
+                [...Array(2)].map((_, i) => (
+                  <motion.circle
+                    key={`pulse-${parent.id}-${token.id}-${i}`}
+                    cx={parent.x}
+                    cy={parent.y}
+                    r={4}
+                    fill={isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)"}
+                    animate={{
+                      cx: [parent.x, token.x, parent.x],
+                      cy: [parent.y, token.y, parent.y],
+                      opacity: [0.8, 0.2, 0.8],
+                      r: [3, 5, 3],
+                    }}
+                    transition={{
+                      duration: 3 + Math.random() * 2,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                      delay: i * 1.5 + Math.random(),
+                    }}
+                  />
+                ))}
             </React.Fragment>
           )
         })}
@@ -301,7 +318,10 @@ const TokenVisualization = () => {
         tokens.map((token) => (
           <motion.div
             key={token.id}
-            className={`absolute rounded-full flex items-center justify-center cursor-pointer bg-gradient-to-br ${token.gradient}`}
+            className={cn(
+              "absolute rounded-full flex items-center justify-center cursor-pointer",
+              `bg-gradient-to-br ${token.gradient}`,
+            )}
             style={{
               width: token.size,
               height: token.size,
@@ -362,7 +382,7 @@ const TokenVisualization = () => {
             />
 
             <div className="flex flex-col items-center justify-center text-white relative z-10">
-              <span className="font-bold text-lg">{token.token}</span>
+              <span className={cn("font-bold", isMobile ? "text-sm" : "text-lg")}>{token.token}</span>
               <AnimatePresence>
                 {hoveredToken === token.id && (
                   <motion.div

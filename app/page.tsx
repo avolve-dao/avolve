@@ -6,6 +6,11 @@ import { useTheme } from "next-themes"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import { ArrowRight, ChevronDown, Sparkles } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "@/lib/utils"
+import ThemeToggle from "@/components/theme-toggle"
 
 // Dynamically import components to improve initial load time
 const TokenVisualization = dynamic(() => import("@/components/token-visualization"), {
@@ -111,6 +116,11 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen flex flex-col bg-gradient-to-r from-stone-50 via-zinc-50 to-slate-50 dark:from-stone-950 dark:via-zinc-950 dark:to-slate-950 overflow-x-hidden texture-overlay">
+      {/* Theme toggle button - fixed position */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Subtle background elements */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-40 dark:opacity-30">
         <div className="absolute top-0 left-0 w-full h-full bg-grid-pattern"></div>
@@ -189,26 +199,28 @@ export default function HomePage() {
             >
               {/* Elegant badge for the token */}
               <motion.div
-                className={`inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full ${
-                  currentTextIndex === 0
-                    ? "bg-gradient-to-r from-zinc-400 to-zinc-600 dark:from-zinc-600 dark:to-zinc-800"
-                    : currentTextIndex === 1
-                      ? "bg-gradient-to-r from-stone-400 to-stone-600 dark:from-stone-600 dark:to-stone-800"
-                      : "bg-gradient-to-r from-slate-400 to-slate-600 dark:from-slate-600 dark:to-slate-800"
-                } shadow-sm border border-white/10 z-20 elegant-badge badge-glow hardware-accelerated`}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.5, duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
               >
-                <span className="text-sm font-medium text-white drop-shadow-sm">
+                <Badge
+                  className={cn(
+                    "px-4 py-2 mb-8 text-sm font-medium text-white shadow-sm",
+                    currentTextIndex === 0
+                      ? "bg-gradient-to-r from-zinc-400 to-zinc-600 dark:from-zinc-600 dark:to-zinc-800"
+                      : currentTextIndex === 1
+                        ? "bg-gradient-to-r from-stone-400 to-stone-600 dark:from-stone-600 dark:to-stone-800"
+                        : "bg-gradient-to-r from-slate-400 to-slate-600 dark:from-slate-600 dark:to-slate-800",
+                  )}
+                >
                   {currentTextIndex === 0 ? "GEN" : currentTextIndex === 1 ? "SAP" : "SCQ"}
-                </span>
+                </Badge>
               </motion.div>
 
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-zinc-800 dark:text-white tracking-tight mb-4 text-center text-shadow-sm responsive-heading">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-zinc-800 dark:text-white tracking-tight mb-4 text-center text-shadow-sm">
                 <span className="inline-block">{heroTexts[currentTextIndex].title}</span>
               </h1>
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-zinc-700/90 dark:text-white/80 font-medium max-w-2xl text-center responsive-subheading">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-zinc-700/90 dark:text-white/80 font-medium max-w-2xl text-center">
                 {heroTexts[currentTextIndex].subtitle}
               </h2>
 
@@ -229,42 +241,25 @@ export default function HomePage() {
             animate={{ opacity: isLoaded ? 1 : 0, y: isLoaded ? 0 : 20 }}
             transition={{ duration: 1, delay: 0.8, ease: [0.19, 1, 0.22, 1] }}
           >
-            <Link href="/get-started" className="group">
-              <motion.div
-                className="relative overflow-hidden bg-gradient-to-r from-stone-100 via-zinc-100 to-slate-100 dark:from-stone-800 dark:via-zinc-800 dark:to-slate-800 text-slate-800 dark:text-slate-200 px-6 sm:px-8 py-3 sm:py-4 rounded-lg flex items-center gap-2 font-medium text-base sm:text-lg shadow-md hover:shadow-lg transition-all duration-700 luxury-card hardware-accelerated"
-                whileHover={{ y: -2 }}
-                whileTap={{ y: 0 }}
-                transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+            <Link href="/get-started">
+              <Button
+                size="lg"
+                className="group bg-gradient-to-r from-stone-100 via-zinc-100 to-slate-100 dark:from-stone-800 dark:via-zinc-800 dark:to-slate-800 text-slate-800 dark:text-slate-200 shadow-md hover:shadow-lg transition-all duration-300"
               >
-                <span className="z-10 relative">Get Started</span>
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-500 z-10 relative" />
-
-                {/* Subtle hover effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-stone-200 via-zinc-200 to-slate-200 dark:from-stone-700 dark:via-zinc-700 dark:to-slate-700 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-                  initial={{ opacity: 0 }}
-                  transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-                ></motion.div>
-              </motion.div>
+                <span>Get Started</span>
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
             </Link>
 
-            <Link href="/learn-more" className="group">
-              <motion.div
-                className="relative overflow-hidden bg-transparent border border-zinc-200 dark:border-zinc-800 text-zinc-950 dark:text-zinc-50 px-6 sm:px-8 py-3 sm:py-4 rounded-lg flex items-center gap-2 font-medium text-base sm:text-lg shadow-md hover:shadow-lg transition-all duration-700 backdrop-blur-sm luxury-card hardware-accelerated"
-                whileHover={{ y: -2 }}
-                whileTap={{ y: 0 }}
-                transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
+            <Link href="/learn-more">
+              <Button
+                size="lg"
+                variant="outline"
+                className="group border-zinc-200 dark:border-zinc-800 text-zinc-950 dark:text-zinc-50 shadow-md hover:shadow-lg transition-all duration-300 backdrop-blur-sm"
               >
-                <span className="z-10 relative">Learn More</span>
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform duration-500 z-10 relative" />
-
-                {/* Subtle hover effect */}
-                <motion.div
-                  className="absolute inset-0 bg-zinc-50/10 dark:bg-zinc-700/20 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-                  initial={{ opacity: 0 }}
-                  transition={{ duration: 0.7, ease: [0.19, 1, 0.22, 1] }}
-                ></motion.div>
-              </motion.div>
+                <span>Learn More</span>
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
             </Link>
           </motion.div>
         </motion.div>
@@ -281,9 +276,13 @@ export default function HomePage() {
           onClick={scrollToCards}
           whileHover={{ opacity: 1 }}
         >
-          <div className="p-3 rounded-full bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 shadow-sm">
+          <Button
+            size="icon"
+            variant="ghost"
+            className="rounded-full bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 shadow-sm"
+          >
             <ChevronDown className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-          </div>
+          </Button>
         </motion.div>
       </div>
 
@@ -293,25 +292,28 @@ export default function HomePage() {
         <div className="sacred-container relative">
           <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 md:mb-24 fibonacci-spacing">
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full shadow-sm border border-white/10 mb-8 z-20 elegant-badge badge-glow hardware-accelerated"
-              style={{
-                backgroundImage: isDark
-                  ? "linear-gradient(to right, #9d174d, #be185d, #dc2626, #b45309, #a16207, #65a30d, #15803d, #0f766e, #0e7490, #0369a1, #1e40af, #4338ca, #6d28d9, #7e22ce)"
-                  : "linear-gradient(to right, #db2777, #e11d48, #dc2626, #ea580c, #d97706, #65a30d, #16a34a, #0d9488, #0891b2, #0284c7, #1d4ed8, #4f46e5, #7c3aed, #9333ea)",
-                backgroundSize: "300% 100%",
-                animation: "gradient-shift 20s ease-in-out infinite",
-              }}
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
             >
-              <Sparkles className="w-4 h-4 text-white" />
-              <span className="text-sm font-medium text-white">Go Further, Faster, Forever</span>
+              <Badge
+                className="px-4 py-2 mb-8 inline-flex items-center gap-2"
+                style={{
+                  backgroundImage: isDark
+                    ? "linear-gradient(to right, #9d174d, #be185d, #dc2626, #b45309, #a16207, #65a30d, #15803d, #0f766e, #0e7490, #0369a1, #1e40af, #4338ca, #6d28d9, #7e22ce)"
+                    : "linear-gradient(to right, #db2777, #e11d48, #dc2626, #ea580c, #d97706, #65a30d, #16a34a, #0d9488, #0891b2, #0284c7, #1d4ed8, #4f46e5, #7c3aed, #9333ea)",
+                  backgroundSize: "300% 100%",
+                  animation: "gradient-shift 20s ease-in-out infinite",
+                }}
+              >
+                <Sparkles className="w-4 h-4 text-white" />
+                <span className="text-sm font-medium text-white">Go Further, Faster, Forever</span>
+              </Badge>
             </motion.div>
 
             <motion.h2
-              className="text-3xl md:text-4xl font-bold text-zinc-800 dark:text-white mb-4 responsive-heading"
+              className="text-3xl md:text-4xl font-bold text-zinc-800 dark:text-white mb-4"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
@@ -371,7 +373,7 @@ export default function HomePage() {
 
             {/* Superachiever branch */}
             <div>
-              <h3 className="text-2xl font-bold text-zinc-800 dark:text-white mb-8 text-center responsive-heading">
+              <h3 className="text-2xl font-bold text-zinc-800 dark:text-white mb-8 text-center">
                 Superachiever Playbook
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10 card-grid">
@@ -412,7 +414,7 @@ export default function HomePage() {
 
             {/* Superachievers branch */}
             <div>
-              <h3 className="text-2xl font-bold text-zinc-800 dark:text-white mb-8 text-center responsive-heading">
+              <h3 className="text-2xl font-bold text-zinc-800 dark:text-white mb-8 text-center">
                 Supercivilization Quests
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 card-grid">
@@ -510,19 +512,18 @@ function EcosystemCard({
         <div className="card-with-badge">
           {/* Badge attached to the top of the card */}
           <div className="attached-badge">
-            <div
-              className={`inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-gradient-to-r ${gradient} backdrop-blur-md text-sm font-medium shadow-md border border-white/10 elegant-badge badge-glow`}
+            <Badge
+              className={`px-4 py-1.5 bg-gradient-to-r ${gradient} text-white font-medium tracking-wide shadow-md border-white/10`}
             >
-              <span className="text-white font-medium tracking-wide drop-shadow-sm">
-                {token ? token : id.toUpperCase()}
-              </span>
-            </div>
+              {token ? token : id.toUpperCase()}
+            </Badge>
           </div>
 
-          <div
-            className={`bg-gradient-to-r ${gradient} ${
-              isLarge ? "phi-py-3" : "phi-py-2"
-            } px-6 sm:px-8 md:px-12 text-center text-white rounded-xl relative overflow-hidden shadow-lg group-hover:-translate-y-2 transition-all duration-500 ease-out card-with-top-badge`}
+          <Card
+            className={cn(
+              "overflow-hidden shadow-lg group-hover:-translate-y-2 transition-all duration-500 ease-out card-with-top-badge border-0",
+              `bg-gradient-to-r ${gradient}`,
+            )}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
@@ -536,52 +537,79 @@ function EcosystemCard({
             ></div>
 
             {/* Content - Centered */}
-            <div className="relative z-10 flex flex-col items-center justify-center card-content">
+            <CardContent
+              className={cn(
+                "relative z-10 flex flex-col items-center justify-center text-center",
+                isLarge ? "p-8 md:p-12" : "p-6 md:p-8",
+              )}
+            >
               <h2
-                className={`${
-                  isLarge ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl" : "text-xl sm:text-2xl md:text-3xl"
-                } font-bold mb-3 tracking-tight text-center responsive-heading`}
+                className={cn(
+                  "font-bold mb-3 tracking-tight text-center text-white",
+                  isLarge ? "text-3xl sm:text-4xl md:text-5xl lg:text-6xl" : "text-xl sm:text-2xl md:text-3xl",
+                )}
               >
                 {title}
               </h2>
 
               <p
-                className={`${
-                  isLarge ? "text-lg sm:text-xl md:text-2xl" : "text-base sm:text-lg"
-                } text-white/80 max-w-2xl mx-auto mb-2 text-center responsive-subheading`}
+                className={cn(
+                  "text-white/80 max-w-2xl mx-auto mb-2 text-center",
+                  isLarge ? "text-lg sm:text-xl md:text-2xl" : "text-base sm:text-lg",
+                )}
               >
                 {description}
               </p>
 
+              {/* Divider line */}
+              <motion.div
+                className="w-16 h-px bg-white/30 my-4"
+                initial={{ width: 0 }}
+                animate={{ width: isHovered ? 64 : 0 }}
+                transition={{ duration: 0.4 }}
+              />
+
+              {/* Content with fade in effect */}
               {content && (
-                <p
-                  className={`text-white/70 text-sm md:text-base mt-4 max-w-2xl mx-auto text-center transition-opacity duration-500 ${
-                    isHovered ? "opacity-100" : "opacity-0"
-                  }`}
+                <motion.p
+                  className="text-white/70 text-sm md:text-base max-w-2xl mx-auto text-center"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{
+                    opacity: isHovered ? 1 : 0,
+                    height: isHovered ? "auto" : 0,
+                  }}
+                  transition={{ duration: 0.4 }}
                 >
                   {content}
-                </p>
+                </motion.p>
               )}
-            </div>
 
-            {/* Subtle arrow indicator */}
-            <div
-              className={`absolute bottom-6 right-6 transition-all duration-500 ${
-                isHovered ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
-              }`}
-            >
-              <div className="p-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/10">
-                <ArrowRight className="w-4 h-4" />
-              </div>
-            </div>
+              {/* Centered action indicator */}
+              <motion.div
+                className="mt-4 flex items-center justify-center"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{
+                  opacity: isHovered ? 1 : 0,
+                  y: isHovered ? 0 : 10,
+                }}
+                transition={{ duration: 0.4 }}
+              >
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm">
+                  <span className="text-sm font-medium text-white">Learn more</span>
+                  <ArrowRight className="w-4 h-4 text-white" />
+                </div>
+              </motion.div>
+            </CardContent>
 
             {/* Subtle shine effect */}
-            <div
-              className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transition-opacity duration-700 ${
-                isHovered ? "opacity-30 translate-x-full" : "opacity-0 -translate-x-full"
-              }`}
-            ></div>
-          </div>
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+              initial={{ x: "-100%" }}
+              animate={{ x: isHovered ? "100%" : "-100%" }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+              style={{ transformOrigin: "left" }}
+            />
+          </Card>
         </div>
       </Link>
     </motion.div>

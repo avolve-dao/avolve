@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss"
-import colors from "tailwindcss/colors"
 
-const config: Config = {
+const config = {
   darkMode: ["class"],
   content: [
     "./pages/**/*.{ts,tsx}",
@@ -53,24 +52,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Using the official Tailwind colors
-        violet: colors.violet,
-        purple: colors.purple,
-        indigo: colors.indigo,
-        blue: colors.blue,
-        sky: colors.sky,
-        cyan: colors.cyan,
-        teal: colors.teal,
-        emerald: colors.emerald,
-        green: colors.green,
-        lime: colors.lime,
-        yellow: colors.yellow,
-        amber: colors.amber,
-        orange: colors.orange,
-        red: colors.red,
-        rose: colors.rose,
-        pink: colors.pink,
-        fuchsia: colors.fuchsia,
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -79,21 +60,30 @@ const config: Config = {
       },
       keyframes: {
         "accordion-down": {
-          from: { height: "0" },
+          from: { height: 0 },
           to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
+          to: { height: 0 },
+        },
+        gradient: {
+          "0%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+          "100%": { backgroundPosition: "0% 50%" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "gradient-slow": "gradient 8s ease infinite",
+      },
+      backgroundSize: {
+        "200%": "200% 200%",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+} satisfies Config
 
 export default config
